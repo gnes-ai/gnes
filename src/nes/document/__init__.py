@@ -1,20 +1,31 @@
-import json
+import ctypes
+import random
+from typing import Iterator
+
+from src.nes.helper import cn_sent_splitter
 
 
 class BaseDocument:
-    def __init__(self, doc_id: int, content: str):
-        self.doc_id = doc_id
-        self.content = content
+    def __init__(self):
+        self._id = random.randint(0, ctypes.c_uint(-1).value)
+        self._sentences = []
 
-    def __str__(self):
-        return self.content
+    @property
+    def id(self) -> int:
+        return self._id
+
+    @property
+    def sentences(self) -> Iterator[str]:
+        return self._sentences
 
 
-class JsonDocument(BaseDocument):
-    def __init__(self, doc_id: int, content: str, str_field: str):
-        super().__init__(doc_id, content)
-        self.content = json.loads(content)
-        self.str_field = str_field
+class UniSentDocument(BaseDocument):
+    def __init__(self, text):
+        super().__init__()
+        self._sentences = [text]
 
-    def __str__(self):
-        return self.content[self.str_field]
+
+class MultiSentDocument(BaseDocument):
+    def __init__(self, text):
+        super().__init__()
+        self._sentences = cn_sent_splitter.split(text)

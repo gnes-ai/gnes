@@ -18,7 +18,7 @@ class NES(BaseIndexer):
         self.batch_size = batch_size
 
     def _add_batch(self, batch: List[BaseDocument]):
-        bin_vectors = self.binary_encoder.encode([str(t) for t in batch])
+        bin_vectors = self.binary_encoder.encode([s for d in batch for s in d.sentences])
         self.binary_indexer.add(bin_vectors)
         self.text_indexer.add(batch)
 

@@ -21,7 +21,7 @@ class BaseBinaryIndexer(BaseIndexer):
     def __init__(self):
         super().__init__()
 
-    def add(self, bin_vectors: bytes):
+    def add(self, vectors: bytes, doc_ids: bytes):
         pass
 
     def query(self, keys: bytes, top_k: int) -> List[int]:
