@@ -5,6 +5,8 @@ from .encoder import *
 from .helper import set_logger
 from .indexer import *
 
+__version__ = '0.0.1'
+
 
 class NES(BaseIndexer):
     def __init__(self, binary_encoder: BaseBinaryEncoder,
