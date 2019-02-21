@@ -2,3 +2,4 @@
 setuptools>=18.0
 numpy
 termcolor
+pylint
