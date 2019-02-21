@@ -1,6 +1,6 @@
-ok-stage: *ok_stage
+ok-stage: &ok_stage
   - name: make comment
-    script: echo "looks good to me" > comment.txt
+    script: echo "looks good to me 👍" > comment.txt
   - name: submit comment
     type: git:comment
     options:
