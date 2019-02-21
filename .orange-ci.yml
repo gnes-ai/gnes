@@ -1,7 +1,7 @@
 master:
   push:
     - docker:
-        image: docker.oa.com/public/ai-py3
+        image: docker.oa.com:8080/public/ai-py3
       stages:
         - name: install dependencies
           script: pip install -r src/requirements.txt -i http://pypi.open.oa.com/simple/ --extra-index-url http://pypi.open.oa.com/simple/ --trusted-host pypi.open.oa.com
