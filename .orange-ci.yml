@@ -1,8 +1,4 @@
-master:
-  merge_request:
-    - basic-pipeline
-
-basic-pipeline:
+basic-pipeline: &bp1
   docker:
     image: docker.oa.com:8080/public/ai-py3:v0.1
   stages:
@@ -12,3 +8,9 @@ basic-pipeline:
       script: python -m unittest tests/*.py
     - name: check code style
       script: pylint src/**/*.py
+
+
+master:
+  merge_request:
+    - <<: *bp1
+
