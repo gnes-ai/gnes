@@ -1,3 +1,11 @@
+ok-stage: *ok_stage
+  - name: make comment
+    script: echo "looks good to me" > comment.txt
+  - name: submit comment
+    type: git:comment
+    options:
+      fromFile: comment.txt
+
 basic-pipeline: &bp1
   docker:
     image: docker.oa.com:8080/public/ai-py3:v0.1
@@ -8,6 +16,7 @@ basic-pipeline: &bp1
       script: python -m unittest tests/*.py
     - name: check code style
       script: pylint src/**/*.py
+    - <<: *ok_stage
 
 
 master:
