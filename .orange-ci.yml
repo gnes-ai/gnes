@@ -15,7 +15,7 @@ basic-pipeline: &bp1
     - name: run unit test
       script: python -m unittest tests/*.py
     - name: check code style
-      script: pylint src/**/*.py
+      script: pylint src/**/*.py --exit-zero
     - <<: *ok_stage
 
 
