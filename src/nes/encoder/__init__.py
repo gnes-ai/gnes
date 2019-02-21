@@ -2,9 +2,9 @@ from typing import List
 
 
 class BaseEncoder:
-    def __init__(self, **kwargs): pass
+    def __init__(self, *args, **kwargs): pass
 
-    def encode(self, **kwargs): pass
+    def encode(self, *args, **kwargs): pass
 
 
 class BaseBinaryEncoder(BaseEncoder):

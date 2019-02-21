@@ -1,20 +1,20 @@
-from typing import List
+from typing import List, Tuple, Any
 
 from ..document import BaseDocument
 from ..helper import set_logger
 
 
 class BaseIndexer:
-    def __init__(self, verbose=False, **kwargs):
+    def __init__(self, verbose: bool = False, *args, **kwargs):
         self.logger = set_logger(self.__class__.__name__, verbose)
 
-    def add(self, **kwargs): pass
+    def add(self, *args, **kwargs): pass
 
-    def query(self, **kwargs): pass
+    def query(self, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass
 
-    def dump(self, **kwargs): pass
+    def dump(self, *args, **kwargs): pass
 
-    def load(self, **kwargs): pass
+    def load(self, *args, **kwargs): pass
 
 
 class BaseBinaryIndexer(BaseIndexer):
@@ -24,7 +24,7 @@ class BaseBinaryIndexer(BaseIndexer):
     def add(self, vectors: bytes, doc_ids: bytes):
         pass
 
-    def query(self, keys: bytes, top_k: int) -> List[int]:
+    def query(self, keys: bytes, top_k: int) -> List[List[Tuple[int, float]]]:
         pass
 
 
