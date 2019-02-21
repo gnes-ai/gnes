@@ -1,10 +1,12 @@
 ok-stage: &ok_stage
-  - name: make comment
-    script: echo "looks good to me" > comment.txt
-  - name: submit comment
-    type: git:comment
-    options:
-      fromFile: comment.txt
+  - name: git comment
+    jobs:
+      - name: make comment
+        script: echo "looks good to me 👍" > comment.txt
+      - name: submit comment
+        type: git:comment
+        options:
+          fromFile: comment.txt
 
 basic-pipeline: &bp1
   docker:
@@ -22,4 +24,3 @@ basic-pipeline: &bp1
 master:
   merge_request:
     - <<: *bp1
-
