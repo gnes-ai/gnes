@@ -11,7 +11,7 @@ class TestBertServing(unittest.TestCase):
         with tf.Session() as sess:
             self.assertEqual(sess.run(a), 1)
 
-    def test_bert_client(self):
+    def _test_bert_client(self):
         bc = BertClient(timeout=2000)
         vec = bc.encode(['你好么？我很好', '你好么？我很好!但 我还没吃'])
         self.assertEqual(vec.shape[0], 2)
