@@ -19,8 +19,6 @@ start-bert-server: &bert_stage
 install-deps: &install_deps
   - name: install dependencies
     jobs:
-      - name: install tensorflow
-        script: pip install tensorflow==1.10
       - name: install project deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
