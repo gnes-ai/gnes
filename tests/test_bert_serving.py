@@ -8,15 +8,11 @@ from bert_serving.server.helper import get_args_parser
 
 
 class TestBertServing(unittest.TestCase):
-    @staticmethod
-    def get_test_parser():
-        parser = get_args_parser()
-        parser.set_defaults(port=int(os.environ['BERT_CI_PORT']),
-                            port_out=int(os.environ['BERT_CI_PORT_OUT']))
-        return parser
 
     def setUp(self):
-        args = self.get_test_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL']])
+        args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
+                                             '-port', int(os.environ['BERT_CI_PORT']),
+                                             '-port_out', int(os.environ['BERT_CI_PORT_OUT'])])
         self.server = BertServer(args)
         self.server.start()
         time.sleep(30)
