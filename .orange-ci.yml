@@ -8,16 +8,39 @@ ok-stage: &ok_stage
         options:
           fromFile: comment.txt
 
+install-deps: &install_deps
+  - name: install dependencies
+    jobs:
+      - name: show cpu flag
+        script: cat /proc/cpuinfo | grep flags
+      - name: install project deps
+        env:
+          INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
+          TRUST_DOM: mirrors.oa.com
+        script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+      - name: check tensorflow works correctly
+        script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+
+pylint: &pylint
+  - name: check code style
+    script: pylint src/**/*.py --exit-zero
+
+unit-test: &unit_test
+  - name: run unit test
+    script: python -m unittest tests/*.py
+
 basic-pipeline: &bp1
+  network: idc-ai-sse4
   docker:
-    image: docker.oa.com:8080/public/ai-py3:v0.1
+    image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
+  env:
+    BERT_CI_PORT: 7123
+    BERT_CI_PORT_OUT: 7124
+    BERT_CI_MODEL: /chinese_L-12_H-768_A-12
   stages:
-    - name: install dependencies
-      script: pip install -r requirements.txt -i http://pypi.open.oa.com/simple/ --extra-index-url http://pypi.open.oa.com/simple/ --trusted-host pypi.open.oa.com
-    - name: run unit test
-      script: python -m unittest tests/*.py
-    - name: check code style
-      script: pylint src/**/*.py --exit-zero
+    - <<: *install_deps
+    - <<: *pylint
+    - <<: *unit_test
     - <<: *ok_stage
 
 
