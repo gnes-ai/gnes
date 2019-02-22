@@ -11,8 +11,10 @@ ok-stage: &ok_stage
 start-bert-server: &bert_stage
   - name: start bert service
     jobs:
+      - name: build-bg-cmd
+        script: echo "bert-serving-start -model_dir /chinese_L-12_H-768_A-12 -mask_cls_sep -cpu -port ${BERT_CI_PORT} -port_out ${BERT_CI_PORT_OUT} &" > bg.sh
       - name: bert-serving-start
-        script: "bert-serving-start -model_dir /chinese_L-12_H-768_A-12 -mask_cls_sep -cpu -port ${BERT_CI_PORT} -port_out ${BERT_CI_PORT_OUT} &"
+        script: bash ./bg.sh
       - name: block 30s until server is ready
         script: sleep 30
 
