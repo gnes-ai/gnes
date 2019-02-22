@@ -23,3 +23,6 @@ class TestBertServing(unittest.TestCase):
         vec = bc.encode(['你好么？我很好', '你好么？我很好!但 我还没吃'])
         self.assertEqual(vec.shape[0], 2)
         self.assertEqual(vec.shape[1], 768)
+
+    def tearDown(self):
+        self.server.close()
