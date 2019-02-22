@@ -40,7 +40,6 @@ basic-pipeline: &bp1
   stages:
     - <<: *install_deps
     - <<: *pylint
-    - <<: *bert_stage
     - <<: *unit_test
     - <<: *ok_stage
 
