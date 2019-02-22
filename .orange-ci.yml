@@ -10,7 +10,7 @@ ok-stage: &ok_stage
 
 basic-pipeline: &bp1
   docker:
-    image: docker.oa.com:8080/public/ai-py3:v0.1
+    image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
   stages:
     - name: install dependencies
       env:

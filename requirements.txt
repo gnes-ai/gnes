@@ -3,3 +3,5 @@ setuptools>=18.0
 numpy
 termcolor
 pylint
+bert-serving-server
+bert-serving-client
