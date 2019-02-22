@@ -19,6 +19,8 @@ start-bert-server: &bert_stage
 install-deps: &install_deps
   - name: install dependencies
     jobs:
+      - name: show cpu flag
+        script: cat /proc/cpuinfo | grep flags
       - name: install project deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
