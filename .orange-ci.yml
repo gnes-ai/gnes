@@ -15,7 +15,7 @@ basic-pipeline: &bp1
     - name: install dependencies
       env:
         INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
-        TRUST_DOM: pypi.open.oa.com
+        TRUST_DOM: mirrors.oa.com
       script: pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}
     - name: run unit test
       script: python -m unittest tests/*.py
