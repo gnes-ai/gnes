@@ -12,7 +12,7 @@ start-bert-server: &bert_stage
   - name: start bert service
     jobs:
       - name: bert-serving-start
-        script: "bert-serving-start -model_dir ./chinese_L-12_H-768_A-12/ -mask_cls_sep -cpu &"
+        script: "bert-serving-start -model_dir chinese_L-12_H-768_A-12/ -mask_cls_sep -cpu &"
       - name: block 30s until server is ready
         script: sleep 30
 
