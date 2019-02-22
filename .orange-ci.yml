@@ -26,6 +26,16 @@ install-deps: &install_deps
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
         script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+      - name: check tensorflow works correctly
+        script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+
+pylint: &pylint
+  - name: check code style
+    script: pylint src/**/*.py --exit-zero
+
+unit-test: &unit_test
+  - name: run unit test
+    script: python -m unittest tests/*.py
 
 basic-pipeline: &bp1
   network: idc-ai-sse4
@@ -36,13 +46,9 @@ basic-pipeline: &bp1
     BERT_CI_PORT_OUT: 7124
   stages:
     - <<: *install_deps
-    - name: check code style
-      script: pylint src/**/*.py --exit-zero
-    - name: check tensorflow works correctly
-      script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+    - <<: *pylint
     - <<: *bert_stage
-    - name: run unit test
-      script: python -m unittest tests/*.py
+    - <<: *unit_test
     - <<: *ok_stage
 
 
