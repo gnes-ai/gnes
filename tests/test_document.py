@@ -4,7 +4,7 @@ import unittest
 from src.nes.document import UniSentDocument, MultiSentDocument
 
 
-class TestIndexer(unittest.TestCase):
+class TestDocument(unittest.TestCase):
     def test_uni_sent_doc(self):
         d = UniSentDocument('你好么？我很好')
         self.assertLessEqual(d.id, ctypes.c_uint(-1).value)
