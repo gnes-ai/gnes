@@ -12,7 +12,7 @@ start-bert-server: &bert_stage
   - name: start bert service
     jobs:
       - name: bert-serving-start
-        script: "bert-serving-start -model_dir /chinese_L-12_H-768_A-12 -mask_cls_sep -cpu &"
+        script: "bert-serving-start -model_dir /chinese_L-12_H-768_A-12 -mask_cls_sep -cpu -port ${BERT_CI_PORT} -port_out ${BERT_CI_PORT_OUT} &"
       - name: block 30s until server is ready
         script: sleep 30
 
@@ -28,9 +28,12 @@ install-deps: &install_deps
         script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
 
 basic-pipeline: &bp1
-  ip: 10.139.237.223
+  network: idc-ai-sse4
   docker:
     image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
+  env:
+    BERT_CI_PORT: 7123
+    BERT_CI_PORT_OUT: 7124
   stages:
     - <<: *install_deps
     - name: check code style
