@@ -16,15 +16,22 @@ start-bert-server: &bert_stage
       - name: block 30s until server is ready
         script: sleep 30
 
+install-deps: &install_deps
+  - name: install dependencies
+    jobs:
+      - name: install tensorflow
+        script: pip install tensorflow
+      - name: install project deps
+        env:
+          INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
+          TRUST_DOM: mirrors.oa.com
+        script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+
 basic-pipeline: &bp1
   docker:
     image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
   stages:
-    - name: install dependencies
-      env:
-        INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
-        TRUST_DOM: mirrors.oa.com
-      script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+    - <<: *install_deps
     - name: check code style
       script: pylint src/**/*.py --exit-zero
     - name: check tensorflow works correctly
