@@ -8,6 +8,14 @@ ok-stage: &ok_stage
         options:
           fromFile: comment.txt
 
+start-bert-server: &bert_stage
+  - name: start bert service
+    jobs:
+    - name: bert-serving-start
+      script: bert-serving-start -model_dir ./chinese_L-12_H-768_A-12/ -mask_cls_sep -cpu &
+    - name: block 30s until server is ready
+      script: sleep 30
+
 basic-pipeline: &bp1
   docker:
     image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
@@ -17,10 +25,11 @@ basic-pipeline: &bp1
         INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
         TRUST_DOM: mirrors.oa.com
       script: pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}
+    - name: check code style
+          script: pylint src/**/*.py --exit-zero
+    - <<: *bert_stage
     - name: run unit test
       script: python -m unittest tests/*.py
-    - name: check code style
-      script: pylint src/**/*.py --exit-zero
     - <<: *ok_stage
 
 
