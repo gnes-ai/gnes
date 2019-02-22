@@ -23,9 +23,11 @@ class UniSentDocument(BaseDocument):
     def __init__(self, text):
         super().__init__()
         self._sentences = [text]
+        self._content = text
 
 
 class MultiSentDocument(BaseDocument):
     def __init__(self, text):
         super().__init__()
         self._sentences = cn_sent_splitter.split(text)
+        self._content = text
