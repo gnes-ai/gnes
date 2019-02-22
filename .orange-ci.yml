@@ -28,6 +28,7 @@ install-deps: &install_deps
         script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
 
 basic-pipeline: &bp1
+  ip: 10.139.237.223
   docker:
     image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
   stages:
