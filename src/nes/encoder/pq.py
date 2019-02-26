@@ -97,6 +97,6 @@ class PQEncoder(BaseEncoder):
     def encode_single(self, vecs: np.ndarray) -> np.ndarray:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids_expand), -1)
-        x = np.argmax(-x, 1)
+        x = np.argmax(-x, 2)
 
         return np.array(x, dtype=np.uint8)
