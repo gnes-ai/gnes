@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from src.nes.encoder import PQEncoder
+from src.nes.encoder.lopq import LOPQEncoder
 
 
 class TestPCA(unittest.TestCase):
@@ -25,28 +25,26 @@ class TestPCA(unittest.TestCase):
         return
 
     def test_train(self):
-        lopq = PQEncoder(self.k, self.m, self.num_clusters)
-        lopq.train(self.test_vecs,
-                   save_path=self.test_params_path,
-                   pred_path=self.test_pred_path)
+        lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
+        lopq.train(self.test_vecs)
         self.assertTrue(os.path.exists(self.test_params_path))
         self.assertTrue(os.path.exists(self.test_pred_path))
 
     def test_transbatch(self):
-        lopq = PQEncoder(self.k, self.m, self.num_clusters)
+        lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        out = lopq.transform_batch(self.test_vecs)
+        out = lopq.encode(self.test_vecs)
         self.assertEqual(self.test_vecs.shape[0], out.shape[0])
-        self.assertEqual(int(self.k/self.m), out.shape[1])
+        self.assertEqual(int(self.k / self.m), out.shape[1])
         self.assertEqual(np.uint8, out.dtype)
 
     def test_transsingle(self):
-        lopq = PQEncoder(self.k, self.m, self.num_clusters)
+        lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
         for i in range(10):
-            out = lopq.transform_single(self.test_vecs[i:i + 1])
+            out = lopq.encode_single(self.test_vecs[i:i + 1])
             print(out.shape)
-        self.assertEqual(int(self.k/self.m), len(out))
+        self.assertEqual(int(self.k / self.m), len(out))
 
 
 if __name__ == '__main__':

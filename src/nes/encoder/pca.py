@@ -1,9 +1,12 @@
 import faiss
 import numpy as np
 
+from . import BaseEncoder
 
-class PCAMix:
+
+class PCAMixEncoder(BaseEncoder):
     def __init__(self, dim_per_byte: int = 1, num_components: int = 200, save_path: str = None):
+        super().__init__()
         self.dim_per_byte = dim_per_byte
         self.principle_dim = num_components
         if self.principle_dim % dim_per_byte != 0:
@@ -42,5 +45,5 @@ class PCAMix:
         if self.save_path:
             self.save(self.save_path)
 
-    def transform(self, vecs: np.ndarray) -> np.ndarray:
+    def encode(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)

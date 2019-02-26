@@ -6,6 +6,8 @@ import faiss
 import numpy as np
 import tensorflow as tf
 
+from . import BaseEncoder
+
 DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
                                      maxMemory=0.1,
                                      maxLoad=0.1,
@@ -24,8 +26,9 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iter: int = 20) -> np.nda
     return kmeans.centroids
 
 
-class PQ:
+class PQEncoder(BaseEncoder):
     def __init__(self, k: int, m: int, num_clusters: int = 50):
+        super().__init__()
         self.k = k
         self.m = m
         self.num_bytes = int(k / m)
@@ -51,11 +54,11 @@ class PQ:
         self.p = tf.argmax(-diff, axis=2) + 1
         self.p = tf.transpose(self.p, [1, 0])
 
-    def fit(self, csv: np.ndarray, save_path: str = None, pred_path: str = None):
-        assert csv.shape[1] == self.k, 'Incorrect dimension for input!'
+    def train(self, vecs: np.ndarray, save_path: str = None, pred_path: str = None):
+        assert vecs.shape[1] == self.k, 'Incorrect dimension for input!'
 
         for j in range(self.num_bytes):
-            store = csv[:, self.m * j:self.m * (j + 1)]
+            store = vecs[:, self.m * j:self.m * (j + 1)]
             store = np.array(store, dtype=np.float32)
             self.centroids.append(train_kmeans(
                 store,
@@ -65,9 +68,9 @@ class PQ:
         if save_path:
             self.save(save_path=save_path)
         if pred_path:
-            self.transform_batch(csv, data_path=pred_path)
+            self.encode(vecs, data_path=pred_path)
 
-    def transform_batch(self, vecs, batch_size=10000, data_path=None) -> np.ndarray:
+    def encode(self, vecs, batch_size=10000, data_path=None) -> np.ndarray:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, self.m])
         i = 0
@@ -90,7 +93,7 @@ class PQ:
         else:
             return res
 
-    def transform_single(self, vecs: np.ndarray) -> np.ndarray:
+    def encode_single(self, vecs: np.ndarray) -> np.ndarray:
         x = np.reshape(vecs, [self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids), -1)
         x = np.argmax(-x, 1)
