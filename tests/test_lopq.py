@@ -44,7 +44,7 @@ class TestPCA(unittest.TestCase):
         for i in range(10):
             out = lopq.encode_single(self.test_vecs[i:i + 1])
             print(out.shape)
-        self.assertEqual(int(self.k / self.m), len(out))
+        self.assertEqual(int(self.k / self.m), out.shape[1])
 
 
 if __name__ == '__main__':

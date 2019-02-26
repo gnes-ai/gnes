@@ -65,6 +65,7 @@ class PQEncoder(BaseEncoder):
                 num_clusters=self.num_clusters))
 
         self.centroids = np.array(self.centroids, dtype=np.float32)
+        self.centroids_expand = np.expand_dims(self.centroids, 0)
         if save_path:
             self.save(save_path=save_path)
         if pred_path:
@@ -94,8 +95,8 @@ class PQEncoder(BaseEncoder):
             return res
 
     def encode_single(self, vecs: np.ndarray) -> np.ndarray:
-        x = np.reshape(vecs, [self.num_bytes, 1, self.m])
-        x = np.sum(np.square(x - self.centroids), -1)
+        x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
+        x = np.sum(np.square(x - self.centroids_expand), -1)
         x = np.argmax(-x, 1)
 
         return np.array(x, dtype=np.uint8)

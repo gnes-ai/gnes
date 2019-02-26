@@ -57,6 +57,7 @@ faiss-pipeline: &bp2
     - <<: *unit_test
     - <<: *ok_stage
 
+
 master:
   merge_request:
     - <<: *bp2
