@@ -1,6 +1,8 @@
 import argparse
-import numpy as np
 import pickle
+from typing import Any
+
+import numpy as np
 
 
 def parse_args():
@@ -34,13 +36,11 @@ def save_vecs(data_path, vecs):
         np.savetxt(f, vecs, fmt='%2.3f')
 
 
-def pdumps(obj, data_path):
+def pdumps(obj: Any, data_path: str):
     with open(data_path, 'wb') as f:
         pickle.dump(obj, f)
-    return True
 
 
-def ploads(data_path):
+def ploads(data_path: str) -> Any:
     with open(data_path, 'rb') as f:
-        obj = pickle.load(f)
-    return obj
+        return pickle.load(f)

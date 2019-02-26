@@ -1,7 +1,9 @@
-import unittest
-from src.nes.encoder import PQEncoder
-import numpy as np
 import os
+import unittest
+
+import numpy as np
+
+from src.nes.encoder import PQEncoder
 
 
 class TestPCA(unittest.TestCase):
@@ -33,7 +35,7 @@ class TestPCA(unittest.TestCase):
     def test_transbatch(self):
         lopq = PQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        out = lopq.trans_batch(self.test_vecs)
+        out = lopq.transform_batch(self.test_vecs)
         self.assertEqual(self.test_vecs.shape[0], out.shape[0])
         self.assertEqual(int(self.k/self.m), out.shape[1])
         self.assertEqual(np.uint8, out.dtype)
@@ -42,7 +44,7 @@ class TestPCA(unittest.TestCase):
         lopq = PQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
         for i in range(10):
-            out = lopq.trans_single(self.test_vecs[i:i+1])
+            out = lopq.transform_single(self.test_vecs[i:i + 1])
             print(out.shape)
         self.assertEqual(int(self.k/self.m), len(out))
 

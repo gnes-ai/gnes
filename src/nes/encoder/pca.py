@@ -1,19 +1,19 @@
-import numpy as np
 import faiss
+import numpy as np
 
 
-class PCA_Mix:
-    def __init__(self, m=1, top_n=200):
+class PCAMix:
+    def __init__(self, m: int = 1, top_n: int = 200):
         self.m = m
         self.top_n = top_n
         if self.top_n % m != 0:
             raise ValueError('Incorrect top_n')
-        self.bytes = int(self.top_n/self.m)
+        self.bytes = int(self.top_n / self.m)
 
         self.components = []
         self.mean = []
 
-    def train(self, vecs, save_path=None):
+    def train(self, vecs: np.ndarray, save_path: str = None) -> None:
         n = vecs.shape[1]
         pca = faiss.PCAMatrix(n, self.top_n)
         mean = np.mean(vecs, axis=0)
@@ -43,5 +43,5 @@ class PCA_Mix:
         if save_path:
             self.save(save_path)
 
-    def trans(self, vecs):
+    def transform(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
