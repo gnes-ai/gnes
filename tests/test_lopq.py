@@ -24,8 +24,6 @@ class TestPCA(unittest.TestCase):
     def test_train(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        lopq.save(self.test_params_path)
-        self.assertTrue(os.path.exists(self.test_params_path))
 
     def test_encode(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)

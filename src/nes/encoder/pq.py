@@ -67,10 +67,6 @@ class PQEncoder(BaseEncoder):
 
         self.centroids = np.array(self.centroids, dtype=np.float32)
         self.centroids_expand = np.expand_dims(self.centroids, 0)
-        if save_path:
-            self.save(save_path=save_path)
-        if pred_path:
-            self.encode(vecs, data_path=pred_path)
 
     @BaseEncoder.pretrain_required
     def encode(self, vecs, batch_size=10000) -> bytes:
@@ -88,13 +84,8 @@ class PQEncoder(BaseEncoder):
             i += 1
         return np.concatenate(np.array(res, dtype=np.uint8), 0).tobytes()
 
-        if data_path:
-            with open(data_path, 'ab') as f:
-                f.write(res.tobytes())
-        else:
-            return res
-
-    def encode_single(self, vecs: np.ndarray) -> np.ndarray:
+    @BaseEncoder.pretrain_required
+    def encode_single(self, vecs: np.ndarray) -> bytes:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids_expand), -1)
         x = np.argmax(-x, 2)
