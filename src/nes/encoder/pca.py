@@ -5,8 +5,8 @@ from . import BaseEncoder
 
 
 class PCAMixEncoder(BaseEncoder):
-    def __init__(self, dim_per_byte: int = 1, num_components: int = 200, save_path: str = None):
-        super().__init__()
+    def __init__(self, dim_per_byte: int = 1, num_components: int = 200, model_path: str = None):
+        super().__init__(model_path)
         self.dim_per_byte = dim_per_byte
         self.principle_dim = num_components
         if self.principle_dim % dim_per_byte != 0:
@@ -16,8 +16,8 @@ class PCAMixEncoder(BaseEncoder):
 
         self.components = []
         self.mean = []
-        self.save_path = save_path
 
+    @BaseEncoder.as_pretrain
     def train(self, vecs: np.ndarray) -> None:
         n = vecs.shape[1]
         pca = faiss.PCAMatrix(n, self.principle_dim)
@@ -42,8 +42,7 @@ class PCAMixEncoder(BaseEncoder):
         comp_tmp = np.reshape(components[opt_order], [self.principle_dim, n])
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
-        if self.save_path:
-            self.save(self.save_path)
 
+    @BaseEncoder.pretrain_required
     def encode(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)

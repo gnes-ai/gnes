@@ -27,10 +27,8 @@ class TestPCA(unittest.TestCase):
     def test_train(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        self.assertTrue(os.path.exists(self.test_params_path))
-        self.assertTrue(os.path.exists(self.test_pred_path))
 
-    def test_transbatch(self):
+    def test_encode(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
@@ -38,7 +36,7 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(int(self.k / self.m), out.shape[1])
         self.assertEqual(np.uint8, out.dtype)
 
-    def test_transsingle(self):
+    def test_encode_single(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
         for i in range(10):

@@ -27,14 +27,16 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iter: int = 20) -> np.nda
 
 
 class PQEncoder(BaseEncoder):
-    def __init__(self, k: int, m: int, num_clusters: int = 50):
-        super().__init__()
+    def __init__(self, k: int, m: int, num_clusters: int = 50, model_path=None):
+        super().__init__(model_path)
         self.k = k
         self.m = m
         self.num_bytes = int(k / m)
         self.num_clusters = num_clusters
-        self.centroids = []  # type: List[np.ndarray]
+        self.centroids = None
         self.build_graph()
+        self.sess = tf.Session()
+        self.sess.run(tf.global_variables_initializer())
 
     def build_graph(self):
         self.ph_centroids = tf.placeholder(tf.float32,
@@ -54,48 +56,37 @@ class PQEncoder(BaseEncoder):
         self.p = tf.argmax(-diff, axis=2) + 1
         self.p = tf.transpose(self.p, [1, 0])
 
-    def train(self, vecs: np.ndarray, save_path: str = None, pred_path: str = None):
+    @BaseEncoder.as_pretrain
+    def train(self, vecs: np.ndarray):
         assert vecs.shape[1] == self.k, 'Incorrect dimension for input!'
-
+        res = []  # type: List[np.ndarray]
         for j in range(self.num_bytes):
-            store = vecs[:, self.m * j:self.m * (j + 1)]
+            store = vecs[:, (self.m * j):(self.m * (j + 1))]
             store = np.array(store, dtype=np.float32)
-            self.centroids.append(train_kmeans(
-                store,
-                num_clusters=self.num_clusters))
+            res.append(train_kmeans(store, num_clusters=self.num_clusters))
 
-        self.centroids = np.array(self.centroids, dtype=np.float32)
-        if save_path:
-            self.save(save_path=save_path)
-        if pred_path:
-            self.encode(vecs, data_path=pred_path)
+        self.centroids = np.array(res, dtype=np.float32)
 
-    def encode(self, vecs, batch_size=10000, data_path=None) -> np.ndarray:
+    @BaseEncoder.pretrain_required
+    def encode(self, vecs, batch_size=10000) -> bytes:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, self.m])
         i = 0
         res = []
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-            while batch_size * i < vecs.shape[0]:
-                m = batch_size * i
-                n = batch_size * (i + 1)
-                tmp = sess.run(self.p,
-                               feed_dict={self.ph_x: vecs[m:n],
-                                          self.ph_centroids: self.centroids})
-                res.append(tmp)
-                i += 1
-        res = np.concatenate(np.array(res, dtype=np.uint8), 0)
+        while batch_size * i < vecs.shape[0]:
+            m = batch_size * i
+            n = batch_size * (i + 1)
+            tmp = self.sess.run(self.p,
+                                feed_dict={self.ph_x: vecs[m:n],
+                                           self.ph_centroids: self.centroids})
+            res.append(tmp)
+            i += 1
+        return np.concatenate(np.array(res, dtype=np.uint8), 0).tobytes()
 
-        if data_path:
-            with open(data_path, 'ab') as f:
-                f.write(res.tobytes())
-        else:
-            return res
-
-    def encode_single(self, vecs: np.ndarray) -> np.ndarray:
+    @BaseEncoder.pretrain_required
+    def encode_single(self, vecs: np.ndarray) -> bytes:
         x = np.reshape(vecs, [self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids), -1)
         x = np.argmax(-x, 1)
 
-        return np.array(x, dtype=np.uint8)
+        return np.array(x, dtype=np.uint8).tobytes()
