@@ -21,5 +21,5 @@ class BertEncoder(BaseEncoder, BertClient):
 
 
 class PQEncoder(BaseEncoder, LOPQ):
-    def __init__(self, k, m, num_clusters):
-        super().__init__(k, m, num_clusters)
+    def __init__(self, *args, **kwargs):
+        LOPQ.__init__(*args, **kwargs)

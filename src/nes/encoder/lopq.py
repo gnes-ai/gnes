@@ -15,14 +15,14 @@ class LOPQ:
         self.nbytes = int(k / m)
         self._check_valid()
 
-        self.pca = PCAMix(m=m, top_n=k)
+        self.pca = PCAMix(dim_per_byte=m, num_components=k)
         self.pq = PQ(k, m, num_clusters)
 
     def _check_valid(self):
         assert self.k % self.m == 0, 'k % m == 0'
         assert self.num_clusters <= 255, 'cluster number error'
 
-    def _check_vecs(self, vecs):
+    def _check_vecs(self, vecs: np.ndarray):
         assert type(vecs) == np.ndarray, 'vecs type error'
         assert len(vecs.shape) == 2, 'vecs should be matrix'
         assert vecs.dtype == np.float32, 'vecs dtype np.float32!'
