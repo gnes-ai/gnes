@@ -15,18 +15,17 @@ class TestPCA(unittest.TestCase):
         self.test_vecs = np.random.random([1000, self.input_dim])
         self.test_vecs = np.array(self.test_vecs, np.float32)
         self.test_params_path = './params.pkl'
-        self.test_pred_path = './test.pred.bin'
 
     def tearDown(self):
         if os.path.exists(self.test_params_path):
             os.remove(self.test_params_path)
-        if os.path.exists(self.test_pred_path):
-            os.remove(self.test_pred_path)
         return
 
     def test_train(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
+        lopq.save(self.test_params_path)
+        self.assertTrue(os.path.exists(self.test_params_path))
 
     def test_encode(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
@@ -42,7 +41,7 @@ class TestPCA(unittest.TestCase):
         for i in range(10):
             out = lopq.encode_single(self.test_vecs[i:i + 1])
             print(out.shape)
-        self.assertEqual(int(self.k / self.m), len(out))
+        self.assertEqual(int(self.k / self.m), out.shape[1])
 
 
 if __name__ == '__main__':
