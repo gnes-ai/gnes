@@ -9,8 +9,8 @@ class PCAMixEncoder(BE):
         super().__init__()
         self.num_components = num_components
         if self.num_components % dim_per_byte != 0:
-            raise ValueError('Bad value of "m" and "top_n", "top_n" must be dividable by "m"! '
-                             'Received m=%d and top_n=%d.' % (dim_per_byte, num_components))
+            raise ValueError('Bad value of "m" and "top_n", "num_components" must be dividable by "m"! '
+                             'Received m=%d and num_components=%d.' % (dim_per_byte, num_components))
         self.num_bytes = int(self.num_components / dim_per_byte)
 
         self.components = None

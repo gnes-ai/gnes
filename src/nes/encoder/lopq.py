@@ -50,3 +50,4 @@ class LOPQEncoder(BE):
     def copy_from(self, x: 'LOPQEncoder'):
         self.pq.copy_from(x.pq)
         self.pca.copy_from(x.pca)
+        self.is_trained = x.is_trained

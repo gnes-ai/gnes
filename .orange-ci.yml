@@ -32,20 +32,6 @@ unit-test: &unit_test
 basic-pipeline: &bp1
   network: idc-ai-sse4
   docker:
-    image: docker.oa.com:8080/public/ailab-py3-tf-bert:latest
-  env:
-    BERT_CI_PORT: 7123
-    BERT_CI_PORT_OUT: 7124
-    BERT_CI_MODEL: /chinese_L-12_H-768_A-12
-  stages:
-    - <<: *install_deps
-    - <<: *pylint
-    - <<: *unit_test
-    - <<: *ok_stage
-
-faiss-pipeline: &bp2
-  network: idc-ai-sse4
-  docker:
     image: docker.oa.com:8080/public/ailab-faiss-bert:latest
   env:
     BERT_CI_PORT: 7123
@@ -56,7 +42,6 @@ faiss-pipeline: &bp2
     - <<: *pylint
     - <<: *unit_test
     - <<: *ok_stage
-
 
 master:
   merge_request:
