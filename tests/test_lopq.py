@@ -29,17 +29,16 @@ class TestPCA(unittest.TestCase):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
-        self.assertEqual(self.test_vecs.shape[0], out.shape[0])
-        self.assertEqual(int(self.k / self.m), out.shape[1])
-        self.assertEqual(np.uint8, out.dtype)
+        self.assertEqual(bytes, type(out))
+        self.assertEqual(self.test_vecs.shape[0]*int(self.k / self.m),
+                         len(out))
 
     def test_encode_single(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        for i in range(10):
-            out = lopq.encode_single(self.test_vecs[i:i + 1])
-            print(out.shape)
-        self.assertEqual(int(self.k / self.m), out.shape[1])
+        out = lopq.encode_single(self.test_vecs[:10])
+        self.assertEqual(10*int(self.k / self.m), len(out))
+        self.assertEqual(bytes, type(out))
 
 
 if __name__ == '__main__':
