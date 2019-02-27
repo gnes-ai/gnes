@@ -35,15 +35,15 @@ class LOPQEncoder(BE):
         assert vecs.dtype == np.float32, 'vecs dtype np.float32!'
         assert vecs.shape[1] >= self.k, 'dimension error'
 
-    @BE.as_train_func
+    @BE._as_train_func
     def train(self, vecs: np.ndarray):
         self._check_vecs(vecs)
         self.pca.train(vecs)
         vecs1 = self.pca.encode(vecs)
         self.pq.train(vecs1)
 
-    @BE.train_required
-    def encode(self, vecs, **kwargs) -> bytes:
+    @BE._train_required
+    def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         vecs1 = self.pca.encode(vecs)
         return self.pq.encode(vecs1, **kwargs)
 

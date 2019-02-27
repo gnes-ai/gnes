@@ -40,7 +40,7 @@ class TFPQEncoder(PQEncoder):
         self.p = tf.argmax(-diff, axis=2) + 1
         self.p = tf.transpose(self.p, [1, 0])
 
-    @BE.train_required
+    @BE._train_required
     def encode(self, vecs, batch_size: int = 10000) -> bytes:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, self.m])

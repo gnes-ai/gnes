@@ -1,7 +1,4 @@
 from functools import wraps
-from typing import List
-
-from bert_serving.client import BertClient
 
 from ..helper import set_logger
 
@@ -23,7 +20,7 @@ class BaseEncoder:
     def load(self, *args, **kwargs):
         pass
 
-    def train_required(func):
+    def _train_required(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             if self.is_trained:
@@ -33,7 +30,7 @@ class BaseEncoder:
 
         return arg_wrapper
 
-    def as_train_func(func):
+    def _as_train_func(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             if self.is_trained:
@@ -47,9 +44,4 @@ class BaseEncoder:
 
 
 class BaseBinaryEncoder(BaseEncoder):
-    def encode(self, texts: List[str]) -> bytes: pass
-
-
-class BertEncoder(BaseEncoder, BertClient):
-    def __init__(self, *args, **kwargs):
-        BertClient.__init__(*args, **kwargs)
+    def encode(self, *args, **kwargs) -> bytes: pass

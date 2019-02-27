@@ -21,7 +21,7 @@ class PQEncoder(BE):
         self.num_clusters = num_clusters
         self.centroids = None
 
-    @BE.as_train_func
+    @BE._as_train_func
     def train(self, vecs: np.ndarray):
         assert vecs.shape[1] == self.k, 'Incorrect dimension for input!'
         res = []  # type: List[np.ndarray]
@@ -32,7 +32,7 @@ class PQEncoder(BE):
 
         self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
 
-    @BE.train_required
+    @BE._train_required
     def encode(self, vecs: np.ndarray) -> bytes:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids), -1)
