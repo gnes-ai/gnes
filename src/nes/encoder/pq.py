@@ -84,12 +84,12 @@ class PQEncoder(BE):
                                             self.ph_centroids: self.centroids})
             res.append(tmp)
             i += 1
-        return np.concatenate(np.array(res, dtype=np.uint8), 0).tobytes()
+        return np.concatenate(res, 0).astype(np.uint8).tobytes()
 
     @BE.train_required
     def encode_cpu(self, vecs: np.ndarray) -> bytes:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self._centroids_expand), -1)
-        x = np.argmax(-x, 2)
+        x = np.argmax(-x, 2) + 1
 
         return np.array(x, dtype=np.uint8).tobytes()
