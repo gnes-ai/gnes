@@ -43,12 +43,6 @@ class TestPCA(unittest.TestCase):
 
         self.assertEqual(out1, out2)
 
-        # lopq3 = LOPQEncoder(self.k, self.m, backend='tensorflow')
-        # lopq3.train(self.test_vecs)
-        # out3 = lopq3.encode(self.test_vecs)
-        #
-        # self.assertNotEqual(out1, out3)
-
     def test_encode_backend(self):
         lopq = LOPQEncoder(self.k, self.m, backend='tensorflow')
         lopq.train(self.test_vecs)
