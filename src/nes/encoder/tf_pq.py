@@ -1,7 +1,6 @@
 import os
 
 import GPUtil
-import faiss
 import numpy as np
 import tensorflow as tf
 
@@ -14,12 +13,6 @@ DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
                                      limit=1)
 if DEVICE_ID_LIST:
     os.environ['CUDA_VISIBLE_DEVICES'] = str(DEVICE_ID_LIST[0])
-
-
-def train_kmeans(x: np.ndarray, num_clusters: int, num_iter: int = 20) -> np.ndarray:
-    kmeans = faiss.Kmeans(x.shape[1], num_clusters, num_iter, True)
-    kmeans.train(x)
-    return kmeans.centroids
 
 
 class TFPQEncoder(PQEncoder):
