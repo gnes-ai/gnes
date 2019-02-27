@@ -38,5 +38,5 @@ class TestBertServing(unittest.TestCase):
         self.assertEqual(bytes, type(out))
         self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
 
-    def tearDown(self):
-        self.server.close()
+    # def tearDown(self):
+    #     self.server.close()
