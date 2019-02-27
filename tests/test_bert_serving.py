@@ -6,8 +6,6 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from src.nes.encoder.bert_binary import BertBinaryEncoder
-
 
 class TestBertServing(unittest.TestCase):
 
@@ -35,16 +33,16 @@ class TestBertServing(unittest.TestCase):
         self.assertEqual(vec.shape[1], 768)
         bc.close()
 
-        bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
-                                port_out=int(os.environ['BERT_CI_PORT_OUT']),
-                                timeout=10000)  # set timeout larger as we do actual encoding
-        self.assertRaises(RuntimeError, bbe.encode)
-
-        bbe.train(self.test_data)
-        out = bbe.encode(self.test_data)
-        bbe.bc_encoder.close()
-        self.assertEqual(bytes, type(out))
-        self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
+        # bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
+        #                         port_out=int(os.environ['BERT_CI_PORT_OUT']),
+        #                         timeout=10000)  # set timeout larger as we do actual encoding
+        # self.assertRaises(RuntimeError, bbe.encode)
+        #
+        # bbe.train(self.test_data)
+        # out = bbe.encode(self.test_data)
+        # bbe.bc_encoder.close()
+        # self.assertEqual(bytes, type(out))
+        # self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
 
     def tearDown(self):
         self.server.close()
