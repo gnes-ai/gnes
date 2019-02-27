@@ -6,7 +6,41 @@ import re
 import sys
 import time
 
+import numpy as np
 from termcolor import colored
+
+
+def get_perm(L, m):
+    n = int(len(L) / m)
+    avg = sum(L) / len(L) * m
+    LR = sorted(enumerate(L), key=lambda x: -x[1])
+    L = np.reshape([i[1] for i in LR], [m, n])
+    R = np.reshape([i[0] for i in LR], [m, n])
+    F = np.zeros([m, n])
+
+    reranked = []
+    ind = 0
+    for _ in range(n):
+        for i in range(m):
+            if i % 2 == 0:
+                start, direction = 0, 1
+            else:
+                start, direction = n - 1, -1
+            while F[i, start] == 1:
+                start += direction
+            if (ind + L[i, start] < avg) or (direction == 1):
+                ind += L[i, start]
+                F[i, start] = 1
+                reranked.append(R[i, start])
+            else:
+                start, direction = n - 1, -1
+                while F[i, start] == 1:
+                    start += direction
+                ind += L[i, start]
+                F[i, start] = 1
+                reranked.append(R[i, start])
+
+    return reranked
 
 
 def set_logger(context, verbose=False):
