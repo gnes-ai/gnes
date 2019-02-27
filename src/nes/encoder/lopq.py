@@ -4,11 +4,10 @@ import numpy as np
 
 from . import BaseEncoder as BE
 from .pca import PCAMixEncoder
-from .pq import PQEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int):
+    def __init__(self, k: int, m: int, num_clusters: int, backend='numpy'):
         super().__init__()
         self.k = k
         self.m = m
@@ -17,7 +16,14 @@ class LOPQEncoder(BE):
         self._check_valid()
 
         self.pca = PCAMixEncoder(dim_per_byte=m, num_components=k)
-        self.pq = PQEncoder(k, m, num_clusters)
+        if backend == 'tensorflow':
+            from .tf_pq import TFPQEncoder
+            self.pq = TFPQEncoder(k, m, num_clusters)
+        elif backend == 'numpy':
+            from .pq import PQEncoder
+            self.pq = PQEncoder(k, m, num_clusters)
+        else:
+            raise NotImplementedError('backend=%s is not implemented yet!' % backend)
 
     def _check_valid(self):
         assert self.k % self.m == 0, 'k % m == 0'
