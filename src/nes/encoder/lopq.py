@@ -7,7 +7,7 @@ from .pca import PCAMixEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int = 255, backend='numpy'):
+    def __init__(self, k: int, m: int, num_clusters: int = 255, backend: str = 'numpy'):
         super().__init__()
         self.k = k
         self.m = m

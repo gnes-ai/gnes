@@ -7,15 +7,14 @@ from .lopq import LOPQEncoder
 
 
 class BertBinaryEncoder(BE):
-    def __init__(self, ip: str = 'localhost',
-                 port: int = 5555,
-                 port_out: int = 5556,
-                 dim_per_byte: int = 96,
-                 backend='numpy'):
+    def __init__(self, dim_per_byte: int = 96,
+                 bert_out_dim: int = 768,
+                 backend: str = 'numpy', *args, **kwargs):
         super().__init__()
-        bert_dim = 768
-        self.bc_encoder = BertClient(ip, port, port_out)
-        self.lopq_encoder = LOPQEncoder(bert_dim, dim_per_byte, backend=backend)
+
+        self.lopq_encoder = LOPQEncoder(bert_out_dim, dim_per_byte, backend=backend)
+        self.bc_encoder = BertClient(*args, **kwargs)
+        self.num_bytes = self.lopq_encoder.num_bytes
 
     @BE._train_required
     def encode(self, texts: List[str], is_tokenized=False):
