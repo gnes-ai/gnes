@@ -19,8 +19,8 @@ def get_perm(L, m):
     F = np.zeros([m, n])
 
     reranked = []
-    ind = 0
     for _ in range(n):
+        ind = 0
         for i in range(m):
             if i % 2 == 0:
                 start, direction = 0, 1
