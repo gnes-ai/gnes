@@ -12,6 +12,10 @@ from src.nes.encoder.bert_binary import BertBinaryEncoder
 class TestBertServing(unittest.TestCase):
 
     def setUp(self):
+        with open('./data/tangshi.txt', encoding='utf8') as fp:
+            self.test_data = [v.strip() for v in fp if v.strip()]
+        print('load %d lines of sentences' % len(self.test_data))
+
         args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
                                              '-port', os.environ['BERT_CI_PORT'],
                                              '-port_out', os.environ['BERT_CI_PORT_OUT'],
@@ -20,9 +24,6 @@ class TestBertServing(unittest.TestCase):
         self.server = BertServer(args)
         self.server.start()
         time.sleep(30)
-        with open('data/tangshi.txt') as fp:
-            self.test_data = [v.strip() for v in fp if v.strip()]
-        print('load %d lines of sentences' % len(self.test_data))
 
     def test_bert_client(self):
         bc = BertClient(timeout=2000, port=int(os.environ['BERT_CI_PORT']),
