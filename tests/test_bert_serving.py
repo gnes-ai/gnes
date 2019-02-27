@@ -33,6 +33,7 @@ class TestBertServing(unittest.TestCase):
         vec = bc.encode(['你好么？我很好', '你好么？我很好!但 我还没吃'])
         self.assertEqual(vec.shape[0], 2)
         self.assertEqual(vec.shape[1], 768)
+        bc.close()
 
         bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
                                 port_out=int(os.environ['BERT_CI_PORT_OUT']),
@@ -41,6 +42,7 @@ class TestBertServing(unittest.TestCase):
 
         bbe.train(self.test_data)
         out = bbe.encode(self.test_data)
+        bbe.bc_encoder.close()
         self.assertEqual(bytes, type(out))
         self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
 
