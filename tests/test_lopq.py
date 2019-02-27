@@ -59,6 +59,8 @@ class TestPCA(unittest.TestCase):
         lopq2 = LOPQEncoder(self.k, self.m, backend='numpy')
         # copy from lopq
         lopq2.copy_from(lopq)
+        print(lopq2.is_trained)
+        print(lopq.is_trained)
         out2 = lopq2.encode(self.test_vecs[:10])
         self.assertEqual(10 * int(self.k / self.m), len(out2))
         self.assertEqual(bytes, type(out2))
