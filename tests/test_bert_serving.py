@@ -13,7 +13,8 @@ class TestBertServing(unittest.TestCase):
         dirname = os.path.dirname(__file__)
 
         with open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8') as fp:
-            self.test_data = [v.strip() for v in fp if v.strip()]
+            self.test_data = [v.strip() for v in fp if v.strip() and len(v.strip()) > 10]
+
         print('load %d lines of sentences' % len(self.test_data))
 
         args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
@@ -28,10 +29,10 @@ class TestBertServing(unittest.TestCase):
     def test_bert_client(self):
         bc = BertClient(timeout=10000, port=int(os.environ['BERT_CI_PORT']),
                         port_out=int(os.environ['BERT_CI_PORT_OUT']))
-        # vec = bc.encode(self.test_data)
-        # self.assertEqual(vec.shape[0], len(self.test_data))
-        # self.assertEqual(vec.shape[1], 768)
+        vec = bc.encode(self.test_data)
         bc.close()
+        self.assertEqual(vec.shape[0], len(self.test_data))
+        self.assertEqual(vec.shape[1], 768)
 
         # bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
         #                         port_out=int(os.environ['BERT_CI_PORT_OUT']),
