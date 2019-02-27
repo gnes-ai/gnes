@@ -18,7 +18,7 @@ class PCAMixEncoder(BE):
         self.components = None
         self.mean = None
 
-    @BE.as_train_func
+    @BE._as_train_func
     def train(self, vecs: np.ndarray) -> None:
         n = vecs.shape[1]
         pca = faiss.PCAMatrix(n, self.num_components)
@@ -33,7 +33,7 @@ class PCAMixEncoder(BE):
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
 
-    @BE.train_required
+    @BE._train_required
     def encode(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 

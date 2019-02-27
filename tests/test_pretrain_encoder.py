@@ -1,14 +1,14 @@
 import unittest
 
-from src.nes import BaseEncoder
+from src.nes import BaseEncoder as BE
 
 
-class DummyTrainEncoder(BaseEncoder):
-    @BaseEncoder.train_required
+class DummyTrainEncoder(BE):
+    @BE._train_required
     def encode(self, *args, **kwargs):
         pass
 
-    @BaseEncoder.as_train_func
+    @BE._as_train_func
     def train(self, *args, **kwargs):
         pass
 
@@ -18,7 +18,7 @@ class TestDocument(unittest.TestCase):
         a = DummyTrainEncoder()
         self.assertRaises(RuntimeError, a.encode)
 
-    def test_with_pretrian(self):
+    def test_with_pretrain(self):
         a = DummyTrainEncoder()
         a.train()
         a.encode()
