@@ -14,7 +14,9 @@ class TestBertServing(unittest.TestCase):
     def setUp(self):
         args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
                                              '-port', os.environ['BERT_CI_PORT'],
-                                             '-port_out', os.environ['BERT_CI_PORT_OUT']])
+                                             '-port_out', os.environ['BERT_CI_PORT_OUT'],
+                                             '-max_seq_len', 'NONE',
+                                             '-mask_cls_sep'])
         self.server = BertServer(args)
         self.server.start()
         time.sleep(30)
