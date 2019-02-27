@@ -54,4 +54,4 @@ class TFPQEncoder(PQEncoder):
                                             self.ph_centroids: self.centroids})
             res.append(tmp)
             i += 1
-        return np.concatenate(np.array(res, dtype=np.uint8), 0).tobytes()
+        return np.concatenate(res, 0).astype(np.uint8).tobytes()
