@@ -1,6 +1,6 @@
 import faiss
 import numpy as np
-
+from .helpers import get_perm
 from . import BaseEncoder as BE
 
 
@@ -27,18 +27,7 @@ class PCAMixEncoder(BE):
         components = faiss.vector_to_array(pca.PCAMat).reshape([n, n])[:self.principle_dim]
 
         # permutate engive according to variance
-        max_entropy = -9999
-        normalizer = np.sum(explained_variance_ratio)
-        opt_order = None  # top_n_dim, 200
-        for _ in range(100000):
-            tmp = list(range(self.principle_dim))
-            np.random.shuffle(tmp)
-            tmp_ratio = np.reshape(explained_variance_ratio[tmp], [self.bytes, self.dim_per_byte])
-            tmp_ratio = np.sum(tmp_ratio, axis=1) / normalizer
-            entropy = -np.sum(tmp_ratio * np.log(tmp_ratio))
-            if entropy > max_entropy:
-                opt_order = tmp
-                max_entropy = entropy
+        opt_order = get_perm(explained_variance_ratio, self.dim_per_byte)
         comp_tmp = np.reshape(components[opt_order], [self.principle_dim, n])
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
