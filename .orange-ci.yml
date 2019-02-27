@@ -45,4 +45,4 @@ basic-pipeline: &bp1
 
 master:
   merge_request:
-    - <<: *bp2
+    - <<: *bp1
