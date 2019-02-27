@@ -14,7 +14,7 @@ class TestBertServing(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        with open(os.path.join(dirname, 'data/tangshi.txt'), encoding='utf8') as fp:
+        with open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8') as fp:
             self.test_data = [v.strip() for v in fp if v.strip()]
         print('load %d lines of sentences' % len(self.test_data))
 
