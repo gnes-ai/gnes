@@ -34,7 +34,6 @@ class TestBertServing(unittest.TestCase):
         self.assertEqual(vec.shape[0], 2)
         self.assertEqual(vec.shape[1], 768)
 
-    def test_bert_binary_encoder(self):
         bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
                                 port_out=int(os.environ['BERT_CI_PORT_OUT']),
                                 timeout=10000)  # set timeout larger as we do actual encoding
@@ -47,3 +46,4 @@ class TestBertServing(unittest.TestCase):
 
     def tearDown(self):
         self.server.close()
+        time.sleep(3)
