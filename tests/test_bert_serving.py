@@ -46,4 +46,3 @@ class TestBertServing(unittest.TestCase):
 
     def tearDown(self):
         self.server.close()
-        time.sleep(3)
