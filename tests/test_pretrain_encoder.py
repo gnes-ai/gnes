@@ -4,11 +4,11 @@ from src.nes import BaseEncoder
 
 
 class DummyTrainEncoder(BaseEncoder):
-    @BaseEncoder.pretrain_required
+    @BaseEncoder.train_required
     def encode(self, *args, **kwargs):
         pass
 
-    @BaseEncoder.as_pretrain
+    @BaseEncoder.as_train_func
     def train(self, *args, **kwargs):
         pass
 

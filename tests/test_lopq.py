@@ -30,14 +30,14 @@ class TestPCA(unittest.TestCase):
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
         self.assertEqual(bytes, type(out))
-        self.assertEqual(self.test_vecs.shape[0]*int(self.k / self.m),
+        self.assertEqual(self.test_vecs.shape[0] * int(self.k / self.m),
                          len(out))
 
     def test_encode_single(self):
         lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
         lopq.train(self.test_vecs)
-        out = lopq.encode_single(self.test_vecs[:10])
-        self.assertEqual(10*int(self.k / self.m), len(out))
+        out = lopq.encode_cpu(self.test_vecs[:10])
+        self.assertEqual(10 * int(self.k / self.m), len(out))
         self.assertEqual(bytes, type(out))
 
 

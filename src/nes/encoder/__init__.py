@@ -18,7 +18,7 @@ class BaseEncoder:
     def save(self, *args, **kwargs):
         pass
 
-    def pretrain_required(func):
+    def train_required(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             if self.is_trained:
@@ -28,7 +28,7 @@ class BaseEncoder:
 
         return arg_wrapper
 
-    def as_pretrain(func):
+    def as_train_func(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             f = func(self, *args, **kwargs)

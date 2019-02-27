@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from . import BaseEncoder
+from . import BaseEncoder as BE
 from .helpers import ploads, pdumps
 from .pca import PCAMixEncoder
 from .pq import PQEncoder
 
 
-class LOPQEncoder(BaseEncoder):
+class LOPQEncoder(BE):
     def __init__(self, k: int, m: int, num_clusters: int, model_path=None):
         super().__init__(model_path)
         self.k = k
@@ -30,21 +30,16 @@ class LOPQEncoder(BaseEncoder):
         assert vecs.dtype == np.float32, 'vecs dtype np.float32!'
         assert vecs.shape[1] >= self.k, 'dimension error'
 
-    @BaseEncoder.as_pretrain
-    def train(self, vecs: np.ndarray):
+    @BE.as_train_func
+    def train(self, vecs: np.ndarray, **kwargs):
         self._check_vecs(vecs)
         self.pca.train(vecs)
-        self.pq.train(self.pca.encode(vecs))
+        self.pq.train(self.pca.encode(vecs, **kwargs))
 
-    @BaseEncoder.pretrain_required
-    def encode(self, vecs) -> bytes:
-        vecs_new = self.pca.encode(vecs)
-        return self.pq.encode(vecs_new)
-
-    @BaseEncoder.pretrain_required
-    def encode_single(self, vec) -> bytes:
-        vec_new = self.pca.encode(vec)
-        return self.pq.encode_single(vec_new)
+    @BE.train_required
+    def encode(self, vecs, **kwargs) -> bytes:
+        vecs_new = self.pca.encode(vecs, **kwargs)
+        return self.pq.encode(vecs_new, **kwargs)
 
     def save(self):
         pdumps([self.pca.mean, self.pca.components, self.pq.centroids], self.model_path)
