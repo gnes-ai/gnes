@@ -5,8 +5,8 @@ from ..helper import set_logger
 
 
 class BaseIndexer:
-    def __init__(self, verbose: bool = False, *args, **kwargs):
-        self.logger = set_logger(self.__class__.__name__, verbose)
+    def __init__(self, *args, **kwargs):
+        self.logger = set_logger(self.__class__.__name__, 'verbose' in kwargs and kwargs['verbose'])
 
     def add(self, *args, **kwargs): pass
 

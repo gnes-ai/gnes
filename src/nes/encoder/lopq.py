@@ -3,14 +3,13 @@
 import numpy as np
 
 from . import BaseEncoder as BE
-from .helpers import ploads, pdumps
 from .pca import PCAMixEncoder
 from .pq import PQEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int, model_path=None):
-        super().__init__(model_path)
+    def __init__(self, k: int, m: int, num_clusters: int):
+        super().__init__()
         self.k = k
         self.m = m
         self.num_clusters = num_clusters
@@ -31,18 +30,13 @@ class LOPQEncoder(BE):
         assert vecs.shape[1] >= self.k, 'dimension error'
 
     @BE.as_train_func
-    def train(self, vecs: np.ndarray, **kwargs):
+    def train(self, vecs: np.ndarray):
         self._check_vecs(vecs)
         self.pca.train(vecs)
-        self.pq.train(self.pca.encode(vecs, **kwargs))
+        vecs1 = self.pca.encode(vecs)
+        self.pq.train(vecs1)
 
     @BE.train_required
     def encode(self, vecs, **kwargs) -> bytes:
-        vecs_new = self.pca.encode(vecs, **kwargs)
-        return self.pq.encode(vecs_new, **kwargs)
-
-    def save(self):
-        pdumps([self.pca.mean, self.pca.components, self.pq.centroids], self.model_path)
-
-    def load(self, save_path: str):
-        self.pca.mean, self.pca.components, self.pq.centroids = ploads(save_path)
+        vecs1 = self.pca.encode(vecs)
+        return self.pq.encode(vecs1, **kwargs)
