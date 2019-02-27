@@ -12,7 +12,9 @@ from src.nes.encoder.bert_binary import BertBinaryEncoder
 class TestBertServing(unittest.TestCase):
 
     def setUp(self):
-        with open('tangshi.txt', encoding='utf8') as fp:
+        dirname = os.path.dirname(__file__)
+
+        with open(os.path.join(dirname, 'data/tangshi.txt'), encoding='utf8') as fp:
             self.test_data = [v.strip() for v in fp if v.strip()]
         print('load %d lines of sentences' % len(self.test_data))
 
