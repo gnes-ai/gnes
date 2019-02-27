@@ -1,13 +1,15 @@
 import faiss
 import numpy as np
-from .helpers import get_perm
+
 from . import BaseEncoder as BE
+from ..helper import get_perm
 
 
 class PCAMixEncoder(BE):
     def __init__(self, dim_per_byte: int = 1, num_components: int = 200):
         super().__init__()
         self.num_components = num_components
+        self.dim_per_byte = dim_per_byte
         if self.num_components % dim_per_byte != 0:
             raise ValueError('Bad value of "m" and "top_n", "num_components" must be dividable by "m"! '
                              'Received m=%d and num_components=%d.' % (dim_per_byte, num_components))
@@ -27,7 +29,7 @@ class PCAMixEncoder(BE):
 
         # permutate engive according to variance
         opt_order = get_perm(explained_variance_ratio, self.dim_per_byte)
-        comp_tmp = np.reshape(components[opt_order], [self.principle_dim, n])
+        comp_tmp = np.reshape(components[opt_order], [self.num_components, n])
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
 
