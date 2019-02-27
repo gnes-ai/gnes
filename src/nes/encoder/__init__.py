@@ -6,7 +6,8 @@ from ..helper import set_logger
 class BaseEncoder:
     def __init__(self, *args, **kwargs):
         self.is_trained = False
-        self.logger = set_logger(self.__class__.__name__, 'verbose' in kwargs and kwargs['verbose'])
+        self.verbose = 'verbose' in kwargs and kwargs['verbose']
+        self.logger = set_logger(self.__class__.__name__, self.verbose)
 
     def encode(self, *args, **kwargs):
         pass

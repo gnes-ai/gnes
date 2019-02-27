@@ -6,8 +6,8 @@ import numpy as np
 from . import BaseEncoder as BE
 
 
-def train_kmeans(x: np.ndarray, num_clusters: int, num_iter: int = 20) -> np.ndarray:
-    kmeans = faiss.Kmeans(x.shape[1], num_clusters, num_iter, True)
+def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool) -> np.ndarray:
+    kmeans = faiss.Kmeans(x.shape[1], num_clusters, num_iters, verbose)
     kmeans.train(x)
     return kmeans.centroids
 
@@ -22,13 +22,15 @@ class PQEncoder(BE):
         self.centroids = None
 
     @BE._as_train_func
-    def train(self, vecs: np.ndarray):
+    def train(self, vecs: np.ndarray, num_iters=20):
         assert vecs.shape[1] == self.k, 'Incorrect dimension for input!'
         res = []  # type: List[np.ndarray]
         for j in range(self.num_bytes):
             store = vecs[:, (self.m * j):(self.m * (j + 1))]
             store = np.array(store, dtype=np.float32)
-            res.append(train_kmeans(store, num_clusters=self.num_clusters))
+            res.append(train_kmeans(store, num_iters=num_iters,
+                                    num_clusters=self.num_clusters,
+                                    verbose=self.verbose))
 
         self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
 
