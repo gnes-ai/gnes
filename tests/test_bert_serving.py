@@ -21,7 +21,8 @@ class TestBertServing(unittest.TestCase):
                                              '-port', os.environ['BERT_CI_PORT'],
                                              '-port_out', os.environ['BERT_CI_PORT_OUT'],
                                              '-max_seq_len', 'NONE',
-                                             '-mask_cls_sep'])
+                                             '-mask_cls_sep',
+                                             '-cpu'])
         self.server = BertServer(args)
         self.server.start()
         time.sleep(15)
