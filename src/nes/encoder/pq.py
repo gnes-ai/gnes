@@ -65,7 +65,7 @@ class PQEncoder(BaseEncoder):
             store = np.array(store, dtype=np.float32)
             res.append(train_kmeans(store, num_clusters=self.num_clusters))
 
-        self.centroids = np.array(self.centroids, dtype=np.float32)
+        self.centroids = np.array(res, dtype=np.float32)
         self.centroids_expand = np.expand_dims(self.centroids, 0)
 
     @BaseEncoder.pretrain_required
