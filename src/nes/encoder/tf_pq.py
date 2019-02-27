@@ -24,16 +24,17 @@ class TFPQEncoder(PQEncoder):
 
     def _build_graph(self):
         self.ph_centroids = tf.placeholder(tf.float32,
-                                           [self.num_bytes,
+                                           [1, self.num_bytes,
                                             self.num_clusters,
                                             self.m])
+        ph_centroids = tf.squeeze(self.ph_centroids, 0)
         self.ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, self.m])
         # [self.num_bytes, None, self.m]
         self.x = tf.transpose(self.ph_x, [1, 0, 2])
-        ty = tf.reduce_sum(tf.square(self.ph_centroids), axis=2, keepdims=True)
+        ty = tf.reduce_sum(tf.square(ph_centroids), axis=2, keepdims=True)
         ty = tf.transpose(ty, [0, 2, 1])
         tx = tf.reduce_sum(tf.square(self.x), axis=2, keepdims=True)
-        diff = tf.matmul(self.x, tf.transpose(self.ph_centroids, [0, 2, 1]))
+        diff = tf.matmul(self.x, tf.transpose(ph_centroids, [0, 2, 1]))
         diff = tx + ty - 2 * diff
         # start from 1
         self.p = tf.argmax(-diff, axis=2) + 1
