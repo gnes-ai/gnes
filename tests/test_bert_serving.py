@@ -32,7 +32,7 @@ class TestBertServing(unittest.TestCase):
     def test_bert_binary_encoder(self):
         bbe = BertBinaryEncoder(port=int(os.environ['BERT_CI_PORT']),
                                 port_out=int(os.environ['BERT_CI_PORT_OUT']),
-                                timeout=2000)
+                                timeout=10000)  # set timeout larger as we do actual encoding
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_data)
