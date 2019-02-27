@@ -28,7 +28,7 @@ class TestBertServing(unittest.TestCase):
         time.sleep(15)
 
     def test_bert_client(self):
-        bc = BertClient(timeout=10000, port=int(os.environ['BERT_CI_PORT']),
+        bc = BertClient(port=int(os.environ['BERT_CI_PORT']),
                         port_out=int(os.environ['BERT_CI_PORT_OUT']))
         vec = bc.encode(self.test_data)
         bc.close()
