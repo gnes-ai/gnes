@@ -7,7 +7,7 @@ from .pca import PCAMixEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int, backend='numpy'):
+    def __init__(self, k: int, m: int, num_clusters: int = 255, backend='numpy'):
         super().__init__()
         self.k = k
         self.m = m
@@ -27,7 +27,7 @@ class LOPQEncoder(BE):
 
     def _check_valid(self):
         assert self.k % self.m == 0, 'k % m == 0'
-        assert self.num_clusters <= 255, 'cluster number error'
+        assert self.num_clusters <= 255, 'cluster number should <= 255 (0 is reserved for NOP)'
 
     def _check_vecs(self, vecs: np.ndarray):
         assert type(vecs) == np.ndarray, 'vecs type error'

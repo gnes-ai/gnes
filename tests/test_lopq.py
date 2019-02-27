@@ -10,7 +10,6 @@ class TestPCA(unittest.TestCase):
     def setUp(self):
         self.k = 40
         self.m = 5
-        self.num_clusters = 100
         self.input_dim = 120
         self.test_vecs = np.random.random([1000, self.input_dim])
         self.test_vecs = np.array(self.test_vecs, np.float32)
@@ -22,11 +21,11 @@ class TestPCA(unittest.TestCase):
         return
 
     def test_train(self):
-        lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
+        lopq = LOPQEncoder(self.k, self.m)
         lopq.train(self.test_vecs)
 
     def test_encode(self):
-        lopq = LOPQEncoder(self.k, self.m, self.num_clusters)
+        lopq = LOPQEncoder(self.k, self.m)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
         self.assertEqual(bytes, type(out))
@@ -34,13 +33,13 @@ class TestPCA(unittest.TestCase):
                          len(out))
 
     def test_encode_backend(self):
-        lopq = LOPQEncoder(self.k, self.m, self.num_clusters, backend='tensorflow')
+        lopq = LOPQEncoder(self.k, self.m, backend='tensorflow')
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs[:10])
         self.assertEqual(10 * int(self.k / self.m), len(out))
         self.assertEqual(bytes, type(out))
 
-        lopq2 = LOPQEncoder(self.k, self.m, self.num_clusters, backend='numpy')
+        lopq2 = LOPQEncoder(self.k, self.m, backend='numpy')
         lopq2.train(self.test_vecs)
         out2 = lopq2.encode(self.test_vecs[:10])
         self.assertEqual(10 * int(self.k / self.m), len(out2))
@@ -49,7 +48,7 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(out, out2)
 
     def test_encode_batching(self):
-        lopq = LOPQEncoder(self.k, self.m, self.num_clusters, backend='tensorflow')
+        lopq = LOPQEncoder(self.k, self.m, backend='tensorflow')
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs, batch_size=32)
         self.assertEqual(self.test_vecs.shape[0] * int(self.k / self.m), len(out))

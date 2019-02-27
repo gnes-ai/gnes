@@ -16,7 +16,7 @@ if DEVICE_ID_LIST:
 
 
 class TFPQEncoder(PQEncoder):
-    def __init__(self, k: int, m: int, num_clusters: int = 50):
+    def __init__(self, k: int, m: int, num_clusters):
         super().__init__(k, m, num_clusters)
         self._build_graph()
         self._sess = tf.Session()

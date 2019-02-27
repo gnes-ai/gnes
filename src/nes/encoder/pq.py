@@ -13,7 +13,7 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iter: int = 20) -> np.nda
 
 
 class PQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int = 50):
+    def __init__(self, k: int, m: int, num_clusters):
         super().__init__()
         self.k = k
         self.m = m
@@ -36,6 +36,7 @@ class PQEncoder(BE):
     def encode(self, vecs: np.ndarray) -> bytes:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids), -1)
-        x = np.argmax(-x, 2)
+        # start from 1
+        x = np.argmax(-x, 2) + 1
 
         return np.array(x, dtype=np.uint8).tobytes()
