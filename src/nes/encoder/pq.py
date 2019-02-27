@@ -40,3 +40,10 @@ class PQEncoder(BE):
         x = np.argmax(-x, 2) + 1
 
         return np.array(x, dtype=np.uint8).tobytes()
+
+    def copy_from(self, x: 'PQEncoder'):
+        self.k = x.k
+        self.m = x.m
+        self.num_clusters = x.num_clusters
+        self.centroids = x.centroids
+        self.is_trained = x.is_trained

@@ -32,6 +32,23 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(self.test_vecs.shape[0] * int(self.k / self.m),
                          len(out))
 
+    def test_copy_from(self):
+        lopq1 = LOPQEncoder(self.k, self.m, backend='tensorflow')
+        lopq1.train(self.test_vecs)
+        out1 = lopq1.encode(self.test_vecs)
+
+        lopq2 = LOPQEncoder(self.k, self.m, backend='tensorflow')
+        lopq2.copy_from(lopq1)
+        out2 = lopq2.encode(self.test_vecs)
+
+        self.assertEqual(out1, out2)
+
+        lopq3 = LOPQEncoder(self.k, self.m, backend='tensorflow')
+        lopq3.train(self.test_vecs)
+        out3 = lopq3.encode(self.test_vecs)
+
+        self.assertNotEqual(out1, out3)
+
     def test_encode_backend(self):
         lopq = LOPQEncoder(self.k, self.m, backend='tensorflow')
         lopq.train(self.test_vecs)
@@ -40,7 +57,8 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(bytes, type(out))
 
         lopq2 = LOPQEncoder(self.k, self.m, backend='numpy')
-        lopq2.train(self.test_vecs)
+        # copy from lopq
+        lopq2.copy_from(lopq)
         out2 = lopq2.encode(self.test_vecs[:10])
         self.assertEqual(10 * int(self.k / self.m), len(out2))
         self.assertEqual(bytes, type(out2))

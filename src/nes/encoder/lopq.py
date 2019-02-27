@@ -12,7 +12,7 @@ class LOPQEncoder(BE):
         self.k = k
         self.m = m
         self.num_clusters = num_clusters
-        self.nbytes = int(k / m)
+        self.num_bytes = int(k / m)
         self._check_valid()
 
         self.pca = PCAMixEncoder(dim_per_byte=m, num_components=k)
@@ -46,3 +46,7 @@ class LOPQEncoder(BE):
     def encode(self, vecs, **kwargs) -> bytes:
         vecs1 = self.pca.encode(vecs)
         return self.pq.encode(vecs1, **kwargs)
+
+    def copy_from(self, x: 'LOPQEncoder'):
+        self.pq.copy_from(x.pq)
+        self.pca.copy_from(x.pca)
