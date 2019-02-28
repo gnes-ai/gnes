@@ -2,28 +2,27 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+from src.nes.encoder.pca import PCALocalEncoder
 from . import BaseEncoder as BE
-from .pca import PCALocalEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, num_bytes: int, dim_per_byte: int,
-                 cluster_per_byte: int = 255,
-                 backend: str = 'numpy', use_pca: bool = True):
+    def __init__(self, num_bytes: int, cluster_per_byte: int = 255,
+                 backend: str = 'numpy', pca_output_dim: int = -1):
         super().__init__()
         self.num_bytes = num_bytes
-
-        if use_pca:
-            self.pca = PCALocalEncoder(num_bytes * dim_per_byte, dim_per_byte)
-        else:
-            self.pca = None
+        self.pca_output_dim = pca_output_dim
+        self.pca = None
+        if pca_output_dim > 0:
+            assert pca_output_dim >= num_bytes and pca_output_dim % num_bytes == 0, \
+                'pca_output_dim should >= num_bytes and can be divided by num_bytes!'
 
         if backend == 'numpy':
             from .pq import PQEncoder
-            self.pq = PQEncoder(dim_per_byte, cluster_per_byte)
+            self.pq = PQEncoder(num_bytes, cluster_per_byte)
         elif backend == 'tensorflow':
             from .tf_pq import TFPQEncoder
-            self.pq = TFPQEncoder(dim_per_byte, cluster_per_byte)
+            self.pq = TFPQEncoder(num_bytes, cluster_per_byte)
         else:
             raise NotImplementedError('backend=%s is not implemented yet!' % backend)
 
@@ -38,15 +37,22 @@ class LOPQEncoder(BE):
         return self.pq.encode(vecs, **kwargs)
 
     def _do_pca(self, vecs, is_train=False):
-        if self.pca and vecs.shape[1] < self.pca.output_dim:
-            if is_train: self.pca.train(vecs)
+        if self.pca_output_dim > 0 and vecs.shape[1] < self.pca_output_dim:
+            if is_train:
+                self.logger.info(
+                    'PCA is enabled in the encoding pipeline (%d -> %d)' % (vecs.shape[1], self.pca_output_dim))
+                self.pca = PCALocalEncoder(self.pca_output_dim, num_locals=self.num_bytes)
+                self.pca.train(vecs)
             vecs = self.pca.encode(vecs)
-        elif self.pca:
+        elif self.pca_output_dim > 0:
             self.logger.warning('PCA is enabled but incoming data has dimension of %d < %d, '
-                                'no PCA needed!' % (vecs.shape[1], self.pca.output_dim))
+                                'no PCA needed!' % (vecs.shape[1], self.pca_output_dim))
         return vecs
 
     def copy_from(self, x: 'LOPQEncoder'):
         self.pq.copy_from(x.pq)
-        self.pca.copy_from(x.pca)
+        if self.pca:
+            self.pca.copy_from(x.pca)
         self.is_trained = x.is_trained
+        self.num_bytes = x.num_bytes
+        self.pca_output_dim = x.pca_output_dim

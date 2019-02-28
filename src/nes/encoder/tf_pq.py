@@ -23,9 +23,9 @@ class TFPQEncoder(PQEncoder):
         self._sess.run(tf.global_variables_initializer())
 
     def _build_graph(self):
-        self.ph_centroids = tf.placeholder(tf.float32, [1, None, self.num_clusters, self.dim_per_byte])
+        self.ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
         ph_centroids = tf.squeeze(self.ph_centroids, 0)
-        self.ph_x = tf.placeholder(tf.float32, [None, None, self.dim_per_byte])
+        self.ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         # [self.num_bytes, None, self.m]
         self.x = tf.transpose(self.ph_x, [1, 0, 2])
         ty = tf.reduce_sum(tf.square(ph_centroids), axis=2, keepdims=True)
@@ -40,11 +40,7 @@ class TFPQEncoder(PQEncoder):
     @BE._train_required
     def encode(self, vecs, batch_size: int = 10000) -> bytes:
         num_points = vecs.shape[0]
-        assert vecs.shape[1] % self.dim_per_byte == 0, \
-            'input dimension %d is not divided by %d' % (vecs.shape[1], self.dim_per_byte)
-        num_bytes = int(vecs.shape[1] / self.dim_per_byte)
-
-        vecs = np.reshape(vecs, [num_points, num_bytes, self.dim_per_byte])
+        vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])
         i = 0
         res = []
         while batch_size * i < vecs.shape[0]:

@@ -13,22 +13,20 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool
 
 
 class PQEncoder(BE):
-    def __init__(self, dim_per_byte: int, cluster_per_byte: int):
+    def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
         super().__init__()
-        assert cluster_per_byte < 255, 'cluster number should <= 255 (0 is reserved for NOP)'
-        self.dim_per_byte = dim_per_byte
+        assert cluster_per_byte <= 255, 'cluster number should <= 255 (0 is reserved for NOP)'
+        self.num_bytes = num_bytes
         self.num_clusters = cluster_per_byte
         self.centroids = None
 
     @BE._as_train_func
-    def train(self, vecs: np.ndarray, num_iters=20):
-        assert vecs.shape[1] % self.dim_per_byte == 0, \
-            'input dimension %d is not divided by %d' % (vecs.shape[1], self.dim_per_byte)
-        num_bytes = int(vecs.shape[1] / self.dim_per_byte)
+    def train(self, vecs: np.ndarray, num_iters: int = 20):
+        dim_per_byte = self._get_dim_per_byte(vecs)
 
         res = []  # type: List[np.ndarray]
-        for j in range(num_bytes):
-            store = vecs[:, (self.dim_per_byte * j):(self.dim_per_byte * (j + 1))]
+        for j in range(self.num_bytes):
+            store = vecs[:, (dim_per_byte * j):(dim_per_byte * (j + 1))]
             store = np.array(store, dtype=np.float32)
             res.append(train_kmeans(store, num_iters=num_iters,
                                     num_clusters=self.num_clusters,
@@ -38,19 +36,24 @@ class PQEncoder(BE):
 
     @BE._train_required
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
-        assert vecs.shape[1] % self.dim_per_byte == 0, \
-            'input dimension %d is not divided by %d' % (vecs.shape[1], self.dim_per_byte)
-        num_bytes = int(vecs.shape[1] / self.dim_per_byte)
+        dim_per_byte = self._get_dim_per_byte(vecs)
 
-        x = np.reshape(vecs, [vecs.shape[0], num_bytes, 1, self.dim_per_byte])
+        x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, dim_per_byte])
         x = np.sum(np.square(x - self.centroids), -1)
         # start from 1
         x = np.argmax(-x, 2) + 1
 
         return np.array(x, dtype=np.uint8).tobytes()
 
+    def _get_dim_per_byte(self, vecs):
+        num_dim = vecs.shape[1]
+        assert num_dim >= self.num_bytes, 'input dimension must >= num_bytes'
+        assert vecs.shape[1] % self.num_bytes == 0, \
+            'input dimension %d must be divided by %d' % (vecs.shape[1], self.num_bytes)
+        return int(vecs.shape[1] / self.num_bytes)
+
     def copy_from(self, x: 'PQEncoder') -> None:
-        self.dim_per_byte = x.dim_per_byte
+        self.num_bytes = x.num_bytes
         self.num_clusters = x.num_clusters
         self.centroids = x.centroids
         self.is_trained = x.is_trained
