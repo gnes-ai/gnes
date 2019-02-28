@@ -7,7 +7,7 @@ from .lopq import LOPQEncoder
 
 
 class BertBinaryEncoder(LOPQEncoder):
-    def __init__(self, num_bytes=10,
+    def __init__(self, num_bytes: int = 8,
                  cluster_per_byte: int = 255,
                  backend: str = 'numpy',
                  pca_output_dim: int = 256,
