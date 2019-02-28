@@ -27,7 +27,7 @@ class PCALocalEncoder(BE):
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
         pca.train(vecs)
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
-        components = faiss.vector_to_array(pca.PCAMat).reshape([num_dim, num_dim])[:self.output_dim]
+        components = faiss.vector_to_array(pca.PCAMat).reshape([-1, num_dim])[:self.output_dim]
 
         # permutate engive according to variance
         opt_order = get_perm(explained_variance_ratio, self.num_locals)
