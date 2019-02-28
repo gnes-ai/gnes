@@ -70,26 +70,6 @@ class TestPCA(unittest.TestCase):
         # from LOPQ, cluster too large
         self.assertRaises(AssertionError, LOPQEncoder, num_bytes, cluster_per_byte=256)
 
-    #
-    # def test_encode(self):
-    #     lopq = LOPQEncoder(self.num_bytes, self.dim_per_bytes)
-    #     lopq.train(self.test_vecs)
-    #     out = lopq.encode(self.test_vecs)
-    #     self.assertEqual(bytes, type(out))
-    #     self.assertEqual(self.test_vecs.shape[0] * int(self.num_bytes / self.dim_per_bytes),
-    #                      len(out))
-    #
-    # def test_copy_from(self):
-    #     lopq1 = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='tensorflow')
-    #     lopq1.train(self.test_vecs)
-    #     out1 = lopq1.encode(self.test_vecs)
-    #
-    #     lopq2 = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='tensorflow')
-    #     lopq2.copy_from(lopq1)
-    #     out2 = lopq2.encode(self.test_vecs)
-    #
-    #     self.assertEqual(out1, out2)
-    #
     def test_encode_backend(self):
         num_bytes = 10
         lopq = LOPQEncoder(num_bytes, backend='tensorflow')
@@ -98,6 +78,7 @@ class TestPCA(unittest.TestCase):
         self._simple_assert(out, num_bytes, 255)
 
         lopq2 = LOPQEncoder(num_bytes, backend='numpy')
+        lopq2.train(self.test_vecs)
         out = lopq2.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, 255)
 
@@ -107,15 +88,27 @@ class TestPCA(unittest.TestCase):
         self._simple_assert(out, num_bytes, 255)
 
         self.assertEqual(out, out2)
-    #
-    # def test_encode_batching(self):
-    #     lopq = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='tensorflow')
-    #     lopq.train(self.test_vecs)
-    #     out = lopq.encode(self.test_vecs, batch_size=32)
-    #     self.assertEqual(self.test_vecs.shape[0] * int(self.num_bytes / self.dim_per_bytes), len(out))
-    #     self.assertEqual(bytes, type(out))
-    #     out2 = lopq.encode(self.test_vecs, batch_size=64)
-    #     self.assertEqual(out, out2)
+
+    def test_encode_batching(self):
+        num_bytes = 10
+        lopq = LOPQEncoder(num_bytes, backend='tensorflow')
+        lopq.train(self.test_vecs)
+        out = lopq.encode(self.test_vecs, batch_size=32)
+        self._simple_assert(out, num_bytes, 255)
+        out2 = lopq.encode(self.test_vecs, batch_size=64)
+        self.assertEqual(out, out2)
+
+    def test_num_cluster(self):
+        def _test_num_cluster(num_bytes, num_cluster, backend):
+            lopq = LOPQEncoder(num_bytes, cluster_per_byte=num_cluster, backend=backend)
+            lopq.train(self.test_vecs)
+            out = lopq.encode(self.test_vecs)
+            self._simple_assert(out, num_bytes, num_cluster)
+
+        _test_num_cluster(10, 3, 'numpy')
+        _test_num_cluster(10, 3, 'tensorflow')
+        _test_num_cluster(10, 5, 'numpy')
+        _test_num_cluster(10, 5, 'tensorflow')
 
 
 if __name__ == '__main__':
