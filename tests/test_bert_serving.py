@@ -27,7 +27,7 @@ class TestBertServing(unittest.TestCase):
                                              '-cpu'])
         self.server = BertServer(args)
         self.server.start()
-        time.sleep(15)
+        time.sleep(30)
 
     def test_bert_client(self):
         bc = BertClient(port=int(os.environ['BERT_CI_PORT']),
