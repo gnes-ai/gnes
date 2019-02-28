@@ -3,49 +3,48 @@
 import numpy as np
 
 from . import BaseEncoder as BE
-from .pca import PCAMixEncoder
+from .pca import PCALocalEncoder
 
 
 class LOPQEncoder(BE):
-    def __init__(self, k: int, m: int, num_clusters: int = 255, backend: str = 'numpy'):
+    def __init__(self, num_bytes: int, dim_per_byte: int,
+                 cluster_per_byte: int = 255,
+                 backend: str = 'numpy', use_pca: bool = True):
         super().__init__()
-        self.k = k
-        self.m = m
-        self.num_clusters = num_clusters
-        self.num_bytes = int(k / m)
-        self._check_valid()
+        self.num_bytes = num_bytes
 
-        self.pca = PCAMixEncoder(dim_per_byte=m, num_components=k)
-        if backend == 'tensorflow':
-            from .tf_pq import TFPQEncoder
-            self.pq = TFPQEncoder(k, m, num_clusters)
-        elif backend == 'numpy':
+        if use_pca:
+            self.pca = PCALocalEncoder(num_bytes * dim_per_byte, dim_per_byte)
+        else:
+            self.pca = None
+
+        if backend == 'numpy':
             from .pq import PQEncoder
-            self.pq = PQEncoder(k, m, num_clusters)
+            self.pq = PQEncoder(dim_per_byte, cluster_per_byte)
+        elif backend == 'tensorflow':
+            from .tf_pq import TFPQEncoder
+            self.pq = TFPQEncoder(dim_per_byte, cluster_per_byte)
         else:
             raise NotImplementedError('backend=%s is not implemented yet!' % backend)
 
-    def _check_valid(self):
-        assert self.k % self.m == 0, 'k % m == 0'
-        assert self.num_clusters <= 255, 'cluster number should <= 255 (0 is reserved for NOP)'
-
-    def _check_vecs(self, vecs: np.ndarray):
-        assert type(vecs) == np.ndarray, 'vecs type error'
-        assert len(vecs.shape) == 2, 'vecs should be matrix'
-        assert vecs.dtype == np.float32, 'vecs dtype np.float32!'
-        assert vecs.shape[1] >= self.k, 'dimension error'
-
     @BE._as_train_func
     def train(self, vecs: np.ndarray):
-        self._check_vecs(vecs)
-        self.pca.train(vecs)
-        vecs1 = self.pca.encode(vecs)
-        self.pq.train(vecs1)
+        vecs = self._do_pca(vecs, True)
+        self.pq.train(vecs)
 
     @BE._train_required
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
-        vecs1 = self.pca.encode(vecs)
-        return self.pq.encode(vecs1, **kwargs)
+        vecs = self._do_pca(vecs)
+        return self.pq.encode(vecs, **kwargs)
+
+    def _do_pca(self, vecs, is_train=False):
+        if self.pca and vecs.shape[1] < self.pca.output_dim:
+            if is_train: self.pca.train(vecs)
+            vecs = self.pca.encode(vecs)
+        elif self.pca:
+            self.logger.warning('PCA is enabled but incoming data has dimension of %d < %d, '
+                                'no PCA needed!' % (vecs.shape[1], self.pca.output_dim))
+        return vecs
 
     def copy_from(self, x: 'LOPQEncoder'):
         self.pq.copy_from(x.pq)

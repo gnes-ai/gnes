@@ -7,13 +7,13 @@ from .lopq import LOPQEncoder
 
 
 class BertBinaryEncoder(BE):
-    def __init__(self, vector_dim: int = 768,
-                 dim_per_byte: int = 96,
-                 num_clusters: int = 255,
+    def __init__(self, num_bytes=10,
+                 dim_per_byte: int = 2,
+                 cluster_per_byte: int = 255,
                  backend: str = 'numpy', *args, **kwargs):
         super().__init__()
 
-        self.lopq_encoder = LOPQEncoder(vector_dim, dim_per_byte, num_clusters, backend=backend)
+        self.lopq_encoder = LOPQEncoder(num_bytes, dim_per_byte, cluster_per_byte, backend=backend)
         self.num_bytes = self.lopq_encoder.num_bytes
         self.bc_encoder = BertClient(*args, **kwargs)
 

@@ -9,6 +9,7 @@ class BaseDocument:
     def __init__(self):
         self._id = random.randint(0, ctypes.c_uint(-1).value)
         self._sentences = []
+        self._content = None
 
     @property
     def id(self) -> int:
