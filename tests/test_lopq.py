@@ -53,8 +53,6 @@ class TestPCA(unittest.TestCase):
         lopq2 = LOPQEncoder(self.k, self.m, backend='numpy')
         # copy from lopq
         lopq2.copy_from(lopq)
-        print(lopq2.is_trained)
-        print(lopq.is_trained)
         out2 = lopq2.encode(self.test_vecs[:10])
         self.assertEqual(10 * int(self.k / self.m), len(out2))
         self.assertEqual(bytes, type(out2))
@@ -69,6 +67,13 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(bytes, type(out))
         out2 = lopq.encode(self.test_vecs, batch_size=64)
         self.assertEqual(out, out2)
+
+    def test_num_clusters(self):
+        lopq = LOPQEncoder(self.k, self.m, num_clusters=9)
+        lopq.train(self.test_vecs)
+        out = lopq.encode(self.test_vecs)
+        # 0 is reserved for NULL cluster, then 1,2,...,9 for real cluster id
+        self.assertTrue(np.all(np.frombuffer(out, np.uint8) <= 9))
 
 
 if __name__ == '__main__':

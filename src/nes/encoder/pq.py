@@ -35,7 +35,7 @@ class PQEncoder(BE):
         self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
 
     @BE._train_required
-    def encode(self, vecs: np.ndarray) -> bytes:
+    def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, self.m])
         x = np.sum(np.square(x - self.centroids), -1)
         # start from 1
