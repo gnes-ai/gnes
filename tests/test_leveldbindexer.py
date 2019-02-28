@@ -28,11 +28,13 @@ class TestBaseLVDB(unittest.TestCase):
         db = LVDBIndexer(self.db_path)
         db.add(self.test_data1)
         self.assertTrue(os.path.exists(self.db_path))
+        self.assertLess(0, len(os.listdir(self.db_path)))
 
     def test_add_multi(self):
         db = LVDBIndexer(self.db_path)
         db.add(self.test_data2)
         self.assertTrue(os.path.exists(self.db_path))
+        self.assertLess(0, len(os.listdir(self.db_path)))
 
     def test_query(self):
         db = LVDBIndexer(self.db_path)
