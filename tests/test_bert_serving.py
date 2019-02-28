@@ -38,6 +38,7 @@ class TestBertServing(unittest.TestCase):
         self.assertEqual(vec.shape[1], 768)
 
         bbe = BertBinaryEncoder(pca_output_dim=32,
+                                cluster_per_byte=8,
                                 port=int(os.environ['BERT_CI_PORT']),
                                 port_out=int(os.environ['BERT_CI_PORT_OUT']))
         self.assertRaises(RuntimeError, bbe.encode)
