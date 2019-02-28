@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from src.nes.encoder.pca import PCALocalEncoder
 from . import BaseEncoder as BE
+from .pca import PCALocalEncoder
 
 
 class LOPQEncoder(BE):
