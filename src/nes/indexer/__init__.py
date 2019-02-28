@@ -40,7 +40,7 @@ class BaseTextIndexer(BaseIndexer):
         self.basedb.add(doc_ids, contents)
 
     def query(self, keys: List[int]) -> List[dict]:
-        doc_ids = [bytes(str(_id), 'utf8') for _id in keys]
+        doc_ids = [bytes(str(key), 'utf8') for key in keys]
         contents = self.basedb.query(doc_ids)
         return [self.bytes2doc(content) for content in contents]
 

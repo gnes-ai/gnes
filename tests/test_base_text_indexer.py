@@ -33,4 +33,5 @@ class TestBaseTextIndexer(unittest.TestCase):
         comp = [res[i]['content'] == self.docs[i]._content
                 for i in range(len(res))]
         self.assertEqual(len(res), sum(comp))
+        # return {} if doc_id not in database
         self.assertFalse(db.query([-1])[0])
