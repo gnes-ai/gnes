@@ -16,19 +16,16 @@ if DEVICE_ID_LIST:
 
 
 class TFPQEncoder(PQEncoder):
-    def __init__(self, k: int, m: int, num_clusters):
-        super().__init__(k, m, num_clusters)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._build_graph()
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
 
     def _build_graph(self):
-        self.ph_centroids = tf.placeholder(tf.float32,
-                                           [1, self.num_bytes,
-                                            self.num_clusters,
-                                            self.m])
+        self.ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
         ph_centroids = tf.squeeze(self.ph_centroids, 0)
-        self.ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, self.m])
+        self.ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         # [self.num_bytes, None, self.m]
         self.x = tf.transpose(self.ph_x, [1, 0, 2])
         ty = tf.reduce_sum(tf.square(ph_centroids), axis=2, keepdims=True)
@@ -43,7 +40,7 @@ class TFPQEncoder(PQEncoder):
     @BE._train_required
     def encode(self, vecs, batch_size: int = 10000) -> bytes:
         num_points = vecs.shape[0]
-        vecs = np.reshape(vecs, [num_points, self.num_bytes, self.m])
+        vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])
         i = 0
         res = []
         while batch_size * i < vecs.shape[0]:
