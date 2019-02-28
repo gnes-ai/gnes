@@ -44,25 +44,27 @@ basic-pipeline: &bp1
     - <<: *ok_stage
 
 notify-pipeline: &np1
+  network: devnet
+  docker:
+    image: docker.oa.com:8080/public/ailab-faiss-bert:latest
   stages:
-    jobs:
-      - name: make notification
-        script: echo "# 🚀 NES刚刚更新了Master分支\n## 此次更新由$ORANGE_BUILD_USER提交触发\n## 项目地址：https://git.code.oa.com/ai-innersource/nes/" > notify.md
-      - name: send mail
-        type: mail:send
-        options:
-          title: 🚀 NES刚刚更新了Master分支
-          to:
-            - hanhxiao
-            - larryjfyan
-            - madwang
-          type: markdown
-          fromFile: notify.md
-      - name: message
-        type: wework:message
-        options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
-          fromFile: notify.md
+    - name: make notification
+      script: echo "# 🚀 NES刚刚更新了Master分支\n## 此次更新由$ORANGE_BUILD_USER提交触发\n## 项目地址：https://git.code.oa.com/ai-innersource/nes/" > notify.md
+    - name: send mail
+      type: mail:send
+      options:
+        title: 🚀 NES刚刚更新了Master分支
+        to:
+          - hanhxiao
+          - larryjfyan
+          - madwang
+        type: markdown
+        fromFile: notify.md
+    - name: message
+      type: wework:message
+      options:
+        robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+        fromFile: notify.md
 
 master:
   merge_request:
