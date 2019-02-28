@@ -16,6 +16,17 @@ class TestPCA(unittest.TestCase):
         self._test_pq_assert(PQEncoder)
         self._test_pq_assert(TFPQEncoder)
 
+    def test_pq_tfpq_identity(self):
+        def _test_pq_tfpq_identity(pq1, pq2):
+            pq1.train(self.test_vecs)
+            out1 = pq1.encode(self.test_vecs)
+            pq2.copy_from(pq1)
+            out2 = pq2.encode(self.test_vecs)
+            self.assertEqual(out1, out2)
+
+        _test_pq_tfpq_identity(PQEncoder(10), TFPQEncoder(10))
+        _test_pq_tfpq_identity(TFPQEncoder(10), PQEncoder(10))
+
     def _test_pq_assert(self, cls):
         self.assertRaises(AssertionError, cls, 100, 0)
         self.assertRaises(AssertionError, cls, 100, 256)
@@ -47,7 +58,7 @@ class TestPCA(unittest.TestCase):
         out = lopq.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, num_clusters)
 
-    def test_train_pca_throw_error(self):
+    def test_train_pca_assert(self):
         # from PCA
         num_bytes = 100
         lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
