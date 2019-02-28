@@ -32,9 +32,16 @@ class TestPCA(unittest.TestCase):
         self._simple_assert(out, num_bytes, num_clusters)
 
     def test_train_pca_throw_error(self):
+        # from PCA
         num_bytes = 100
         lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
         self.assertRaises(AssertionError, lopq.train, self.test_vecs)
+        # from PCA
+        num_bytes = 7
+        lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
+        self.assertRaises(AssertionError, lopq.train, self.test_vecs)
+        # from LOPQ
+        self.assertRaises(AssertionError, LOPQEncoder, num_bytes, cluster_per_byte=256)
 
     #
     # def test_encode(self):
