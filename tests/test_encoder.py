@@ -90,21 +90,23 @@ class TestPCA(unittest.TestCase):
     #
     #     self.assertEqual(out1, out2)
     #
-    # def test_encode_backend(self):
-    #     lopq = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='tensorflow')
-    #     lopq.train(self.test_vecs)
-    #     out = lopq.encode(self.test_vecs[:10])
-    #     self.assertEqual(10 * int(self.num_bytes / self.dim_per_bytes), len(out))
-    #     self.assertEqual(bytes, type(out))
-    #
-    #     lopq2 = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='numpy')
-    #     # copy from lopq
-    #     lopq2.copy_from(lopq)
-    #     out2 = lopq2.encode(self.test_vecs[:10])
-    #     self.assertEqual(10 * int(self.num_bytes / self.dim_per_bytes), len(out2))
-    #     self.assertEqual(bytes, type(out2))
-    #
-    #     self.assertEqual(out, out2)
+    def test_encode_backend(self):
+        num_bytes = 10
+        lopq = LOPQEncoder(num_bytes, backend='tensorflow')
+        lopq.train(self.test_vecs)
+        out = lopq.encode(self.test_vecs)
+        self._simple_assert(out, num_bytes, 255)
+
+        lopq2 = LOPQEncoder(num_bytes, backend='numpy')
+        out = lopq2.encode(self.test_vecs)
+        self._simple_assert(out, num_bytes, 255)
+
+        # copy from lopq
+        lopq2.copy_from(lopq)
+        out2 = lopq2.encode(self.test_vecs)
+        self._simple_assert(out, num_bytes, 255)
+
+        self.assertEqual(out, out2)
     #
     # def test_encode_batching(self):
     #     lopq = LOPQEncoder(self.num_bytes, self.dim_per_bytes, backend='tensorflow')
