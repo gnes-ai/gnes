@@ -3,12 +3,28 @@ import unittest
 import numpy as np
 
 from src.nes.encoder.lopq import LOPQEncoder
+from src.nes.encoder.pq import PQEncoder
+from src.nes.encoder.tf_pq import TFPQEncoder
 
 
 class TestPCA(unittest.TestCase):
     def setUp(self):
         self.test_vecs = np.random.random([1000, 100])
         self.test_vecs = np.array(self.test_vecs, np.float32)
+
+    def test_pq_assert(self):
+        self._test_pq_assert(PQEncoder)
+        self._test_pq_assert(TFPQEncoder)
+
+    def _test_pq_assert(self, cls):
+        self.assertRaises(AssertionError, cls, 100, 0)
+        self.assertRaises(AssertionError, cls, 100, 256)
+
+        pq = cls(8)
+        self.assertRaises(AssertionError, pq.train, self.test_vecs)
+
+        pq = cls(101)
+        self.assertRaises(AssertionError, pq.train, self.test_vecs)
 
     def _simple_assert(self, out, num_bytes, num_clusters):
         self.assertEqual(bytes, type(out))
@@ -40,7 +56,7 @@ class TestPCA(unittest.TestCase):
         num_bytes = 7
         lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
         self.assertRaises(AssertionError, lopq.train, self.test_vecs)
-        # from LOPQ
+        # from LOPQ, cluster too large
         self.assertRaises(AssertionError, LOPQEncoder, num_bytes, cluster_per_byte=256)
 
     #

@@ -15,7 +15,7 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool
 class PQEncoder(BE):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
         super().__init__()
-        assert cluster_per_byte <= 255, 'cluster number should <= 255 (0 is reserved for NOP)'
+        assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
         self.num_bytes = num_bytes
         self.num_clusters = cluster_per_byte
         self.centroids = None
