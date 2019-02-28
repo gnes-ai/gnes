@@ -7,11 +7,11 @@ from . import BaseTextIndexer
 from ..document import BaseDocument
 
 
-class BaseLVDB(BaseTextIndexer):
+class LVDBIndexer(BaseTextIndexer):
     def __init__(self, data_path: str):
         super().__init__()
         self.db = plyvel.DB(data_path, create_if_missing=True)
-        self.NOT_FOUND = None
+        self.NOT_FOUND = {}
 
     def add(self, docs: List[BaseDocument]):
         with self.db.write_batch() as wb:
@@ -25,8 +25,8 @@ class BaseLVDB(BaseTextIndexer):
         for k in keys:
             doc_id = self.int2bytes(k)
             v = self.db.get(doc_id)
-            res.append(v if v else self.NOT_FOUND)
-        return [self.bytes2doc(d) for d in res]
+            res.append(self.bytes2doc(v) if v else self.NOT_FOUND)
+        return res
 
     @staticmethod
     def doc2bytes(doc: BaseDocument):

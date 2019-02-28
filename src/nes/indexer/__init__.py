@@ -1,6 +1,6 @@
 from typing import List, Tuple, Any
 
-from .leveldb import BaseLVDB
+from .leveldb import LVDBIndexer
 from ..document import BaseDocument
 from ..helper import set_logger
 
