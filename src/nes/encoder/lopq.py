@@ -36,18 +36,14 @@ class LOPQEncoder(BE):
         return self.pq.encode(vecs, **kwargs)
 
     def _do_pca(self, vecs, is_train=False):
-        num_dim = vecs.shape[1]
+        num_sample, num_dim = vecs.shape
         if self.pca_output_dim > 0:
-            if num_dim > self.pca_output_dim:
-                if is_train:
-                    self.logger.info(
-                        'PCA is enabled in the encoding pipeline (%d -> %d)' % (num_dim, self.pca_output_dim))
-                    self.pca = PCALocalEncoder(self.pca_output_dim, num_locals=self.num_bytes)
-                    self.pca.train(vecs)
-                vecs = self.pca.encode(vecs)
-            else:
-                self.logger.warning('PCA is enabled but incoming data has dimension of %d < %d, '
-                                    'no PCA needed!' % (num_dim, self.pca_output_dim))
+            if is_train:
+                self.pca = PCALocalEncoder(self.pca_output_dim, num_locals=self.num_bytes)
+                self.pca.train(vecs)
+            self.logger.info(
+                'PCA is enabled in the encoding pipeline (%d -> %d)' % (num_dim, self.pca_output_dim))
+            vecs = self.pca.encode(vecs)
         return vecs
 
     def copy_from(self, x: 'LOPQEncoder'):

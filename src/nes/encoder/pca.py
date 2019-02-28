@@ -17,16 +17,21 @@ class PCALocalEncoder(BE):
 
     @BE._as_train_func
     def train(self, vecs: np.ndarray) -> None:
-        n = vecs.shape[1]
-        pca = faiss.PCAMatrix(n, self.output_dim)
+        num_samples, num_dim = vecs.shape
+        assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
+            self.output_dim, num_samples)
+        assert self.output_dim < num_dim, 'PCA output dimension should < data dimension, received (%d, %d)' % (
+            self.output_dim, num_dim)
+
+        pca = faiss.PCAMatrix(num_dim, self.output_dim)
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
         pca.train(vecs)
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
-        components = faiss.vector_to_array(pca.PCAMat).reshape([n, n])[:self.output_dim]
+        components = faiss.vector_to_array(pca.PCAMat).reshape([num_dim, num_dim])[:self.output_dim]
 
         # permutate engive according to variance
         opt_order = get_perm(explained_variance_ratio, self.num_locals)
-        comp_tmp = np.reshape(components[opt_order], [self.output_dim, n])
+        comp_tmp = np.reshape(components[opt_order], [self.output_dim, num_dim])
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
 

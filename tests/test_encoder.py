@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from src.nes.encoder.lopq import LOPQEncoder
+from src.nes.encoder.pca import PCALocalEncoder
 from src.nes.encoder.pq import PQEncoder
 from src.nes.encoder.tf_pq import TFPQEncoder
 
@@ -41,6 +42,21 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(bytes, type(out))
         self.assertEqual(self.test_vecs.shape[0] * num_bytes, len(out))
         self.assertTrue(np.all(np.frombuffer(out, np.uint8) <= num_clusters))
+
+    def test_assert_pca(self):
+        self.assertRaises(AssertionError, PCALocalEncoder, 8, 3)
+        self.assertRaises(AssertionError, PCALocalEncoder, 2, 3)
+
+        pca = PCALocalEncoder(100, 2)
+        self.assertRaises(AssertionError, pca.train, self.test_vecs)
+
+        pca = PCALocalEncoder(8, 2)
+        self.assertRaises(AssertionError, pca.train, self.test_vecs[:7])
+
+        pca.train(self.test_vecs)
+        out = pca.encode(self.test_vecs)
+        self.assertEqual(out.shape[1], 8)
+        self.assertEqual(out.shape[0], self.test_vecs.shape[0])
 
     def test_train_no_pca(self):
         num_bytes = 10
