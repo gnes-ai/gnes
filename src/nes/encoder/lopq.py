@@ -13,9 +13,8 @@ class LOPQEncoder(BE):
         self.num_bytes = num_bytes
         self.pca_output_dim = pca_output_dim
         self.pca = None
-        if pca_output_dim > 0:
-            assert pca_output_dim >= num_bytes and pca_output_dim % num_bytes == 0, \
-                'pca_output_dim should >= num_bytes and can be divided by num_bytes!'
+        # if has PCA, then pca_output_dim >= num_bytes AND pca_output_dim % num_bytes == 0
+        # if no PCA then output_dim >= num_bytes AND output_dim % num_bytes == 0
 
         if backend == 'numpy':
             from .pq import PQEncoder
@@ -37,22 +36,25 @@ class LOPQEncoder(BE):
         return self.pq.encode(vecs, **kwargs)
 
     def _do_pca(self, vecs, is_train=False):
-        if self.pca_output_dim > 0 and vecs.shape[1] < self.pca_output_dim:
+        num_dim = vecs.shape[1]
+        if self.pca_output_dim > 0 and num_dim < self.pca_output_dim:
             if is_train:
                 self.logger.info(
-                    'PCA is enabled in the encoding pipeline (%d -> %d)' % (vecs.shape[1], self.pca_output_dim))
+                    'PCA is enabled in the encoding pipeline (%d -> %d)' % (num_dim, self.pca_output_dim))
                 self.pca = PCALocalEncoder(self.pca_output_dim, num_locals=self.num_bytes)
                 self.pca.train(vecs)
             vecs = self.pca.encode(vecs)
         elif self.pca_output_dim > 0:
             self.logger.warning('PCA is enabled but incoming data has dimension of %d < %d, '
-                                'no PCA needed!' % (vecs.shape[1], self.pca_output_dim))
+                                'no PCA needed!' % (num_dim, self.pca_output_dim))
         return vecs
 
     def copy_from(self, x: 'LOPQEncoder'):
         self.pq.copy_from(x.pq)
-        if self.pca:
+        if self.pca and x.pca:
             self.pca.copy_from(x.pca)
+        elif not self.pca:
+            self.pca = x.pca
         self.is_trained = x.is_trained
         self.num_bytes = x.num_bytes
         self.pca_output_dim = x.pca_output_dim

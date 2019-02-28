@@ -47,10 +47,9 @@ class PQEncoder(BE):
 
     def _get_dim_per_byte(self, vecs):
         num_dim = vecs.shape[1]
-        assert num_dim >= self.num_bytes, 'input dimension must >= num_bytes'
-        assert vecs.shape[1] % self.num_bytes == 0, \
-            'input dimension %d must be divided by %d' % (vecs.shape[1], self.num_bytes)
-        return int(vecs.shape[1] / self.num_bytes)
+        assert num_dim >= self.num_bytes and num_dim % self.num_bytes == 0, \
+            'input dimension should >= num_bytes and can be divided by num_bytes!'
+        return int(num_dim / self.num_bytes)
 
     def copy_from(self, x: 'PQEncoder') -> None:
         self.num_bytes = x.num_bytes

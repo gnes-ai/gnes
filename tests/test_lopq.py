@@ -26,18 +26,16 @@ class TestPCA(unittest.TestCase):
     def test_train_pca(self):
         num_bytes = 10
         num_clusters = 11
-        lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
+        lopq = LOPQEncoder(num_bytes, cluster_per_byte=num_clusters, pca_output_dim=20)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, num_clusters)
 
-    def test_train_implicit_no_pca(self):
+    def test_train_pca_throw_error(self):
         num_bytes = 100
-        num_clusters = 11
         lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
-        lopq.train(self.test_vecs)
-        out = lopq.encode(self.test_vecs)
-        self._simple_assert(out, num_bytes, num_clusters)
+        self.assertRaises(AssertionError, lopq.train, self.test_vecs)
+
     #
     # def test_encode(self):
     #     lopq = LOPQEncoder(self.num_bytes, self.dim_per_bytes)
