@@ -10,7 +10,7 @@ from src.nes.encoder.tf_pq import TFPQEncoder
 
 class TestPCA(unittest.TestCase):
     def setUp(self):
-        self.test_vecs = np.random.random([1000, 100])
+        self.test_vecs = np.cast(np.random.random([1000, 100]), np.float32)
 
     def test_pq_assert(self):
         self._test_pq_assert(PQEncoder)
