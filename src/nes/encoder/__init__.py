@@ -63,7 +63,8 @@ class BaseEncoder:
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
-    def load(filename: str) -> 'BaseEncoder':
+    @_timeit
+    def load(self, filename: str) -> 'BaseEncoder':
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
@@ -78,7 +79,6 @@ class BaseEncoder:
     _timeit = staticmethod(_timeit)
     _as_train_func = staticmethod(_as_train_func)
     _train_required = staticmethod(_train_required)
-    load = staticmethod(load)
 
 
 class BaseBinaryEncoder(BaseEncoder):
