@@ -13,6 +13,7 @@ class TestBertServing(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
+        self.dump_path = os.path.join(dirname, 'encoder.bin')
 
         with open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8') as fp:
             self.test_data = [v.strip() for v in fp if v.strip() and len(v.strip()) > 10]
@@ -48,6 +49,12 @@ class TestBertServing(unittest.TestCase):
         bbe.bc_encoder.close()
         self.assertEqual(bytes, type(out))
         self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
+
+        bbe.dump(self.dump_path)
+        self.assertTrue(os.path.exists(self.dump_path))
+        bbe2 = bbe.load(self.dump_path)
+        out2 = bbe2.encode(self.test_data)
+        self.assertEqual(out, out2)
 
     def tearDown(self):
         self.server.close()

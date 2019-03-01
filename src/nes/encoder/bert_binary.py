@@ -14,6 +14,17 @@ class BertBinaryEncoder(LOPQEncoder):
                  *args, **kwargs):
         super().__init__(num_bytes, cluster_per_byte, backend, pca_output_dim)
         self.bc_encoder = BertClient(*args, **kwargs)
+        self._bc_encoder_args = args
+        self._bc_encoder_kwargs = kwargs
+
+    def __getstate__(self):
+        d = super().__getstate__()
+        del d['bc_encoder']
+        return d
+
+    def __setstate__(self, d):
+        super().__setstate__(d)
+        self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
     @BE._train_required
     def encode(self, texts: List[str], is_tokenized=False) -> bytes:

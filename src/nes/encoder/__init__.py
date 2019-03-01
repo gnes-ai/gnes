@@ -1,3 +1,4 @@
+import pickle
 from functools import wraps
 
 from ..helper import set_logger
@@ -15,11 +16,23 @@ class BaseEncoder:
     def train(self, *args, **kwargs):
         pass
 
-    def dump(self, *args, **kwargs):
-        pass
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['logger']
+        return d
 
-    def load(self, *args, **kwargs):
-        pass
+    def __setstate__(self, d):
+        self.__dict__.update(d)
+        self.logger = set_logger(self.__class__.__name__, self.verbose)
+
+    def dump(self, filename: str):
+        with open(filename, 'wb') as fp:
+            pickle.dump(self, fp)
+
+    @staticmethod
+    def load(filename: str) -> 'BaseEncoder':
+        with open(filename, 'rb') as fp:
+            return pickle.load(fp)
 
     def _train_required(func):
         @wraps(func)
