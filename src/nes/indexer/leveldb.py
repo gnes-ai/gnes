@@ -45,6 +45,10 @@ class LVDBIndexer(BaseTextIndexer):
             res.append(self._bytes2doc(v) if v else self._NOT_FOUND)
         return res
 
+    def close(self):
+        self._check_thread()
+        self._db.close()
+
     def _check_thread(self):
         if self.thread_pool:
             for thread in self.thread_pool:
