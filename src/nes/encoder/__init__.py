@@ -1,14 +1,24 @@
+import os
 import pickle
 from functools import wraps
 
-from ..helper import set_logger
+from ..helper import set_logger, timeit
 
 
 class BaseEncoder:
     def __init__(self, *args, **kwargs):
+        # common
         self.is_trained = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
+
+        # final
+        self.train = self._as_train_func(self.train)
+        if os.environ.get('NES_BENCHMARK', False):
+            self.train = timeit(self.train)
+            self.encode = timeit(self.encode)
+            self.dump = timeit(self.dump)
+            self.load = timeit(self.load)
 
     def encode(self, *args, **kwargs):
         pass

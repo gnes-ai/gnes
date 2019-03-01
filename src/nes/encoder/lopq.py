@@ -30,7 +30,6 @@ class LOPQEncoder(BE):
         vecs = self._do_pca(vecs, True)
         self.pq.train(vecs)
 
-    @BE._train_required
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         vecs = self._do_pca(vecs)
         return self.pq.encode(vecs, **kwargs)

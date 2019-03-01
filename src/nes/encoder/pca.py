@@ -15,7 +15,6 @@ class PCALocalEncoder(BE):
         self.components = None
         self.mean = None
 
-    @BE._as_train_func
     def train(self, vecs: np.ndarray) -> None:
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (

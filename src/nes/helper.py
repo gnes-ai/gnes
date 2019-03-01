@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+from functools import wraps
 
 import numpy as np
 from termcolor import colored
@@ -125,6 +126,18 @@ class TimeContext:
     def __exit__(self, typ, value, traceback):
         self.duration = time.perf_counter() - self.start
         print(colored('    [%3.3f secs]' % self.duration, 'green'), flush=True)
+
+
+def timeit(func):
+    @wraps(func)
+    def arg_wrapper(self, *args, **kwargs):
+        start_t = time.perf_counter()
+        r = func(self, *args, **kwargs)
+        elapsed = time.perf_counter() - start_t
+        self.logger.info('%s.%s takes %3.3fs' % (self.__class__.__name__, func.__name__, elapsed))
+        return r
+
+    return arg_wrapper
 
 
 class SentenceSplitter:
