@@ -52,3 +52,13 @@ class TFPQEncoder(PQEncoder):
             res.append(tmp)
             i += 1
         return np.concatenate(res, 0).astype(np.uint8).tobytes()
+
+    def __getstate__(self):
+        d = super().__getstate__()
+        del d['_sess']
+        return d
+
+    def __setstate__(self, d):
+        super().__setstate__(d)
+        self._sess = tf.Session()
+        self._sess.run(tf.global_variables_initializer())
