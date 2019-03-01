@@ -29,12 +29,14 @@ class TestBaseLVDB(unittest.TestCase):
         db.add(self.test_data1)
         self.assertTrue(os.path.exists(self.db_path))
         self.assertLess(0, len(os.listdir(self.db_path)))
+        db.close()
 
     def test_add_multi(self):
         db = LVDBIndexer(self.db_path)
         db.add(self.test_data2)
         self.assertTrue(os.path.exists(self.db_path))
         self.assertLess(0, len(os.listdir(self.db_path)))
+        db.close()
 
     def test_query(self):
         db = LVDBIndexer(self.db_path)
@@ -46,3 +48,4 @@ class TestBaseLVDB(unittest.TestCase):
         res2 = db.query(self.query_miss_id)
         num_non_empty = sum(1 for d in res2 if d)
         self.assertEqual(num_non_empty, 0)
+        db.close()
