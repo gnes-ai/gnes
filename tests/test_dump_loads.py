@@ -1,6 +1,5 @@
 import os
 import unittest
-from shutil import rmtree
 
 import numpy as np
 
@@ -27,7 +26,3 @@ class TestDumpAndLoad(unittest.TestCase):
 
         _test('numpy')
         _test('tensorflow')
-
-    def tearDown(self):
-        if os.path.exists(self.dump_path):
-            rmtree(self.dump_path)
