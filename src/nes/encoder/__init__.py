@@ -30,9 +30,9 @@ class BaseEncoder:
             pickle.dump(self, fp)
 
     @staticmethod
-    def load(filename: str):
+    def load(filename: str) -> 'BaseEncoder':
         with open(filename, 'rb') as fp:
-            pickle.load(fp)
+            return pickle.load(fp)
 
     def _train_required(func):
         @wraps(func)
