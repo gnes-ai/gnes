@@ -7,9 +7,9 @@ from src.nes.indexer.findexer import FIndexer
 class TestFIndexer(unittest.TestCase):
     def setUp(self):
         self.n_bytes = 20
-        self.n_lines = 100000
+        self.n_lines = 1000
         self.top_k = 2
-        self.query_num = 100
+        self.query_num = 10
         self.test_ints = np.random.randint(
                         0, 255, [self.n_lines, self.n_bytes]).astype(np.uint8)
 
