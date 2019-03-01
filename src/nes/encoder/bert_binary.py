@@ -31,6 +31,7 @@ class BertBinaryEncoder(LOPQEncoder):
         vec = self.bc_encoder.encode(texts, is_tokenized=is_tokenized)
         return super().encode(vec)
 
+    @BE._as_train_func
     def train(self, texts: List[str], is_tokenized=False) -> None:
         vec = self.bc_encoder.encode(texts, is_tokenized=is_tokenized)
         return super().train(vec)
