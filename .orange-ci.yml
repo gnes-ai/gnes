@@ -47,7 +47,7 @@ notify-pipeline: &np1
   network: devnet
   stages:
     - name: make notification
-      script: echo "# 🚀 NES刚刚更新了Master分支\n## 此次更新由$ORANGE_BUILD_USER提交触发\n## 项目地址：https://git.code.oa.com/ai-innersource/nes/" > notify.md
+      script: echo "# 🚀 NES刚刚更新了Master分支\n此次更新由$ORANGE_BUILD_USER提交触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
     - name: send mail
       type: mail:send
       options:
