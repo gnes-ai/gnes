@@ -22,7 +22,7 @@ class LVDBIndexer(BaseTextIndexer):
 
         if len(self.thread_pool) < 10:
             thread = Thread(target=self._add,
-                            args=(docs), kwargs=None)
+                            args=(docs,), kwargs=None)
             thread.start()
             self.thread_pool.append(thread)
         else:
@@ -37,12 +37,19 @@ class LVDBIndexer(BaseTextIndexer):
                 wb.put(doc_id, doc)
 
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
+        self._check_thread()
         res = []
         for k in keys:
             doc_id = self._int2bytes(k)
             v = self._db.get(doc_id)
             res.append(self._bytes2doc(v) if v else self._NOT_FOUND)
         return res
+
+    def _check_thread(self):
+        if self.thread_pool:
+            for thread in self.thread_pool:
+                thread.join()
+            self.thread_pool = []
 
     @staticmethod
     def _doc2bytes(doc: BaseDocument):
