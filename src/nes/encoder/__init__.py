@@ -54,6 +54,7 @@ class BaseEncoder:
 
         return arg_wrapper
 
+    @staticmethod
     def _as_train_func(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
