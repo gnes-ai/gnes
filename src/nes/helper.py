@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+from functools import wraps
 
 import numpy as np
 from termcolor import colored
@@ -41,6 +42,21 @@ def get_perm(L, m):
                 reranked.append(R[i, start])
 
     return reranked
+
+
+def time_profile(func):
+    @wraps(func)
+    def arg_wrapper(*args, **kwargs):
+        if os.environ.get('NES_PROFILING', False):
+            start_t = time.perf_counter()
+            r = func(*args, **kwargs)
+            elapsed = time.perf_counter() - start_t
+            profile_logger.info('%s: %3.3fs' % (func.__name__, elapsed))
+        else:
+            r = func(*args, **kwargs)
+        return r
+
+    return arg_wrapper
 
 
 def set_logger(context, verbose=False):
@@ -165,3 +181,4 @@ class SentenceSplitter:
 
 
 cn_sent_splitter = SentenceSplitter()
+profile_logger = set_logger('PROFILE')

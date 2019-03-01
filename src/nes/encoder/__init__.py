@@ -1,12 +1,12 @@
-import os
 import pickle
-import time
 from functools import wraps
 
-from ..helper import set_logger
+from ..helper import set_logger, time_profile
 
 
 class BaseEncoder:
+    _timeit = time_profile
+
     def __init__(self, *args, **kwargs):
         # common
         self.is_trained = False
@@ -22,6 +22,7 @@ class BaseEncoder:
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__, self.verbose)
 
+    @staticmethod
     def _train_required(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
@@ -32,6 +33,7 @@ class BaseEncoder:
 
         return arg_wrapper
 
+    @staticmethod
     def _as_train_func(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
@@ -44,27 +46,14 @@ class BaseEncoder:
 
         return arg_wrapper
 
-    def _timeit(func):
-        @wraps(func)
-        def arg_wrapper(self, *args, **kwargs):
-            if os.environ.get('NES_BENCHMARK', False):
-                start_t = time.perf_counter()
-                r = func(self, *args, **kwargs)
-                elapsed = time.perf_counter() - start_t
-                self.logger.info('%s.%s: %3.3fs' % (self.__class__.__name__, func.__name__, elapsed))
-            else:
-                r = func(self, *args, **kwargs)
-            return r
-
-        return arg_wrapper
-
     @_timeit
     def dump(self, filename: str):
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
     @_timeit
-    def load(self, filename: str) -> 'BaseEncoder':
+    @staticmethod
+    def load(filename: str) -> 'BaseEncoder':
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
@@ -75,10 +64,6 @@ class BaseEncoder:
     @_timeit
     def train(self, *args, **kwargs):
         pass
-
-    _timeit = staticmethod(_timeit)
-    _as_train_func = staticmethod(_as_train_func)
-    _train_required = staticmethod(_train_required)
 
 
 class BaseBinaryEncoder(BaseEncoder):
