@@ -51,7 +51,7 @@ def time_profile(func):
             start_t = time.perf_counter()
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
-            profile_logger.info('%s: %3.3fs' % (func.__name__, elapsed))
+            profile_logger.info('%s: %3.3fs' % (func.__qualname__, elapsed))
         else:
             r = func(*args, **kwargs)
         return r

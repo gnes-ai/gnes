@@ -7,6 +7,8 @@ ok-stage: &ok_stage
         type: git:comment
         options:
           fromFile: comment.txt
+      - name: make notification
+        script: echo "# ✅ $ORANGE_BUILD_USER提交的$ORANGE_BRANCH分支测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
 
 install-deps: &install_deps
   - name: install dependencies
