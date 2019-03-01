@@ -21,6 +21,7 @@ class PQEncoder(BE):
         self.centroids = None
 
     @BE._as_train_func
+    @BE._timeit
     def train(self, vecs: np.ndarray, num_iters: int = 20):
         dim_per_byte = self._get_dim_per_byte(vecs)
 
@@ -35,6 +36,7 @@ class PQEncoder(BE):
         self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
 
     @BE._train_required
+    @BE._timeit
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

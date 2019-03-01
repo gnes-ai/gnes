@@ -1,20 +1,17 @@
 import pickle
 from functools import wraps
 
-from ..helper import set_logger
+from ..helper import set_logger, time_profile
 
 
 class BaseEncoder:
+    _timeit = time_profile
+
     def __init__(self, *args, **kwargs):
+        # common
         self.is_trained = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
-
-    def encode(self, *args, **kwargs):
-        pass
-
-    def train(self, *args, **kwargs):
-        pass
 
     def __getstate__(self):
         d = dict(self.__dict__)
@@ -25,15 +22,7 @@ class BaseEncoder:
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__, self.verbose)
 
-    def dump(self, filename: str):
-        with open(filename, 'wb') as fp:
-            pickle.dump(self, fp)
-
     @staticmethod
-    def load(filename: str) -> 'BaseEncoder':
-        with open(filename, 'rb') as fp:
-            return pickle.load(fp)
-
     def _train_required(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
@@ -44,6 +33,7 @@ class BaseEncoder:
 
         return arg_wrapper
 
+    @staticmethod
     def _as_train_func(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
@@ -55,6 +45,25 @@ class BaseEncoder:
             return f
 
         return arg_wrapper
+
+    @_timeit
+    def dump(self, filename: str):
+        with open(filename, 'wb') as fp:
+            pickle.dump(self, fp)
+
+    @staticmethod
+    @_timeit
+    def load(filename: str) -> 'BaseEncoder':
+        with open(filename, 'rb') as fp:
+            return pickle.load(fp)
+
+    @_timeit
+    def encode(self, *args, **kwargs):
+        pass
+
+    @_timeit
+    def train(self, *args, **kwargs):
+        pass
 
 
 class BaseBinaryEncoder(BaseEncoder):

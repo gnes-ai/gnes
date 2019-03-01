@@ -26,11 +26,13 @@ class LOPQEncoder(BE):
             raise NotImplementedError('backend=%s is not implemented yet!' % backend)
 
     @BE._as_train_func
+    @BE._timeit
     def train(self, vecs: np.ndarray):
         vecs = self._do_pca(vecs, True)
         self.pq.train(vecs)
 
     @BE._train_required
+    @BE._timeit
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         vecs = self._do_pca(vecs)
         return self.pq.encode(vecs, **kwargs)

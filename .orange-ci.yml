@@ -7,6 +7,13 @@ ok-stage: &ok_stage
         type: git:comment
         options:
           fromFile: comment.txt
+      - name: make notification
+        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_LATEST_COMMIT_MESSAGE刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+      - name: message
+        type: wework:message
+        options:
+          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          fromFile: notify.md
 
 install-deps: &install_deps
   - name: install dependencies
@@ -37,6 +44,7 @@ basic-pipeline: &bp1
     BERT_CI_PORT: 7125
     BERT_CI_PORT_OUT: 7126
     BERT_CI_MODEL: /chinese_L-12_H-768_A-12
+    NES_PROFILING: 1
   stages:
     - <<: *install_deps
     - <<: *pylint

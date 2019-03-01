@@ -10,3 +10,9 @@ To run all unit tests:
 python -m unittest tests/*.py
 ```
 
+
+To enable profiling:
+
+```bash
+export NES_PROFILING=1
+```
