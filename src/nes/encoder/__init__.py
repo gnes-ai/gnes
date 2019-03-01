@@ -51,8 +51,8 @@ class BaseEncoder:
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
-    @_timeit
     @staticmethod
+    @_timeit
     def load(filename: str) -> 'BaseEncoder':
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
