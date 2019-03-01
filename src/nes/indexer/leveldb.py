@@ -20,7 +20,7 @@ class LVDBIndexer(BaseTextIndexer):
             if not thread.is_alive():
                 self.thread_pool.remove(thread)
 
-        if len(self.thread_pool) < 10:
+        if len(self.thread_pool) < 2:
             thread = Thread(target=self._add,
                             args=(docs,), kwargs=None)
             thread.start()
