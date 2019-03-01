@@ -1,7 +1,8 @@
 import json
 from typing import List, Dict, Any
-
+from threading import Thread
 import plyvel
+import time
 
 from . import BaseTextIndexer
 from ..document import BaseDocument
@@ -12,8 +13,23 @@ class LVDBIndexer(BaseTextIndexer):
         super().__init__()
         self._db = plyvel.DB(data_path, create_if_missing=True)
         self._NOT_FOUND = {}
+        self.thread_pool = []
 
     def add(self, docs: List[BaseDocument]):
+        for thread in self.thread_pool:
+            if not thread.is_alive():
+                self.thread_pool.remove(thread)
+
+        if len(self.thread_pool) < 10:
+            thread = Thread(target=self._add,
+                            args=(docs), kwargs=None)
+            thread.start()
+            self.thread_pool.append(thread)
+        else:
+            time.sleep(1)
+            self.add(docs)
+
+    def _add(self, docs: List[BaseDocument]):
         with self._db.write_batch() as wb:
             for d in docs:
                 doc_id = self._int2bytes(d.id)
