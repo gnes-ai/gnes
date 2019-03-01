@@ -1,9 +1,6 @@
 from memory_profiler import memory_usage
 import numpy as np
-import sys
-sys.path.append('../')
 from src.nes.encoder.pq import PQEncoder
-from src.nes.encoder.tf_pq import TFPQEncoder
 
 
 def pq_test(vecs, num_bytes, cluster_per_byte):
@@ -18,7 +15,7 @@ def test_n_samples():
         print('{} lines, time {}, RAM usage {}'.format(dim, len(mem)/10, max(mem)))
 
 
-def test_nbytes():
+def test_n_bytes():
     vecs = np.random.random([1000000, 200]).astype(np.float32)
     for nbytes in [1, 5, 10, 20, 40, 50, 100, 200]:
         mem = memory_usage((pq_test, (vecs, nbytes, 200)))
@@ -32,4 +29,7 @@ def test_num_clusters():
         print('{} clus, time {}, RAM usage {}'.format(n_clus, len(mem)/10, max(mem)))
 
 
-test_num_clusters()
+if __name__ == '__main__':
+    test_n_samples()
+    test_n_bytes()
+    test_num_clusters()
