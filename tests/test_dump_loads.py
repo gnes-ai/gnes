@@ -12,6 +12,10 @@ class TestDumpAndLoad(unittest.TestCase):
         self.dump_path = os.path.join(dirname, 'encoder.bin')
         self.test_vecs = np.random.random([1000, 100])
 
+    def tearDown(self):
+        if os.path.exists(self.dump_path):
+            os.remove(self.dump_path)
+
     def test_dumpload_np(self):
         def _test(backend):
             num_bytes = 10
