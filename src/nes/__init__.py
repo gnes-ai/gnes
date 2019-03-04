@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Dict
 
 from .document import BaseDocument
 from .encoder import *
@@ -20,11 +20,18 @@ class BaseNES(BaseIndexer):
         self.batch_size = batch_size
 
     def _add_batch(self, batch: List[BaseDocument]):
-        sents, ids = [(s, d.id) for d in batch for s in d.sentences]
+        sents, ids = list(zip(*[(s, d.id) for d in batch for s in d.sentences]))
         bin_vectors = self.binary_encoder.encode(sents)
         self.binary_indexer.add(bin_vectors, ids)
         self.text_indexer.add(batch)
 
+    @TB._as_train_func
+    @TB._timeit
+    def train(self, iter_doc: Iterator[BaseDocument], is_tokenized=False) -> None:
+        sents = [s for d in iter_doc for s in d.sentences]
+        self.binary_encoder.train(sents, is_tokenized)
+
+    @TB._train_required
     def add(self, iter_doc: Iterator[BaseDocument]) -> None:
         cur_batch = []
         for doc in iter_doc:
@@ -35,7 +42,8 @@ class BaseNES(BaseIndexer):
         if cur_batch:
             self._add_batch(cur_batch)
 
-    def query(self, keys: List[str], top_k: int) -> List[List[Tuple[BaseDocument, float]]]:
+    @TB._train_required
+    def query(self, keys: List[str], top_k: int) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.binary_encoder.encode(keys)
         result_score = self.binary_indexer.query(bin_queries, top_k)
         all_ids = list(set(d[0] for id_score in result_score for d in id_score if d[0] >= 0))

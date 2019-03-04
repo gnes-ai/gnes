@@ -72,7 +72,7 @@ class LVDBIndexer(BaseTextIndexer):
             self.thread_pool = []
 
     @staticmethod
-    def _doc2bytes(doc: BaseDocument):
+    def _doc2bytes(doc: BaseDocument) -> bytes:
         # doc._sentences is iterator, which can't be dumped.
         return bytes(json.dumps({
             'id': doc.id,
@@ -81,16 +81,16 @@ class LVDBIndexer(BaseTextIndexer):
             ensure_ascii=False), 'utf8')
 
     @staticmethod
-    def _bytes2doc(content):
+    def _bytes2doc(content: bytes) -> Dict[str, Any]:
         if content:
             return json.loads(content.decode())
         else:
             return {}
 
     @staticmethod
-    def _int2bytes(x):
+    def _int2bytes(x: int) -> bytes:
         return x.to_bytes((x.bit_length() + 7) // 8, 'big')
 
     @staticmethod
-    def _bytes2int(xbytes):
+    def _bytes2int(xbytes: bytes) -> int:
         return int.from_bytes(xbytes, 'big')
