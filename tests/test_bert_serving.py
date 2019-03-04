@@ -72,6 +72,7 @@ class TestBertServing(unittest.TestCase):
         nes.train(self.test_data1)
         nes.add(self.test_data1)
         query = [s for d in self.test_data1 for s in d.sentences]
+        print(query)
         print(nes.query(query, top_k=1))
 
     def tearDown(self):
