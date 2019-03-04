@@ -62,6 +62,7 @@ class LVDBIndexer(BaseTextIndexer):
         return res
 
     def close(self):
+        super().close()
         self._check_thread()
         self._db.close()
 

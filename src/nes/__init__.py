@@ -51,6 +51,11 @@ class BaseNES(BaseIndexer):
         id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}
         return [[(id2doc[d_id], d_score) for d_id, d_score in id_score] for id_score in result_score]
 
+    def close(self):
+        self.text_indexer.close()
+        self.binary_encoder.close()
+        self.binary_indexer.close()
+
 
 class DummyNES(BaseNES):
     def __init__(self, *args, **kwargs):

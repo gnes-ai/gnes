@@ -59,3 +59,12 @@ class TrainableBase:
     def load(filename: str) -> _tb:
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
+
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()

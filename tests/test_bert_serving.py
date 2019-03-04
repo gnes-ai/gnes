@@ -80,10 +80,12 @@ class TestBertServing(unittest.TestCase):
 
         # test dump and loads
         nes.dump(self.dump_path)
+        nes.close()
         self.assertTrue(os.path.exists(self.dump_path))
         nes2 = DummyNES.load(self.dump_path)
         result2 = nes2.query(query, top_k=2)
         self.assertEqual(result, result2)
+        nes2.close()
 
         # test multi-sent document
         nes3 = DummyNES(pca_output_dim=32,
