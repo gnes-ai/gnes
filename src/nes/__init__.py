@@ -20,6 +20,7 @@ class BaseNES(BaseIndexer):
         self.batch_size = batch_size
 
     def _add_batch(self, batch: List[BaseDocument]):
+        print([(s, d.id) for d in batch for s in d.sentences])
         sents, ids = map(list, zip(*[(s, d.id) for d in batch for s in d.sentences]))
         bin_vectors = self.binary_encoder.encode(sents)
         self.binary_indexer.add(bin_vectors, ids)
