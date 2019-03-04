@@ -1,10 +1,7 @@
 import pickle
 from functools import wraps
-from typing import TypeVar
 
 from ..helper import set_logger, time_profile
-
-_tb = TypeVar('T', bound='TrainableBase')
 
 
 class TrainableBase:
@@ -50,12 +47,12 @@ class TrainableBase:
         return arg_wrapper
 
     @_timeit
-    def dump(self, filename: str) -> None:
+    def dump(self, filename: str):
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
     @staticmethod
     @_timeit
-    def load(filename: str) -> _tb:
+    def load(filename: str) -> 'TrainableBase':
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
