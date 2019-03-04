@@ -10,8 +10,8 @@ class NumpyIndexer(BaseBinaryIndexer):
     def __init__(self, num_bytes: int = None, *args, **kwargs):
         super().__init__()
         self.num_bytes = num_bytes
-        self._vectors = None
-        self._doc_ids = None
+        self._vectors = None  # type: np.ndarray
+        self._doc_ids = None  # type: np.ndarray
 
     @TB._timeit
     def add(self, vectors: bytes, doc_ids: List[int]):
@@ -44,6 +44,6 @@ class NumpyIndexer(BaseBinaryIndexer):
         ret = []
         for ids in dist:
             rk = sorted(enumerate(ids), key=lambda x: x[1])
-            ret.append([(self._doc_ids[rk[i][0]], rk[i][1]) for i in range(top_k)])
+            ret.append([(self._doc_ids[rk[i][0]].tolist(), rk[i][1]) for i in range(top_k)])
 
         return ret
