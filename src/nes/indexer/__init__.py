@@ -11,6 +11,9 @@ class BaseIndexer(TB):
     @TB._timeit
     def query(self, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass
 
+    def close(self):
+        super().close()
+
 
 class BaseBinaryIndexer(BaseIndexer):
     def __init__(self):

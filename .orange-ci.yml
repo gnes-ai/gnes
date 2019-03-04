@@ -37,7 +37,7 @@ unit-test: &unit_test
     script: python -m unittest tests/*.py
 
 basic-pipeline: &bp1
-  network: devnet
+  network: idc-ai-sse4
   docker:
     image: docker.oa.com:8080/public/ailab-faiss-bert:latest
   env:

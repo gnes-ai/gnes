@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from . import BaseEncoder
+from . import BaseBinaryEncoder
 from .pca import PCALocalEncoder
 from ..base import TrainableBase as TB
 
 
-class LOPQEncoder(BaseEncoder):
+class LOPQEncoder(BaseBinaryEncoder):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255,
                  backend: str = 'numpy', pca_output_dim: int = -1):
         super().__init__()

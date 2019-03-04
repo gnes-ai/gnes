@@ -10,6 +10,9 @@ class BaseEncoder(TB):
     def train(self, *args, **kwargs):
         pass
 
+    def close(self):
+        super().close()
+
 
 class BaseBinaryEncoder(BaseEncoder):
     @TB._timeit
