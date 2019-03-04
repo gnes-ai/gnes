@@ -1,11 +1,12 @@
 import faiss
 import numpy as np
 
-from . import BaseEncoder as BE
+from . import BaseEncoder
+from ..base import TrainableBase as TB
 from ..helper import get_perm
 
 
-class PCALocalEncoder(BE):
+class PCALocalEncoder(BaseEncoder):
     def __init__(self, output_dim: int, num_locals: int):
         super().__init__()
         assert output_dim >= num_locals and output_dim % num_locals == 0, \
@@ -15,8 +16,8 @@ class PCALocalEncoder(BE):
         self.components = None
         self.mean = None
 
-    @BE._as_train_func
-    @BE._timeit
+    @TB._as_train_func
+    @TB._timeit
     def train(self, vecs: np.ndarray) -> None:
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
@@ -36,8 +37,8 @@ class PCALocalEncoder(BE):
 
         self.components = np.transpose(comp_tmp)  # 768 x 200
 
-    @BE._train_required
-    @BE._timeit
+    @TB._train_required
+    @TB._timeit
     def encode(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 

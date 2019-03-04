@@ -19,6 +19,7 @@ class TestBaseLVDB(unittest.TestCase):
             self.query_miss_id = [random.randint(0, 10000) for _ in self.test_data1]
 
         self.db_path = './test_leveldb'
+        self.dump_path = os.path.join(dirname, 'indexer.bin')
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -41,6 +42,22 @@ class TestBaseLVDB(unittest.TestCase):
     def test_query(self):
         db = LVDBIndexer(self.db_path)
         db.add(self.test_data1)
+        res1 = db.query(self.query_hit_id)
+        num_non_empty = sum(1 for d in res1 if d)
+        self.assertEqual(num_non_empty, len(self.test_data1))
+
+        res2 = db.query(self.query_miss_id)
+        num_non_empty = sum(1 for d in res2 if d)
+        self.assertEqual(num_non_empty, 0)
+        db.close()
+
+    def dump_load(self):
+        tmp = LVDBIndexer(self.db_path)
+        tmp.add(self.test_data1)
+        tmp.dump(self.dump_path)
+        tmp.close()
+
+        db = LVDBIndexer.load(self.db_path)
         res1 = db.query(self.query_hit_id)
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, len(self.test_data1))

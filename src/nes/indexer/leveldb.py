@@ -6,16 +6,30 @@ from typing import List, Dict, Any
 import plyvel
 
 from . import BaseTextIndexer
+from ..base import TrainableBase as TB
 from ..document import BaseDocument
 
 
 class LVDBIndexer(BaseTextIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__()
+        self.data_path = data_path
         self._db = plyvel.DB(data_path, create_if_missing=True)
         self._NOT_FOUND = {}
         self.thread_pool = []
 
+    def __getstate__(self):
+        d = super().__getstate__()
+        del d['_db']
+        del d['thread_pool']
+        return d
+
+    def __setstate__(self, d):
+        super().__setstate__(d)
+        self._db = plyvel.DB(self.data_path, create_if_missing=True)
+        self.thread_pool = []
+
+    @TB._timeit
     def add(self, docs: List[BaseDocument]):
         for thread in self.thread_pool:
             if not thread.is_alive():
@@ -37,6 +51,7 @@ class LVDBIndexer(BaseTextIndexer):
                 doc = self._doc2bytes(d)
                 wb.put(doc_id, doc)
 
+    @TB._timeit
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
         self._check_thread()
         res = []

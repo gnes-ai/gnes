@@ -3,7 +3,8 @@ from typing import List
 import faiss
 import numpy as np
 
-from . import BaseEncoder as BE
+from . import BaseEncoder
+from ..base import TrainableBase as TB
 
 
 def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool) -> np.ndarray:
@@ -12,7 +13,7 @@ def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool
     return kmeans.centroids
 
 
-class PQEncoder(BE):
+class PQEncoder(BaseEncoder):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
         super().__init__()
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
@@ -20,8 +21,8 @@ class PQEncoder(BE):
         self.num_clusters = cluster_per_byte
         self.centroids = None
 
-    @BE._as_train_func
-    @BE._timeit
+    @TB._as_train_func
+    @TB._timeit
     def train(self, vecs: np.ndarray, num_iters: int = 20):
         dim_per_byte = self._get_dim_per_byte(vecs)
 
@@ -35,8 +36,8 @@ class PQEncoder(BE):
 
         self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
 
-    @BE._train_required
-    @BE._timeit
+    @TB._train_required
+    @TB._timeit
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

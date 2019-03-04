@@ -2,8 +2,8 @@ from typing import List
 
 from bert_serving.client import BertClient
 
-from . import BaseEncoder as BE
 from .lopq import LOPQEncoder
+from ..base import TrainableBase as TB
 
 
 class BertBinaryEncoder(LOPQEncoder):
@@ -26,14 +26,14 @@ class BertBinaryEncoder(LOPQEncoder):
         super().__setstate__(d)
         self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
-    @BE._train_required
-    @BE._timeit
+    @TB._train_required
+    @TB._timeit
     def encode(self, texts: List[str], is_tokenized=False) -> bytes:
         vec = self.bc_encoder.encode(texts, is_tokenized=is_tokenized)
         return super().encode(vec)
 
-    @BE._as_train_func
-    @BE._timeit
+    @TB._as_train_func
+    @TB._timeit
     def train(self, texts: List[str], is_tokenized=False) -> None:
         vec = self.bc_encoder.encode(texts, is_tokenized=is_tokenized)
         return super().train(vec)
