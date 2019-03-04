@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from . import BaseEncoder as BE
+from . import BaseEncoder
 from .pca import PCALocalEncoder
+from ..base import TrainableBase as TB
 
 
-class LOPQEncoder(BE):
+class LOPQEncoder(BaseEncoder):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255,
                  backend: str = 'numpy', pca_output_dim: int = -1):
         super().__init__()
@@ -25,14 +26,14 @@ class LOPQEncoder(BE):
         else:
             raise NotImplementedError('backend=%s is not implemented yet!' % backend)
 
-    @BE._as_train_func
-    @BE._timeit
+    @TB._as_train_func
+    @TB._timeit
     def train(self, vecs: np.ndarray):
         vecs = self._do_pca(vecs, True)
         self.pq.train(vecs)
 
-    @BE._train_required
-    @BE._timeit
+    @TB._train_required
+    @TB._timeit
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         vecs = self._do_pca(vecs)
         return self.pq.encode(vecs, **kwargs)
