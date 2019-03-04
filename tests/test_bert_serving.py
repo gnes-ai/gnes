@@ -58,3 +58,5 @@ class TestBertServing(unittest.TestCase):
 
     def tearDown(self):
         self.server.close()
+        # wait until all socket close safely
+        time.sleep(5)

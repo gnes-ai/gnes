@@ -1,10 +1,12 @@
-import numpy as np
-from . import BaseIndexer as BE
 from typing import List, Tuple
 
+import numpy as np
 
-class FIndexer(BE):
-    def __init__(self):
+from . import BaseBinaryIndexer
+
+
+class NumpyIndexer(BaseBinaryIndexer):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         self.num_bytes = None
         self.vectors = None
@@ -20,7 +22,7 @@ class FIndexer(BE):
             raise ValueError("vectors bytes should be divided by doc_ids")
 
         vectors = np.frombuffer(vectors, dtype=np.uint8).reshape(
-                    len(doc_ids), self.num_bytes)
+            len(doc_ids), self.num_bytes)
         if self.vectors:
             self.vectors = np.concatenate([self.vectors, vectors], axis=0)
         else:

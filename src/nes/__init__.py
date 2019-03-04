@@ -8,7 +8,7 @@ from .indexer import *
 __version__ = '0.0.1'
 
 
-class NES(BaseIndexer):
+class BaseNES(BaseIndexer):
     def __init__(self, binary_encoder: BaseBinaryEncoder,
                  binary_indexer: BaseBinaryIndexer,
                  text_indexer: BaseTextIndexer,
@@ -42,3 +42,14 @@ class NES(BaseIndexer):
         result_doc = self.text_indexer.query(all_ids)
         id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}
         return [[(id2doc[d_id], d_score) for d_id, d_score in id_score] for id_score in result_score]
+
+
+class DummyNES(BaseNES):
+    def __init__(self, *args, **kwargs):
+        from .indexer.numpyindexer import NumpyIndexer
+        from .encoder.bert_binary import BertBinaryEncoder
+        from .indexer.leveldb import LVDBIndexer
+        binary_encoder = BertBinaryEncoder(*args, **kwargs)
+        binary_indexer = NumpyIndexer(*args, **kwargs)
+        text_indexer = LVDBIndexer(*args, **kwargs)
+        super().__init__(binary_encoder, binary_indexer, text_indexer)
