@@ -1,15 +1,16 @@
 import json
-from typing import List, Dict, Any
-from threading import Thread
-import plyvel
 import time
+from threading import Thread
+from typing import List, Dict, Any
+
+import plyvel
 
 from . import BaseTextIndexer
 from ..document import BaseDocument
 
 
 class LVDBIndexer(BaseTextIndexer):
-    def __init__(self, data_path: str):
+    def __init__(self, data_path: str, *args, **kwargs):
         super().__init__()
         self._db = plyvel.DB(data_path, create_if_missing=True)
         self._NOT_FOUND = {}

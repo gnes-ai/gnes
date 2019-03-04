@@ -1,7 +1,9 @@
-import unittest
-import numpy as np
 import ctypes
-from src.nes.indexer.findexer import FIndexer
+import unittest
+
+import numpy as np
+
+from src.nes.indexer.numpyindexer import NumpyIndexer
 
 
 class TestFIndexer(unittest.TestCase):
@@ -29,14 +31,14 @@ class TestFIndexer(unittest.TestCase):
                                       for k, r in rk])
 
     def test_add(self):
-        fd = FIndexer()
+        fd = NumpyIndexer()
         fd.add(self.test_bytes, self.test_docids)
         self.assertEqual(self.n_bytes, fd.num_bytes)
         self.assertEqual(self.n_lines, len(fd.doc_ids))
         self.assertEqual(self.n_lines, len(fd.vectors))
 
     def test_query(self):
-        fd = FIndexer()
+        fd = NumpyIndexer()
         fd.add(self.test_bytes, self.test_docids)
         res = fd.query(self.query_bytes, self.top_k)
 
