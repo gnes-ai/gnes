@@ -7,12 +7,6 @@ from . import BaseEncoder
 from ..base import TrainableBase as TB
 
 
-def train_kmeans(x: np.ndarray, num_clusters: int, num_iters: int, verbose: bool) -> np.ndarray:
-    kmeans = faiss.Kmeans(x.shape[1], num_clusters, num_iters, verbose)
-    kmeans.train(x)
-    return kmeans.centroids
-
-
 class PQEncoder(BaseEncoder):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
         super().__init__()
@@ -26,15 +20,18 @@ class PQEncoder(BaseEncoder):
     def train(self, vecs: np.ndarray, num_iters: int = 20):
         dim_per_byte = self._get_dim_per_byte(vecs)
 
-        res = []  # type: List[np.ndarray]
-        for j in range(self.num_bytes):
-            store = vecs[:, (dim_per_byte * j):(dim_per_byte * (j + 1))]
-            store = np.array(store, dtype=np.float32)
-            res.append(train_kmeans(store, num_iters=num_iters,
-                                    num_clusters=self.num_clusters,
-                                    verbose=self.verbose))
+        # use faiss ProductQuantizer directly
+        vecs = vecs.astype(np.float32)
+        model = faiss.ProductQuantizer(vecs.shape[1], self.num_bytes, 8)
+        model.ksub = self.num_clusters
+        model.byte_per_idx = 1
 
-        self.centroids = np.expand_dims(np.array(res, dtype=np.float32), 0)
+        model.train(vecs)
+        centroids = faiss.vector_to_array(model.centroids)
+        centroids = centroids[: self.num_clusters*vecs.shape[1]]
+        self.centroids = np.reshape(centroids, [1, self.num_bytes,
+                                                self.num_clusters,
+                                                dim_per_byte])
 
     @TB._train_required
     @TB._timeit
