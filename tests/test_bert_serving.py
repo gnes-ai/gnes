@@ -78,6 +78,28 @@ class TestBertServing(unittest.TestCase):
         for q, r in zip(query, result):
             print('q: %s\tr: %s' % (q, r))
 
+        # test dump and loads
+        nes.dump(self.dump_path)
+        self.assertTrue(os.path.exists(self.dump_path))
+        nes2 = DummyNES.load(self.dump_path)
+        result2 = nes2.query(query, top_k=2)
+        self.assertEqual(result, result2)
+
+        # test multi-sent document
+        nes3 = DummyNES(pca_output_dim=32,
+                        cluster_per_byte=8,
+                        port=int(os.environ['BERT_CI_PORT']),
+                        port_out=int(os.environ['BERT_CI_PORT_OUT']),
+                        data_path=self.db_path)
+        nes3.train(self.test_data2)
+        nes3.add(self.test_data2)
+        query = [s for d in self.test_data2 for s in d.sentences]
+        result = nes3.query(query, top_k=2)
+        self.assertEqual(len(query), len(result))
+        self.assertEqual(len(result[0]), 2)
+        for q, r in zip(query, result):
+            print('q: %s\tr: %s' % (q, r))
+
     def tearDown(self):
         self.server.close()
         # wait until all socket close safely
