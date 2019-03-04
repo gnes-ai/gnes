@@ -13,8 +13,20 @@ from ..document import BaseDocument
 class LVDBIndexer(BaseTextIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__()
+        self.data_path = data_path
         self._db = plyvel.DB(data_path, create_if_missing=True)
         self._NOT_FOUND = {}
+        self.thread_pool = []
+
+    def __getstate__(self):
+        d = super().__getstate__()
+        del d['_db']
+        del d['thread_pool']
+        return d
+
+    def __setstate__(self, d):
+        super().__setstate__(d)
+        self._db = plyvel.DB(self.data_path, create_if_missing=True)
         self.thread_pool = []
 
     @TB._timeit
