@@ -180,5 +180,5 @@ class SentenceSplitter:
         return self._split(p, self.must_split)
 
 
-cn_sent_splitter = SentenceSplitter()
+cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
