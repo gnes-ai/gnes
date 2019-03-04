@@ -23,6 +23,8 @@ class TestBertServing(unittest.TestCase):
             tmp = self.test_data
             self.test_data1 = [UniSentDocument(t) for t in tmp]
             self.test_data2 = [MultiSentDocument(t) for t in tmp]
+            print('test_data2')
+            print(self.test_data2)
 
         print('load %d lines of sentences' % len(self.test_data))
 
