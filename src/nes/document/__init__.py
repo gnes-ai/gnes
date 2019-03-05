@@ -54,7 +54,7 @@ class MultiSentDocument(BaseDocument):
 
 
 def check_doc_valid(doc: 'BaseDocument') -> bool:
-    texts = doc._sentences
+    texts = doc.sentences
     if not isinstance(texts, list):
         doc_logger.error('"%s" must be %s, but received %s' % (texts, type([]), type(texts)))
         return False

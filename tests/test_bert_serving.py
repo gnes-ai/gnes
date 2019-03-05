@@ -18,8 +18,8 @@ class TestBertServing(unittest.TestCase):
         self.dump_path = os.path.join(dirname, 'encoder.bin')
         self.db_path = './test_leveldb'
 
-        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
-        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
+        self.test_data2 = list(MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
         self.test_str = [d._content for d in self.test_data1]
 
         args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
@@ -93,11 +93,11 @@ class TestBertServing(unittest.TestCase):
 
         # TODO: the next add fails for some unknown reason
 
-        # nes3.add(self.test_data2)
-        # query = [s for d in self.test_data2 for s in d.sentences]
-        # result = nes3.query(query, top_k=2)
-        # self.assertEqual(len(query), len(result))
-        # self.assertEqual(len(result[0]), 2)
+        nes3.add(self.test_data2)
+        query = [s for d in self.test_data2 for s in d.sentences]
+        result = nes3.query(query, top_k=2)
+        self.assertEqual(len(query), len(result))
+        self.assertEqual(len(result[0]), 2)
         # for q, r in zip(query, result):
         #     print('q: %s\tr: %s' % (q, r))
 
