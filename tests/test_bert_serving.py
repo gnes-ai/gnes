@@ -18,13 +18,9 @@ class TestBertServing(unittest.TestCase):
         self.dump_path = os.path.join(dirname, 'encoder.bin')
         self.db_path = './test_leveldb'
 
-        with open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8') as fp:
-            self.test_data = [v.strip() for v in fp if v.strip() and len(v.strip()) > 10]
-            tmp = self.test_data
-            self.test_data1 = [UniSentDocument(t) for t in tmp]
-            self.test_data2 = [MultiSentDocument(t) for t in tmp]
-
-        print('load %d lines of sentences' % len(self.test_data))
+        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_str = [d._content for d in self.test_data1]
 
         args = get_args_parser().parse_args(['-model_dir', os.environ['BERT_CI_MODEL'],
                                              '-port', os.environ['BERT_CI_PORT'],
@@ -39,9 +35,9 @@ class TestBertServing(unittest.TestCase):
     def test_bert_client(self):
         bc = BertClient(port=int(os.environ['BERT_CI_PORT']),
                         port_out=int(os.environ['BERT_CI_PORT_OUT']))
-        vec = bc.encode(self.test_data)
+        vec = bc.encode(self.test_str)
         bc.close()
-        self.assertEqual(vec.shape[0], len(self.test_data))
+        self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 768)
 
         bbe = BertBinaryEncoder(pca_output_dim=32,
@@ -50,16 +46,16 @@ class TestBertServing(unittest.TestCase):
                                 port_out=int(os.environ['BERT_CI_PORT_OUT']))
         self.assertRaises(RuntimeError, bbe.encode)
 
-        bbe.train(self.test_data)
-        out = bbe.encode(self.test_data)
+        bbe.train(self.test_str)
+        out = bbe.encode(self.test_str)
         bbe.bc_encoder.close()
         self.assertEqual(bytes, type(out))
-        self.assertEqual(len(self.test_data) * bbe.num_bytes, len(out))
+        self.assertEqual(len(self.test_str) * bbe.num_bytes, len(out))
 
         bbe.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
         bbe2 = bbe.load(self.dump_path)
-        out2 = bbe2.encode(self.test_data)
+        out2 = bbe2.encode(self.test_str)
         self.assertEqual(out, out2)
 
         nes = DummyNES(pca_output_dim=32,

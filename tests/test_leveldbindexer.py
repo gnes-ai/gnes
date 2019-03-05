@@ -11,12 +11,11 @@ class TestBaseLVDB(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        with open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8') as fp:
-            tmp = [v.strip() for v in fp if v.strip() and len(v.strip()) > 10]
-            self.test_data1 = [UniSentDocument(t) for t in tmp]
-            self.test_data2 = [MultiSentDocument(t) for t in tmp]
-            self.query_hit_id = [d.id for d in self.test_data1]
-            self.query_miss_id = [random.randint(0, 10000) for _ in self.test_data1]
+        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+
+        self.query_hit_id = [d.id for d in self.test_data1]
+        self.query_miss_id = [random.randint(0, 10000) for _ in self.test_data1]
 
         self.db_path = './test_leveldb'
         self.dump_path = os.path.join(dirname, 'indexer.bin')
