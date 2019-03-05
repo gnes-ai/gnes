@@ -1,4 +1,4 @@
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Iterator
 
 from ..base import TrainableBase as TB
 from ..document import BaseDocument
@@ -30,7 +30,7 @@ class BaseBinaryIndexer(BaseIndexer):
 
 class BaseTextIndexer(BaseIndexer):
     @TB._timeit
-    def add(self, docs: List[BaseDocument]): pass
+    def add(self, docs: Iterator[BaseDocument]): pass
 
     @TB._timeit
     def query(self, keys: List[int]) -> List[Any]: pass

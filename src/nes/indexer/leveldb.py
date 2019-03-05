@@ -1,7 +1,7 @@
 import json
 import time
 from threading import Thread
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Iterator
 
 import plyvel
 
@@ -30,7 +30,7 @@ class LVDBIndexer(BaseTextIndexer):
         self.thread_pool = []
 
     @TB._timeit
-    def add(self, docs: List[BaseDocument]):
+    def add(self, docs: Iterator[BaseDocument]):
         for thread in self.thread_pool:
             if not thread.is_alive():
                 self.thread_pool.remove(thread)
@@ -44,7 +44,7 @@ class LVDBIndexer(BaseTextIndexer):
             time.sleep(1)
             self.add(docs)
 
-    def _add(self, docs: List[BaseDocument]):
+    def _add(self, docs: Iterator[BaseDocument]):
         with self._db.write_batch() as wb:
             for d in docs:
                 doc_id = self._int2bytes(d.id)
