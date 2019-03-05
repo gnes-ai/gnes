@@ -27,7 +27,7 @@ class NumpyIndexer(BaseBinaryIndexer):
             len(doc_ids), self.num_bytes)
 
         doc_ids = np.array(doc_ids)
-        if self._vectors:
+        if self._vectors is not None:
             self._vectors = np.concatenate([self._vectors, vectors], axis=0)
             self._doc_ids = np.concatenate([self._doc_ids, doc_ids], axis=0)
         else:
