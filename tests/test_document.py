@@ -28,3 +28,20 @@ class TestDocument(unittest.TestCase):
 
         sents, ids = map(list, zip(*[(s, d.id) for d in self.test_data2 for s in d.sentences]))
         self.assertEqual(len(sents), len(ids))
+
+    def test_from_file(self):
+        dirname = os.path.dirname(__file__)
+        docs1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        docs2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.assertEqual(len(list(docs1)), len(list(docs2)))
+
+    def test_broken_file(self):
+        a = ['我我我我我我我我\n', '我我我我。我我我我\n', '我我\n']
+        with open('tmp.txt', 'w', encoding='utf8') as fp:
+            fp.writelines(a)
+        docs1 = UniSentDocument.from_file('tmp.txt')
+        docs2 = MultiSentDocument.from_file('tmp.txt')
+        self.assertEqual(len(list(docs1)), 3)
+        self.assertEqual(len(list(docs2)), 2)
+        docs1 = UniSentDocument.from_file('tmp.txt', min_length=3)
+        self.assertEqual(len(list(docs1)), 2)

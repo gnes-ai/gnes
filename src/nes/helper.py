@@ -182,3 +182,4 @@ class SentenceSplitter:
 
 cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
+doc_logger = set_logger('DOC')
