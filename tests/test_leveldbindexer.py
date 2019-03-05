@@ -43,7 +43,7 @@ class TestBaseLVDB(unittest.TestCase):
         db.add(self.test_data1)
         res1 = db.query(self.query_hit_id)
         num_non_empty = sum(1 for d in res1 if d)
-        self.assertEqual(num_non_empty, len(self.test_data1))
+        self.assertEqual(num_non_empty, len(list(self.test_data1)))
 
         res2 = db.query(self.query_miss_id)
         num_non_empty = sum(1 for d in res2 if d)
@@ -59,7 +59,7 @@ class TestBaseLVDB(unittest.TestCase):
         db = LVDBIndexer.load(self.db_path)
         res1 = db.query(self.query_hit_id)
         num_non_empty = sum(1 for d in res1 if d)
-        self.assertEqual(num_non_empty, len(self.test_data1))
+        self.assertEqual(num_non_empty, len(list(self.test_data1)))
 
         res2 = db.query(self.query_miss_id)
         num_non_empty = sum(1 for d in res2 if d)
