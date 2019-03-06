@@ -10,7 +10,7 @@ os.environ['BERT_CI_PORT_OUT'] = '7126'
 
 
 def get_docs():
-    with open('./test/doc.txt.mini', 'r') as f:
+    with open('./test/doc.txt', 'r') as f:
         doc = f.readlines()
         doc = [UniSentDocument(d) for d in doc if d.strip()]
     return doc
@@ -50,8 +50,8 @@ def NDCG(labels, preds):
         p = [_[0] for _ in p]
         bs = [i[1] for i in l[:10]] + [0] * (10 - len(l[:10]))
         rs = [0 if pi not in s else l[s.index(pi)][1] for pi in p]
-        dcg_max = sum([(2**j)/np.log(i+1) for i, j in enumerate(bs)])
-        dcg = sum([(2**j)/np.log(i+1) for i, j in enumerate(rs)])
+        dcg_max = sum([(2**j)/np.log(i+2) for i, j in enumerate(bs)])
+        dcg = sum([(2**j)/np.log(i+2) for i, j in enumerate(rs)])
         score.append(dcg/dcg_max)
 
     return np.mean(score)
@@ -69,6 +69,7 @@ nes = DummyNES(pca_output_dim=200,
                data_path=db_path)
 nes.train(doc)
 nes.add(doc)
+
 preds = extract_content(nes.query(queries, top_k=10))
 nes.close()
 with open('preds.json', 'w') as f:
