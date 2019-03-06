@@ -78,10 +78,14 @@ docker-pipeline: &dp1
     - docker
   stages:
     - name: push docker
+      script: docker info
+    - name: show cred
+      script: cat /root/.docker/config.json
+    - name: push docker
       script: bash docker-push.sh latest :8080
 
 master:
   merge_request:
-    - <<: *bp1
+    - <<: *dp1
   push:
     - <<: *np1
