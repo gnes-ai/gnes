@@ -34,7 +34,7 @@ def extract_content(t):
     pred = []
     for ti in t:
         s = []
-        for tii in ti:
+        for tii in ti[1:]:
             _doc, _score = tii
             if 'content' in _doc:
                 s.append((_doc['content'], _score))
@@ -53,7 +53,7 @@ def NDCG(labels, preds):
         dcg_max = sum([(2**j)/np.log(i+2) for i, j in enumerate(bs)])
         dcg = sum([(2**j)/np.log(i+2) for i, j in enumerate(rs)])
         score.append(dcg/dcg_max)
-
+    print(score)
     return np.mean(score)
 
 
@@ -70,7 +70,7 @@ nes = DummyNES(pca_output_dim=200,
 nes.train(doc)
 nes.add(doc)
 
-preds = extract_content(nes.query(queries, top_k=10))
+preds = extract_content(nes.query(queries, top_k=11))
 nes.close()
 with open('preds.json', 'w') as f:
     for q, r in zip(queries, preds):
