@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
 
 GIT_TAG=$(git rev-parse --short HEAD)
 PROJ_NAME=aipd-nes
