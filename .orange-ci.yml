@@ -82,6 +82,6 @@ docker-pipeline: &dp1
 
 master:
   merge_request:
-    - <<: *dp1
+    - <<: *bp1
   push:
     - <<: *np1
