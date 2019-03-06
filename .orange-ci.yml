@@ -78,7 +78,7 @@ docker-pipeline: &dp1
     - docker
   stages:
     - name: push docker
-      script: docker info && docker search docker.oa.com/public/ailab-
+      script: docker info && docker search docker.oa.com:8080/public/ailab-
     - name: push docker
       script: bash docker-push.sh latest :8080
 
