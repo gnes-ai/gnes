@@ -8,7 +8,9 @@ After commit your code, do
 ```bash
 bash docker-push.sh
 ```
-and then follow the guidelines in yellow.
+and then follow the guidelines in yellow. 
+
+Note that `/data1/cips/data` is mounted to `/ext_data` in the container.
 
 ## Test
 
