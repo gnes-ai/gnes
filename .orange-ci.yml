@@ -72,8 +72,14 @@ notify-pipeline: &np1
         robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
         fromFile: notify.md
 
+docker-pipeline: &dp1
+  network: devnet
+  stages:
+    - name: push docker
+      script: bash docker-push.sh
+
 master:
   merge_request:
-    - <<: *bp1
+    - <<: *dp1
   push:
     - <<: *np1

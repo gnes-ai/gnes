@@ -11,4 +11,4 @@ docker build --rm -t docker.oa.com/public/$PROJ_NAME:$GIT_TAG .
 docker push docker.oa.com/public/$PROJ_NAME:$GIT_TAG
 
 echo 'done! and to run the container simply do:'
-printf "\e[1;33mdocker run --network=host -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
+printf "\e[1;33mdocker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
