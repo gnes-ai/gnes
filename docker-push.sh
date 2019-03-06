@@ -2,7 +2,12 @@
 
 set -e
 
-GIT_TAG=$(git rev-parse --short HEAD)
+GIT_TAG=latest
+if [ -z "$1" ]
+  then
+    GIT_TAG=$(git rev-parse --short HEAD)
+fi
+
 PROJ_NAME=aipd-nes
 
 printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
