@@ -31,20 +31,6 @@ class LVDBIndexer(BaseTextIndexer):
 
     @TB._timeit
     def add(self, docs: List[BaseDocument]):
-        for thread in self.thread_pool:
-            if not thread.is_alive():
-                self.thread_pool.remove(thread)
-
-        if len(self.thread_pool) < 2:
-            thread = Thread(target=self._add,
-                            args=(docs,), kwargs=None)
-            thread.start()
-            self.thread_pool.append(thread)
-        else:
-            time.sleep(1)
-            self.add(docs)
-
-    def _add(self, docs: List[BaseDocument]):
         with self._db.write_batch() as wb:
             for d in docs:
                 doc_id = self._int2bytes(d.id)

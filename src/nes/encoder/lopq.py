@@ -44,8 +44,8 @@ class LOPQEncoder(BaseBinaryEncoder):
             if is_train:
                 self.pca = PCALocalEncoder(self.pca_output_dim, num_locals=self.num_bytes)
                 self.pca.train(vecs)
-            self.logger.info(
-                'PCA is enabled in the encoding pipeline (%d -> %d)' % (num_dim, self.pca_output_dim))
+            # self.logger.info(
+            #    'PCA is enabled in the encoding pipeline (%d -> %d)' % (num_dim, self.pca_output_dim))
             vecs = self.pca.encode(vecs)
         return vecs
 
