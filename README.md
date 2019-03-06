@@ -1,6 +1,14 @@
 # NES
 NES is Neural Elastic Search, a highly scalable text search system based on deep neural network.
 
+## Run in Docker
+
+### You are working on non-master branch 
+After commit your code, do 
+```bash
+bash docker-push.sh
+```
+and then follow the guidelines in yellow.
 
 ## Test
 
