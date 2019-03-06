@@ -76,11 +76,11 @@ docker-pipeline: &dp1
   network: devnet
   services:
     - docker
+  docker:
+    image: docker.oa.com:8080/public/ailab-faiss:latest
   stages:
     - name: push docker
       script: docker info
-    - name: show cred
-      script: cat /root/.docker/config.json
     - name: push docker
       script: bash docker-push.sh latest :8080
 
