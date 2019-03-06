@@ -12,7 +12,7 @@ os.environ['BERT_CI_PORT_OUT'] = '7126'
 def get_docs():
     with open('./test/doc.txt', 'r') as f:
         doc = f.readlines()
-        doc = [UniSentDocument(d) for d in doc if d.strip()]
+        doc = [UniSentDocument(d.strip()) for d in doc if d.strip()]
     return doc
 
 
@@ -44,25 +44,29 @@ def extract_content(t):
 # only consider top 10 doc in each label
 def NDCG(labels, preds):
     score = []
+    W = 0
     for l, p in zip(labels, preds):
         l = sorted(l, key=lambda x: -x[1])
+        w = np.log(sum([_[1] for _ in l]))
         s = [_[0] for _ in l]
         p = [_[0] for _ in p]
         bs = [i[1] for i in l[:10]] + [0] * (10 - len(l[:10]))
         rs = [0 if pi not in s else l[s.index(pi)][1] for pi in p]
+        print(bs, rs, s, p)
         dcg_max = sum([(2**j)/np.log(i+2) for i, j in enumerate(bs)])
         dcg = sum([(2**j)/np.log(i+2) for i, j in enumerate(rs)])
-        score.append(dcg/dcg_max)
+        score.append(dcg / dcg_max * w)
+        W += w 
     print(score)
-    return np.mean(score)
+    return np.sum(score)/W
 
 
 doc = get_docs()
 queries, labels = get_query()
 db_path = './test_leveldb'
 
-nes = DummyNES(pca_output_dim=200,
-               num_bytes=20,
+nes = DummyNES(pca_output_dim=400,
+               num_bytes=40,
                cluster_per_byte=255,
                port=int(os.environ['BERT_CI_PORT']),
                port_out=int(os.environ['BERT_CI_PORT_OUT']),
