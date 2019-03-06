@@ -79,6 +79,8 @@ docker-pipeline: &dp1
   stages:
     - name: docker info
       script: docker info && docker search docker.oa.com:8080/public/ailab-
+    - name: docker login
+      script: docker login -u hanhxiao -p 910505899064 docker.oa.com
     - name: pull docker
       script: docker pull docker.oa.com:8080/public/ailab-faiss:latest
     - name: push docker
