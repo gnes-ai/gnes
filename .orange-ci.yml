@@ -74,6 +74,8 @@ notify-pipeline: &np1
 
 docker-pipeline: &dp1
   network: devnet
+  services:
+    - docker
   stages:
     - name: push docker
       script: bash docker-push.sh latest
