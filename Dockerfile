@@ -1,4 +1,4 @@
-FROM docker.oa.com/public/faiss:latest
+FROM docker.oa.com/public/ailab-faiss:latest
 
 WORKDIR /nes/
 

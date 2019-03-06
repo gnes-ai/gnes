@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -ex
+
 GIT_TAG=$(git rev-parse --short HEAD)
 
 echo -e "your current git commit tag: \e[1;33m$GIT_TAG\e[0m"
