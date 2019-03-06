@@ -2,7 +2,7 @@
 
 set -e
 
-GIT_TAG=latest
+GIT_TAG=$1
 if [ -z "$1" ]
   then
     GIT_TAG=$(git rev-parse --short HEAD)

@@ -76,7 +76,7 @@ docker-pipeline: &dp1
   network: devnet
   stages:
     - name: push docker
-      script: bash docker-push.sh
+      script: bash docker-push.sh latest
 
 master:
   merge_request:
