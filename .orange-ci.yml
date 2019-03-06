@@ -80,7 +80,7 @@ docker-pipeline: &dp1
     - name: docker info
       script: docker info && docker search docker.oa.com:8080/public/ailab-
     - name: docker login
-      script: docker login -u hanhxiao -p 910505899064 docker.oa.com
+      script: docker login -u hanhxiao -p 910505518159 docker.oa.com:8080
     - name: pull docker
       script: docker pull docker.oa.com:8080/public/ailab-faiss:latest
     - name: push docker
