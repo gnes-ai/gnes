@@ -33,8 +33,8 @@ class TestBertServing(unittest.TestCase):
         time.sleep(30)
 
     def test_bert_client(self):
-        bc = BertClient(port=int(os.environ['BERT_CI_PORT']),
-                        port_out=int(os.environ['BERT_CI_PORT_OUT']))
+        bc = BertClient(port=int(os.environ.get('BERT_CI_PORT', '7125')),
+                        port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')))
         vec = bc.encode(self.test_str)
         bc.close()
         self.assertEqual(vec.shape[0], len(self.test_str))
@@ -42,8 +42,8 @@ class TestBertServing(unittest.TestCase):
 
         bbe = BertBinaryEncoder(pca_output_dim=32,
                                 cluster_per_byte=8,
-                                port=int(os.environ['BERT_CI_PORT']),
-                                port_out=int(os.environ['BERT_CI_PORT_OUT']))
+                                port=int(os.environ.get('BERT_CI_PORT', '7125')),
+                                port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')))
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_str)
@@ -60,8 +60,8 @@ class TestBertServing(unittest.TestCase):
 
         nes = DummyNES(pca_output_dim=32,
                        cluster_per_byte=8,
-                       port=int(os.environ['BERT_CI_PORT']),
-                       port_out=int(os.environ['BERT_CI_PORT_OUT']),
+                       port=int(os.environ.get('BERT_CI_PORT', '7125')),
+                       port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')),
                        data_path=self.db_path)
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
@@ -86,8 +86,8 @@ class TestBertServing(unittest.TestCase):
         # test multi-sent document
         nes3 = DummyNES(pca_output_dim=32,
                         cluster_per_byte=8,
-                        port=int(os.environ['BERT_CI_PORT']),
-                        port_out=int(os.environ['BERT_CI_PORT_OUT']),
+                        port=int(os.environ.get('BERT_CI_PORT', '7125')),
+                        port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')),
                         data_path=self.db_path)
         nes3.train(self.test_data2)
 
