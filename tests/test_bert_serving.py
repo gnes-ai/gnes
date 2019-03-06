@@ -23,8 +23,8 @@ class TestBertServing(unittest.TestCase):
         self.test_str = [d._content for d in self.test_data1]
 
         args = get_args_parser().parse_args(['-model_dir', os.environ.get('BERT_CI_MODEL', '/chinese_L-12_H-768_A-12'),
-                                             '-port', os.environ.get('BERT_CI_PORT', 7125),
-                                             '-port_out', os.environ.get('BERT_CI_PORT_OUT', 7126),
+                                             '-port', os.environ.get('BERT_CI_PORT', '7125'),
+                                             '-port_out', os.environ.get('BERT_CI_PORT_OUT', '7126'),
                                              '-max_seq_len', 'NONE',
                                              '-mask_cls_sep',
                                              '-cpu'])
