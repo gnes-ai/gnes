@@ -77,6 +77,8 @@ docker-pipeline: &dp1
   services:
     - docker
   stages:
+    - name: fix cert
+      script: wget docker.oa.com/cert/gaia.crt && cat gaia.crt >> `openssl version -d | awk  '{print $2}' | sed 's/\"//g'`/certs/ca-bundle.crt
     - name: push docker
       script: bash docker-push.sh latest
 
