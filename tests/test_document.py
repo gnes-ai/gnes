@@ -43,6 +43,14 @@ class TestDocument(unittest.TestCase):
         for b in batch_iterator(docs1, batch_size):
             self.assertLessEqual(len(b), batch_size)
 
+        docs1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        batch_size = 4096
+        j = 0
+        for b in batch_iterator(docs1, batch_size):
+            self.assertLessEqual(len(b), batch_size)
+            j += 1
+        self.assertEqual(j, 1)
+
     def test_broken_file(self):
         a = ['我我我我我我我我\n', '我我我我。我我我我\n', '我我\n']
         with open('tmp.txt', 'w', encoding='utf8') as fp:

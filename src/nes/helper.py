@@ -183,6 +183,8 @@ class SentenceSplitter:
 
 
 def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
+    if not batch_size or batch_size <= 0:
+        return it
     while True:
         chunk = tuple(islice(it, batch_size))
         if not chunk:
