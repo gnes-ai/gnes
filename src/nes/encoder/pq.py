@@ -1,10 +1,9 @@
-from typing import List
-
 import faiss
 import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
+from ..helper import memcached
 
 
 class PQEncoder(BaseEncoder):
@@ -28,13 +27,14 @@ class PQEncoder(BaseEncoder):
 
         model.train(vecs)
         centroids = faiss.vector_to_array(model.centroids)
-        centroids = centroids[: self.num_clusters*vecs.shape[1]]
+        centroids = centroids[: self.num_clusters * vecs.shape[1]]
         self.centroids = np.reshape(centroids, [1, self.num_bytes,
                                                 self.num_clusters,
                                                 dim_per_byte])
 
     @TB._train_required
     @TB._timeit
+    @memcached
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 
@@ -45,7 +45,7 @@ class PQEncoder(BaseEncoder):
 
         return np.array(x, dtype=np.uint8).tobytes()
 
-    def _get_dim_per_byte(self, vecs):
+    def _get_dim_per_byte(self, vecs: np.ndarray):
         num_dim = vecs.shape[1]
         assert num_dim >= self.num_bytes and num_dim % self.num_bytes == 0, \
             'input dimension should >= num_bytes and can be divided by num_bytes!'

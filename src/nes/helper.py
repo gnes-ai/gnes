@@ -11,6 +11,7 @@ from itertools import islice
 from typing import Iterator, Any
 
 import numpy as np
+from joblib import Memory
 from termcolor import colored
 
 
@@ -195,6 +196,26 @@ def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
         yield chunk
 
 
+class MemoryCache:
+    def __init__(self, cache_path: str = None):
+        if cache_path:
+            self._cache_path = cache_path
+            self._memory = Memory(cache_path, verbose=0)
+        else:
+            self._memory = None
+
+    def __call__(self, func):
+        if self._memory:
+            return self._memory.cache(func)
+        else:
+            return func
+
+    def clear(self):
+        if self._memory:
+            self._memory.clear()
+
+
+memcached = MemoryCache(cache_path='.nes_cache')
 cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
