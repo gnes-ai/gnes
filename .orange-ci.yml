@@ -82,8 +82,6 @@ docker-pipeline: &dp1
       script: docker info && docker search docker.oa.com:8080/public/ailab-
     - name: docker login
       script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
-    - name: curl
-      script: curl https://storage.googleapis.com
     - name: push docker
       script: bash docker-push.sh latest
 
