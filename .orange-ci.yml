@@ -51,15 +51,39 @@ basic-pipeline: &bp1
     - <<: *unit_test
     - <<: *ok_stage
 
-notify-pipeline: &np1
+notify-pipeline1: &np1
   network: devnet
   stages:
     - name: make notification
-      script: echo "# 🚀 NES刚刚更新了Master分支\n此次更新由$ORANGE_BUILD_USER提交触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+      script: echo "# 🚀 NES的Master分支刚刚更新！\n此次更新由$ORANGE_BUILD_USER提交触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
     - name: send mail
       type: mail:send
       options:
-        title: 🚀 NES刚刚更新了Master分支
+        title: 🚀 NES的Master分支刚刚更新！
+        to:
+          - hanhxiao
+          - larryjfyan
+          - madwang
+        type: markdown
+        fromFile: notify.md
+    - name: message
+      type: wework:message
+      options:
+        robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+        fromFile: notify.md
+
+notify-pipeline2: &np2
+  network: devnet
+  env:
+    PROJ_NAME: aipd-nes
+    GIT_TAG: master
+  stages:
+    - name: make notification
+      script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：`docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash`" > notify.md
+    - name: send mail
+      type: mail:send
+      options:
+        title: 🗳️ NES容器刚刚更新！
         to:
           - hanhxiao
           - larryjfyan
@@ -76,12 +100,22 @@ docker-pipeline: &dp1
   network: devnet
   services:
     - docker
+  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  env:
+    PROJ_NAME: aipd-nes
+    GIT_TAG: master
   stages:
+    - name: docker info
+      script: docker info && docker search docker.oa.com:8080/public/ailab-
+    - name: docker login
+      script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
     - name: push docker
-      script: bash docker-push.sh latest :8080
+      script: bash docker-push.sh $GIT_TAG
 
 master:
   merge_request:
     - <<: *bp1
   push:
     - <<: *np1
+    - <<: *dp1
+    - <<: *np2
