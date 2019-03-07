@@ -129,8 +129,8 @@ docker-pipeline1: &dp1
     PROJ_NAME: aipd-nes
     GIT_TAG: master
   stages:
-    - <<: &docker-stage
-    - <<: &release-stage1
+    - <<: *docker-stage
+    - <<: *release-stage1
 
 docker-pipeline2: &dp2
   network: devnet
@@ -141,8 +141,8 @@ docker-pipeline2: &dp2
     PROJ_NAME: aipd-nes
     GIT_TAG: $ORANGE_BRANCH
   stages:
-    - <<: &docker-stage
-    - <<: &release-stage2
+    - <<: *docker-stage
+    - <<: *release-stage2
 
 master:
   merge_request:
