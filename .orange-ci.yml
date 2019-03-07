@@ -84,7 +84,7 @@ docker-stage: &docker_stage
       - name: make notification
         script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：\ndocker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash" > notify.md
 
-release-stage: &release_stage
+release-stage: &release_stage1
   - name: notify about release
     jobs:
       - name: send mail
@@ -130,7 +130,7 @@ docker-pipeline1: &dp1
     GIT_TAG: master
   stages:
     - <<: &docker-stage
-    - <<: &release-stage
+    - <<: &release-stage1
 
 docker-pipeline2: &dp2
   network: devnet
@@ -142,6 +142,7 @@ docker-pipeline2: &dp2
     GIT_TAG: $ORANGE_BRANCH
   stages:
     - <<: &docker-stage
+    - <<: &release-stage2
 
 master:
   merge_request:
