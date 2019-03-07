@@ -82,14 +82,10 @@ docker-pipeline: &dp1
       script: docker info && docker search docker.oa.com:8080/public/ailab-
     - name: docker login
       script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
-    - name: show proxy
-      script: echo $HTTP_PROXY $HTTPS_PROXY $NO_PROXY $http_proxy $https_proxy $no_proxy
     - name: curl
       script: curl https://storage.googleapis.com
     - name: push docker
-      env:
-        - MY_PROXY: --build-arg HTTP_PROXY=$http_proxy --build-arg HTTPS_PROXY=$http_proxy --build-arg NO_PROXY="$no_proxy" --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --build-arg no_proxy="$no_proxy"
-      script: bash docker-push.sh latest :8080 $MY_PROXY
+      script: bash docker-push.sh latest
 
 master:
   merge_request:

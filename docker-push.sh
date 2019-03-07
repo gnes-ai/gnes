@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
+PROJ_NAME=aipd-nes
 GIT_TAG=$1
-PORT=$2
-PROXY=$3
 
 if [ -z "$1" ]
   then
     GIT_TAG=$(git rev-parse --short HEAD)
+    printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
+    docker build --rm -t docker.oa.com/public/$PROJ_NAME:$GIT_TAG .
+    docker push docker.oa.com/public/$PROJ_NAME:$GIT_TAG
+    printf 'done! and to run the container simply do:\n'
+    printf "\e[1;33mdocker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
+  else
+    GIT_TAG=$1
+    printf "you are publishing a new version: \e[1;33m$GIT_TAG\e[0m\n"
+    docker build --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg NO_PROXY=${NO_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --build-arg no_proxy=${no_proxy} --rm -t docker.oa.com:8080/public/$PROJ_NAME:$GIT_TAG .
+    docker push docker.oa.com:8080/public/$PROJ_NAME:$GIT_TAG
 fi
-
-PROJ_NAME=aipd-nes
-
-printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
-printf "proxy setting: $PROXY"
-
-docker build $PROXY --rm -t docker.oa.com$PORT/public/$PROJ_NAME:$GIT_TAG .
-docker push docker.oa.com$PORT/public/$PROJ_NAME:$GIT_TAG
-
-echo 'done! and to run the container simply do:'
-printf "\e[1;33mdocker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
