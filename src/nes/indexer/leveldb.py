@@ -81,9 +81,11 @@ class LVDBIndexerAsync(LVDBIndexer):
         self._jobs = []
         self._db_put = False
 
+    @TB._timeit
     def add(self, docs: Iterator[BaseDocument]):
         self._jobs.append(docs)
 
+    @TB._timeit
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
         self._check_state()
         return super().query(keys)
@@ -105,19 +107,17 @@ class LVDBIndexerAsync(LVDBIndexer):
                 self._add(docs)
 
     def _check_state(self):
-        while (self._jobs) or (self._db_put):
+        while self._jobs or self._db_put:
             time.sleep(1)
             pass
 
     def __getstate__(self):
         d = super().__getstate__()
-        del d['_db']
         del d['_thread']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._db = plyvel.DB(self.data_path, create_if_missing=True)
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
         self._thread.setDaemon(1)
         self._thread.start()
