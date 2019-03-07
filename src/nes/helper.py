@@ -1,5 +1,6 @@
 import argparse
 import html
+import inspect
 import logging
 import os
 import re
@@ -53,7 +54,8 @@ def time_profile(func):
             start_t = time.perf_counter()
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
-            profile_logger.info('%s: %3.3fs' % (func.__qualname__, elapsed))
+            level_prefix = ''.join('->' for v in inspect.stack() if v.index >= 0)
+            profile_logger.info('%s%s: %3.3fs' % (level_prefix, func.__qualname__, elapsed))
         else:
             r = func(*args, **kwargs)
         return r
