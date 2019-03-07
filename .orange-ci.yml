@@ -76,9 +76,12 @@ docker-pipeline: &dp1
   network: devnet
   services:
     - docker
+  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
   stages:
     - name: docker info
       script: docker info && docker search docker.oa.com:8080/public/ailab-
+    - name: docker login
+      script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
     - name: push docker
       script: bash docker-push.sh latest :8080
 
