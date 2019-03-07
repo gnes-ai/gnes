@@ -88,7 +88,7 @@ docker-pipeline: &dp1
     - name: push docker
       script: bash docker-push.sh $GIT_TAG
     - name: make notification
-          script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：`docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash`" > notify.md
+      script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：`docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash`" > notify.md
     - name: send mail
       type: mail:send
       options:
