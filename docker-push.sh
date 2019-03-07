@@ -14,6 +14,7 @@ fi
 PROJ_NAME=aipd-nes
 
 printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
+printf "proxy setting: $PROXY"
 
 docker build $PROXY --rm -t docker.oa.com$PORT/public/$PROJ_NAME:$GIT_TAG .
 docker push docker.oa.com$PORT/public/$PROJ_NAME:$GIT_TAG
