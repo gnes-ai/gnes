@@ -59,7 +59,7 @@ notify-pipeline1: &np1
     - name: send mail
       type: mail:send
       options:
-        title: 🚀 NES刚刚更新了Master分支
+        title: 🚀 NES的Master分支刚刚更新！
         to:
           - hanhxiao
           - larryjfyan
@@ -74,16 +74,16 @@ notify-pipeline1: &np1
 
 notify-pipeline2: &np2
   network: devnet
+  env:
+    PROJ_NAME: aipd-nes
+    GIT_TAG: master
   stages:
     - name: make notification
-      env:
-        PROJ_NAME: aipd-nes
-        GIT_TAG: nightly
-      script: echo "# 🗳️ NES的Docker Image的$GIT_TAG版本刚刚更新！\n运行方法：`docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash`" > notify.md
+      script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：`docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash`" > notify.md
     - name: send mail
       type: mail:send
       options:
-        title: 🚀 NES的Docker Image刚刚更新
+        title: 🗳️ NES容器刚刚更新！
         to:
           - hanhxiao
           - larryjfyan
@@ -101,13 +101,16 @@ docker-pipeline: &dp1
   services:
     - docker
   envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  env:
+    PROJ_NAME: aipd-nes
+    GIT_TAG: master
   stages:
     - name: docker info
       script: docker info && docker search docker.oa.com:8080/public/ailab-
     - name: docker login
       script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
     - name: push docker
-      script: bash docker-push.sh nightly
+      script: bash docker-push.sh $GIT_TAG
 
 master:
   merge_request:
