@@ -73,7 +73,7 @@ notify-pipeline: &np1
         fromFile: notify.md
 
 docker-pipeline: &dp1
-  network: devnet
+  network: idc
   services:
     - docker
   envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
