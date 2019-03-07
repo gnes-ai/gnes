@@ -16,6 +16,6 @@ if [ -z "$1" ]
   else
     GIT_TAG=$1
     printf "you are publishing a new version: \e[1;33m$GIT_TAG\e[0m\n"
-    docker build --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg NO_PROXY=${NO_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --build-arg no_proxy=${no_proxy} --rm -t docker.oa.com:8080/public/$PROJ_NAME:$GIT_TAG .
+    docker build --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg NO_PROXY=${NO_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --build-arg no_proxy=${no_proxy} --network=host --rm -t docker.oa.com:8080/public/$PROJ_NAME:$GIT_TAG .
     docker push docker.oa.com:8080/public/$PROJ_NAME:$GIT_TAG
 fi
