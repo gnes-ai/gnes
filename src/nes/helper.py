@@ -6,6 +6,8 @@ import re
 import sys
 import time
 from functools import wraps
+from itertools import islice
+from typing import Iterator, Any
 
 import numpy as np
 from termcolor import colored
@@ -178,6 +180,14 @@ class SentenceSplitter:
 
     def split(self, p):
         return self._split(p, self.must_split)
+
+
+def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
+    while True:
+        chunk = tuple(islice(it, batch_size))
+        if not chunk:
+            return
+        yield chunk
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)

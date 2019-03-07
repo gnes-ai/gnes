@@ -1,8 +1,8 @@
-from typing import Iterator, Dict
+from typing import Dict
 
 from .document import BaseDocument
 from .encoder import *
-from .helper import set_logger
+from .helper import set_logger, batch_iterator
 from .indexer import *
 
 __version__ = '0.0.1'
@@ -32,17 +32,13 @@ class BaseNES(BaseIndexer):
         self.binary_encoder.train(sents, is_tokenized)
 
     @TB._train_required
+    @TB._timeit
     def add(self, iter_doc: Iterator[BaseDocument]) -> None:
-        cur_batch = []
-        for doc in iter_doc:
-            cur_batch.append(doc)
-            if len(cur_batch) == self.batch_size:
-                self._add_batch(cur_batch)
-                cur_batch.clear()
-        if cur_batch:
-            self._add_batch(cur_batch)
+        for b in batch_iterator(iter_doc, self.batch_size):
+            self._add_batch(b)
 
     @TB._train_required
+    @TB._timeit
     def query(self, keys: List[str], top_k: int) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.binary_encoder.encode(keys)
         result_score = self.binary_indexer.query(bin_queries, top_k)

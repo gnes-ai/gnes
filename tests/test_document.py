@@ -3,6 +3,7 @@ import os
 import unittest
 
 from src.nes.document import UniSentDocument, MultiSentDocument
+from src.nes.helper import batch_iterator
 
 
 class TestDocument(unittest.TestCase):
@@ -34,6 +35,13 @@ class TestDocument(unittest.TestCase):
         docs1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
         docs2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
         self.assertEqual(len(list(docs1)), len(list(docs2)))
+
+    def test_batching(self):
+        dirname = os.path.dirname(__file__)
+        docs1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        batch_size = 5
+        for b in batch_iterator(docs1, batch_size):
+            self.assertLessEqual(len(b), batch_size)
 
     def test_broken_file(self):
         a = ['我我我我我我我我\n', '我我我我。我我我我\n', '我我\n']
