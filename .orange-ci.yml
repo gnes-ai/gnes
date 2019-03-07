@@ -83,7 +83,9 @@ docker-pipeline: &dp1
     - name: docker login
       script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
     - name: push docker
-      script: bash docker-push.sh latest :8080
+      env:
+        - MY_PROXY: --build-arg HTTP_PROXY=$http_proxy --build-arg HTTPS_PROXY=$http_proxy --build-arg NO_PROXY="$no_proxy" --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --build-arg no_proxy="$no_proxy"
+      script: bash docker-push.sh latest :8080 $MY_PROXY
 
 master:
   merge_request:
