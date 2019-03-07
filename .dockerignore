@@ -1,2 +1,6 @@
 .pyre/
 .idea/
+.orange-ci.yml
+docker-push.sh
+MAINTAINERS
+README.md
