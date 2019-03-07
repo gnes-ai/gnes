@@ -49,6 +49,9 @@ class TrainableBase:
 
         return arg_wrapper
 
+    def train(self, *args, **kwargs):
+        raise NotImplementedError
+
     @_timeit
     def dump(self, filename: str) -> None:
         with open(filename, 'wb') as fp:

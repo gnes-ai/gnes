@@ -1,11 +1,14 @@
 import argparse
 import html
+import inspect
 import logging
 import os
 import re
 import sys
 import time
 from functools import wraps
+from itertools import islice
+from typing import Iterator, Any
 
 import numpy as np
 from termcolor import colored
@@ -51,7 +54,8 @@ def time_profile(func):
             start_t = time.perf_counter()
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
-            profile_logger.info('%s: %3.3fs' % (func.__qualname__, elapsed))
+            level_prefix = ''.join('-' for v in inspect.stack() if v.index > 0)
+            profile_logger.info('%s%s: %3.3fs' % (level_prefix, func.__qualname__, elapsed))
         else:
             r = func(*args, **kwargs)
         return r
@@ -178,6 +182,17 @@ class SentenceSplitter:
 
     def split(self, p):
         return self._split(p, self.must_split)
+
+
+def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
+    if not batch_size or batch_size <= 0:
+        return it
+    it = iter(it)
+    while True:
+        chunk = tuple(islice(it, batch_size))
+        if not chunk:
+            return
+        yield chunk
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)
