@@ -7,7 +7,6 @@ import tensorflow as tf
 
 from .pq import PQEncoder
 from ..base import TrainableBase as TB
-from ..helper import memcached
 
 DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
                                      maxMemory=0.1,
@@ -47,7 +46,6 @@ class TFPQEncoder(PQEncoder):
 
     @TB._train_required
     @TB._timeit
-    @memcached
     def encode(self, vecs: np.ndarray, batch_size: int = 10000) -> bytes:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])

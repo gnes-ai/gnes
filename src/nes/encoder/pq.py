@@ -3,7 +3,6 @@ import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
-from ..helper import memcached
 
 
 class PQEncoder(BaseEncoder):
@@ -34,7 +33,6 @@ class PQEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
-    @memcached
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

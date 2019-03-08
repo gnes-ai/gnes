@@ -3,7 +3,7 @@ import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
-from ..helper import get_perm, memcached
+from ..helper import get_perm
 
 
 class PCALocalEncoder(BaseEncoder):
@@ -39,7 +39,6 @@ class PCALocalEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
-    @memcached
     def encode(self, vecs: np.ndarray) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 
