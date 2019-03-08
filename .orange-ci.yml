@@ -150,5 +150,7 @@ master:
   push:
     - <<: *np1
     - <<: *dp1
+
+"**":
   tag_push:
     - <<: *dp2
