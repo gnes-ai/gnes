@@ -6,7 +6,6 @@ from src.nes.encoder.lopq import LOPQEncoder
 from src.nes.encoder.pca import PCALocalEncoder
 from src.nes.encoder.pq import PQEncoder
 from src.nes.encoder.tf_pq import TFPQEncoder
-from src.nes.helper import memcached
 
 
 class TestPCA(unittest.TestCase):
@@ -126,8 +125,6 @@ class TestPCA(unittest.TestCase):
         _test_num_cluster(10, 5, 'numpy')
         _test_num_cluster(10, 5, 'tensorflow')
 
-    def tearDown(self):
-        memcached.clear()
 
 if __name__ == '__main__':
     unittest.main()
