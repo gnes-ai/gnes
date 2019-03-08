@@ -198,9 +198,9 @@ def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
 
 class MemoryCache:
     def __init__(self, cache_path: str = None):
-        if cache_path:
-            self._cache_path = cache_path
-            self._memory = Memory(cache_path, verbose=0)
+        self._cache_path = cache_path
+        if self._cache_path:
+            self._memory = Memory(self._cache_path, verbose=0)
         else:
             self._memory = None
 
@@ -210,12 +210,30 @@ class MemoryCache:
         else:
             return func
 
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        del d['_memory']
+        return d
+
+    def __setstate__(self, d):
+        self.__dict__.update(d)
+        if self._cache_path:
+            self._memory = Memory(self._cache_path, verbose=0)
+        else:
+            self._memory = None
+
     def clear(self):
         if self._memory:
             self._memory.clear()
 
+    def disable(self):
+        self._memory = None
 
-memcached = MemoryCache(cache_path='.nes_cache')
+    def enable(self):
+        if not self._memory:
+            self._memory = Memory(self._cache_path, verbose=0)
+
+
 cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')

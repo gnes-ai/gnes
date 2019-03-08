@@ -8,10 +8,13 @@ __all__ = ['BaseDocument', 'UniSentDocument', 'MultiSentDocument']
 
 
 class BaseDocument:
-    def __init__(self, text):
-        self._id = random.randint(0, ctypes.c_uint(-1).value)
-        self._sentences = []
+    def __init__(self, text: str, doc_id: int = None):
+        self._id = random.randint(0, ctypes.c_uint(-1).value) if doc_id is None else id
         self._content = text
+        self._sentences = self.parse_sentences(text)
+
+    def parse_sentences(self, text: str) -> List[str]:
+        raise NotImplementedError
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.__dict__)
@@ -42,15 +45,13 @@ class BaseDocument:
 
 
 class UniSentDocument(BaseDocument):
-    def __init__(self, text):
-        super().__init__(text)
-        self._sentences = [text]
+    def parse_sentences(self, text: str):
+        return [text]
 
 
 class MultiSentDocument(BaseDocument):
-    def __init__(self, text):
-        super().__init__(text)
-        self._sentences = list(cn_sent_splitter.split(text))
+    def parse_sentences(self, text: str):
+        return list(cn_sent_splitter.split(text))
 
 
 def check_doc_valid(doc: 'BaseDocument') -> bool:
