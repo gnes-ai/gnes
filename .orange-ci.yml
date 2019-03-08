@@ -117,7 +117,7 @@ release-stage2: &release_stage2
       - name: message
         type: wework:message
         options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          robot: 33f48450-4e17-4e99-b476-b1c97ea233c6
           fromFile: notify.md
 
 docker-pipeline1: &dp1
