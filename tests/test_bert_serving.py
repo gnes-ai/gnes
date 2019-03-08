@@ -9,7 +9,6 @@ from bert_serving.server.helper import get_args_parser
 from src.nes import DummyNES
 from src.nes.document import UniSentDocument, MultiSentDocument
 from src.nes.encoder.bert_binary import BertBinaryEncoder
-from src.nes.helper import memcached
 
 
 class TestBertServing(unittest.TestCase):
@@ -106,4 +105,3 @@ class TestBertServing(unittest.TestCase):
         self.server.close()
         # wait until all socket close safely
         time.sleep(5)
-        memcached.clear()

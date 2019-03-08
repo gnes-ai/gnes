@@ -2,7 +2,7 @@ import pickle
 from functools import wraps
 from typing import TypeVar
 
-from ..helper import set_logger, time_profile
+from ..helper import set_logger, time_profile, MemoryCache
 
 _tb = TypeVar('T', bound='TrainableBase')
 
@@ -15,6 +15,7 @@ class TrainableBase:
         self.is_trained = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
+        self.memcached = MemoryCache(cache_path='.nes_cache')
 
     def __getstate__(self):
         d = dict(self.__dict__)

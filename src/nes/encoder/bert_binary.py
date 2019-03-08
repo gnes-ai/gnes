@@ -4,7 +4,6 @@ from bert_serving.client import BertClient
 
 from .lopq import LOPQEncoder
 from ..base import TrainableBase as TB
-from ..helper import memcached
 
 
 class BertBinaryEncoder(LOPQEncoder):
@@ -29,7 +28,6 @@ class BertBinaryEncoder(LOPQEncoder):
 
     @TB._train_required
     @TB._timeit
-    @memcached
     def encode(self, texts: List[str], is_tokenized: bool = False) -> bytes:
         vec = self.bc_encoder.encode(texts, is_tokenized=is_tokenized)
         return super().encode(vec)

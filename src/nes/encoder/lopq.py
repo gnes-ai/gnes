@@ -5,7 +5,6 @@ import numpy as np
 from . import BaseBinaryEncoder
 from .pca import PCALocalEncoder
 from ..base import TrainableBase as TB
-from ..helper import memcached
 
 
 class LOPQEncoder(BaseBinaryEncoder):
@@ -35,7 +34,6 @@ class LOPQEncoder(BaseBinaryEncoder):
 
     @TB._train_required
     @TB._timeit
-    @memcached
     def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
         vecs = self._do_pca(vecs)
         return self.pq.encode(vecs, **kwargs)
