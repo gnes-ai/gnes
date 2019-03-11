@@ -10,14 +10,17 @@ class BaseEncoder(TB):
 
     @TB._timeit
     @TB._train_required
-    @TB._pipeline
     def encode(self, data: Any, *args, **kwargs) -> bytes:
+        for be in self.pipeline:
+            data = be.encode(data, *args, **kwargs)
         return super().encode(data, *args, **kwargs)
 
     @TB._timeit
     @TB._as_train_func
-    @TB._pipeline(is_train=True)
     def train(self, data, *args, **kwargs):
+        for be in self.pipeline:
+            be.train(data, *args, **kwargs)
+            data = be.encode(data, *args, **kwargs)
         return super().train(data, *args, **kwargs)
 
     def close(self):
