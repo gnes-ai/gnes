@@ -6,8 +6,8 @@ from ..base import TrainableBase as TB
 
 
 class PQEncoder(BaseEncoder):
-    def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
-        super().__init__()
+    def __init__(self, num_bytes: int, cluster_per_byte: int = 255, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
         self.num_bytes = num_bytes
         self.num_clusters = cluster_per_byte
@@ -15,7 +15,7 @@ class PQEncoder(BaseEncoder):
 
     @TB._as_train_func
     @TB._timeit
-    def train(self, vecs: np.ndarray, num_iters: int = 20):
+    def train(self, vecs: np.ndarray, *args, **kwargs):
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         # use faiss ProductQuantizer directly
@@ -33,7 +33,7 @@ class PQEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
-    def encode(self, vecs: np.ndarray, **kwargs) -> bytes:
+    def encode(self, vecs: np.ndarray, *args, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, dim_per_byte])
@@ -49,7 +49,7 @@ class PQEncoder(BaseEncoder):
             'input dimension should >= num_bytes and can be divided by num_bytes!'
         return int(num_dim / self.num_bytes)
 
-    def copy_from(self, x: 'PQEncoder') -> None:
+    def _copy_from(self, x: 'PQEncoder') -> None:
         self.num_bytes = x.num_bytes
         self.num_clusters = x.num_clusters
         self.centroids = x.centroids

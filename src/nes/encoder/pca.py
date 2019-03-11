@@ -7,8 +7,9 @@ from ..helper import get_perm
 
 
 class PCALocalEncoder(BaseEncoder):
-    def __init__(self, output_dim: int, num_locals: int):
-        super().__init__()
+    def __init__(self, output_dim: int, num_locals: int,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert output_dim >= num_locals and output_dim % num_locals == 0, \
             'output_dim should >= num_locals and can be divided by num_locals!'
         self.output_dim = output_dim
@@ -18,7 +19,7 @@ class PCALocalEncoder(BaseEncoder):
 
     @TB._as_train_func
     @TB._timeit
-    def train(self, vecs: np.ndarray) -> None:
+    def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
             self.output_dim, num_samples)
@@ -39,10 +40,10 @@ class PCALocalEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
-    def encode(self, vecs: np.ndarray) -> np.ndarray:
+    def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 
-    def copy_from(self, x: 'PCALocalEncoder'):
+    def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim
         self.components = x.components
         self.mean = x.mean
