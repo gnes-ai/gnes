@@ -77,15 +77,11 @@ class TestPCA(unittest.TestCase):
 
     def test_train_pca_assert(self):
         # from PCA
-        num_bytes = 100
-        lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
-        self.assertRaises(AssertionError, lopq.train, self.test_vecs)
+        self.assertRaises(AssertionError, LOPQEncoder, num_bytes=100, pca_output_dim=20)
         # from PCA
-        num_bytes = 7
-        lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
-        self.assertRaises(AssertionError, lopq.train, self.test_vecs)
+        self.assertRaises(AssertionError, LOPQEncoder, num_bytes=7, pca_output_dim=20)
         # from LOPQ, cluster too large
-        self.assertRaises(AssertionError, LOPQEncoder, num_bytes, cluster_per_byte=256)
+        self.assertRaises(AssertionError, LOPQEncoder, num_bytes=7, cluster_per_byte=256)
 
     def test_encode_backend(self):
         num_bytes = 10
