@@ -21,10 +21,12 @@ class TestBertServing(unittest.TestCase):
         self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
         self.test_data2 = list(MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
         self.test_str = [d._content for d in self.test_data1]
+        self.port = os.environ.get('BERT_CI_PORT', '7125')
+        self.port_out = os.environ.get('BERT_CI_PORT_OUT', '7126')
 
         args = get_args_parser().parse_args(['-model_dir', os.environ.get('BERT_CI_MODEL', '/chinese_L-12_H-768_A-12'),
-                                             '-port', os.environ.get('BERT_CI_PORT', '7125'),
-                                             '-port_out', os.environ.get('BERT_CI_PORT_OUT', '7126'),
+                                             '-port', self.port,
+                                             '-port_out', self.port_out,
                                              '-max_seq_len', 'NONE',
                                              '-mask_cls_sep',
                                              '-cpu'])
@@ -33,8 +35,8 @@ class TestBertServing(unittest.TestCase):
         time.sleep(30)
 
     def test_bert_client(self):
-        bc = BertClient(port=int(os.environ.get('BERT_CI_PORT', '7125')),
-                        port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')))
+        bc = BertClient(port=int(self.port),
+                        port_out=int(self.port_out))
         vec = bc.encode(self.test_str)
         bc.close()
         self.assertEqual(vec.shape[0], len(self.test_str))
@@ -44,8 +46,8 @@ class TestBertServing(unittest.TestCase):
 
         bbe = BertBinaryEncoder(num_bytes, pca_output_dim=32,
                                 cluster_per_byte=8,
-                                port=int(os.environ.get('BERT_CI_PORT', '7125')),
-                                port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')))
+                                port=int(self.port),
+                                port_out=int(self.port_out))
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_str)
@@ -60,11 +62,11 @@ class TestBertServing(unittest.TestCase):
         out2 = bbe2.encode(self.test_str)
         self.assertEqual(out, out2)
 
-        nes = DummyNES(num_bytes,
+        nes = DummyNES(num_bytes=8,
                        pca_output_dim=32,
                        cluster_per_byte=8,
-                       port=int(os.environ.get('BERT_CI_PORT', '7125')),
-                       port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')),
+                       port=int(self.port),
+                       port_out=int(self.port_out),
                        data_path=self.db_path)
 
         dirname = os.path.dirname(__file__)
@@ -94,8 +96,8 @@ class TestBertServing(unittest.TestCase):
         # test multi-sent document
         nes3 = DummyNES(pca_output_dim=32,
                         cluster_per_byte=8,
-                        port=int(os.environ.get('BERT_CI_PORT', '7125')),
-                        port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')),
+                        port=int(self.port),
+                        port_out=int(self.port_out),
                         data_path=self.db_path)
         nes3.train(self.test_data2)
 
