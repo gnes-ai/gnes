@@ -8,7 +8,7 @@ ok-stage: &ok_stage
         options:
           fromFile: comment.txt
       - name: make notification
-        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_LATEST_COMMIT_MESSAGE刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
       - name: message
         type: wework:message
         options:
@@ -55,7 +55,7 @@ notify-pipeline1: &np1
   network: devnet
   stages:
     - name: make notification
-      script: echo "# 🚀 NES的Master分支刚刚更新！\n此次更新由$ORANGE_BUILD_USER提交触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+      script: echo "# 🚀 NES的Master分支刚刚更新！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
     - name: send mail
       type: mail:send
       options:
