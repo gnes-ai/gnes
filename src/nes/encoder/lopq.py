@@ -24,7 +24,3 @@ class LOPQEncoder(PipelineEncoder):
         self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes),
                          PQEncoder(num_bytes, cluster_per_byte)]
 
-    def copy_from(self, x: 'LOPQEncoder'):
-        super().copy_from(x)
-        self.pq.copy_from(x.pq)
-        self.pca.copy_from(x.pca)

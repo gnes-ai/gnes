@@ -21,7 +21,7 @@ class TestPCA(unittest.TestCase):
         def _test_pq_tfpq_identity(pq1, pq2):
             pq1.train(self.test_vecs)
             out1 = pq1.encode(self.test_vecs)
-            pq2.copy_from(pq1)
+            pq2._copy_from(pq1)
             out2 = pq2.encode(self.test_vecs)
             self.assertEqual(out1, out2)
 
@@ -103,7 +103,7 @@ class TestPCA(unittest.TestCase):
         self._simple_assert(out, num_bytes, 255)
 
         # copy from lopq
-        lopq2.copy_from(lopq)
+        lopq2._copy_from(lopq)
         out2 = lopq2.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, 255)
 

@@ -43,7 +43,7 @@ class PCALocalEncoder(BaseEncoder):
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 
-    def copy_from(self, x: 'PCALocalEncoder'):
+    def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim
         self.components = x.components
         self.mean = x.mean

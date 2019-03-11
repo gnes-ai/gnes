@@ -12,6 +12,9 @@ class BaseEncoder(TB):
     def encode(self, data: Any, *args, **kwargs) -> Any:
         pass
 
+    def _copy_from(self, x: 'BaseEncoder') -> None:
+        pass
+
 
 class PipelineEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
@@ -41,3 +44,7 @@ class PipelineEncoder(BaseEncoder):
         super().close()
         for be in self.pipeline:
             be.close()
+
+    def _copy_from(self, x: 'PipelineEncoder'):
+        for be1, be2 in zip(self.pipeline, x):
+            be1._copy_from(be2)

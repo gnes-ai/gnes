@@ -49,7 +49,7 @@ class PQEncoder(BaseEncoder):
             'input dimension should >= num_bytes and can be divided by num_bytes!'
         return int(num_dim / self.num_bytes)
 
-    def copy_from(self, x: 'PQEncoder') -> None:
+    def _copy_from(self, x: 'PQEncoder') -> None:
         self.num_bytes = x.num_bytes
         self.num_clusters = x.num_clusters
         self.centroids = x.centroids
