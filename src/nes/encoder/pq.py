@@ -15,7 +15,7 @@ class PQEncoder(BaseEncoder):
 
     @TB._as_train_func
     @TB._timeit
-    def train(self, vecs: np.ndarray, num_iters: int = 20, *args, **kwargs):
+    def train(self, vecs: np.ndarray, *args, **kwargs):
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         # use faiss ProductQuantizer directly
