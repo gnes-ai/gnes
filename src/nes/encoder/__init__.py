@@ -28,6 +28,7 @@ class PipelineEncoder(BaseEncoder):
             raise NotImplementedError
         for be in self.pipeline:
             data = be.encode(data, *args, **kwargs)
+            print(data)
         return data
 
     @TB._timeit

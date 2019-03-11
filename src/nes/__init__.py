@@ -29,6 +29,7 @@ class BaseNES(BaseIndexer):
     @TB._timeit
     def train(self, iter_doc: Iterator[BaseDocument], is_tokenized=False) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
+        print(sents)
         self.binary_encoder.train(sents, is_tokenized)
 
     @TB._train_required
