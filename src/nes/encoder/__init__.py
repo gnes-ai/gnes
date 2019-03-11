@@ -6,11 +6,21 @@ from ..base import TrainableBase as TB
 class BaseEncoder(TB):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    @TB._timeit
+    @TB._train_required
+    def encode(self, data: Any, *args, **kwargs) -> Any:
+        pass
+
+
+class PipelineEncoder(BaseEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.pipeline = []  # type: List['BaseEncoder']
 
     @TB._timeit
     @TB._train_required
-    def encode(self, data: Any, *args, **kwargs) -> bytes:
+    def encode(self, data: Any, *args, **kwargs) -> Any:
         if not self.pipeline:
             raise NotImplementedError
         for be in self.pipeline:
@@ -29,3 +39,5 @@ class BaseEncoder(TB):
 
     def close(self):
         super().close()
+        for be in self.pipeline:
+            be.close()

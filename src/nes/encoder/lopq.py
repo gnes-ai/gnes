@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from . import BaseEncoder
+from . import PipelineEncoder
 from .pca import PCALocalEncoder
 
 _pq_backend = os.environ.get('PQ_BACKEND', 'numpy')
@@ -15,7 +15,7 @@ else:
     raise NotImplementedError('pq_backend=%s is not implemented yet!' % _pq_backend)
 
 
-class LOPQEncoder(BaseEncoder):
+class LOPQEncoder(PipelineEncoder):
     def __init__(self, num_bytes: int,
                  pca_output_dim: int,
                  cluster_per_byte: int = 255,

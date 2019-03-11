@@ -1,6 +1,6 @@
 import unittest
 
-from src.nes import BaseEncoder as BE
+from src.nes import BaseEncoder as BE, PipelineEncoder
 
 
 class DummyTrainEncoder(BE):
@@ -31,7 +31,7 @@ class PCAEncoder(BE):
         print('pca-train!')
 
 
-class LOPQEncoder(BE):
+class LOPQEncoder(PipelineEncoder):
     def __init__(self):
         super().__init__()
         self.pipeline = [PCAEncoder(), PQEncoder()]
@@ -49,6 +49,7 @@ class TestDocument(unittest.TestCase):
 
     def test_hierachy_encoder(self):
         le = LOPQEncoder()
+        self.assertRaises(RuntimeError, le.encode, 1)
         le.train(data=1)
         self.assertEqual(le.encode(data=1), 8)
         self.assertEqual(le.encode(data=2), 10)

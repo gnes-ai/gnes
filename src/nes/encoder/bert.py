@@ -20,7 +20,7 @@ class BertEncoder(BaseEncoder):
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
     @TB._timeit
-    def train(self, text, *args, **kwargs) -> None:
+    def train(self, text: List[str], *args, **kwargs) -> None:
         pass
 
     def __getstate__(self):
