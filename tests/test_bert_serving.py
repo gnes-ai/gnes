@@ -40,7 +40,9 @@ class TestBertServing(unittest.TestCase):
         self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 768)
 
-        bbe = BertBinaryEncoder(pca_output_dim=32,
+        num_bytes = 8
+
+        bbe = BertBinaryEncoder(num_bytes, pca_output_dim=32,
                                 cluster_per_byte=8,
                                 port=int(os.environ.get('BERT_CI_PORT', '7125')),
                                 port_out=int(os.environ.get('BERT_CI_PORT_OUT', '7126')))
@@ -50,7 +52,7 @@ class TestBertServing(unittest.TestCase):
         out = bbe.encode(self.test_str)
         bbe.close()
         self.assertEqual(bytes, type(out))
-        self.assertEqual(len(self.test_str) * bbe.num_bytes, len(out))
+        self.assertEqual(len(self.test_str) * num_bytes, len(out))
 
         bbe.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
