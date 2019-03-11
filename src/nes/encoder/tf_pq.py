@@ -46,7 +46,7 @@ class TFPQEncoder(PQEncoder):
 
     @TB._train_required
     @TB._timeit
-    def encode(self, vecs: np.ndarray, batch_size: int = 10000) -> bytes:
+    def encode(self, vecs: np.ndarray, batch_size: int = 10000, *args, **kwargs) -> bytes:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])
         i = 0
@@ -72,3 +72,6 @@ class TFPQEncoder(PQEncoder):
         self._graph = self._get_graph()
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
+
+    def close(self):
+        self._sess.close()

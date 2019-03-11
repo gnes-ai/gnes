@@ -50,6 +50,21 @@ class TrainableBase:
 
         return arg_wrapper
 
+    @staticmethod
+    def _pipeline(is_train=False):
+        def _pipeline_inner(func):
+            @wraps(func)
+            def arg_wrapper(self, data, *args, **kwargs):
+                for be in self.pipeline:
+                    if is_train:
+                        be.train(data, *args, **kwargs)
+                    data = be.encode(data, *args, **kwargs)
+                return func(self, data, *args, **kwargs)
+
+            return arg_wrapper
+
+        return _pipeline_inner
+
     def train(self, *args, **kwargs):
         raise NotImplementedError
 
