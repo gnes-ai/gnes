@@ -96,6 +96,9 @@ class TestPCA(unittest.TestCase):
 
         self.assertEqual(out, out2)
 
+        os.environ['PQ_BACKEND'] = 'dummy'
+        self.assertRaises(NotImplementedError, LOPQEncoder, num_bytes, pca_output_dim)
+
     def test_encode_batching(self):
         num_bytes = 10
         pca_output_dim = 20
