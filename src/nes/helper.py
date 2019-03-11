@@ -13,6 +13,30 @@ from typing import Iterator, Any
 import numpy as np
 from joblib import Memory
 from termcolor import colored
+from psutil import virtual_memory
+
+
+def get_sys_info():
+    mem = virtual_memory()
+    # get available memory in (M)
+    avai = mem.available / 1e6
+    def timer(x, y):
+        stime = time.time()
+        c = np.matmul(x, y)
+        return time.time() - stime
+    x = np.random.random([1000, 1000])
+    y = np.random.random([1000, 1000])
+    unit_time = timer(x, y)
+    return avai, unit_time
+
+
+def ralloc_estimator(n_lines, num_dim, unit_time, max_mem, max_time=60):
+    est_time = num_dim * num_dim * n_lines / 1e9 * unit_time * 2
+    est_mem = 60 + 30 * (n_lines * num_dim / 768 / 10000)
+    if (est_time < max_time) and (est_mem < max_mem * 0.5):
+        return n_lines
+    else:
+        return ralloc_estimator(int(n_lines*0.9), num_dim, unit_time, max_mem, max_time)
 
 
 def get_perm(L, m):

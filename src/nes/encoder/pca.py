@@ -3,7 +3,7 @@ import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
-from ..helper import get_perm
+from ..helper import get_perm, get_sys_info, ralloc_estimator
 
 
 class PCALocalEncoder(BaseEncoder):
@@ -28,7 +28,10 @@ class PCALocalEncoder(BaseEncoder):
 
         pca = faiss.PCAMatrix(num_dim, self.output_dim)
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
-        pca.train(vecs)
+        max_mem, unit_time = get_sys_info()
+        optimal_num_samples = ralloc_estimator(num_samples, num_dim, unit_time,
+                                               max_mem, 10)
+        pca.train(vecs[:optimal_num_samples])
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
         components = faiss.vector_to_array(pca.PCAMat).reshape([-1, num_dim])[:self.output_dim]
 
