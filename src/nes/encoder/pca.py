@@ -30,7 +30,7 @@ class PCALocalEncoder(BaseEncoder):
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
         max_mem, unit_time = get_sys_info()
         optimal_num_samples = ralloc_estimator(num_samples, num_dim, unit_time,
-                                               max_mem, 10)
+                                               max_mem, 30)
         pca.train(vecs[:optimal_num_samples])
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
         components = faiss.vector_to_array(pca.PCAMat).reshape([-1, num_dim])[:self.output_dim]
