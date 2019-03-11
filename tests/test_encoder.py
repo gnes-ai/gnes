@@ -58,15 +58,6 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(out.shape[1], 8)
         self.assertEqual(out.shape[0], self.test_vecs.shape[0])
 
-    def test_train_no_pca(self):
-        num_bytes = 10
-        num_clusters = 11
-        pca_output_dim = 20
-        lopq = LOPQEncoder(num_bytes, pca_output_dim)
-        lopq.train(self.test_vecs)
-        out = lopq.encode(self.test_vecs)
-        self._simple_assert(out, num_bytes, num_clusters)
-
     def test_train_pca(self):
         num_bytes = 10
         num_clusters = 11
