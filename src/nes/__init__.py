@@ -60,7 +60,6 @@ class DummyNES(BaseNES):
         from .encoder.bert_binary import BertBinaryEncoder
         from .indexer.leveldb import LVDBIndexer
         text_indexer = LVDBIndexer(*args, **kwargs)
-        kwargs.pop('data_path')
         binary_encoder = BertBinaryEncoder(*args, **kwargs)
         binary_indexer = NumpyIndexer(*args, **kwargs)
         super().__init__(binary_encoder, binary_indexer, text_indexer)
