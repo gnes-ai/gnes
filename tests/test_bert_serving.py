@@ -69,8 +69,6 @@ class TestBertServing(unittest.TestCase):
                        port_out=int(self.port_out),
                        data_path=self.db_path)
 
-        dirname = os.path.dirname(__file__)
-
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
 
