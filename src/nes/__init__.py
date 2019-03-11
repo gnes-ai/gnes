@@ -9,7 +9,7 @@ __version__ = '0.0.1'
 
 
 class BaseNES(BaseIndexer):
-    def __init__(self, binary_encoder: BaseBinaryEncoder,
+    def __init__(self, binary_encoder: BaseEncoder,
                  binary_indexer: BaseBinaryIndexer,
                  text_indexer: BaseTextIndexer,
                  batch_size: int = 128):
