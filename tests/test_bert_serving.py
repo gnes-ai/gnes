@@ -70,7 +70,6 @@ class TestBertServing(unittest.TestCase):
                        data_path=self.db_path)
 
         dirname = os.path.dirname(__file__)
-        self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
 
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
