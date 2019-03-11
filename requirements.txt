@@ -7,3 +7,4 @@ bert-serving-server
 bert-serving-client
 plyvel
 joblib
+psutil
