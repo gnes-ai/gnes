@@ -48,7 +48,7 @@ class TestBertServing(unittest.TestCase):
 
         bbe.train(self.test_str)
         out = bbe.encode(self.test_str)
-        bbe.bc_encoder.close()
+        bbe.close()
         self.assertEqual(bytes, type(out))
         self.assertEqual(len(self.test_str) * bbe.num_bytes, len(out))
 

@@ -46,5 +46,5 @@ class PipelineEncoder(BaseEncoder):
             be.close()
 
     def _copy_from(self, x: 'PipelineEncoder'):
-        for be1, be2 in zip(self.pipeline, x):
+        for be1, be2 in zip(self.pipeline, x.pipeline):
             be1._copy_from(be2)
