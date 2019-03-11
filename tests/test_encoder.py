@@ -1,4 +1,3 @@
-import os
 import unittest
 
 import numpy as np
@@ -77,14 +76,12 @@ class TestPCA(unittest.TestCase):
     def test_encode_backend(self):
         num_bytes = 10
         pca_output_dim = 20
-        os.environ['PQ_BACKEND'] = 'tensorflow'
-        lopq = LOPQEncoder(num_bytes, pca_output_dim)
+        lopq = LOPQEncoder(num_bytes, pca_output_dim, pq_backend='tensorflow')
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, 255)
 
-        os.environ['PQ_BACKEND'] = 'numpy'
-        lopq2 = LOPQEncoder(num_bytes, pca_output_dim)
+        lopq2 = LOPQEncoder(num_bytes, pca_output_dim, pq_backend='numpy')
         lopq2.train(self.test_vecs)
         out = lopq2.encode(self.test_vecs)
         self._simple_assert(out, num_bytes, 255)
@@ -96,14 +93,12 @@ class TestPCA(unittest.TestCase):
 
         self.assertEqual(out, out2)
 
-        os.environ['PQ_BACKEND'] = 'dummy'
-        self.assertRaises(NotImplementedError, LOPQEncoder, num_bytes, pca_output_dim)
+        self.assertRaises(NotImplementedError, LOPQEncoder, num_bytes, pca_output_dim, pq_backend='dummy')
 
     def test_encode_batching(self):
         num_bytes = 10
         pca_output_dim = 20
-        os.environ['PQ_BACKEND'] = 'tensorflow'
-        lopq = LOPQEncoder(num_bytes, pca_output_dim)
+        lopq = LOPQEncoder(num_bytes, pca_output_dim, pq_backend='tensorflow')
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs, batch_size=32)
         self._simple_assert(out, num_bytes, 255)
@@ -112,8 +107,9 @@ class TestPCA(unittest.TestCase):
 
     def test_num_cluster(self):
         def _test_num_cluster(num_bytes, num_cluster, backend):
-            os.environ['PQ_BACKEND'] = backend
-            lopq = LOPQEncoder(num_bytes, cluster_per_byte=num_cluster, pca_output_dim=20)
+            lopq = LOPQEncoder(num_bytes,
+                               cluster_per_byte=num_cluster,
+                               pca_output_dim=20, pq_backend=backend)
             lopq.train(self.test_vecs)
             out = lopq.encode(self.test_vecs)
             self._simple_assert(out, num_bytes, num_cluster)

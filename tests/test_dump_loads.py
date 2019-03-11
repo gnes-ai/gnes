@@ -17,9 +17,8 @@ class TestDumpAndLoad(unittest.TestCase):
             os.remove(self.dump_path)
 
     def _test(self, backend):
-        os.environ['PQ_BACKEND'] = backend
         num_bytes = 10
-        lopq = LOPQEncoder(num_bytes, pca_output_dim=20)
+        lopq = LOPQEncoder(num_bytes, pca_output_dim=20, pq_backend=backend)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
         lopq.dump(self.dump_path)
