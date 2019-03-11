@@ -6,8 +6,8 @@ from ..base import TrainableBase as TB
 
 
 class PQEncoder(BaseEncoder):
-    def __init__(self, num_bytes: int, cluster_per_byte: int = 255):
-        super().__init__()
+    def __init__(self, num_bytes: int, cluster_per_byte: int = 255, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
         self.num_bytes = num_bytes
         self.num_clusters = cluster_per_byte

@@ -13,6 +13,30 @@ class DummyTrainEncoder(BE):
         pass
 
 
+class PQEncoder(BE):
+    def encode(self, data, *args, **kwargs):
+        print('pq-encode!')
+        return data * 2
+
+    def train(self, data, *args, **kwargs):
+        print('pq-train!')
+
+
+class PCAEncoder(BE):
+    def encode(self, data, *args, **kwargs):
+        print('pca-encode!')
+        return data + 3
+
+    def train(self, data, *args, **kwargs):
+        print('pca-train!')
+
+
+class LOPQEncoder(BE):
+    def __init__(self):
+        super().__init__()
+        self.pipeline = [PCAEncoder(), PQEncoder()]
+
+
 class TestDocument(unittest.TestCase):
     def test_no_pretrain(self):
         a = DummyTrainEncoder()
@@ -22,3 +46,9 @@ class TestDocument(unittest.TestCase):
         a = DummyTrainEncoder()
         a.train()
         a.encode()
+
+    def test_hierachy_encoder(self):
+        le = LOPQEncoder()
+        le.train(data=1)
+        self.assertEqual(le.encode(data=1), 8)
+        self.assertEqual(le.encode(data=2), 10)

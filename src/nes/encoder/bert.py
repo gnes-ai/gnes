@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from bert_serving.client import BertClient
 
-from src.nes import BaseEncoder
+from . import BaseEncoder
 from ..base import TrainableBase as TB
 
 

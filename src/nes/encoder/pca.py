@@ -7,8 +7,9 @@ from ..helper import get_perm
 
 
 class PCALocalEncoder(BaseEncoder):
-    def __init__(self, output_dim: int, num_locals: int):
-        super().__init__()
+    def __init__(self, output_dim: int, num_locals: int,
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert output_dim >= num_locals and output_dim % num_locals == 0, \
             'output_dim should >= num_locals and can be divided by num_locals!'
         self.output_dim = output_dim
