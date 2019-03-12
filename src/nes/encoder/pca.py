@@ -44,7 +44,15 @@ class PCALocalEncoder(BaseEncoder):
     @TB._train_required
     @TB._timeit
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
-        return np.matmul(vecs - self.mean, self.components)
+        if vecs.shape[0] < 2048:
+            return np.matmul(vecs - self.mean, self.components)
+        else:
+            ret = None
+            for _ in range(int(vecs.shape[0]/2048)+1):
+                if _ * 2048 < vecs.shape[1]:
+                    _r = np.matmul(vecs - self.mean, self.components)
+                    ret = np.concatenate([ret, _r]) if ret is not None else _r
+            return ret
 
     def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim
