@@ -8,3 +8,4 @@ bert-serving-client
 plyvel
 joblib
 psutil
+memory_profiler
