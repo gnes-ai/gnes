@@ -5,6 +5,7 @@ from memory_profiler import memory_usage
 sys.path.append('../')
 from src.nes import DummyNES
 from src.nes.document import UniSentDocument, MultiSentDocument
+from src.nes.helper import profile_logger
 os.environ['NES_PROFILING'] = '1'
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
@@ -51,5 +52,6 @@ def bench_train(docs):
 if __name__ == '__main__':
     for unisent in [True, False]:
         docs, num_sentences = prepare_data(unisent)
-        print('INFO: num docs {}, num sentences {}'.format(len(docs), num_sentences))
+        profile_logger.info('num docs {}, num sentences {}'.format(
+                            len(docs), num_sentences))
         bench_train(docs)
