@@ -9,7 +9,7 @@ __all__ = ['BaseDocument', 'UniSentDocument', 'MultiSentDocument']
 
 class BaseDocument:
     def __init__(self, text: str, doc_id: int = None):
-        self._id = random.randint(0, ctypes.c_uint(-1).value) if doc_id is None else id
+        self._id = random.randint(0, ctypes.c_uint(-1).value) if doc_id is None else doc_id
         self._content = text
         self._sentences = self.parse_sentences(text)
 
