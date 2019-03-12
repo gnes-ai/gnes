@@ -51,5 +51,5 @@ def bench_train(docs):
 if __name__ == '__main__':
     for unisent in [True, False]:
         docs, num_sentences = prepare_data(unisent)
-        print('INFO: num docs {}, num sentences {}'.format(docs, num_sentences))
+        print('INFO: num docs {}, num sentences {}'.format(len(docs), num_sentences))
         bench_train(docs)
