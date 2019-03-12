@@ -56,7 +56,7 @@ def NDCG(labels, preds):
         dcg_max = sum([(2**j)/np.log(i+2) for i, j in enumerate(bs)])
         dcg = sum([(2**j)/np.log(i+2) for i, j in enumerate(rs)])
         score.append(dcg / dcg_max * w)
-        W += w 
+        W += w
     print(score)
     return np.sum(score)/W
 
@@ -80,5 +80,3 @@ with open('preds.json', 'w') as f:
     for q, r in zip(queries, preds):
         f.write(json.dumps({'query': q, 'rank': r}, ensure_ascii=False)+'\n')
 print(NDCG(labels, preds))
-
-
