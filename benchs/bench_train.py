@@ -16,7 +16,8 @@ def prepare_data(unisent=True):
     for _dir in os.listdir('/ext_data/wiki_zh'):
         _sub_dir = os.listdir(os.path.join('/ext_data/wiki_zh/', _dir))
         for _file in _sub_dir:
-            for line in open(os.path.join(_sub_dir, _file), 'r').readlines():
+            _file_path = os.path.join('/ext_data/wiki_zh/', _dir, _file)
+            for line in open(_file_path, 'r').readlines():
                 try:
                     line = json.loads(line)
                     if unisent:
