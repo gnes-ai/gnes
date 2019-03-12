@@ -12,18 +12,23 @@ os.environ['BERT_CI_PORT_OUT'] = '7126'
 
 def prepare_data(unisent=True):
     docs = []
+    num_sentences = 0
     for _dir in os.listdir('/ext_data/wiki_zh'):
-        for _file in os.listdir(os.path.join('/ext_data/wiki_zh/', _dir)):
-            for line in open(_file, 'r').readlines():
+        _sub_dir = os.listdir(os.path.join('/ext_data/wiki_zh/', _dir))
+        for _file in _sub_dir:
+            for line in open(os.path.join(_sub_dir, _file), 'r').readlines():
                 try:
                     line = json.loads(line)
                     if unisent:
-                        docs.append(UniSentDocument(line['title'], int(line['id'])))
+                        doc = UniSentDocument(line['title'], int(line['id']))
                     else:
-                        docs.append(MultiSentDocument(line['text'], int(line['id'])))
+                        doc = MultiSentDocument(line['text'], int(line['id']))
+                    num_sentences += len(doc._sentences)
+                    docs.append(doc)
                 except Exception:
                     continue
-    return docs
+
+    return docs, num_sentences
 
 
 def bench_train(docs):
@@ -39,10 +44,11 @@ def bench_train(docs):
     nes.train(docs)
     nes.add(docs)
     nes.close()
-    return 
+    return
 
 
 if __name__ == '__main__':
     for unisent in [True, False]:
-        docs = prepare_data(unisent)
+        docs, num_sentences = prepare_data(unisent)
+        print('INFO: num docs {}, num sentences {}'.format(docs, num_sentences))
         bench_train(docs)
