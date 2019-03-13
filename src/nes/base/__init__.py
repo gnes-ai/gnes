@@ -18,7 +18,6 @@ class TrainableType(type):
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
-        cls._init_kwargs_dict = {}
         cls.is_trained = False
         return cls
 
@@ -46,10 +45,15 @@ class TrainableType(type):
                 tmp[default_pars[idx][0]] = v
             for k, v in kwargs.items():
                 tmp[k] = v
-            tmp.pop('self')
-            tmp.pop('args')
-            tmp.pop('kwargs')
-            self._init_kwargs_dict.update(tmp)
+
+            for k in ['self', 'args', 'kwargs']:
+                if k in tmp:
+                    tmp.pop(k)
+
+            if getattr(self, '_init_kwargs_dict', None):
+                self._init_kwargs_dict.update(tmp)
+            else:
+                self._init_kwargs_dict = tmp
             f = func(self, *args, **kwargs)
             return f
 

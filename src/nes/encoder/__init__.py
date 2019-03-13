@@ -56,7 +56,9 @@ class PipelineEncoder(BaseEncoder):
     def from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        pipe = data.pop('pipeline')
+        if 'pipeline' in data:
+            pipe = data.pop('pipeline')
         tmp = cls(**data)
-        tmp.pipeline = pipe
+        if 'pipeline' in data:
+            tmp.pipeline = pipe
         return tmp
