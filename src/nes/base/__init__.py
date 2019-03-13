@@ -1,5 +1,6 @@
 import inspect
 import pickle
+import types
 from functools import wraps
 from typing import TypeVar
 
@@ -16,9 +17,18 @@ class TrainableType(type):
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
-        for pf in ['train', 'encode', 'dump', 'load', 'add', 'query']:
-            if getattr(cls, pf, None):
-                setattr(cls, pf, time_profile(getattr(cls, pf)))
+
+        for pf_name in ['train', 'encode', 'dump', 'load', 'add', 'query']:
+            pf = getattr(cls, pf_name, None)
+            if pf:
+                if isinstance(pf, types.FunctionType):
+                    # if it's a staticmethod, then we need to put time_profile after static method
+                    # first remove @staticmethod wrapper
+                    pf = types.MethodType(pf, cls)
+                    pf = staticmethod(time_profile(pf))
+                else:
+                    pf = time_profile(pf)
+                setattr(cls, pf_name, pf)
 
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
