@@ -8,7 +8,6 @@ class DummyTrainEncoder(BE):
     def encode(self, *args, **kwargs):
         pass
 
-    @BE._as_train_func
     def train(self, *args, **kwargs):
         pass
 

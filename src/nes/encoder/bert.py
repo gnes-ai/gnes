@@ -4,7 +4,6 @@ import numpy as np
 from bert_serving.client import BertClient
 
 from . import BaseEncoder
-from ..base import TrainableBase as TB
 
 
 class BertEncoder(BaseEncoder):
@@ -15,11 +14,9 @@ class BertEncoder(BaseEncoder):
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
 
-    @TB._timeit
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
-    @TB._timeit
     def train(self, text: List[str], *args, **kwargs) -> None:
         pass
 

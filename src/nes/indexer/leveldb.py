@@ -6,7 +6,6 @@ from typing import List, Dict, Any, Iterator
 import plyvel
 
 from . import BaseTextIndexer
-from ..base import TrainableBase as TB
 from ..document import BaseDocument
 
 
@@ -26,7 +25,6 @@ class LVDBIndexer(BaseTextIndexer):
         super().__setstate__(d)
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
-    @TB._timeit
     def add(self, docs: Iterator[BaseDocument]):
         with self._db.write_batch() as wb:
             for d in docs:
@@ -34,7 +32,6 @@ class LVDBIndexer(BaseTextIndexer):
                 doc = self._doc2bytes(d)
                 wb.put(doc_id, doc)
 
-    @TB._timeit
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
         res = []
         for k in keys:
@@ -81,11 +78,9 @@ class LVDBIndexerAsync(LVDBIndexer):
         self._jobs = []
         self._db_put = False
 
-    @TB._timeit
     def add(self, docs: Iterator[BaseDocument]):
         self._jobs.append(docs)
 
-    @TB._timeit
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
         self._check_state()
         return super().query(keys)

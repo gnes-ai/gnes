@@ -23,7 +23,6 @@ class TFPQEncoder(PQEncoder):
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
 
-    @TB._timeit
     def _get_graph(self) -> Dict[str, Any]:
         ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
@@ -45,7 +44,6 @@ class TFPQEncoder(PQEncoder):
         }
 
     @TB._train_required
-    @TB._timeit
     def encode(self, vecs: np.ndarray, batch_size: int = 10000, *args, **kwargs) -> bytes:
         num_points = vecs.shape[0]
         vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])

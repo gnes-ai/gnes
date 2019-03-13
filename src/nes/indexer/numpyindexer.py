@@ -3,7 +3,6 @@ from typing import List, Tuple
 import numpy as np
 
 from . import BaseBinaryIndexer
-from ..base import TrainableBase as TB
 
 
 class NumpyIndexer(BaseBinaryIndexer):
@@ -13,7 +12,6 @@ class NumpyIndexer(BaseBinaryIndexer):
         self._vectors = None  # type: np.ndarray
         self._doc_ids = None  # type: np.ndarray
 
-    @TB._timeit
     def add(self, vectors: bytes, doc_ids: List[int]):
         if len(vectors) % len(doc_ids) != 0:
             raise ValueError("vectors bytes should be divided by doc_ids")
@@ -34,7 +32,6 @@ class NumpyIndexer(BaseBinaryIndexer):
             self._vectors = vectors
             self._doc_ids = doc_ids
 
-    @TB._timeit
     def query(self, keys: bytes, top_k: int) -> List[List[Tuple[int, float]]]:
         keys = np.frombuffer(keys, dtype=np.uint8).reshape([-1, 1, self.num_bytes])
 
