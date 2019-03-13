@@ -68,4 +68,8 @@ class TestYaml(unittest.TestCase):
 
     def test_nest_pipeline(self):
         d = dummyPipeline(a=1, b=2, c=3, wee=4)
-        print(d._init_kwargs_dict)
+        d.dump_yaml(self.dump_path)
+        self.assertTrue(os.path.exists(self.dump_path))
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), dummyPipeline)
+        self.assertEqual(d._init_kwargs_dict, pe._init_kwargs_dict)

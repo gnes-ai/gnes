@@ -1,5 +1,7 @@
 from typing import List, Any
 
+import ruamel.yaml.constructor
+
 from ..base import TrainableBase as TB
 
 
@@ -46,4 +48,15 @@ class PipelineEncoder(BaseEncoder):
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_mapping('!' + cls.__name__, data._init_kwargs_dict)
+        tmp = {'pipeline': data.pipeline}
+        tmp.update(data._init_kwargs_dict)
+        return representer.represent_mapping('!' + cls.__name__, tmp)
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
+            constructor, node, deep=True)
+        pipe = data.pop('pipeline')
+        tmp = cls(**data)
+        tmp.pipeline = pipe
+        return tmp
