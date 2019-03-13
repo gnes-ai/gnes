@@ -115,4 +115,11 @@ class TrainableBase:
     def from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        return cls(*data['args'], **data['kwargs'])
+        if 'args' in data and 'kwargs' in data:
+            return cls(*data['args'], **data['kwargs'])
+        elif 'args' not in data and 'kwargs' in data:
+            return cls(**data['kwargs'])
+        elif 'args' in data and 'kwargs' not in data:
+            return cls(*data['args'])
+        else:
+            return cls(**data)
