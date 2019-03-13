@@ -20,7 +20,7 @@ class BertEncoder(BaseEncoder):
         if len(text) < 2048:
             return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
         else:
-            dim = self.bc_encoder.encode([text[:1]], *args, **kwargs).shape[1]
+            dim = self.bc_encoder.encode(text[:1], *args, **kwargs).shape[1]
             vecs = np.zeros((len(text), dim), dtype=np.float32)
             for _ in range(int(len(text) / 1024) + 1):
                 if _*1024 >= len(text):
