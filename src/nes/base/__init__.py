@@ -46,9 +46,9 @@ class TrainableType(type):
                 tmp[default_pars[idx][0]] = v
             for k, v in kwargs.items():
                 tmp[k] = v
-            tmp.pop('self')
-            tmp.pop('args')
-            tmp.pop('kwargs')
+            for k in ['self', 'args', 'kwargs']:
+                if k in tmp:
+                    tmp.pop(k)
             self._init_kwargs_dict.update(tmp)
             f = func(self, *args, **kwargs)
             return f

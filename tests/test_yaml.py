@@ -22,6 +22,13 @@ class foo2(foo1):
         pass
 
 
+class dummyPipeline(PipelineEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pipeline = [foo1(*args, **kwargs),
+                         foo2(*args, **kwargs), ]
+
+
 class TestYaml(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
@@ -58,3 +65,7 @@ class TestYaml(unittest.TestCase):
         pe = PipelineEncoder.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
         self.assertEqual(pe._init_kwargs_dict, {'a': 23, 'b': '32', 'c': ['123', '456']})
+
+    def test_nest_pipeline(self):
+        d = dummyPipeline(a=1, b=2, c=3, wee=4)
+        print(d._init_kwargs_dict)
