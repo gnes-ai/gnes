@@ -43,3 +43,7 @@ class PipelineEncoder(BaseEncoder):
     def _copy_from(self, x: 'PipelineEncoder'):
         for be1, be2 in zip(self.pipeline, x.pipeline):
             be1._copy_from(be2)
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_mapping('!' + cls.__name__, data._init_kwargs_dict)
