@@ -20,14 +20,8 @@ class TrainableType(type):
 
         for pf_name in ['train', 'encode', 'dump', 'load', 'add', 'query']:
             pf = getattr(cls, pf_name, None)
-            if pf:
-                if isinstance(pf, types.FunctionType):
-                    # if it's a staticmethod, then we need to put time_profile after static method
-                    # first remove @staticmethod wrapper
-                    pf = types.MethodType(pf, cls)
-                    pf = staticmethod(time_profile(pf))
-                else:
-                    pf = time_profile(pf)
+            if pf and not isinstance(pf, types.FunctionType):
+                pf = time_profile(pf)
                 setattr(cls, pf_name, pf)
 
         if getattr(cls, 'train', None):
