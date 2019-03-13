@@ -40,15 +40,17 @@ class TrainableType(type):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             all_pars = inspect.signature(func).parameters
-            f = func(self, *args, **kwargs)
             tmp = {k: v.default for k, v in all_pars.items()}
             default_pars = list(all_pars.items())
-            for idx, v in enumerate(args):
-                tmp[default_pars[idx + 1][0]] = v
+            for idx, v in enumerate(args, 1):
+                tmp[default_pars[idx][0]] = v
             for k, v in kwargs.items():
                 tmp[k] = v
             tmp.pop('self')
-            self._init_kwargs_dict = tmp
+            tmp.pop('args')
+            tmp.pop('kwargs')
+            self._init_kwargs_dict.update(tmp)
+            f = func(self, *args, **kwargs)
             return f
 
         return arg_wrapper
