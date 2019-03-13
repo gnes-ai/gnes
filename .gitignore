@@ -122,3 +122,6 @@ post/
 toy*.ipynb
 data/
 *.c
+.nes_cache
+toy*.py
+toy*.yml
