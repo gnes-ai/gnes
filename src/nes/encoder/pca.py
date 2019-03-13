@@ -3,7 +3,7 @@ import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
-from ..helper import get_perm
+from ..helper import get_perm, get_sys_info, ralloc_estimator
 
 
 class PCALocalEncoder(BaseEncoder):
@@ -27,7 +27,10 @@ class PCALocalEncoder(BaseEncoder):
 
         pca = faiss.PCAMatrix(num_dim, self.output_dim)
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
-        pca.train(vecs)
+        max_mem, unit_time = get_sys_info()
+        optimal_num_samples = ralloc_estimator(num_samples, num_dim, unit_time,
+                                               max_mem, 30)
+        pca.train(vecs[:optimal_num_samples])
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
         components = faiss.vector_to_array(pca.PCAMat).reshape([-1, num_dim])[:self.output_dim]
 
@@ -40,7 +43,15 @@ class PCALocalEncoder(BaseEncoder):
     @TB._train_required
     @TB._timeit
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
-        return np.matmul(vecs - self.mean, self.components)
+        if vecs.shape[0] < 2048:
+            return np.matmul(vecs - self.mean, self.components)
+        else:
+            ret = None
+            for _ in range(int(vecs.shape[0]/2048)+1):
+                if _ * 2048 < vecs.shape[1]:
+                    _r = np.matmul(vecs - self.mean, self.components)
+                    ret = np.concatenate([ret, _r]) if ret is not None else _r
+            return ret
 
     def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim

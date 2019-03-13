@@ -8,3 +8,5 @@ bert-serving-client
 plyvel
 joblib
 ruamel.yaml
+psutil
+memory_profiler

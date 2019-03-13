@@ -13,6 +13,31 @@ from typing import Iterator, Any
 import numpy as np
 from joblib import Memory
 from termcolor import colored
+from psutil import virtual_memory
+from memory_profiler import memory_usage
+
+
+def get_sys_info():
+    mem = virtual_memory()
+    # get available memory in (M)
+    avai = mem.available / 1e6
+    def timer(x, y):
+        stime = time.time()
+        c = np.matmul(x, y)
+        return time.time() - stime
+    x = np.random.random([1000, 1000])
+    y = np.random.random([1000, 1000])
+    unit_time = timer(x, y)
+    return avai, unit_time
+
+
+def ralloc_estimator(n_lines, num_dim, unit_time, max_mem, max_time=60):
+    est_time = num_dim * num_dim * n_lines / 1e9 * unit_time * 2
+    est_mem = 60 + 30 * (n_lines * num_dim / 768 / 10000)
+    if (est_time < max_time) and (est_mem < max_mem * 0.5):
+        return n_lines
+    else:
+        return ralloc_estimator(int(n_lines*0.9), num_dim, unit_time, max_mem, max_time)
 
 
 def get_perm(L, m):
@@ -53,10 +78,12 @@ def time_profile(func):
     def arg_wrapper(*args, **kwargs):
         if os.environ.get('NES_PROFILING', False):
             start_t = time.perf_counter()
+            start_mem = memory_usage()[0]
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
+            elapsed_mem = memory_usage()[0]
             level_prefix = ''.join('-' for v in inspect.stack() if v.index >= 0)
-            profile_logger.info('%s%s: %3.3fs' % (level_prefix, func.__qualname__, elapsed))
+            profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
         else:
             r = func(*args, **kwargs)
         return r

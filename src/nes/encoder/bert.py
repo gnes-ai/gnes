@@ -17,7 +17,17 @@ class BertEncoder(BaseEncoder):
 
     @TB._timeit
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
+        if len(text) < 2048:
+            return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
+        else:
+            dim = self.bc_encoder.encode(text[:1], *args, **kwargs).shape[1]
+            vecs = np.zeros((len(text), dim), dtype=np.float32)
+            for _ in range(int(len(text) / 1024) + 1):
+                if _*1024 >= len(text):
+                    continue
+                vec = self.bc_encoder.encode(text[_*1024:(_+1)*1024], *args, **kwargs)
+                vecs[_*1024:(_+1)*1024] = vec
+            return vecs
 
     @TB._timeit
     def train(self, text: List[str], *args, **kwargs) -> None:

@@ -28,7 +28,6 @@ class BaseNES(BaseIndexer):
     @TB._timeit
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
-        print(sents)
         self.binary_encoder.train(sents, *args, **kwargs)
 
     @TB._train_required
