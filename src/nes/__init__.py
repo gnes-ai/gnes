@@ -25,7 +25,6 @@ class BaseNES(BaseIndexer):
         self.binary_indexer.add(bin_vectors, ids)
         self.text_indexer.add(batch)
 
-    @TB._as_train_func
     @TB._timeit
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]

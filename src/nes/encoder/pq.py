@@ -13,8 +13,6 @@ class PQEncoder(BaseEncoder):
         self.num_clusters = cluster_per_byte
         self.centroids = None
 
-    @TB._as_train_func
-    @TB._timeit
     def train(self, vecs: np.ndarray, *args, **kwargs):
         dim_per_byte = self._get_dim_per_byte(vecs)
 

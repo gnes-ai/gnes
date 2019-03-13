@@ -17,7 +17,6 @@ class PCALocalEncoder(BaseEncoder):
         self.components = None
         self.mean = None
 
-    @TB._as_train_func
     @TB._timeit
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
