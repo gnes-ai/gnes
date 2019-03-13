@@ -20,12 +20,13 @@ class BertEncoder(BaseEncoder):
         if len(text) < 2048:
             return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
         else:
-            vecs = None
+            dim = self.bc_encoder.encode([text[:1]], *args, **kwargs).shape[1]
+            vecs = np.zeros((len(text), dim), dtype=np.float32)
             for _ in range(int(len(text) / 1024) + 1):
                 if _*1024 >= len(text):
                     continue
                 vec = self.bc_encoder.encode(text[_*1024:(_+1)*1024], *args, **kwargs)
-                vecs = np.concatenate([vecs, vec], axis=0) if vecs is not None else vec
+                vecs[_*1024:(_+1)*1024] = vec
             return vecs
 
     @TB._timeit
