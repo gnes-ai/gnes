@@ -30,6 +30,7 @@ class PQEncoder(BaseEncoder):
                                                 dim_per_byte])
 
     @TB._train_required
+    @TB._timeit
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> bytes:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

@@ -1,13 +1,12 @@
 import inspect
 import pickle
-import types
 from functools import wraps
 from typing import TypeVar
 
 import ruamel.yaml.constructor
 from ruamel.yaml import YAML
 
-from ..helper import set_logger, time_profile, MemoryCache
+from ..helper import set_logger, MemoryCache, time_profile
 
 _tb = TypeVar('T', bound='TrainableBase')
 yaml = YAML()
@@ -17,22 +16,11 @@ class TrainableType(type):
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
-
-        for pf_name in ['train', 'encode', 'dump', 'load', 'add', 'query']:
-            pf = getattr(cls, pf_name, None)
-            if pf and not isinstance(pf, types.FunctionType):
-                pf = time_profile(pf)
-                setattr(cls, pf_name, pf)
-
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
         cls._init_kwargs_dict = {}
         cls.is_trained = False
         return cls
-
-    # def __call__(cls, *args, **kwargs):
-    #     obj = type.__call__(cls, *args, **kwargs)
-    #     return obj
 
     @staticmethod
     def _as_train_func(func):
@@ -67,6 +55,8 @@ class TrainableType(type):
 
 
 class TrainableBase(metaclass=TrainableType):
+    _timeit = time_profile
+
     def __init__(self, *args, **kwargs):
         self.is_trained = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
@@ -95,13 +85,16 @@ class TrainableBase(metaclass=TrainableType):
 
         return arg_wrapper
 
+    @_timeit
     def train(self, *args, **kwargs):
         raise NotImplementedError
 
+    @_timeit
     def dump(self, filename: str) -> None:
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
+    @_timeit
     def dump_yaml(self, filename: str) -> None:
         yaml = YAML(typ='unsafe')
         yaml.register_class(self.__class__)
@@ -116,6 +109,7 @@ class TrainableBase(metaclass=TrainableType):
             return yaml.load(fp)
 
     @staticmethod
+    @_timeit
     def load(filename: str) -> _tb:
         with open(filename, 'rb') as fp:
             return pickle.load(fp)

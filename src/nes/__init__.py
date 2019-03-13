@@ -25,17 +25,20 @@ class BaseNES(BaseIndexer):
         self.binary_indexer.add(bin_vectors, ids)
         self.text_indexer.add(batch)
 
+    @TB._timeit
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
         print(sents)
         self.binary_encoder.train(sents, *args, **kwargs)
 
     @TB._train_required
+    @TB._timeit
     def add(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         for b in batch_iterator(iter_doc, self.batch_size):
             self._add_batch(b, *args, **kwargs)
 
     @TB._train_required
+    @TB._timeit
     def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.binary_encoder.encode(keys, *args, **kwargs)
         result_score = self.binary_indexer.query(bin_queries, top_k)
