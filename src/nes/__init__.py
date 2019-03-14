@@ -19,12 +19,6 @@ class BaseNES(BaseIndexer):
         self.text_indexer = text_indexer
         self.batch_size = batch_size
 
-    def _add_batch(self, batch: List[BaseDocument], *args, **kwargs):
-        sents, ids = map(list, zip(*[(s, d.id) for d in batch for s in d.sentences]))
-        bin_vectors = self.binary_encoder.encode(sents, *args, **kwargs)
-        self.binary_indexer.add(bin_vectors, ids)
-        self.text_indexer.add(batch)
-
     @TB._timeit
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
@@ -32,9 +26,12 @@ class BaseNES(BaseIndexer):
 
     @TB._train_required
     @TB._timeit
+    @batching()
     def add(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
-        for b in batch_iterator(iter_doc, self.batch_size):
-            self._add_batch(b, *args, **kwargs)
+        sents, ids = map(list, zip(*[(s, d.id) for d in iter_doc for s in d.sentences]))
+        bin_vectors = self.binary_encoder.encode(sents, *args, **kwargs)
+        self.binary_indexer.add(bin_vectors, ids)
+        self.text_indexer.add(iter_doc)
 
     @TB._train_required
     @TB._timeit

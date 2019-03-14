@@ -43,16 +43,29 @@ class TestBatching(unittest.TestCase):
     def test_iterator(self):
         a = [1, 2, 3, 4, 5, 6, 7]
         b = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
+
+        num_batches = np.ceil(len(a) / 2)
+        act_batch = 0
         for j in batch_iterator(a, 2):
             self.assertLessEqual(len(j), 2)
             self.assertEqual(type(j), list)
+            act_batch += 1
+        self.assertEqual(num_batches, act_batch)
 
+        num_batches = np.ceil(len(b) / 2)
+        act_batch = 0
         for j in batch_iterator(b, 2):
             self.assertLessEqual(j.shape[0], 2)
             self.assertEqual(type(j), np.ndarray)
+            act_batch += 1
+        self.assertEqual(num_batches, act_batch)
 
+        num_batches = np.ceil(len(a) / 2)
+        act_batch = 0
         for j in batch_iterator(iter(a), 2):
             self.assertLessEqual(len(j), 2)
+            act_batch += 1
+        self.assertEqual(num_batches, act_batch)
 
     def test_decorator(self):
         b = bar()

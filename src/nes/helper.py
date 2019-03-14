@@ -223,15 +223,15 @@ class SentenceSplitter:
 
 def batch_iterator(data: Union[Iterator[Any], List[Any], np.ndarray], batch_size: int, axis: int = 0) -> Iterator[Any]:
     if not batch_size or batch_size <= 0:
-        yield data
+        return data
     if isinstance(data, np.ndarray):
         if batch_size >= data.shape[axis]:
-            yield data
+            return data
         for _ in range(0, data.shape[axis], batch_size):
             yield np.take(data, range(_, _ + batch_size), axis, mode='clip')
     elif hasattr(data, '__len__'):
         if batch_size >= len(data):
-            yield data
+            return data
         for _ in range(0, len(data), batch_size):
             yield data[_:_ + batch_size]
     elif isinstance(data, Iterator):
@@ -267,7 +267,8 @@ def batching(batch_size: Union[int, callable] = None, num_batch=None, axis: int 
 
             if hasattr(self, 'logger'):
                 self.logger.info(
-                    'batching enabled. batch_size=%s\tnum_batch=%s\taxis=%s' % (b_size, num_batch, axis))
+                    'batching enabled for %s(). batch_size=%s\tnum_batch=%s\taxis=%s' % (
+                    func.__qualname__, b_size, num_batch, axis))
 
             total_size1 = get_size(data, axis)
             total_size2 = b_size * num_batch if num_batch else None

@@ -1,5 +1,6 @@
 from typing import List, Any
 
+import numpy as np
 import ruamel.yaml.constructor
 
 from ..base import TrainableBase as TB
@@ -11,6 +12,16 @@ class BaseEncoder(TB):
         pass
 
     def _copy_from(self, x: 'BaseEncoder') -> None:
+        pass
+
+
+class BinaryEncoder(BaseEncoder):
+    def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:
+        if data.dtype != np.int8:
+            raise ValueError('data must be np.int8 but received %s' % data.dtype)
+        return data.tobytes()
+
+    def train(self, *args, **kwargs) -> None:
         pass
 
 

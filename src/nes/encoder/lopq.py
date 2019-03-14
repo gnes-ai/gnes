@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from . import PipelineEncoder
+from . import PipelineEncoder, BinaryEncoder
 from .pca import PCALocalEncoder
 
 
@@ -21,4 +21,5 @@ class LOPQEncoder(PipelineEncoder):
             raise NotImplementedError('pq_backend=%s is not implemented yet!' % pq_backend)
 
         self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes),
-                         PQEncoder(num_bytes, cluster_per_byte)]
+                         PQEncoder(num_bytes, cluster_per_byte),
+                         BinaryEncoder()]
