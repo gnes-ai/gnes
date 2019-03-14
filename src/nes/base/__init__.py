@@ -20,7 +20,7 @@ class TrainableType(type):
         return cls
 
     def __call__(cls, *args, **kwargs):
-        obj = super().__call__(cls, *args, **kwargs)
+        obj = type.__call__(cls, *args, **kwargs)
         if not hasattr(obj, 'is_trained'):
             obj.is_trained = False
         if not hasattr(obj, 'batch_size'):
