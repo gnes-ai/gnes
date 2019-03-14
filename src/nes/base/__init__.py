@@ -9,7 +9,6 @@ from ruamel.yaml import YAML
 from ..helper import set_logger, MemoryCache, time_profile
 
 _tb = TypeVar('T', bound='TrainableBase')
-yaml = YAML()
 
 
 class TrainableType(type):

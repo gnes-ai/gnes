@@ -31,7 +31,7 @@ class PQEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
-    def encode(self, vecs: np.ndarray, *args, **kwargs) -> bytes:
+    def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         x = np.reshape(vecs, [vecs.shape[0], self.num_bytes, 1, dim_per_byte])
@@ -39,7 +39,7 @@ class PQEncoder(BaseEncoder):
         # start from 1
         x = np.argmax(-x, 2) + 1
 
-        return np.array(x, dtype=np.uint8).tobytes()
+        return np.array(x, dtype=np.uint8)
 
     def _get_dim_per_byte(self, vecs: np.ndarray):
         num_dim = vecs.shape[1]

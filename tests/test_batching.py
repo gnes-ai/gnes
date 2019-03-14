@@ -1,0 +1,79 @@
+import unittest
+
+import numpy as np
+from numpy.testing import assert_array_equal
+
+from src.nes import batch_iterator, BaseEncoder
+from src.nes.helper import batching
+
+get_batch_size = lambda x: 2
+
+
+class bar(BaseEncoder):
+    def __init__(self):
+        super().__init__()
+        self.batch_size = None
+
+    @batching(2, 4)
+    def foo(self, data):
+        return np.array(data)
+
+    @batching(2)
+    def bar(self, data):
+        return np.array(data)
+
+    @batching(8, 8)
+    def foo1(self, data):
+        return np.array(data)
+
+    @batching()
+    def foo2(self, data):
+        return np.array(data)
+
+    @batching(get_batch_size)
+    def foo3(self, data):
+        return np.array(data)
+
+    @batching(get_batch_size)
+    def train(self, data):
+        print('train: %s' % data)
+
+
+class TestBatching(unittest.TestCase):
+    def test_iterator(self):
+        a = [1, 2, 3, 4, 5, 6, 7]
+        b = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
+        for j in batch_iterator(a, 2):
+            self.assertLessEqual(len(j), 2)
+            self.assertEqual(type(j), list)
+
+        for j in batch_iterator(b, 2):
+            self.assertLessEqual(j.shape[0], 2)
+            self.assertEqual(type(j), np.ndarray)
+
+        for j in batch_iterator(iter(a), 2):
+            self.assertLessEqual(len(j), 2)
+
+    def test_decorator(self):
+        b = bar()
+
+        def _test_fn(fn):
+            self.assertEqual(fn([1]), np.array([1, ]))
+            self.assertSequenceEqual(fn([1, 2]).tolist(), [1, 2])
+            self.assertSequenceEqual(fn(list(range(1, 30))).tolist(), list(range(1, 30)))
+            self.assertSequenceEqual(fn(range(1, 30)).tolist(), list(range(1, 30)))
+
+        _test_fn(b.foo1)
+        _test_fn(b.foo2)
+        _test_fn(b.bar)
+
+        self.assertSequenceEqual(b.foo(range(1, 30)).tolist(), list(range(1, 9)))
+        t = np.random.randint(0, 255, [32, 10])
+        assert_array_equal(b.foo1(t), t)
+        assert_array_equal(b.bar(t), t)
+        assert_array_equal(b.foo(t), t[:8])
+
+        b.batch_size = 8
+        _test_fn(b.foo2)
+        _test_fn(b.foo3)
+        self.assertEqual(b.train([1]), None)

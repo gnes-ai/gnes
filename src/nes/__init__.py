@@ -2,7 +2,7 @@ from typing import Dict
 
 from .document import BaseDocument
 from .encoder import *
-from .helper import set_logger, batch_iterator
+from .helper import set_logger, batch_iterator, batching
 from .indexer import *
 
 __version__ = '0.0.1'

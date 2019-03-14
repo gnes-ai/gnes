@@ -5,6 +5,7 @@ from bert_serving.client import BertClient
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
+from ..helper import batching
 
 
 class BertEncoder(BaseEncoder):
@@ -16,18 +17,9 @@ class BertEncoder(BaseEncoder):
         self._bc_encoder_kwargs = kwargs
 
     @TB._timeit
+    @batching()
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        if len(text) < 2048:
-            return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
-        else:
-            dim = self.bc_encoder.encode(text[:1], *args, **kwargs).shape[1]
-            vecs = np.zeros((len(text), dim), dtype=np.float32)
-            for _ in range(int(len(text) / 1024) + 1):
-                if _*1024 >= len(text):
-                    continue
-                vec = self.bc_encoder.encode(text[_*1024:(_+1)*1024], *args, **kwargs)
-                vecs[_*1024:(_+1)*1024] = vec
-            return vecs
+        return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
     @TB._timeit
     def train(self, text: List[str], *args, **kwargs) -> None:
