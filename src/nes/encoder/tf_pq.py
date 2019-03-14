@@ -49,6 +49,7 @@ class TFPQEncoder(PQEncoder):
     @TB._timeit
     @batching(batch_size=8192)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
+        vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, -1])
         tmp = self._sess.run(self._graph['out'],
                              feed_dict={self._graph['ph_x']: vecs,
                                         self._graph['ph_centroids']: self.centroids})

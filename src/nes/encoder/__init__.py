@@ -21,9 +21,6 @@ class BinaryEncoder(BaseEncoder):
             raise ValueError('data must be np.uint8 but received %s' % data.dtype)
         return data.tobytes()
 
-    def train(self, *args, **kwargs) -> None:
-        pass
-
 
 class PipelineEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):

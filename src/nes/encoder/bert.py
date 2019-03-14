@@ -21,9 +21,6 @@ class BertEncoder(BaseEncoder):
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
-    def train(self, *args, **kwargs) -> None:
-        pass
-
     def __getstate__(self):
         d = super().__getstate__()
         del d['bc_encoder']

@@ -92,7 +92,7 @@ class TrainableBase(metaclass=TrainableType):
 
     @_timeit
     def train(self, *args, **kwargs):
-        raise NotImplementedError
+        pass
 
     @_timeit
     def dump(self, filename: str) -> None:
