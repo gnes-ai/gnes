@@ -8,7 +8,7 @@ import sys
 import time
 from functools import wraps
 from itertools import islice
-from typing import Iterator, Any, Union, List
+from typing import Iterator, Any, Union, List, Callable
 
 import numpy as np
 from joblib import Memory
@@ -258,7 +258,9 @@ def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -
     return total_size
 
 
-def batching(batch_size: Union[int, callable] = None, num_batch=None, axis: int = 0):
+def batching(func: Callable[[Any], np.ndarray] = None, *,
+             batch_size: Union[int, Callable] = None, num_batch=None,
+             axis: int = 0):
     def _batching(func):
         @wraps(func)
         def arg_wrapper(self, data, *args, **kwargs):
@@ -315,7 +317,10 @@ def batching(batch_size: Union[int, callable] = None, num_batch=None, axis: int 
 
         return arg_wrapper
 
-    return _batching
+    if func:
+        return _batching(func)
+    else:
+        return _batching
 
 
 class MemoryCache:

@@ -23,6 +23,7 @@ class TFPQEncoder(PQEncoder):
         self._graph = self._get_graph()
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
+        self.batch_size = 8192
 
     @TB._timeit
     def _get_graph(self) -> Dict[str, Any]:
@@ -46,7 +47,7 @@ class TFPQEncoder(PQEncoder):
         }
 
     @TB._train_required
-    @batching(batch_size=8192)
+    @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, -1])
         tmp = self._sess.run(self._graph['out'],

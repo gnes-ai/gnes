@@ -16,8 +16,9 @@ class PCALocalEncoder(BaseEncoder):
         self.num_locals = num_locals
         self.components = None
         self.mean = None
+        self.batch_size = 2048
 
-    @batching(batch_size=get_optimal_sample_size)
+    @batching(batch_size=get_optimal_sample_size, num_batch=1)
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
@@ -38,7 +39,7 @@ class PCALocalEncoder(BaseEncoder):
         self.components = np.transpose(comp_tmp)  # 768 x 200
 
     @TB._train_required
-    @batching(batch_size=2048)
+    @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
 

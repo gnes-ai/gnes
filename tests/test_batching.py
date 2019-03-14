@@ -14,27 +14,27 @@ class bar(BaseEncoder):
         super().__init__()
         self.batch_size = None
 
-    @batching(2, 4)
+    @batching(batch_size=2, num_batch=4)
     def foo(self, data):
         return np.array(data)
 
-    @batching(2)
+    @batching(batch_size=2)
     def bar(self, data):
         return np.array(data)
 
-    @batching(8, 8)
+    @batching(batch_size=8, num_batch=8)
     def foo1(self, data):
         return np.array(data)
 
-    @batching()
+    @batching
     def foo2(self, data):
         return np.array(data)
 
-    @batching(get_batch_size)
+    @batching(batch_size=get_batch_size)
     def foo3(self, data):
         return np.array(data)
 
-    @batching(get_batch_size)
+    @batching(batch_size=get_batch_size)
     def train(self, data):
         print('train: %s' % data)
 
