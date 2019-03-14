@@ -17,8 +17,8 @@ class BaseEncoder(TB):
 
 class BinaryEncoder(BaseEncoder):
     def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:
-        if data.dtype != np.int8:
-            raise ValueError('data must be np.int8 but received %s' % data.dtype)
+        if data.dtype != np.uint8:
+            raise ValueError('data must be np.uint8 but received %s' % data.dtype)
         return data.tobytes()
 
     def train(self, *args, **kwargs) -> None:
