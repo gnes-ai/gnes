@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 from src.nes.encoder.lopq import LOPQEncoder
 from src.nes.encoder.pca import PCALocalEncoder
@@ -22,7 +23,7 @@ class TestPCA(unittest.TestCase):
             out1 = pq1.encode(self.test_vecs)
             pq2._copy_from(pq1)
             out2 = pq2.encode(self.test_vecs)
-            self.assertEqual(out1, out2)
+            assert_allclose(out1, out2)
 
         _test_pq_tfpq_identity(PQEncoder(10), TFPQEncoder(10))
         _test_pq_tfpq_identity(TFPQEncoder(10), PQEncoder(10))
