@@ -69,7 +69,8 @@ class PipelineEncoder(BaseEncoder):
             constructor, node, deep=True)
         if 'pipeline' in data:
             pipe = data.pop('pipeline')
-        tmp = cls(**data)
-        if 'pipeline' in data:
+            tmp = cls(**data)
             tmp.pipeline = pipe
+        else:
+            tmp = cls(**data)
         return tmp
