@@ -24,7 +24,7 @@ class BaseNES(BaseIndexer):
         self.binary_encoder.train(sents, *args, **kwargs)
 
     @TB._train_required
-    @batching()
+    @batching
     def add(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents, ids = map(list, zip(*[(s, d.id) for d in iter_doc for s in d.sentences]))
         bin_vectors = self.binary_encoder.encode(sents, *args, **kwargs)

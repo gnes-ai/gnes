@@ -15,7 +15,7 @@ class BertEncoder(BaseEncoder):
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
 
-    @batching()
+    @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
