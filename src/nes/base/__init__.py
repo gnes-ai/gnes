@@ -17,8 +17,15 @@ class TrainableType(type):
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
-        cls.is_trained = False
         return cls
+
+    def __call__(cls, *args, **kwargs):
+        obj = super().__call__(cls, *args, **kwargs)
+        if not hasattr(obj, 'is_trained'):
+            obj.is_trained = False
+        if not hasattr(obj, 'batch_size'):
+            obj.batch_size = None
+        return obj
 
     @staticmethod
     def _as_train_func(func):
