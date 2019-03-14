@@ -9,12 +9,18 @@ from ruamel.yaml import YAML
 from ..helper import set_logger, MemoryCache, time_profile
 
 _tb = TypeVar('T', bound='TrainableBase')
+import os
 
 
 class TrainableType(type):
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
+        if os.environ.get('NES_PROFILING', False):
+            for f_name in ['train', 'encode', 'add', 'query']:
+                if getattr(cls, f_name, None):
+                    setattr(cls, f_name, time_profile(getattr(cls, f_name)))
+
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
         return cls

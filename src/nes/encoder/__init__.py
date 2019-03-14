@@ -28,7 +28,6 @@ class PipelineEncoder(BaseEncoder):
         self.pipeline = []  # type: List['BaseEncoder']
 
     @TB._train_required
-    @TB._timeit
     def encode(self, data: Any, *args, **kwargs) -> Any:
         if not self.pipeline:
             raise NotImplementedError
@@ -36,7 +35,6 @@ class PipelineEncoder(BaseEncoder):
             data = be.encode(data, *args, **kwargs)
         return data
 
-    @TB._timeit
     def train(self, data, *args, **kwargs):
         if not self.pipeline:
             raise NotImplementedError

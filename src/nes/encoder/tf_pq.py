@@ -46,7 +46,6 @@ class TFPQEncoder(PQEncoder):
         }
 
     @TB._train_required
-    @TB._timeit
     @batching(batch_size=8192)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, -1])

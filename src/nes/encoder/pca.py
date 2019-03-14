@@ -17,7 +17,6 @@ class PCALocalEncoder(BaseEncoder):
         self.components = None
         self.mean = None
 
-    @TB._timeit
     @batching(batch_size=get_optimal_sample_size)
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
@@ -39,7 +38,6 @@ class PCALocalEncoder(BaseEncoder):
         self.components = np.transpose(comp_tmp)  # 768 x 200
 
     @TB._train_required
-    @TB._timeit
     @batching(batch_size=2048)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.components)
