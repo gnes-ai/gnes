@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from .pq import PQEncoder
 from ..base import TrainableBase as TB
+from ..helper import batching
 
 DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
                                      maxMemory=0.1,
@@ -46,20 +47,13 @@ class TFPQEncoder(PQEncoder):
 
     @TB._train_required
     @TB._timeit
-    def encode(self, vecs: np.ndarray, batch_size: int = 10000, *args, **kwargs) -> bytes:
-        num_points = vecs.shape[0]
-        vecs = np.reshape(vecs, [num_points, self.num_bytes, -1])
-        i = 0
-        res = []
-        while batch_size * i < vecs.shape[0]:
-            m = batch_size * i
-            n = batch_size * (i + 1)
-            tmp = self._sess.run(self._graph['out'],
-                                 feed_dict={self._graph['ph_x']: vecs[m:n],
-                                            self._graph['ph_centroids']: self.centroids})
-            res.append(tmp)
-            i += 1
-        return np.concatenate(res, 0).astype(np.uint8).tobytes()
+    @batching(batch_size=8192)
+    def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
+        vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, -1])
+        tmp = self._sess.run(self._graph['out'],
+                             feed_dict={self._graph['ph_x']: vecs,
+                                        self._graph['ph_centroids']: self.centroids})
+        return tmp.astype(np.uint8)
 
     def __getstate__(self):
         d = super().__getstate__()

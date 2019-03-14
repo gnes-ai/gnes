@@ -3,7 +3,7 @@ import numpy as np
 
 from . import BaseEncoder
 from ..base import TrainableBase as TB
-from ..helper import get_perm, get_sys_info, ralloc_estimator
+from ..helper import get_perm, batching, get_optimal_sample_size
 
 
 class PCALocalEncoder(BaseEncoder):
@@ -18,6 +18,7 @@ class PCALocalEncoder(BaseEncoder):
         self.mean = None
 
     @TB._timeit
+    @batching(batch_size=get_optimal_sample_size)
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
@@ -27,10 +28,7 @@ class PCALocalEncoder(BaseEncoder):
 
         pca = faiss.PCAMatrix(num_dim, self.output_dim)
         self.mean = np.mean(vecs, axis=0)  # 1 x 768
-        max_mem, unit_time = get_sys_info()
-        optimal_num_samples = ralloc_estimator(num_samples, num_dim, unit_time,
-                                               max_mem, 30)
-        pca.train(vecs[:optimal_num_samples])
+        pca.train(vecs)
         explained_variance_ratio = faiss.vector_to_array(pca.eigenvalues)[:self.output_dim]
         components = faiss.vector_to_array(pca.PCAMat).reshape([-1, num_dim])[:self.output_dim]
 
@@ -42,16 +40,9 @@ class PCALocalEncoder(BaseEncoder):
 
     @TB._train_required
     @TB._timeit
+    @batching(batch_size=2048)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
-        if vecs.shape[0] < 2048:
-            return np.matmul(vecs - self.mean, self.components)
-        else:
-            ret = None
-            for _ in range(int(vecs.shape[0]/2048)+1):
-                if _ * 2048 < vecs.shape[1]:
-                    _r = np.matmul(vecs - self.mean, self.components)
-                    ret = np.concatenate([ret, _r]) if ret is not None else _r
-            return ret
+        return np.matmul(vecs - self.mean, self.components)
 
     def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim

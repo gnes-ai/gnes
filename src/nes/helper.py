@@ -8,23 +8,25 @@ import sys
 import time
 from functools import wraps
 from itertools import islice
-from typing import Iterator, Any
+from typing import Iterator, Any, Union, List
 
 import numpy as np
 from joblib import Memory
-from termcolor import colored
-from psutil import virtual_memory
 from memory_profiler import memory_usage
+from psutil import virtual_memory
+from termcolor import colored
 
 
 def get_sys_info():
     mem = virtual_memory()
     # get available memory in (M)
     avai = mem.available / 1e6
+
     def timer(x, y):
         stime = time.time()
         c = np.matmul(x, y)
         return time.time() - stime
+
     x = np.random.random([1000, 1000])
     y = np.random.random([1000, 1000])
     unit_time = timer(x, y)
@@ -37,7 +39,13 @@ def ralloc_estimator(n_lines, num_dim, unit_time, max_mem, max_time=60):
     if (est_time < max_time) and (est_mem < max_mem * 0.5):
         return n_lines
     else:
-        return ralloc_estimator(int(n_lines*0.9), num_dim, unit_time, max_mem, max_time)
+        return ralloc_estimator(int(n_lines * 0.9), num_dim, unit_time, max_mem, max_time)
+
+
+def get_optimal_sample_size(x):
+    max_mem, unit_time = get_sys_info()
+    num_samples, num_dim = x.shape
+    return ralloc_estimator(num_samples, num_dim, unit_time, max_mem, 30)
 
 
 def get_perm(L, m):
@@ -83,7 +91,8 @@ def time_profile(func):
             elapsed = time.perf_counter() - start_t
             elapsed_mem = memory_usage()[0]
             level_prefix = ''.join('-' for v in inspect.stack() if v.index >= 0)
-            profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
+            profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (
+                level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
         else:
             r = func(*args, **kwargs)
         return r
@@ -212,15 +221,101 @@ class SentenceSplitter:
         return self._split(p, self.must_split)
 
 
-def batch_iterator(it: Iterator[Any], batch_size: int) -> Iterator[Any]:
+def batch_iterator(data: Union[Iterator[Any], List[Any], np.ndarray], batch_size: int, axis: int = 0) -> Iterator[Any]:
     if not batch_size or batch_size <= 0:
-        return it
-    it = iter(it)
-    while True:
-        chunk = tuple(islice(it, batch_size))
-        if not chunk:
+        yield data
+        return
+    if isinstance(data, np.ndarray):
+        if batch_size >= data.shape[axis]:
+            yield data
             return
-        yield chunk
+        for _ in range(0, data.shape[axis], batch_size):
+            yield np.take(data, range(_, _ + batch_size), axis, mode='clip')
+    elif hasattr(data, '__len__'):
+        if batch_size >= len(data):
+            yield data
+            return
+        for _ in range(0, len(data), batch_size):
+            yield data[_:_ + batch_size]
+    elif isinstance(data, Iterator):
+        # as iterator, there is no way to know the length of it
+        while True:
+            chunk = tuple(islice(data, batch_size))
+            if not chunk:
+                return
+            yield chunk
+    else:
+        raise TypeError('unsupported type: %s' % type(data))
+
+
+def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -> int:
+    if isinstance(data, np.ndarray):
+        total_size = data.shape[axis]
+    elif hasattr(data, '__len__'):
+        total_size = len(data)
+    else:
+        total_size = None
+    return total_size
+
+
+def batching(batch_size: Union[int, callable] = None, num_batch=None, axis: int = 0):
+    def _batching(func):
+        @wraps(func)
+        def arg_wrapper(self, data, *args, **kwargs):
+            # priority: decorator > class_attribute
+            b_size = (batch_size(data) if callable(batch_size) else batch_size) or getattr(self, 'batch_size', None)
+            # no batching if b_size is None
+            if b_size is None:
+                return func(self, data, *args, **kwargs)
+
+            if hasattr(self, 'logger'):
+                self.logger.info(
+                    'batching enabled for %s(). batch_size=%s\tnum_batch=%s\taxis=%s' % (
+                        func.__qualname__, b_size, num_batch, axis))
+
+            total_size1 = get_size(data, axis)
+            total_size2 = b_size * num_batch if num_batch else None
+
+            if total_size1 is not None and total_size2 is not None:
+                total_size = min(total_size1, total_size2)
+            else:
+                total_size = total_size1 or total_size2
+
+            final_result = None
+
+            done_size = 0
+            for b in batch_iterator(data, b_size, axis):
+                r = func(self, b, *args, **kwargs)
+                if isinstance(r, np.ndarray):
+                    # first result kicks in
+                    if final_result is None:
+                        if total_size is None:
+                            final_result = []
+                        else:
+                            d_shape = list(r.shape)
+                            d_shape[axis] = total_size
+                            final_result = np.zeros(d_shape, dtype=r.dtype)
+
+                    # fill the data into final_result
+                    cur_size = get_size(r)
+
+                    if total_size is None:
+                        final_result.append(r)
+                    else:
+                        final_result[done_size:(done_size + cur_size)] = r
+
+                    done_size += cur_size
+
+                    if total_size is not None and done_size >= total_size:
+                        break
+
+            if isinstance(final_result, list):
+                final_result = np.concatenate(final_result, 0)
+            return final_result
+
+        return arg_wrapper
+
+    return _batching
 
 
 class MemoryCache:

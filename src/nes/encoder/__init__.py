@@ -1,5 +1,6 @@
 from typing import List, Any
 
+import numpy as np
 import ruamel.yaml.constructor
 
 from ..base import TrainableBase as TB
@@ -12,6 +13,13 @@ class BaseEncoder(TB):
 
     def _copy_from(self, x: 'BaseEncoder') -> None:
         pass
+
+
+class BinaryEncoder(BaseEncoder):
+    def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:
+        if data.dtype != np.uint8:
+            raise ValueError('data must be np.uint8 but received %s' % data.dtype)
+        return data.tobytes()
 
 
 class PipelineEncoder(BaseEncoder):
@@ -58,7 +66,8 @@ class PipelineEncoder(BaseEncoder):
             constructor, node, deep=True)
         if 'pipeline' in data:
             pipe = data.pop('pipeline')
-        tmp = cls(**data)
-        if 'pipeline' in data:
+            tmp = cls(**data)
             tmp.pipeline = pipe
+        else:
+            tmp = cls(**data)
         return tmp
