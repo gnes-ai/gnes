@@ -91,7 +91,7 @@ def time_profile(func):
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
             elapsed_mem = memory_usage()[0]
-            level_prefix = ''.join('-' for v in inspect.stack() if v.index >= 0)
+            level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
             profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (
                 level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
         else:
