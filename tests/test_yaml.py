@@ -13,6 +13,9 @@ class foo(metaclass=TrainableType):
     def __init__(self, *args, **kwargs):
         pass
 
+    def close(self):
+        pass
+
 
 class foo1(foo):
     def __init__(self, a, b=1, *args, **kwargs):
