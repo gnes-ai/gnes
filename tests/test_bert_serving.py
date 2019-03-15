@@ -1,6 +1,7 @@
 import os
 import time
 import unittest
+from shutil import rmtree
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
@@ -103,12 +104,16 @@ class TestBertServing(unittest.TestCase):
         nes3.add(self.test_data2)
         query = [s for d in self.test_data2 for s in d.sentences]
         result = nes3.query(query, top_k=2)
+
         self.assertEqual(len(query), len(result))
         self.assertEqual(len(result[0]), 2)
+        nes3.close()
         # for q, r in zip(query, result):
         #     print('q: %s\tr: %s' % (q, r))
 
     def tearDown(self):
+        if os.path.exists(self.db_path):
+            rmtree(self.db_path)
         self.server.close()
         # wait until all socket close safely
         time.sleep(5)

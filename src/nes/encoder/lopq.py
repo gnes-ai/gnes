@@ -3,6 +3,8 @@
 
 from . import PipelineEncoder, BinaryEncoder
 from .pca import PCALocalEncoder
+from .pq import PQEncoder
+from .tf_pq import TFPQEncoder
 
 
 class LOPQEncoder(PipelineEncoder):
@@ -13,13 +15,10 @@ class LOPQEncoder(PipelineEncoder):
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if pq_backend == 'numpy':
-            from .pq import PQEncoder
-        elif pq_backend == 'tensorflow':
-            from .tf_pq import TFPQEncoder as PQEncoder
-        else:
-            raise NotImplementedError('pq_backend=%s is not implemented yet!' % pq_backend)
+        pq = {'numpy': lambda: PQEncoder(num_bytes, cluster_per_byte),
+              'tensorflow': lambda: TFPQEncoder(num_bytes, cluster_per_byte)}.get(pq_backend, lambda: None)()
+        if not pq:
+            raise NotImplementedError('pq_backend: %s is not implemented' % pq_backend)
 
-        self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes),
-                         PQEncoder(num_bytes, cluster_per_byte),
+        self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes), pq,
                          BinaryEncoder()]

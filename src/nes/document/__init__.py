@@ -2,7 +2,7 @@ import ctypes
 import random
 from typing import Iterator, List
 
-from src.nes.helper import cn_sent_splitter, doc_logger
+from ..helper import cn_sent_splitter, doc_logger
 
 __all__ = ['BaseDocument', 'UniSentDocument', 'MultiSentDocument']
 

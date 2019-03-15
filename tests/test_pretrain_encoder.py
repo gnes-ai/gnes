@@ -3,7 +3,7 @@ import unittest
 from src.nes import BaseEncoder as BE, PipelineEncoder
 
 
-class DummyTrainEncoder(BE):
+class _DummyTrainEncoder(BE):
     @BE._train_required
     def encode(self, *args, **kwargs):
         pass
@@ -12,7 +12,7 @@ class DummyTrainEncoder(BE):
         pass
 
 
-class BertEncoder(BE):
+class _BertEncoder(BE):
     def encode(self, data, *args, **kwargs):
         print('bert-encode!')
         return data * 7
@@ -21,7 +21,7 @@ class BertEncoder(BE):
         print('bert-train!')
 
 
-class PQEncoder(BE):
+class _PQEncoder(BE):
     def encode(self, data, *args, **kwargs):
         print('pq-encode!')
         return data * 2
@@ -30,7 +30,7 @@ class PQEncoder(BE):
         print('pq-train!')
 
 
-class PCAEncoder(BE):
+class _PCAEncoder(BE):
     def encode(self, data, *args, **kwargs):
         print('pca-encode!')
         return data + 3
@@ -39,30 +39,30 @@ class PCAEncoder(BE):
         print('pca-train!')
 
 
-class LOPQEncoder(PipelineEncoder):
+class _LOPQEncoder(PipelineEncoder):
     def __init__(self):
         super().__init__()
-        self.pipeline = [PCAEncoder(), PQEncoder()]
+        self.pipeline = [_PCAEncoder(), _PQEncoder()]
 
 
-class BertBinaryEncoder(PipelineEncoder):
+class _BertBinaryEncoder(PipelineEncoder):
     def __init__(self):
         super().__init__()
-        self.pipeline = [BertEncoder(), LOPQEncoder()]
+        self.pipeline = [_BertEncoder(), _LOPQEncoder()]
 
 
 class TestDocument(unittest.TestCase):
     def test_no_pretrain(self):
-        a = DummyTrainEncoder()
+        a = _DummyTrainEncoder()
         self.assertRaises(RuntimeError, a.encode)
 
     def test_with_pretrain(self):
-        a = DummyTrainEncoder()
+        a = _DummyTrainEncoder()
         a.train()
         a.encode()
 
     def test_hierachy_encoder(self):
-        le = LOPQEncoder()
+        le = _LOPQEncoder()
         self.assertRaises(RuntimeError, le.encode, 1)
         le.train(data=1)
         self.assertEqual(le.encode(data=1), 8)
@@ -70,6 +70,6 @@ class TestDocument(unittest.TestCase):
 
     def test_hierachy_encoder2(self):
         print('___')
-        le2 = BertBinaryEncoder()
+        le2 = _BertBinaryEncoder()
         le2.train(data=1)
         le2.encode(data=1)

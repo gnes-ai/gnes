@@ -1,12 +1,19 @@
 import os
 import unittest
+from shutil import rmtree
 
 from src.nes import PipelineEncoder
 from src.nes.base import TrainableType
+from src.nes.encoder.bert_binary import BertBinaryEncoder
+from src.nes.encoder.lopq import LOPQEncoder
+from src.nes.encoder.pq import PQEncoder
 
 
 class foo(metaclass=TrainableType):
     def __init__(self, *args, **kwargs):
+        pass
+
+    def close(self):
         pass
 
 
@@ -33,8 +40,11 @@ class TestYaml(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'dump.yml')
+        self.db_path = './test_leveldb'
 
     def tearDown(self):
+        if os.path.exists(self.db_path):
+            rmtree(self.db_path)
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
 
@@ -59,6 +69,7 @@ class TestYaml(unittest.TestCase):
     def test_load(self):
         with open(self.dump_path, 'w') as fp:
             fp.write("!PipelineEncoder\n\
+                                parameter:\n\
                                   a: 23\n\
                                   b: '32'\n\
                                   c: ['123', '456']")
@@ -67,9 +78,29 @@ class TestYaml(unittest.TestCase):
         self.assertEqual(pe._init_kwargs_dict, {'a': 23, 'b': '32', 'c': ['123', '456']})
 
     def test_nest_pipeline(self):
-        d = dummyPipeline(a=1, b=2, c=3, wee=4)
-        d.dump_yaml(self.dump_path)
+        self._test_different_encoder_yamlize(dummyPipeline, a=1, b=2, c=3, wee=4)
+        self._test_different_encoder_yamlize(PQEncoder, 10)
+        self._test_different_encoder_yamlize(LOPQEncoder, num_bytes=10, cluster_per_byte=11, pca_output_dim=20)
+        self._test_different_encoder_yamlize(BertBinaryEncoder, 8, pca_output_dim=32,
+                                             cluster_per_byte=8,
+                                             port=1,
+                                             port_out=2, ignore_all_checks=True)
+
+    def _test_different_encoder_yamlize(self, cls, *args, **kwargs):
+        a = cls(*args, **kwargs)
+        a.dump_yaml(self.dump_path)
+        a.close()
         self.assertTrue(os.path.exists(self.dump_path))
-        pe = dummyPipeline.load_yaml(self.dump_path)
-        self.assertEqual(type(pe), dummyPipeline)
-        self.assertEqual(d._init_kwargs_dict, pe._init_kwargs_dict)
+        b = cls.load_yaml(self.dump_path)
+        self.assertEqual(type(b), cls)
+        self.assertEqual(a._init_kwargs_dict, b._init_kwargs_dict)
+        b.close()
+
+    # def test_NES_yaml_dump(self):
+    #     self._test_different_encoder_yamlize(DummyNES, num_bytes=8,
+    #                                          pca_output_dim=32,
+    #                                          cluster_per_byte=8,
+    #                                          port=1,
+    #                                          port_out=2,
+    #                                          data_path=self.db_path,
+    #                                          ignore_all_checks=True)

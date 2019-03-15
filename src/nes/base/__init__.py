@@ -1,15 +1,14 @@
 import inspect
+import os
 import pickle
 from functools import wraps
 from typing import TypeVar
 
 import ruamel.yaml.constructor
-from ruamel.yaml import YAML
 
-from ..helper import set_logger, MemoryCache, time_profile
+from ..helper import set_logger, MemoryCache, time_profile, yaml
 
 _tb = TypeVar('T', bound='TrainableBase')
-import os
 
 
 class TrainableType(type):
@@ -23,6 +22,8 @@ class TrainableType(type):
 
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
+
+        yaml.register_class(cls)
         return cls
 
     def __call__(cls, *args, **kwargs):
@@ -103,7 +104,6 @@ class TrainableBase(metaclass=TrainableType):
 
         return arg_wrapper
 
-    @_timeit
     def train(self, *args, **kwargs):
         pass
 
@@ -114,15 +114,11 @@ class TrainableBase(metaclass=TrainableType):
 
     @_timeit
     def dump_yaml(self, filename: str) -> None:
-        yaml = YAML(typ='unsafe')
-        yaml.register_class(self.__class__)
         with open(filename, 'w') as fp:
             yaml.dump(self, fp)
 
     @classmethod
     def load_yaml(cls, filename: str) -> _tb:
-        yaml = YAML(typ='unsafe')
-        yaml.register_class(cls)
         with open(filename) as fp:
             return yaml.load(fp)
 
@@ -143,10 +139,25 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_mapping('!' + cls.__name__, data._init_kwargs_dict)
+        tmp = data._dump_instance_to_yaml(data)
+        return representer.represent_mapping('!' + cls.__name__, tmp)
 
     @classmethod
     def from_yaml(cls, constructor, node):
+        return cls._get_instance_from_yaml(constructor, node)[0]
+
+    @classmethod
+    def _get_instance_from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        return cls(**data)
+        obj = cls(**data['parameter'])
+        if hasattr(data, 'property'):
+            for k, v in data['property'].items():
+                setattr(obj, k, v)
+        return obj, data
+
+    @staticmethod
+    def _dump_instance_to_yaml(data):
+        return {'parameter': data._init_kwargs_dict,
+                'property': {'batch_size': data.batch_size,
+                             'is_trained': data.is_trained}}
