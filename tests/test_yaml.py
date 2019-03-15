@@ -98,21 +98,11 @@ class TestYaml(unittest.TestCase):
         self.assertEqual(a._init_kwargs_dict, b._init_kwargs_dict)
         b.close()
 
-    def test_NES_yaml_dump(self):
-        self._test_different_encoder_yamlize(DummyNES, num_bytes=8,
-                                             pca_output_dim=32,
-                                             cluster_per_byte=8,
-                                             port=1,
-                                             port_out=2,
-                                             data_path=self.db_path,
-                                             ignore_all_checks=True)
-
-
-from src.nes import PipelineEncoder, DummyNES
-b = DummyNES(num_bytes=8,
-             pca_output_dim=32,
-             cluster_per_byte=8,
-             port=1,
-             port_out=2,
-             data_path='./test-path',
-             ignore_all_checks=True)
+    # def test_NES_yaml_dump(self):
+    #     self._test_different_encoder_yamlize(DummyNES, num_bytes=8,
+    #                                          pca_output_dim=32,
+    #                                          cluster_per_byte=8,
+    #                                          port=1,
+    #                                          port_out=2,
+    #                                          data_path=self.db_path,
+    #                                          ignore_all_checks=True)

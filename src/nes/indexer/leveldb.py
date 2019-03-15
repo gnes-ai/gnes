@@ -15,7 +15,6 @@ class LVDBIndexer(BaseTextIndexer):
         super().__init__()
         self.data_path = data_path
         self._db = plyvel.DB(data_path, create_if_missing=True)
-        print('init')
         self._NOT_FOUND = {}
 
     def __getstate__(self):
@@ -25,7 +24,6 @@ class LVDBIndexer(BaseTextIndexer):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        print('set_state')
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
     def add(self, docs: Iterator[BaseDocument]):
