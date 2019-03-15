@@ -93,7 +93,9 @@ class TestYaml(unittest.TestCase):
     def _test_different_encoder_yamlize(self, cls, *args, **kwargs):
         a = cls(*args, **kwargs)
         a.dump_yaml(self.dump_path)
+        a.close()
         self.assertTrue(os.path.exists(self.dump_path))
         b = cls.load_yaml(self.dump_path)
         self.assertEqual(type(b), cls)
         self.assertEqual(a._init_kwargs_dict, b._init_kwargs_dict)
+        b.close()
