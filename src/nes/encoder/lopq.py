@@ -16,7 +16,7 @@ class LOPQEncoder(PipelineEncoder):
         super().__init__(*args, **kwargs)
 
         pq = {'numpy': lambda: PQEncoder(num_bytes, cluster_per_byte),
-              'tf': lambda: TFPQEncoder(num_bytes, cluster_per_byte)}.get(pq_backend, lambda: None)()
+              'tensorflow': lambda: TFPQEncoder(num_bytes, cluster_per_byte)}.get(pq_backend, lambda: None)()
         if not pq:
             raise NotImplementedError('pq_backend: %s is not implemented' % pq)
 
