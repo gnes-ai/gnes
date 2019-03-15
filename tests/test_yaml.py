@@ -41,10 +41,13 @@ class TestYaml(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'dump.yml')
         self.db_path = './test_leveldb'
+        self.db_path1 = './test_leveldb1'
 
     def tearDown(self):
         if os.path.exists(self.db_path):
             rmtree(self.db_path)
+        if os.path.exists(self.db_path1):
+            rmtree(self.db_path1)
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
 
@@ -102,5 +105,5 @@ class TestYaml(unittest.TestCase):
                                              cluster_per_byte=8,
                                              port=1,
                                              port_out=2,
-                                             data_path=self.db_path,
+                                             data_path=self.db_path1,
                                              ignore_all_checks=True)
