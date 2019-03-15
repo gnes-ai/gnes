@@ -1,4 +1,5 @@
 import inspect
+import os
 import pickle
 from functools import wraps
 from typing import TypeVar
@@ -9,7 +10,6 @@ from ruamel.yaml import YAML
 from ..helper import set_logger, MemoryCache, time_profile
 
 _tb = TypeVar('T', bound='TrainableBase')
-import os
 
 
 class TrainableType(type):
