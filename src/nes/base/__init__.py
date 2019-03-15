@@ -5,9 +5,8 @@ from functools import wraps
 from typing import TypeVar
 
 import ruamel.yaml.constructor
-from ruamel.yaml import YAML
 
-from ..helper import set_logger, MemoryCache, time_profile
+from ..helper import set_logger, MemoryCache, time_profile, yaml
 
 _tb = TypeVar('T', bound='TrainableBase')
 
@@ -23,6 +22,8 @@ class TrainableType(type):
 
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
+
+        yaml.register_class(cls)
         return cls
 
     def __call__(cls, *args, **kwargs):
@@ -113,15 +114,11 @@ class TrainableBase(metaclass=TrainableType):
 
     @_timeit
     def dump_yaml(self, filename: str) -> None:
-        yaml = YAML(typ='unsafe')
-        yaml.register_class(self.__class__)
         with open(filename, 'w') as fp:
             yaml.dump(self, fp)
 
     @classmethod
     def load_yaml(cls, filename: str) -> _tb:
-        yaml = YAML(typ='unsafe')
-        yaml.register_class(cls)
         with open(filename) as fp:
             return yaml.load(fp)
 

@@ -1,6 +1,7 @@
 import os
 import time
 import unittest
+from shutil import rmtree
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
@@ -46,11 +47,8 @@ class TestBertServing(unittest.TestCase):
 
         bbe = BertBinaryEncoder(num_bytes, pca_output_dim=32,
                                 cluster_per_byte=8,
-                                port=1,
-                                port_out=2,
-                                ignore_all_checks=True)
-
-
+                                port=int(self.port),
+                                port_out=int(self.port_out))
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_str)
@@ -112,6 +110,8 @@ class TestBertServing(unittest.TestCase):
         #     print('q: %s\tr: %s' % (q, r))
 
     def tearDown(self):
+        if os.path.exists(self.db_path):
+            rmtree(self.db_path)
         self.server.close()
         # wait until all socket close safely
         time.sleep(5)

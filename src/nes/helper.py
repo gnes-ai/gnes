@@ -14,6 +14,7 @@ import numpy as np
 from joblib import Memory
 from memory_profiler import memory_usage
 from psutil import virtual_memory
+from ruamel.yaml import YAML
 from termcolor import colored
 
 
@@ -361,6 +362,14 @@ class MemoryCache:
             self._memory = Memory(self._cache_path, verbose=0)
 
 
+def _get_yaml():
+    y = YAML(typ='safe')
+    y.default_flow_style = False
+    return y
+
+
 cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
+
+yaml = _get_yaml()
