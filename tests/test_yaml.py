@@ -59,6 +59,7 @@ class TestYaml(unittest.TestCase):
     def test_load(self):
         with open(self.dump_path, 'w') as fp:
             fp.write("!PipelineEncoder\n\
+                                parameter:\n\
                                   a: 23\n\
                                   b: '32'\n\
                                   c: ['123', '456']")

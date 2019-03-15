@@ -103,7 +103,6 @@ class TrainableBase(metaclass=TrainableType):
 
         return arg_wrapper
 
-    @_timeit
     def train(self, *args, **kwargs):
         pass
 
@@ -143,10 +142,25 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_mapping('!' + cls.__name__, data._init_kwargs_dict)
+        tmp = data._dump_instance_to_yaml(data)
+        return representer.represent_mapping('!' + cls.__name__, tmp)
 
     @classmethod
     def from_yaml(cls, constructor, node):
+        return cls._get_instance_from_yaml(constructor, node)[0]
+
+    @classmethod
+    def _get_instance_from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        return cls(**data)
+        obj = cls(**data['parameter'])
+        if hasattr(data, 'property'):
+            for k, v in data['property'].items():
+                setattr(obj, k, v)
+        return obj, data
+
+    @staticmethod
+    def _dump_instance_to_yaml(data):
+        return {'parameter': data._init_kwargs_dict,
+                'property': {'batch_size': data.batch_size,
+                             'is_trained': data.is_trained}}
