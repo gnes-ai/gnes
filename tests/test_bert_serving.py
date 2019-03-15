@@ -46,8 +46,11 @@ class TestBertServing(unittest.TestCase):
 
         bbe = BertBinaryEncoder(num_bytes, pca_output_dim=32,
                                 cluster_per_byte=8,
-                                port=int(self.port),
-                                port_out=int(self.port_out))
+                                port=1,
+                                port_out=2,
+                                ignore_all_checks=True)
+
+
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_str)

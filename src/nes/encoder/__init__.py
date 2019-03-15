@@ -54,7 +54,7 @@ class PipelineEncoder(BaseEncoder):
     @classmethod
     def to_yaml(cls, representer, data):
         tmp = super()._dump_instance_to_yaml(data)
-        tmp.update({'pipeline': data.pipeline})
+        tmp['pipeline'] = data.pipeline
         return representer.represent_mapping('!' + cls.__name__, tmp)
 
     @classmethod
