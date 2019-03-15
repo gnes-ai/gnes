@@ -2,7 +2,7 @@ import os
 import unittest
 from shutil import rmtree
 
-from src.nes import PipelineEncoder, DummyNES
+from src.nes import PipelineEncoder
 from src.nes.base import TrainableType
 from src.nes.encoder.bert_binary import BertBinaryEncoder
 from src.nes.encoder.lopq import LOPQEncoder
@@ -108,6 +108,7 @@ class TestYaml(unittest.TestCase):
                                              ignore_all_checks=True)
 
 
+from src.nes import PipelineEncoder, DummyNES
 b = DummyNES(num_bytes=8,
              pca_output_dim=32,
              cluster_per_byte=8,

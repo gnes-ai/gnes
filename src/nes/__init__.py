@@ -2,8 +2,11 @@ from typing import Dict
 
 from .document import BaseDocument
 from .encoder import *
+from .encoder.bert_binary import BertBinaryEncoder
 from .helper import set_logger, batch_iterator, batching
 from .indexer import *
+from .indexer.leveldb import LVDBIndexer
+from .indexer.numpyindexer import NumpyIndexer
 
 __version__ = '0.0.1'
 
@@ -49,9 +52,6 @@ class BaseNES(BaseIndexer):
 
 class DummyNES(BaseNES):
     def __init__(self, *args, **kwargs):
-        from .indexer.numpyindexer import NumpyIndexer
-        from .encoder.bert_binary import BertBinaryEncoder
-        from .indexer.leveldb import LVDBIndexer
         text_indexer = LVDBIndexer(*args, **kwargs)
         kwargs.pop('data_path')
         binary_encoder = BertBinaryEncoder(*args, **kwargs)
