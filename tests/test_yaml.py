@@ -45,8 +45,6 @@ class TestYaml(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.db_path):
             rmtree(self.db_path)
-        if os.path.exists(self.db_path1):
-            rmtree(self.db_path1)
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
 

@@ -15,8 +15,10 @@ class LOPQEncoder(PipelineEncoder):
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.pipeline = [
-            PCALocalEncoder(pca_output_dim, num_locals=num_bytes),
-            PQEncoder(num_bytes, cluster_per_byte)
-            if pq_backend == 'numpy' else TFPQEncoder(num_bytes, cluster_per_byte),
-            BinaryEncoder()]
+        pq = {'numpy': lambda: PQEncoder(num_bytes, cluster_per_byte),
+              'tf': lambda: TFPQEncoder(num_bytes, cluster_per_byte)}.get(pq_backend, None)()
+        if not pq:
+            raise NotImplementedError('pq_backend: %s is not implemented' % pq)
+
+        self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes), pq,
+                         BinaryEncoder()]
