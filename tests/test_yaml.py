@@ -41,7 +41,6 @@ class TestYaml(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'dump.yml')
         self.db_path = './test_leveldb'
-        self.db_path1 = './test_leveldb1'
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -105,5 +104,14 @@ class TestYaml(unittest.TestCase):
                                              cluster_per_byte=8,
                                              port=1,
                                              port_out=2,
-                                             data_path=self.db_path1,
+                                             data_path=self.db_path,
                                              ignore_all_checks=True)
+
+
+b = DummyNES(num_bytes=8,
+             pca_output_dim=32,
+             cluster_per_byte=8,
+             port=1,
+             port_out=2,
+             data_path='./test-path',
+             ignore_all_checks=True)
