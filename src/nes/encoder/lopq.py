@@ -18,7 +18,7 @@ class LOPQEncoder(PipelineEncoder):
         pq = {'numpy': lambda: PQEncoder(num_bytes, cluster_per_byte),
               'tensorflow': lambda: TFPQEncoder(num_bytes, cluster_per_byte)}.get(pq_backend, lambda: None)()
         if not pq:
-            raise NotImplementedError('pq_backend: %s is not implemented' % pq)
+            raise NotImplementedError('pq_backend: %s is not implemented' % pq_backend)
 
         self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes), pq,
                          BinaryEncoder()]
