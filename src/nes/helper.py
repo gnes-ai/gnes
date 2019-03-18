@@ -231,7 +231,9 @@ def batch_iterator(data: Union[Iterator[Any], List[Any], np.ndarray], batch_size
             yield data
             return
         for _ in range(0, data.shape[axis], batch_size):
-            yield np.take(data, range(_, _ + batch_size), axis, mode='clip')
+            start = _
+            end = min(len(data), _ + batch_size)
+            yield np.take(data, range(start, end), axis, mode='clip')
     elif hasattr(data, '__len__'):
         if batch_size >= len(data):
             yield data
@@ -287,7 +289,7 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
             final_result = None
 
             done_size = 0
-            for b in batch_iterator(data, b_size, axis):
+            for b in batch_iterator(data[:total_size], b_size, axis):
                 r = func(self, b, *args, **kwargs)
                 if isinstance(r, np.ndarray):
                     # first result kicks in
