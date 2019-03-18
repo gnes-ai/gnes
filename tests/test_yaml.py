@@ -51,12 +51,15 @@ class TestYaml(unittest.TestCase):
     def test_siganature(self):
         a = foo1(2)
         self.assertEqual(a._init_kwargs_dict, {'a': 2, 'b': 1})
-        a = foo2(2, 3)
-        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1})
+        a = foo2(2, 3, 3)
+        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 3})
+        self.assertRaises(TypeError, foo2, 2, 3, c=2)
+        a = foo2(2, 3, 4, 5, 6, 7)
+        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 4})
         a = foo2(2, 3, wee=4)
-        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1, 'wee': 4})
+        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1})
         a = foo2(b=1, wee=4, a=3, c=2)
-        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1, 'wee': 4})
+        self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1})
 
     def test_dump(self):
         pe0 = PipelineEncoder(10, a=23, b='32', c=['123', '456'])
