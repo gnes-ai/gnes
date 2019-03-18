@@ -51,17 +51,17 @@ class TrainableType(type):
     def _store_init_kwargs(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
+            taboo = {'self', 'args', 'kwargs'}
             all_pars = inspect.signature(func).parameters
-            tmp = {k: v.default for k, v in all_pars.items()}
-            default_pars = list(all_pars.items())
-            for idx, v in enumerate(args, 1):
-                tmp[default_pars[idx][0]] = v
-            for k, v in kwargs.items():
+            tmp = {k: v.default for k, v in all_pars.items() if k not in taboo}
+            tmp_list = [k for k in all_pars.keys() if k not in taboo]
+            # set args by aligning tmp_list with arg values
+            for k, v in zip(tmp_list, args):
                 tmp[k] = v
-
-            for k in ['self', 'args', 'kwargs']:
-                if k in tmp:
-                    tmp.pop(k)
+            # set kwargs
+            for k, v in kwargs.items():
+                if k in all_pars:
+                    tmp[k] = v
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
