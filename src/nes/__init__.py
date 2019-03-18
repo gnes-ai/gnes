@@ -1,5 +1,3 @@
-from typing import Dict
-
 from .document import BaseDocument
 from .encoder import *
 from .encoder.bert_binary import BertBinaryEncoder
@@ -11,18 +9,14 @@ from .indexer.numpyindexer import NumpyIndexer
 __version__ = '0.0.1'
 
 
-class BaseNES(BaseIndexer):
-    def __init__(self, binary_encoder: BaseEncoder,
-                 binary_indexer: BaseBinaryIndexer,
-                 text_indexer: BaseTextIndexer,
-                 batch_size: int = 128):
-        super().__init__()
-        self.component = {
-            'encoder': binary_encoder,
-            'binary_indexer': binary_indexer,
-            'text_indexer': text_indexer
+class BaseNES(BaseIndexer, CompositionalEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.component = lambda: {
+            'encoder': BertBinaryEncoder(*args, **kwargs),
+            'binary_indexer': NumpyIndexer(*args, **kwargs),
+            'text_indexer': LVDBIndexer(*args, **kwargs)
         }
-        self.batch_size = batch_size
 
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
@@ -48,12 +42,3 @@ class BaseNES(BaseIndexer):
     def close(self):
         for v in self.component.values():
             v.close()
-
-
-class DummyNES(BaseNES):
-    def __init__(self, *args, **kwargs):
-        text_indexer = LVDBIndexer(*args, **kwargs)
-        kwargs.pop('data_path')
-        binary_encoder = BertBinaryEncoder(*args, **kwargs)
-        binary_indexer = NumpyIndexer(*args, **kwargs)
-        super().__init__(binary_encoder, binary_indexer, text_indexer)

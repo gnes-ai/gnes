@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Union, Dict
 
 import numpy as np
 
@@ -21,45 +21,77 @@ class BinaryEncoder(BaseEncoder):
         return data.tobytes()
 
 
-class PipelineEncoder(BaseEncoder):
+class CompositionalEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pipeline = []  # type: List['BaseEncoder']
+        self._component = []  # type: List['BaseEncoder']
 
-    @TB._train_required
-    def encode(self, data: Any, *args, **kwargs) -> Any:
-        if not self.pipeline:
-            raise NotImplementedError
-        for be in self.pipeline:
-            data = be.encode(data, *args, **kwargs)
-        return data
+    @property
+    def component(self) -> Union[List['BaseEncoder'], Dict[str, 'BaseEncoder']]:
+        return self._component
 
-    def train(self, data, *args, **kwargs):
-        if not self.pipeline:
-            raise NotImplementedError
-        for idx, be in enumerate(self.pipeline):
-            be.train(data, *args, **kwargs)
-            if idx + 1 < len(self.pipeline):
-                data = be.encode(data, *args, **kwargs)
+    @property
+    def is_pipeline(self):
+        return isinstance(self.component, list)
+
+    @component.setter
+    def component(self, comps):
+        if not getattr(self, 'init_from_yaml', False):
+            self._component = comps()
+        else:
+            self.logger.info('component is omitted from construction, '
+                             'as it is initialized from yaml config')
 
     def close(self):
         super().close()
-        for be in self.pipeline:
-            be.close()
+        # pipeline
+        if isinstance(self.component, list):
+            for be in self.component:
+                be.close()
+        # no typology
+        elif isinstance(self.component, dict):
+            for be in self.component.values():
+                be.close()
+        else:
+            raise TypeError('component must be dict or list, received %s' % type(self.component))
 
-    def _copy_from(self, x: 'PipelineEncoder'):
-        for be1, be2 in zip(self.pipeline, x.pipeline):
-            be1._copy_from(be2)
+    def _copy_from(self, x: 'CompositionalEncoder'):
+        if isinstance(self.component, list):
+            for be1, be2 in zip(self.component, x.component):
+                be1._copy_from(be2)
+        elif isinstance(self.component, dict):
+            for k, v in self.component.items():
+                v._copy_from(x.component[k])
+        else:
+            raise TypeError('component must be dict or list, received %s' % type(self.component))
 
     @classmethod
     def to_yaml(cls, representer, data):
         tmp = super()._dump_instance_to_yaml(data)
-        tmp['pipeline'] = data.pipeline
+        tmp['component'] = data.component
         return representer.represent_mapping('!' + cls.__name__, tmp)
 
     @classmethod
     def from_yaml(cls, constructor, node):
         obj, data = super()._get_instance_from_yaml(constructor, node)
-        if 'pipeline' in data:
-            obj.pipeline = data['pipeline']
+        if 'component' in data:
+            obj._component = data['component']
         return obj
+
+
+class PipelineEncoder(CompositionalEncoder):
+    @TB._train_required
+    def encode(self, data: Any, *args, **kwargs) -> Any:
+        if not self.component:
+            raise NotImplementedError
+        for be in self.component:
+            data = be.encode(data, *args, **kwargs)
+        return data
+
+    def train(self, data, *args, **kwargs):
+        if not self.component:
+            raise NotImplementedError
+        for idx, be in enumerate(self.component):
+            be.train(data, *args, **kwargs)
+            if idx + 1 < len(self.component):
+                data = be.encode(data, *args, **kwargs)

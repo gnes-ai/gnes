@@ -2,7 +2,7 @@ import inspect
 import os
 import pickle
 from functools import wraps
-from typing import TypeVar
+from typing import TypeVar, Dict, Any
 
 import ruamel.yaml.constructor
 
@@ -12,6 +12,12 @@ _tb = TypeVar('T', bound='TrainableBase')
 
 
 class TrainableType(type):
+    default_property = {
+        'is_trained': False,
+        'batch_size': None,
+        'store_args_kwargs': False,
+    }
+
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
@@ -28,10 +34,10 @@ class TrainableType(type):
 
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
-        if not hasattr(obj, 'is_trained'):
-            obj.is_trained = False
-        if not hasattr(obj, 'batch_size'):
-            obj.batch_size = None
+
+        for k, v in TrainableType.default_property.items():
+            if not hasattr(obj, k):
+                setattr(obj, k, v)
         return obj
 
     @staticmethod
@@ -62,6 +68,9 @@ class TrainableType(type):
             for k, v in kwargs.items():
                 if k in all_pars:
                     tmp[k] = v
+
+            tmp['args'] = args
+            tmp['kwargs'] = kwargs
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -150,14 +159,34 @@ class TrainableBase(metaclass=TrainableType):
     def _get_instance_from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        obj = cls(**data['parameter'])
-        if hasattr(data, 'property'):
-            for k, v in data['property'].items():
-                setattr(obj, k, v)
+        cls.init_from_yaml = True
+
+        if data.get('property', {}).get('store_args_kwargs', False):
+            p = data.get('parameter', {})  # type: Dict[str, Any]
+            a = p.pop('args')
+            k = p.pop('kwargs')
+            # maybe there are some hanging kwargs in "parameter"
+            obj = cls(*a, **k)
+        else:
+            obj = cls(**data.get('parameter', {}))
+
+        for k, v in data.get('property', {}).items():
+            setattr(obj, k, v)
+
         return obj, data
 
     @staticmethod
     def _dump_instance_to_yaml(data):
-        return {'parameter': data._init_kwargs_dict,
-                'property': {'batch_size': data.batch_size,
-                             'is_trained': data.is_trained}}
+        # note: we only dump non-default property for the sake of clarity
+        p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
+        a = {k: v for k, v in data._init_kwargs_dict.items()}
+        if not getattr(data, 'store_args_kwargs', False):
+            a.pop('args')
+            a.pop('kwargs')
+
+        r = {}
+        if a:
+            r['parameter'] = a
+        if p:
+            r['property'] = p
+        return r

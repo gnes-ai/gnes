@@ -7,7 +7,7 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from src.nes import DummyNES
+from src.nes import BaseNES
 from src.nes.document import UniSentDocument, MultiSentDocument
 from src.nes.encoder.bert_binary import BertBinaryEncoder
 
@@ -63,12 +63,12 @@ class TestBertServing(unittest.TestCase):
         out2 = bbe2.encode(self.test_str)
         self.assertEqual(out, out2)
 
-        nes = DummyNES(num_bytes=8,
-                       pca_output_dim=32,
-                       cluster_per_byte=8,
-                       port=int(self.port),
-                       port_out=int(self.port_out),
-                       data_path=self.db_path)
+        nes = BaseNES(num_bytes=8,
+                      pca_output_dim=32,
+                      cluster_per_byte=8,
+                      port=int(self.port),
+                      port_out=int(self.port_out),
+                      data_path=self.db_path)
 
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
@@ -86,17 +86,17 @@ class TestBertServing(unittest.TestCase):
         nes.dump(self.dump_path)
         nes.close()
         self.assertTrue(os.path.exists(self.dump_path))
-        nes2 = DummyNES.load(self.dump_path)
+        nes2 = BaseNES.load(self.dump_path)
         result2 = nes2.query(query, top_k=2)
         self.assertEqual(result, result2)
         nes2.close()
 
         # test multi-sent document
-        nes3 = DummyNES(pca_output_dim=32,
-                        cluster_per_byte=8,
-                        port=int(self.port),
-                        port_out=int(self.port_out),
-                        data_path=self.db_path)
+        nes3 = BaseNES(pca_output_dim=32,
+                       cluster_per_byte=8,
+                       port=int(self.port),
+                       port_out=int(self.port_out),
+                       data_path=self.db_path)
         nes3.train(self.test_data2)
 
         # TODO: the next add fails for some unknown reason

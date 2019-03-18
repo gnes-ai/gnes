@@ -2,7 +2,7 @@ import os
 import unittest
 from shutil import rmtree
 
-from src.nes import PipelineEncoder
+from src.nes import PipelineEncoder, BaseNES
 from src.nes.base import TrainableType
 from src.nes.encoder.bert_binary import BertBinaryEncoder
 from src.nes.encoder.lopq import LOPQEncoder
@@ -32,8 +32,8 @@ class foo2(foo1):
 class dummyPipeline(PipelineEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pipeline = [foo1(*args, **kwargs),
-                         foo2(*args, **kwargs), ]
+        self.component = [foo1(*args, **kwargs),
+                          foo2(*args, **kwargs), ]
 
 
 class TestYaml(unittest.TestCase):
@@ -99,11 +99,11 @@ class TestYaml(unittest.TestCase):
         self.assertEqual(a._init_kwargs_dict, b._init_kwargs_dict)
         b.close()
 
-    # def test_NES_yaml_dump(self):
-    #     self._test_different_encoder_yamlize(DummyNES, num_bytes=8,
-    #                                          pca_output_dim=32,
-    #                                          cluster_per_byte=8,
-    #                                          port=1,
-    #                                          port_out=2,
-    #                                          data_path=self.db_path,
-    #                                          ignore_all_checks=True)
+    def test_NES_yaml_dump(self):
+        self._test_different_encoder_yamlize(BaseNES, num_bytes=8,
+                                             pca_output_dim=32,
+                                             cluster_per_byte=8,
+                                             port=1,
+                                             port_out=2,
+                                             data_path=self.db_path,
+                                             ignore_all_checks=True)

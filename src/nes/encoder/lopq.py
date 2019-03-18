@@ -20,5 +20,5 @@ class LOPQEncoder(PipelineEncoder):
         if not pq:
             raise NotImplementedError('pq_backend: %s is not implemented' % pq_backend)
 
-        self.pipeline = [PCALocalEncoder(pca_output_dim, num_locals=num_bytes), pq,
-                         BinaryEncoder()]
+        self.component = lambda: [PCALocalEncoder(pca_output_dim, num_locals=num_bytes), pq,
+                                  BinaryEncoder()]

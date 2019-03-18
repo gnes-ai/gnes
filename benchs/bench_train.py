@@ -1,9 +1,9 @@
-import sys
-import os
 import json
-from memory_profiler import memory_usage
+import os
+import sys
+
 sys.path.append('../')
-from src.nes import DummyNES
+from src.nes import BaseNES
 from src.nes.document import UniSentDocument, MultiSentDocument
 from src.nes.helper import profile_logger
 os.environ['NES_PROFILING'] = '1'
@@ -36,12 +36,12 @@ def prepare_data(unisent=True):
 def bench_train(docs):
     db_path = './test_leveldb'
 
-    nes = DummyNES(pca_output_dim=200,
-                   num_bytes=20,
-                   cluster_per_byte=255,
-                   port=int(os.environ['BERT_CI_PORT']),
-                   port_out=int(os.environ['BERT_CI_PORT_OUT']),
-                   data_path=db_path)
+    nes = BaseNES(pca_output_dim=200,
+                  num_bytes=20,
+                  cluster_per_byte=255,
+                  port=int(os.environ['BERT_CI_PORT']),
+                  port_out=int(os.environ['BERT_CI_PORT_OUT']),
+                  data_path=db_path)
 
     nes.train(docs)
     nes.add(docs)
