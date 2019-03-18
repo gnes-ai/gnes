@@ -32,8 +32,9 @@ class foo2(foo1):
 class dummyPipeline(PipelineEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.component = [foo1(*args, **kwargs),
-                          foo2(*args, **kwargs), ]
+        self.component = lambda: [foo1(*args, **kwargs),
+                                  foo2(*args, **kwargs), ]
+        self.store_args_kwargs = True
 
 
 class TestYaml(unittest.TestCase):
@@ -78,7 +79,7 @@ class TestYaml(unittest.TestCase):
                                   c: ['123', '456']")
         pe = PipelineEncoder.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
-        self.assertEqual(pe._init_kwargs_dict, {'a': 23, 'b': '32', 'c': ['123', '456']})
+        self.assertEqual(pe._init_kwargs_dict, {'kwargs': {'a': 23, 'b': '32', 'c': ['123', '456']}})
 
     def test_nest_pipeline(self):
         self._test_different_encoder_yamlize(dummyPipeline, a=1, b=2, c=3, wee=4)

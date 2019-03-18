@@ -1,4 +1,4 @@
-from typing import List, Any, Union, Dict
+from typing import List, Any, Union, Dict, Callable
 
 import numpy as np
 
@@ -35,7 +35,10 @@ class CompositionalEncoder(BaseEncoder):
         return isinstance(self.component, list)
 
     @component.setter
-    def component(self, comps):
+    def component(self, comps: Callable[[], Union[list, dict]]):
+        if not callable(comps):
+            raise TypeError('component mus be a callable function that returns '
+                            'a List[BaseEncoder]')
         if not getattr(self, 'init_from_yaml', False):
             self._component = comps()
         else:

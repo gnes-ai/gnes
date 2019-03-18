@@ -69,8 +69,8 @@ class TrainableType(type):
                 if k in all_pars:
                     tmp[k] = v
 
-            tmp['args'] = args
-            tmp['kwargs'] = kwargs
+            if args: tmp['args'] = args
+            if kwargs: tmp['kwargs'] = kwargs
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -163,8 +163,8 @@ class TrainableBase(metaclass=TrainableType):
 
         if data.get('property', {}).get('store_args_kwargs', False):
             p = data.get('parameter', {})  # type: Dict[str, Any]
-            a = p.pop('args')
-            k = p.pop('kwargs')
+            a = p.pop('args') if 'args' in p else ()
+            k = p.pop('kwargs') if 'kwargs' in p else {}
             # maybe there are some hanging kwargs in "parameter"
             obj = cls(*a, **k)
         else:
@@ -181,8 +181,8 @@ class TrainableBase(metaclass=TrainableType):
         p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
         a = {k: v for k, v in data._init_kwargs_dict.items()}
         if not getattr(data, 'store_args_kwargs', False):
-            a.pop('args')
-            a.pop('kwargs')
+            if 'args' in a: a.pop('args')
+            if 'kwargs' in a: a.pop('kwargs')
 
         r = {}
         if a:
