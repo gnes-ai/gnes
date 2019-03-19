@@ -11,7 +11,7 @@ __version__ = '0.0.1'
 
 class BaseNES(BaseIndexer, CompositionalEncoder):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        BaseIndexer.__init__(*args, **kwargs)
         self.component = lambda: {
             'encoder': PipelineEncoder(*args, **kwargs),
             'binary_indexer': NumpyIndexer(*args, **kwargs),
