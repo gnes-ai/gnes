@@ -61,7 +61,7 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(out.shape[0], self.test_vecs.shape[0])
 
     def test_train_pca(self):
-        num_bytes = 10
+        num_bytes = 8
         num_clusters = 11
         lopq = PipelineEncoder.load_yaml(self.lopq_yaml_np2)
         lopq.train(self.test_vecs)
@@ -77,7 +77,7 @@ class TestPCA(unittest.TestCase):
     #     self.assertRaises(AssertionError, LOPQEncoder, num_bytes=4, pca_output_dim=20, cluster_per_byte=256)
 
     def test_encode_backend(self):
-        num_bytes = 10
+        num_bytes = 8
         lopq = PipelineEncoder.load_yaml(self.lopq_yaml_tf)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)
@@ -96,8 +96,7 @@ class TestPCA(unittest.TestCase):
         self.assertEqual(out, out2)
 
     def test_encode_batching(self):
-        num_bytes = 10
-        pca_output_dim = 20
+        num_bytes = 8
         lopq = PipelineEncoder.load_yaml(self.lopq_yaml_tf)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs, batch_size=32)
