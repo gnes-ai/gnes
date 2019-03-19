@@ -10,6 +10,10 @@ __version__ = '0.0.1'
 
 
 class BaseNES(BaseIndexer, CompositionalEncoder):
+    def __init__(self, *args, **kwargs):
+        BaseIndexer.__init__(self, *args, **kwargs)
+        CompositionalEncoder.__init__(self, *args, **kwargs)
+
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
         self.component['encoder'].train(sents, *args, **kwargs)
