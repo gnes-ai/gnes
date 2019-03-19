@@ -25,7 +25,8 @@ __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'yaml',
            'cn_sent_splitter',
            'profile_logger',
-           'doc_logger']
+           'doc_logger',
+           'parse_arg']
 
 
 def get_sys_info():
@@ -376,6 +377,30 @@ def _get_yaml():
     y = YAML(typ='safe')
     y.default_flow_style = False
     return y
+
+
+def parse_arg(v: str):
+    if v.startswith('[') and v.endswith(']'):
+        # function args must be immutable tuples not list
+        tmp = v.replace('[', '').replace(']', '').strip().split(',')
+        if len(tmp) > 0:
+            return [parse_arg(vv.strip()) for vv in tmp]
+        else:
+            return []
+    try:
+        v = int(v)  # parse int parameter
+    except ValueError:
+        try:
+            v = float(v)  # parse float parameter
+        except ValueError:
+            if len(v) == 0:
+                # ignore it when the parameter is empty
+                v = None
+            elif v.lower() == 'true':  # parse boolean parameter
+                v = True
+            elif v.lower() == 'false':
+                v = False
+    return v
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)
