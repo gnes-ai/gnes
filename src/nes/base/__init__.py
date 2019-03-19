@@ -15,7 +15,6 @@ class TrainableType(type):
     default_property = {
         'is_trained': False,
         'batch_size': None,
-        'store_args_kwargs': False,
     }
 
     def __new__(meta, *args, **kwargs):
@@ -66,11 +65,12 @@ class TrainableType(type):
                 tmp[k] = v
             # set kwargs
             for k, v in kwargs.items():
-                if k in all_pars:
+                if k in tmp:
                     tmp[k] = v
 
-            if args: tmp['args'] = args
-            if kwargs: tmp['kwargs'] = kwargs
+            if self.store_args_kwargs:
+                if args: tmp['args'] = args
+                if kwargs: tmp['kwargs'] = kwargs
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -84,6 +84,7 @@ class TrainableType(type):
 
 class TrainableBase(metaclass=TrainableType):
     _timeit = time_profile
+    store_args_kwargs = False
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
@@ -161,17 +162,19 @@ class TrainableBase(metaclass=TrainableType):
             constructor, node, deep=True)
         cls.init_from_yaml = True
 
-        if data.get('property', {}).get('store_args_kwargs', False):
+        if cls.store_args_kwargs:
             p = data.get('parameter', {})  # type: Dict[str, Any]
             a = p.pop('args') if 'args' in p else ()
             k = p.pop('kwargs') if 'kwargs' in p else {}
             # maybe there are some hanging kwargs in "parameter"
-            obj = cls(*a, **k)
+            obj = cls(*a, **{**k, **p})
         else:
             obj = cls(**data.get('parameter', {}))
 
         for k, v in data.get('property', {}).items():
             setattr(obj, k, v)
+
+        cls.init_from_yaml = False
 
         return obj, data
 
@@ -180,9 +183,6 @@ class TrainableBase(metaclass=TrainableType):
         # note: we only dump non-default property for the sake of clarity
         p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
         a = {k: v for k, v in data._init_kwargs_dict.items()}
-        if not getattr(data, 'store_args_kwargs', False):
-            if 'args' in a: a.pop('args')
-            if 'kwargs' in a: a.pop('kwargs')
 
         r = {}
         if a:

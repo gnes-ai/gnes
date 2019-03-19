@@ -18,6 +18,8 @@ class foo(metaclass=TrainableType):
 
 
 class foo1(foo):
+    store_args_kwargs = False
+
     def __init__(self, a, b=1, *args, **kwargs):
         super().__init__(*args, **kwargs)
         pass
@@ -30,11 +32,12 @@ class foo2(foo1):
 
 
 class dummyPipeline(PipelineEncoder):
+    store_args_kwargs = True
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.component = lambda: [foo1(*args, **kwargs),
                                   foo2(*args, **kwargs), ]
-        self.store_args_kwargs = True
 
 
 class TestYaml(unittest.TestCase):
@@ -63,23 +66,61 @@ class TestYaml(unittest.TestCase):
         self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1})
 
     def test_dump(self):
-        pe0 = PipelineEncoder(10, a=23, b='32', c=['123', '456'])
+        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
         pe0.dump_yaml(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
-        pe = PipelineEncoder.load_yaml(self.dump_path)
-        self.assertEqual(type(pe), PipelineEncoder)
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), dummyPipeline)
         self.assertEqual(pe0._init_kwargs_dict, pe._init_kwargs_dict)
+
+    def test_dump2(self):
+        dummyPipeline.store_args_kwargs = False
+        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
+        self.assertEqual(pe0._init_kwargs_dict, {})
+        dummyPipeline.store_args_kwargs = True
+        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
+        self.assertEqual(pe0._init_kwargs_dict, {'kwargs': dict(a=23, b='32', c=['123', '456'])})
+        pe0.dump_yaml(self.dump_path)
+        self.assertTrue(os.path.exists(self.dump_path))
+        dummyPipeline.store_args_kwargs = False
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), dummyPipeline)
+        self.assertEqual(pe._init_kwargs_dict, {})
+        dummyPipeline.store_args_kwargs = True
 
     def test_load(self):
         with open(self.dump_path, 'w') as fp:
             fp.write("!PipelineEncoder\n\
                                 parameter:\n\
-                                  a: 23\n\
-                                  b: '32'\n\
-                                  c: ['123', '456']")
-        pe = PipelineEncoder.load_yaml(self.dump_path)
+                                  kwargs:\n\
+                                    a: 23\n\
+                                    b: '32'\n\
+                                    c: ['123', '456']")
+        PipelineEncoder.store_args_kwargs = True
+        pe = dummyPipeline.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
-        self.assertEqual(pe._init_kwargs_dict, {'kwargs': {'a': 23, 'b': '32', 'c': ['123', '456']}})
+        self.assertEqual(pe._init_kwargs_dict, {'kwargs': dict(a=23, b='32', c=['123', '456'])})
+        PipelineEncoder.store_args_kwargs = False
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), PipelineEncoder)
+        self.assertEqual(pe._init_kwargs_dict, {})
+
+        with open(self.dump_path, 'w') as fp:
+            fp.write("!PipelineEncoder\n\
+                                parameter:\n\
+                                  args:\n\
+                                    - 23\n\
+                                    - '32'\n\
+                                    - ['123', '456']")
+        PipelineEncoder.store_args_kwargs = True
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), PipelineEncoder)
+        self.assertEqual(pe._init_kwargs_dict, {'args': (23, '32', ['123', '456'])})
+
+        PipelineEncoder.store_args_kwargs = False
+        pe = dummyPipeline.load_yaml(self.dump_path)
+        self.assertEqual(type(pe), PipelineEncoder)
+        self.assertEqual(pe._init_kwargs_dict, {})
 
     def test_nest_pipeline(self):
         self._test_different_encoder_yamlize(dummyPipeline, a=1, b=2, c=3, wee=4)
@@ -108,3 +149,22 @@ class TestYaml(unittest.TestCase):
                                              port_out=2,
                                              data_path=self.db_path,
                                              ignore_all_checks=True)
+
+    def test_double_dump(self):
+        a = BaseNES(num_bytes=8,
+                    pca_output_dim=32,
+                    cluster_per_byte=8,
+                    port=1,
+                    port_out=2,
+                    data_path=self.db_path,
+                    ignore_all_checks=True)
+        a.dump_yaml(self.dump_path)
+        a.close()
+        with open(self.dump_path) as fp:
+            content_a = fp.readlines()
+        b = BaseNES.load_yaml(self.dump_path)
+        b.dump_yaml(self.dump_path)
+        b.close()
+        with open(self.dump_path) as fp:
+            content_b = fp.readlines()
+        self.assertEqual(content_a, content_b)

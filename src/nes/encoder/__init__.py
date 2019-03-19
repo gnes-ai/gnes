@@ -24,7 +24,7 @@ class BinaryEncoder(BaseEncoder):
 class CompositionalEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._component = []  # type: List['BaseEncoder']
+        self._component = None  # type: List['BaseEncoder']
 
     @property
     def component(self) -> Union[List['BaseEncoder'], Dict[str, 'BaseEncoder']]:
