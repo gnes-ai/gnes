@@ -13,7 +13,7 @@ setup(
     ext_modules=[
         Extension(
             'nes.cython_core',
-            ['cython_core/bindex.pyx'],
+            ['nes/cython_core/bindexer.pyx'],
             extra_compile_args=['-O3'],
         ),
     ],
