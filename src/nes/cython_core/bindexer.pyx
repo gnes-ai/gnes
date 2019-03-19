@@ -66,7 +66,6 @@ cdef class IndexCore:
     cdef Counter cnt
     cdef unsigned short bytes_per_vector
     cdef unsigned short bytes_per_label
-    cdef unsigned char*_chunk_data
 
     cdef void _index_value(self, Node*node, UIDX _id):
         if node.value and node.value[0] == node.value[1]:
@@ -88,80 +87,6 @@ cdef class IndexCore:
         node.value[0] += 1
         self.cnt.num_total_keys += 1
 
-    cpdef void index_chunk(self, unsigned char *data, const UIDX num_total, unsigned char *all_ids):
-        self._chunk_data = data
-        self.cnt.num_total_keys = num_total
-        self._all_ids = all_ids
-
-    cpdef find_chunk(self, unsigned char *query):
-        cdef array.array final_result = array.array('L')
-        cdef unsigned char *pt
-        cdef UIDX _0
-        cdef unsigned short _1
-        cdef unsigned char is_match
-        pt = self._chunk_data
-        pl = self._all_ids
-        for _0 in range(self.cnt.num_total_keys):
-            is_match = 1
-            for _1 in range(self.bytes_per_vector):
-                if (query + _1)[0] != (pt + _1)[0]:
-                    is_match = 0
-                    break
-            if is_match == 1:
-                final_result.append(bytes_to_label(pl, self.bytes_per_label))
-            pt += self.bytes_per_vector
-            pl += self.bytes_per_label
-        return final_result
-
-    cpdef find_batch_chunk(self, unsigned char *query, const UIDX num_query):
-        cdef array.array final_result = array.array('L')
-        cdef array.array final_idx = array.array('L')
-        cdef unsigned char *pt
-        cdef unsigned char *q_pt
-        cdef UIDX _0
-        cdef UIDX _1
-        cdef unsigned short _2
-        cdef unsigned char is_match
-        pt = self._chunk_data
-        for _0 in range(self.cnt.num_total_keys):
-            q_pt = query
-            for _1 in range(num_query):
-                pl = self._all_ids
-                is_match = 1
-                for _2 in range(self.bytes_per_vector):
-                    if (q_pt + _2)[0] != (pt + _2)[0]:
-                        is_match = 0
-                        break
-                if is_match == 1:
-                    final_result.append(bytes_to_label(pl, self.bytes_per_label))
-                    final_idx.append(_1)
-                q_pt += self.bytes_per_vector
-                pl += self.bytes_per_label
-            pt += self.bytes_per_vector
-        return final_idx, final_result
-
-    cpdef contains_chunk(self, unsigned char *query, const UIDX num_query):
-        cdef array.array final_result = array.array('B', [0] * num_query)
-        cdef unsigned char *pt
-        cdef unsigned char *q_pt
-        cdef UIDX _0
-        cdef UIDX _1
-        cdef unsigned short _2
-        cdef unsigned char is_match
-        pt = self._chunk_data
-        for _0 in range(self.cnt.num_total_keys):
-            q_pt = query
-            for _1 in range(num_query):
-                is_match = 1
-                for _2 in range(self.bytes_per_vector):
-                    if (q_pt + _2)[0] != (pt + _2)[0]:
-                        is_match = 0
-                        break
-                if is_match == 1:
-                    final_result[_1] = 1
-                q_pt += self.bytes_per_vector
-            pt += self.bytes_per_vector
-        return final_result
 
     cpdef find_batch_trie(self, unsigned char *query, const UIDX num_query):
         cdef array.array final_result = array.array('L')
