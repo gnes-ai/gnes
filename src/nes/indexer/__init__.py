@@ -1,5 +1,5 @@
 from .base import BaseIndexer
-from .leveldb import LVDBIndexer, LVDBIndexerAsync
+from .leveldb import LVDBIndexer, AsyncLVDBIndexer
 from .numpyindexer import NumpyIndexer
 
-__all__ = ['LVDBIndexer', 'LVDBIndexerAsync', 'NumpyIndexer', 'BaseIndexer']
+__all__ = ['LVDBIndexer', 'AsyncLVDBIndexer', 'NumpyIndexer', 'BaseIndexer']

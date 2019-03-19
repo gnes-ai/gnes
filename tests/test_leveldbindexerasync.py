@@ -4,7 +4,7 @@ import unittest
 from shutil import rmtree
 
 from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.indexer import LVDBIndexerAsync
+from src.nes.indexer import AsyncLVDBIndexer
 
 
 class TestBaseLVDB(unittest.TestCase):
@@ -25,21 +25,21 @@ class TestBaseLVDB(unittest.TestCase):
             rmtree(self.db_path)
 
     def test_add_uni(self):
-        db = LVDBIndexerAsync(self.db_path)
+        db = AsyncLVDBIndexer(self.db_path)
         db.add(self.test_data1)
         self.assertTrue(os.path.exists(self.db_path))
         self.assertLess(0, len(os.listdir(self.db_path)))
         db.close()
 
     def test_add_multi(self):
-        db = LVDBIndexerAsync(self.db_path)
+        db = AsyncLVDBIndexer(self.db_path)
         db.add(self.test_data2)
         self.assertTrue(os.path.exists(self.db_path))
         self.assertLess(0, len(os.listdir(self.db_path)))
         db.close()
 
     def test_query(self):
-        db = LVDBIndexerAsync(self.db_path)
+        db = AsyncLVDBIndexer(self.db_path)
         db.add(self.test_data1)
         res1 = db.query(self.query_hit_id)
         num_non_empty = sum(1 for d in res1 if d)
@@ -51,12 +51,12 @@ class TestBaseLVDB(unittest.TestCase):
         db.close()
 
     def dump_load(self):
-        tmp = LVDBIndexerAsync(self.db_path)
+        tmp = AsyncLVDBIndexer(self.db_path)
         tmp.add(self.test_data1)
         tmp.dump(self.dump_path)
         tmp.close()
 
-        db = LVDBIndexerAsync.load(self.db_path)
+        db = AsyncLVDBIndexer.load(self.db_path)
         res1 = db.query(self.query_hit_id)
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, len(list(self.test_data1)))

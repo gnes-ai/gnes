@@ -70,7 +70,7 @@ class LVDBIndexer(BaseTextIndexer):
         return int.from_bytes(xbytes, 'big')
 
 
-class LVDBIndexerAsync(LVDBIndexer):
+class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
