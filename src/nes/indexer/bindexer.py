@@ -45,8 +45,10 @@ class BIndexer(NumpyIndexer):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self.bindexer = IndexCore(self._vectors.tobytes(),
-                                  self._doc_ids.tolist())
+        self.bindexer = IndexCore(self.num_bytes, 4)
+        self.bindexer.index_trie(self._vectors.tobytes(),
+                                 len(self._doc_ids),
+                                 self._doc_ids.astype(np.uint32).tobytes())
 
     def close(self):
         tmp = self.bindexer
