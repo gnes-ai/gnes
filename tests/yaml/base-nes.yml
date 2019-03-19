@@ -2,7 +2,7 @@
 component:
   encoder:
     !PipelineEncoder
-    component: &myencoder
+    component:
       - !BertEncoder
         parameter:
           kwargs:
