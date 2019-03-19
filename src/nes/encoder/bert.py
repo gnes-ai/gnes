@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from bert_serving.client import BertClient
 
-from . import BaseEncoder
+from .base import BaseEncoder
 from ..helper import batching
 
 

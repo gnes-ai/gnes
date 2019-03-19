@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 
-from . import BaseEncoder
+from .base import BaseEncoder
 from ..base import TrainableBase as TB
 from ..helper import get_perm, batching, get_optimal_sample_size
 

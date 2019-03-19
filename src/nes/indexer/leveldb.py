@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Iterator
 
 import plyvel
 
-from . import BaseTextIndexer
+from .base import BaseTextIndexer
 from ..base import TrainableBase as TB
 from ..document import BaseDocument
 

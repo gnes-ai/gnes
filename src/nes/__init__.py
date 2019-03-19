@@ -1,5 +1,6 @@
 from typing import Iterator, List, Tuple, Dict
 
+from .base import TrainableBase as TB
 from .document import BaseDocument
 from .encoder import *
 from .helper import set_logger, batch_iterator, batching

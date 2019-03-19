@@ -4,7 +4,7 @@ import unittest
 from shutil import rmtree
 
 from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.indexer.leveldb import LVDBIndexerAsync
+from src.nes.indexer import LVDBIndexerAsync
 
 
 class TestBaseLVDB(unittest.TestCase):
