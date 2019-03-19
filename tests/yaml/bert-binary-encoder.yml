@@ -8,7 +8,7 @@ component:
         port_out: $BERT_CI_PORT_OUT
   - !PCALocalEncoder
     parameter:
-      pca_output_dim: 32
+      output_dim: 32
       num_locals: 8
     property:
       batch_size: 2048
