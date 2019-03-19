@@ -19,7 +19,6 @@ class TestDumpAndLoad(unittest.TestCase):
             os.remove(self.dump_path)
 
     def _test(self, yaml_fp):
-        num_bytes = 10
         lopq = PipelineEncoder.load_yaml(yaml_fp)
         lopq.train(self.test_vecs)
         out = lopq.encode(self.test_vecs)

@@ -10,7 +10,7 @@ from ..helper import batching
 class BertEncoder(BaseEncoder):
     store_args_kwargs = True
 
-    def __init__(self, data_path: str = '', *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bc_encoder = BertClient(*args, **kwargs)
         self.is_trained = True
