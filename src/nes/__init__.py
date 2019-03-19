@@ -10,14 +10,6 @@ __version__ = '0.0.1'
 
 
 class BaseNES(BaseIndexer, CompositionalEncoder):
-    def __init__(self, *args, **kwargs):
-        BaseIndexer.__init__(*args, **kwargs)
-        self.component = lambda: {
-            'encoder': PipelineEncoder(*args, **kwargs),
-            'binary_indexer': NumpyIndexer(*args, **kwargs),
-            'text_indexer': LVDBIndexer(*args, **kwargs)
-        }
-
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
         self.component['encoder'].train(sents, *args, **kwargs)
@@ -38,7 +30,3 @@ class BaseNES(BaseIndexer, CompositionalEncoder):
         result_doc = self.component['text_indexer'].query(all_ids)
         id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}
         return [[(id2doc[d_id], d_score) for d_id, d_score in id_score] for id_score in result_score]
-
-    def close(self):
-        for v in self.component.values():
-            v.close()

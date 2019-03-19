@@ -17,6 +17,7 @@ class TestBertServing(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'encoder.bin')
         self.bbe_path = os.path.join(dirname, 'yaml', 'bert-binary-encoder.yml')
+        self.nes_path = os.path.join(dirname, 'yaml', 'base-nes.yml')
         self.db_path = './test_leveldb'
 
         self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
@@ -60,12 +61,7 @@ class TestBertServing(unittest.TestCase):
         out2 = bbe2.encode(self.test_str)
         self.assertEqual(out, out2)
 
-        nes = BaseNES(num_bytes=8,
-                      pca_output_dim=32,
-                      cluster_per_byte=8,
-                      port=int(self.port),
-                      port_out=int(self.port_out),
-                      data_path=self.db_path)
+        nes = BaseNES.load_yaml(self.nes_path)
 
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
@@ -89,11 +85,7 @@ class TestBertServing(unittest.TestCase):
         nes2.close()
 
         # test multi-sent document
-        nes3 = BaseNES(pca_output_dim=32,
-                       cluster_per_byte=8,
-                       port=int(self.port),
-                       port_out=int(self.port_out),
-                       data_path=self.db_path)
+        nes3 = BaseNES.load_yaml(self.nes_path)
         nes3.train(self.test_data2)
 
         # TODO: the next add fails for some unknown reason
