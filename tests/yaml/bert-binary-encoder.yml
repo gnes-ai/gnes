@@ -6,6 +6,8 @@ component:
         ignore_all_checks: true
         port: $BERT_CI_PORT
         port_out: $BERT_CI_PORT_OUT
+    property:
+      is_trained: true
   - !PCALocalEncoder
     parameter:
       output_dim: 32
