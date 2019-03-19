@@ -168,10 +168,10 @@ class TrainableBase(metaclass=TrainableType):
             k = p.pop('kwargs') if 'kwargs' in p else {}
             # maybe there are some hanging kwargs in "parameter"
             tmp_a = (cls._convert_env_var(v) for v in a)
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}}
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
             obj = cls(*tmp_a, **tmp_p)
         else:
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {})}
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
             obj = cls(**tmp_p)
 
         for k, v in data.get('property', {}).items():
