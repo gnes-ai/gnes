@@ -8,5 +8,5 @@ component:
       batch_size: 2048
   - !PQEncoder
     parameter:
-      num_bytes: 10
+      num_bytes: 8
   - !BinaryEncoder {}

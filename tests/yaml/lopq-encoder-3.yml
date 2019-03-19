@@ -9,5 +9,5 @@ component:
   - !PQEncoder
     parameter:
       cluster_per_byte: 11
-      num_bytes: 10
+      num_bytes: 8
   - !BinaryEncoder {}

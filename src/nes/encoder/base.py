@@ -55,6 +55,8 @@ class CompositionalEncoder(BaseEncoder):
         elif isinstance(self.component, dict):
             for be in self.component.values():
                 be.close()
+        elif self.component is None:
+            pass
         else:
             raise TypeError('component must be dict or list, received %s' % type(self.component))
 
