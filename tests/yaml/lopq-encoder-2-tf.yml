@@ -1,0 +1,12 @@
+!PipelineEncoder
+component:
+  - !PCALocalEncoder
+    parameter:
+      pca_output_dim: 32
+      num_locals: 8
+    property:
+      batch_size: 2048
+  - !TFPQEncoder
+    parameter:
+      num_bytes: 10
+  - !BinaryEncoder {}

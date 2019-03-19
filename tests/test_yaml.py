@@ -2,11 +2,8 @@ import os
 import unittest
 from shutil import rmtree
 
-from src.nes import PipelineEncoder, BaseNES
+from src.nes import *
 from src.nes.base import TrainableType
-from src.nes.encoder.bert_binary import BertBinaryEncoder
-from src.nes.encoder.lopq import LOPQEncoder
-from src.nes.encoder.pq import PQEncoder
 
 
 class foo(metaclass=TrainableType):
@@ -125,11 +122,8 @@ class TestYaml(unittest.TestCase):
     def test_nest_pipeline(self):
         self._test_different_encoder_yamlize(dummyPipeline, a=1, b=2, c=3, wee=4)
         self._test_different_encoder_yamlize(PQEncoder, 10)
-        self._test_different_encoder_yamlize(LOPQEncoder, num_bytes=10, cluster_per_byte=11, pca_output_dim=20)
-        self._test_different_encoder_yamlize(BertBinaryEncoder, 8, pca_output_dim=32,
-                                             cluster_per_byte=8,
-                                             port=1,
-                                             port_out=2, ignore_all_checks=True)
+        self._test_different_encoder_yamlize(TFPQEncoder, 10)
+        self._test_different_encoder_yamlize(PCALocalEncoder, 20, 10)
 
     def _test_different_encoder_yamlize(self, cls, *args, **kwargs):
         a = cls(*args, **kwargs)

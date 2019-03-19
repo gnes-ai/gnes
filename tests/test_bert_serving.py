@@ -7,9 +7,8 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from src.nes import BaseNES
+from src.nes import BaseNES, PipelineEncoder
 from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.encoder.bert_binary import BertBinaryEncoder
 
 
 class TestBertServing(unittest.TestCase):
@@ -17,6 +16,7 @@ class TestBertServing(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'encoder.bin')
+        self.bbe_path = os.path.join(dirname, 'yaml', 'bert-binary-encoder.yml')
         self.db_path = './test_leveldb'
 
         self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
@@ -45,10 +45,7 @@ class TestBertServing(unittest.TestCase):
 
         num_bytes = 8
 
-        bbe = BertBinaryEncoder(num_bytes, pca_output_dim=32,
-                                cluster_per_byte=8,
-                                port=int(self.port),
-                                port_out=int(self.port_out))
+        bbe = PipelineEncoder.load_yaml(self.bbe_path)
         self.assertRaises(RuntimeError, bbe.encode)
 
         bbe.train(self.test_str)

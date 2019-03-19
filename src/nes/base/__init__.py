@@ -2,13 +2,13 @@ import inspect
 import os
 import pickle
 from functools import wraps
-from typing import TypeVar, Dict, Any
+from typing import Dict, Any
 
 import ruamel.yaml.constructor
 
 from ..helper import set_logger, MemoryCache, time_profile, yaml
 
-_tb = TypeVar('T', bound='TrainableBase')
+__all__ = ['TrainableBase']
 
 
 class TrainableType(type):
@@ -128,13 +128,13 @@ class TrainableBase(metaclass=TrainableType):
             yaml.dump(self, fp)
 
     @classmethod
-    def load_yaml(cls, filename: str) -> _tb:
+    def load_yaml(cls, filename: str):
         with open(filename) as fp:
             return yaml.load(fp)
 
     @staticmethod
     @_timeit
-    def load(filename: str) -> _tb:
+    def load(filename: str):
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
@@ -167,9 +167,12 @@ class TrainableBase(metaclass=TrainableType):
             a = p.pop('args') if 'args' in p else ()
             k = p.pop('kwargs') if 'kwargs' in p else {}
             # maybe there are some hanging kwargs in "parameter"
-            obj = cls(*a, **{**k, **p})
+            tmp_a = (cls._convert_env_var(v) for v in a)
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}}
+            obj = cls(*tmp_a, **tmp_p)
         else:
-            obj = cls(**data.get('parameter', {}))
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {})}
+            obj = cls(**tmp_p)
 
         for k, v in data.get('property', {}).items():
             setattr(obj, k, v)
@@ -179,11 +182,14 @@ class TrainableBase(metaclass=TrainableType):
         return obj, data
 
     @staticmethod
+    def _convert_env_var(v):
+        return os.environ.get(v.strip('$'), v) if isinstance(v, str) and v.startswith('$') else v
+
+    @staticmethod
     def _dump_instance_to_yaml(data):
         # note: we only dump non-default property for the sake of clarity
         p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
         a = {k: v for k, v in data._init_kwargs_dict.items()}
-
         r = {}
         if a:
             r['parameter'] = a

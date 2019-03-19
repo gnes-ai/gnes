@@ -2,7 +2,20 @@ from typing import List, Any, Union, Dict, Callable
 
 import numpy as np
 
+from .bert import BertEncoder
+from .pca import PCALocalEncoder
+from .pq import PQEncoder
+from .tf_pq import TFPQEncoder
 from ..base import TrainableBase as TB
+
+__all__ = ['BaseEncoder',
+           'BertEncoder',
+           'PCALocalEncoder',
+           'PQEncoder',
+           'TFPQEncoder',
+           'BinaryEncoder',
+           'CompositionalEncoder',
+           'PipelineEncoder']
 
 
 class BaseEncoder(TB):

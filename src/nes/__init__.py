@@ -1,10 +1,9 @@
+from typing import Iterator, List, Tuple, Dict
+
 from .document import BaseDocument
 from .encoder import *
-from .encoder.bert_binary import BertBinaryEncoder
 from .helper import set_logger, batch_iterator, batching
 from .indexer import *
-from .indexer.leveldb import LVDBIndexer
-from .indexer.numpyindexer import NumpyIndexer
 
 __version__ = '0.0.1'
 
@@ -13,7 +12,7 @@ class BaseNES(BaseIndexer, CompositionalEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.component = lambda: {
-            'encoder': BertBinaryEncoder(*args, **kwargs),
+            'encoder': PipelineEncoder(*args, **kwargs),
             'binary_indexer': NumpyIndexer(*args, **kwargs),
             'text_indexer': LVDBIndexer(*args, **kwargs)
         }
