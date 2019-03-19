@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 
-from . import BaseEncoder
+from .base import BaseEncoder
 from ..base import TrainableBase as TB
 from ..helper import get_perm, batching, get_optimal_sample_size
 
@@ -14,7 +14,7 @@ class PCALocalEncoder(BaseEncoder):
             'output_dim should >= num_locals and can be divided by num_locals!'
         self.output_dim = output_dim
         self.num_locals = num_locals
-        self.components = None
+        self.pca_components = None
         self.mean = None
         self.batch_size = 2048
 
@@ -36,16 +36,16 @@ class PCALocalEncoder(BaseEncoder):
         opt_order = get_perm(explained_variance_ratio, self.num_locals)
         comp_tmp = np.reshape(components[opt_order], [self.output_dim, num_dim])
 
-        self.components = np.transpose(comp_tmp)  # 768 x 200
+        self.pca_components = np.transpose(comp_tmp)  # 768 x 200
 
     @TB._train_required
     @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
-        return np.matmul(vecs - self.mean, self.components)
+        return np.matmul(vecs - self.mean, self.pca_components)
 
     def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim
-        self.components = x.components
+        self.pca_components = x.pca_components
         self.mean = x.mean
         self.num_locals = x.num_locals
         self.is_trained = x.is_trained

@@ -3,11 +3,13 @@ from typing import List
 import numpy as np
 from bert_serving.client import BertClient
 
-from . import BaseEncoder
+from .base import BaseEncoder
 from ..helper import batching
 
 
 class BertEncoder(BaseEncoder):
+    store_args_kwargs = True
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bc_encoder = BertClient(*args, **kwargs)

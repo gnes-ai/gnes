@@ -1,28 +1,18 @@
-from typing import Dict
+from typing import Iterator, List, Tuple, Dict
 
+from .base import TrainableBase as TB
 from .document import BaseDocument
 from .encoder import *
-from .encoder.bert_binary import BertBinaryEncoder
 from .helper import set_logger, batch_iterator, batching
 from .indexer import *
-from .indexer.leveldb import LVDBIndexer
-from .indexer.numpyindexer import NumpyIndexer
 
 __version__ = '0.0.1'
 
 
-class BaseNES(BaseIndexer):
-    def __init__(self, binary_encoder: BaseEncoder,
-                 binary_indexer: BaseBinaryIndexer,
-                 text_indexer: BaseTextIndexer,
-                 batch_size: int = 128):
-        super().__init__()
-        self.component = {
-            'encoder': binary_encoder,
-            'binary_indexer': binary_indexer,
-            'text_indexer': text_indexer
-        }
-        self.batch_size = batch_size
+class BaseNES(BaseIndexer, CompositionalEncoder):
+    def __init__(self, *args, **kwargs):
+        BaseIndexer.__init__(self, *args, **kwargs)
+        CompositionalEncoder.__init__(self, *args, **kwargs)
 
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
@@ -44,16 +34,3 @@ class BaseNES(BaseIndexer):
         result_doc = self.component['text_indexer'].query(all_ids)
         id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}
         return [[(id2doc[d_id], d_score) for d_id, d_score in id_score] for id_score in result_score]
-
-    def close(self):
-        for v in self.component.values():
-            v.close()
-
-
-class DummyNES(BaseNES):
-    def __init__(self, *args, **kwargs):
-        text_indexer = LVDBIndexer(*args, **kwargs)
-        kwargs.pop('data_path')
-        binary_encoder = BertBinaryEncoder(*args, **kwargs)
-        binary_indexer = NumpyIndexer(*args, **kwargs)
-        super().__init__(binary_encoder, binary_indexer, text_indexer)

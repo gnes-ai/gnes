@@ -1,9 +1,11 @@
-import numpy as np
-import sys
-import os
 import json
+import os
+import sys
+
+import numpy as np
+
 sys.path.append('../')
-from src.nes import DummyNES
+from src.nes import BaseNES
 from src.nes.document import UniSentDocument
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
@@ -65,12 +67,12 @@ doc = get_docs()
 queries, labels = get_query()
 db_path = './test_leveldb'
 
-nes = DummyNES(pca_output_dim=400,
-               num_bytes=40,
-               cluster_per_byte=255,
-               port=int(os.environ['BERT_CI_PORT']),
-               port_out=int(os.environ['BERT_CI_PORT_OUT']),
-               data_path=db_path)
+nes = BaseNES(pca_output_dim=400,
+              num_bytes=40,
+              cluster_per_byte=255,
+              port=int(os.environ['BERT_CI_PORT']),
+              port_out=int(os.environ['BERT_CI_PORT_OUT']),
+              data_path=db_path)
 nes.train(doc)
 nes.add(doc)
 

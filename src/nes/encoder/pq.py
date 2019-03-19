@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 
-from . import BaseEncoder
+from .base import BaseEncoder
 from ..base import TrainableBase as TB
 
 
@@ -43,7 +43,8 @@ class PQEncoder(BaseEncoder):
     def _get_dim_per_byte(self, vecs: np.ndarray):
         num_dim = vecs.shape[1]
         assert num_dim >= self.num_bytes and num_dim % self.num_bytes == 0, \
-            'input dimension should >= num_bytes and can be divided by num_bytes!'
+            'input dimension (=%d) should >= num_bytes (=%d) and can be divided by num_bytes!' % (
+                num_dim, self.num_bytes)
         return int(num_dim / self.num_bytes)
 
     def _copy_from(self, x: 'PQEncoder') -> None:

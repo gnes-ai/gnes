@@ -2,16 +2,21 @@ import inspect
 import os
 import pickle
 from functools import wraps
-from typing import TypeVar
+from typing import Dict, Any
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, MemoryCache, time_profile, yaml
+from ..helper import set_logger, MemoryCache, time_profile, yaml, parse_arg
 
-_tb = TypeVar('T', bound='TrainableBase')
+__all__ = ['TrainableBase']
 
 
 class TrainableType(type):
+    default_property = {
+        'is_trained': False,
+        'batch_size': None,
+    }
+
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
         cls.__init__ = meta._store_init_kwargs(cls.__init__)
@@ -28,10 +33,10 @@ class TrainableType(type):
 
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
-        if not hasattr(obj, 'is_trained'):
-            obj.is_trained = False
-        if not hasattr(obj, 'batch_size'):
-            obj.batch_size = None
+
+        for k, v in TrainableType.default_property.items():
+            if not hasattr(obj, k):
+                setattr(obj, k, v)
         return obj
 
     @staticmethod
@@ -51,17 +56,21 @@ class TrainableType(type):
     def _store_init_kwargs(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
+            taboo = {'self', 'args', 'kwargs'}
             all_pars = inspect.signature(func).parameters
-            tmp = {k: v.default for k, v in all_pars.items()}
-            default_pars = list(all_pars.items())
-            for idx, v in enumerate(args, 1):
-                tmp[default_pars[idx][0]] = v
-            for k, v in kwargs.items():
+            tmp = {k: v.default for k, v in all_pars.items() if k not in taboo}
+            tmp_list = [k for k in all_pars.keys() if k not in taboo]
+            # set args by aligning tmp_list with arg values
+            for k, v in zip(tmp_list, args):
                 tmp[k] = v
-
-            for k in ['self', 'args', 'kwargs']:
+            # set kwargs
+            for k, v in kwargs.items():
                 if k in tmp:
-                    tmp.pop(k)
+                    tmp[k] = v
+
+            if self.store_args_kwargs:
+                if args: tmp['args'] = args
+                if kwargs: tmp['kwargs'] = kwargs
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -75,6 +84,7 @@ class TrainableType(type):
 
 class TrainableBase(metaclass=TrainableType):
     _timeit = time_profile
+    store_args_kwargs = False
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
@@ -118,13 +128,13 @@ class TrainableBase(metaclass=TrainableType):
             yaml.dump(self, fp)
 
     @classmethod
-    def load_yaml(cls, filename: str) -> _tb:
+    def load_yaml(cls, filename: str):
         with open(filename) as fp:
             return yaml.load(fp)
 
     @staticmethod
     @_timeit
-    def load(filename: str) -> _tb:
+    def load(filename: str):
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
@@ -150,14 +160,42 @@ class TrainableBase(metaclass=TrainableType):
     def _get_instance_from_yaml(cls, constructor, node):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        obj = cls(**data['parameter'])
-        if hasattr(data, 'property'):
-            for k, v in data['property'].items():
-                setattr(obj, k, v)
+        cls.init_from_yaml = True
+
+        if cls.store_args_kwargs:
+            p = data.get('parameter', {})  # type: Dict[str, Any]
+            a = p.pop('args') if 'args' in p else ()
+            k = p.pop('kwargs') if 'kwargs' in p else {}
+            # maybe there are some hanging kwargs in "parameter"
+            tmp_a = (cls._convert_env_var(v) for v in a)
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
+            obj = cls(*tmp_a, **tmp_p)
+        else:
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+            obj = cls(**tmp_p)
+
+        for k, v in data.get('property', {}).items():
+            setattr(obj, k, v)
+
+        cls.init_from_yaml = False
+
         return obj, data
 
     @staticmethod
+    def _convert_env_var(v):
+        if isinstance(v, str) and v.startswith('$'):
+            return parse_arg(os.environ.get(v.strip('$'), v))
+        else:
+            return v
+
+    @staticmethod
     def _dump_instance_to_yaml(data):
-        return {'parameter': data._init_kwargs_dict,
-                'property': {'batch_size': data.batch_size,
-                             'is_trained': data.is_trained}}
+        # note: we only dump non-default property for the sake of clarity
+        p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
+        a = {k: v for k, v in data._init_kwargs_dict.items()}
+        r = {}
+        if a:
+            r['parameter'] = a
+        if p:
+            r['property'] = p
+        return r

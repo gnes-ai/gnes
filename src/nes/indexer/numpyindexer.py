@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from . import BaseBinaryIndexer
+from .base import BaseBinaryIndexer
 
 
 class NumpyIndexer(BaseBinaryIndexer):
