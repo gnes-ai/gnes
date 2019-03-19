@@ -13,9 +13,6 @@ class BertEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bc_encoder = BertClient(*args, **kwargs)
-        # dirty fix, should be fixed in bert-as-service
-        # patch submitted, pypi updated, wait mirror to be updated
-        self.bc_encoder.token_info_available = False
         self.is_trained = True
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
