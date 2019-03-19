@@ -2,8 +2,8 @@ import ctypes
 import os
 import unittest
 
-from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.helper import batch_iterator
+from nes.document import UniSentDocument, MultiSentDocument
+from nes.helper import batch_iterator
 
 
 class TestDocument(unittest.TestCase):

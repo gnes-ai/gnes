@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from src.nes import batch_iterator, BaseEncoder
-from src.nes.helper import batching
+from nes import batch_iterator, BaseEncoder
+from nes.helper import batching
 
 get_batch_size = lambda x: 2
 

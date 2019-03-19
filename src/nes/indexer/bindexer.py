@@ -40,7 +40,7 @@ class BIndexer(NumpyIndexer):
         tmp = d['bindexer']
         d['bindexer'] = None
         tmp.destroy()
-        del d['bc_encoder']
+        del d['bindexer']
         return d
 
     def __setstate__(self, d):
@@ -48,5 +48,7 @@ class BIndexer(NumpyIndexer):
         self.bindexer = IndexCore(self._vectors.tobytes(),
                                   self._doc_ids.tolist())
 
-
-
+    def close(self):
+        tmp = self.bindexer
+        self.bindexer = None
+        tmp.destroy()
