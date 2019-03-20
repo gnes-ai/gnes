@@ -3,7 +3,7 @@ from typing import List, Tuple
 import numpy as np
 
 from ..numpyindexer import NumpyIndexer
-from nes.cbindexer import IndexCore
+from nes.indexer.cybindexer import IndexCore
 
 
 class BIndexer(NumpyIndexer):
