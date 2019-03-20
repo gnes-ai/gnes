@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 from numpy.testing import assert_allclose
 
-from src.nes.encoder import *
+from nes.encoder import *
 
 
 class TestPCA(unittest.TestCase):

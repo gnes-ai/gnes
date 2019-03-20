@@ -3,8 +3,8 @@ import random
 import unittest
 from shutil import rmtree
 
-from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.indexer import LVDBIndexer
+from nes.document import UniSentDocument, MultiSentDocument
+from nes.indexer import LVDBIndexer
 
 
 class TestBaseLVDB(unittest.TestCase):

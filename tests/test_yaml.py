@@ -2,8 +2,8 @@ import os
 import unittest
 from shutil import rmtree
 
-from src.nes import *
-from src.nes.base import TrainableType
+from nes import *
+from nes.base import TrainableType
 
 
 class foo(metaclass=TrainableType):

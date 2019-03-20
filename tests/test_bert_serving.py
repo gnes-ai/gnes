@@ -7,8 +7,8 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from src.nes import BaseNES, PipelineEncoder
-from src.nes.document import UniSentDocument, MultiSentDocument
+from nes import BaseNES, PipelineEncoder
+from nes.document import UniSentDocument, MultiSentDocument
 
 
 class TestBertServing(unittest.TestCase):

@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from src.nes.indexer import NumpyIndexer
+from nes.indexer import NumpyIndexer
 
 
 class TestFIndexer(unittest.TestCase):
