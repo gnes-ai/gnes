@@ -3,7 +3,7 @@ from typing import Iterator, List, Tuple, Dict
 from .base import *
 from .document import BaseDocument
 from .encoder import *
-from .helper import set_logger, batch_iterator, batching
+from .helper import batching
 from .indexer import *
 
 __version__ = '0.0.1'
