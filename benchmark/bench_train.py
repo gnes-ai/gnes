@@ -1,9 +1,9 @@
 import json
 import os
 
-from nes import GNES
-from document import UniSentDocument, MultiSentDocument
-from helper import profile_logger
+from gnes import GNES
+from gnes.document import UniSentDocument, MultiSentDocument
+from gnes.helper import profile_logger
 os.environ['NES_PROFILING'] = '1'
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
