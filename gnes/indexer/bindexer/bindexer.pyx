@@ -1,15 +1,13 @@
 # cython: language_level=3, wraparound=False, boundscheck=False
 
-from cpython cimport
-
-array
 # noinspection PyUnresolvedReferences
-from cpython.mem cimport
 
-PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython cimport array
 
 ctypedef unsigned int UIDX
 DEF alloc_size_per_time = 200
+
 
 cdef struct Node:
     Node*left
@@ -35,7 +33,7 @@ cdef UIDX bytes_to_label(unsigned char *all_ids, unsigned short bytes_per_label)
     cdef UIDX label
     label = 0
     for _ in range(bytes_per_label):
-        label += (256 ** _) * all_ids[_]
+        label += (256**_) * all_ids[_]
     return label
 
 cdef void free_post_order(Node*node):
@@ -89,6 +87,7 @@ cdef class IndexCore:
         (node.value + node.value[0] + 2)[0] = _id
         node.value[0] += 1
         self.cnt.num_total_keys += 1
+
 
     cpdef find_batch_trie(self, unsigned char *query, const UIDX num_query):
         cdef array.array final_result = array.array('L')
