@@ -1,4 +1,4 @@
-!BaseNES
+!GNES
 component:
   encoder:
     !PipelineEncoder

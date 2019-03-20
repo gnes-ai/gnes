@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from nes.helper import get_perm
+from gnes.helper import get_perm
 
 
 class TestPartition(unittest.TestCase):

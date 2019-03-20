@@ -1,6 +1,7 @@
 # cython: language_level=3, wraparound=False, boundscheck=False
 
 # noinspection PyUnresolvedReferences
+
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
 

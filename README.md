@@ -1,5 +1,5 @@
-# NES
-NES is Neural Elastic Search, a highly scalable text search system based on deep neural network.
+# GNES
+GNES is Generic Neural Elastic Search, a highly scalable text search system based on deep neural network.
 
 ## Run with Docker
 

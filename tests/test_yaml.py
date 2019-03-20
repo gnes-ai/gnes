@@ -2,8 +2,8 @@ import os
 import unittest
 from shutil import rmtree
 
-from nes import *
-from nes.base import TrainableType
+from gnes import *
+from gnes.base import TrainableType
 
 
 class foo(metaclass=TrainableType):
@@ -136,7 +136,7 @@ class TestYaml(unittest.TestCase):
         b.close()
 
     def test_NES_yaml_dump(self):
-        self._test_different_encoder_yamlize(BaseNES, num_bytes=8,
+        self._test_different_encoder_yamlize(GNES, num_bytes=8,
                                              pca_output_dim=32,
                                              cluster_per_byte=8,
                                              port=1,
@@ -145,18 +145,18 @@ class TestYaml(unittest.TestCase):
                                              ignore_all_checks=True)
 
     def test_double_dump(self):
-        a = BaseNES(num_bytes=8,
-                    pca_output_dim=32,
-                    cluster_per_byte=8,
-                    port=1,
-                    port_out=2,
-                    data_path=self.db_path,
-                    ignore_all_checks=True)
+        a = GNES(num_bytes=8,
+                 pca_output_dim=32,
+                 cluster_per_byte=8,
+                 port=1,
+                 port_out=2,
+                 data_path=self.db_path,
+                 ignore_all_checks=True)
         a.dump_yaml(self.dump_path)
         a.close()
         with open(self.dump_path) as fp:
             content_a = fp.readlines()
-        b = BaseNES.load_yaml(self.dump_path)
+        b = GNES.load_yaml(self.dump_path)
         b.dump_yaml(self.dump_path)
         b.close()
         with open(self.dump_path) as fp:

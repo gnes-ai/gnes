@@ -3,6 +3,5 @@
 .orange-ci.yml
 docker-push.sh
 MAINTAINERS
-README.md
 test*.yml
 toy*
