@@ -16,7 +16,7 @@ setup(
     description='Generic Neural Elastic Search is an end-to-end solution for semantic text search.',
     author='GNES team',
     url='https://github.com',
-    long_description=open('../README.md').read(),
+    long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     zip_safe=False,
     setup_requires=[
