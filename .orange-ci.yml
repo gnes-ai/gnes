@@ -24,17 +24,13 @@ install-deps: &install_deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
-        script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        script: "pip install . -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
       - name: check tensorflow works correctly
         script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
 pylint: &pylint
   - name: check code style
     script: pylint src/**/*.py --exit-zero
-
-gnes-install: &gin
-  - name: install nes/src
-    script: pip install src/.
 
 unit-test: &unit_test
   - name: run unit test
@@ -52,7 +48,6 @@ basic-pipeline: &bp1
   stages:
     - <<: *install_deps
     - <<: *pylint
-    - <<: *gin
     - <<: *unit_test
     - <<: *ok_stage
 

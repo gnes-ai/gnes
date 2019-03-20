@@ -25,8 +25,8 @@ setup(
     ],
     ext_modules=[
         Extension(
-            'nes.indexer.bindexer.cython',
-            ['nes/indexer/bindexer/bindexer.pyx'],
+            '%s.indexer.bindexer.cython' % pkg_name,
+            ['%s/indexer/bindexer/bindexer.pyx' % pkg_name],
             extra_compile_args=['-O3'],
         ),
     ],
