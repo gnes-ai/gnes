@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .numpyindexer import NumpyIndexer
-from nes.cython_core import IndexCore
+from ..numpyindexer import NumpyIndexer
+from nes.cbindexer import IndexCore
 
 
 class BIndexer(NumpyIndexer):
