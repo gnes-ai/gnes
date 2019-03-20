@@ -25,6 +25,8 @@ install-deps: &install_deps
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
         script: "pip install -r requirements.txt -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+      - name: install gnes
+        script: "cd /nes/src && pip install ."
       - name: check tensorflow works correctly
         script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
