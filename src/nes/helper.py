@@ -19,14 +19,10 @@ from termcolor import colored
 
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
-           'get_args_parser',
-           'batch_iterator', 'batching',
-           'get_run_args',
-           'yaml',
-           'cn_sent_splitter',
-           'profile_logger',
-           'doc_logger',
-           'parse_arg']
+           'get_args_parser', 'batch_iterator', 'batching',
+           'get_run_args', 'yaml', 'cn_sent_splitter',
+           'profile_logger', 'doc_logger',
+           'parse_arg', 'profiling']
 
 
 def get_sys_info():
@@ -408,5 +404,6 @@ def parse_arg(v: str):
 cn_sent_splitter = SentenceSplitter(max_len=5)
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
+profiling = time_profile
 
 yaml = _get_yaml()

@@ -1,6 +1,6 @@
 from typing import Iterator, List, Tuple, Dict
 
-from .base import TrainableBase as TB
+from .base import *
 from .document import BaseDocument
 from .encoder import *
 from .helper import set_logger, batch_iterator, batching
@@ -9,16 +9,12 @@ from .indexer import *
 __version__ = '0.0.1'
 
 
-class BaseNES(BaseIndexer, CompositionalEncoder):
-    def __init__(self, *args, **kwargs):
-        BaseIndexer.__init__(self, *args, **kwargs)
-        CompositionalEncoder.__init__(self, *args, **kwargs)
-
+class BaseNES(CompositionalEncoder):
     def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents = [s for d in iter_doc for s in d.sentences]
         self.component['encoder'].train(sents, *args, **kwargs)
 
-    @TB._train_required
+    @train_required
     @batching
     def add(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
         sents, ids = map(list, zip(*[(s, d.id) for d in iter_doc for s in d.sentences]))
@@ -26,7 +22,7 @@ class BaseNES(BaseIndexer, CompositionalEncoder):
         self.component['binary_indexer'].add(bin_vectors, ids)
         self.component['text_indexer'].add(iter_doc)
 
-    @TB._train_required
+    @train_required
     def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.component['encoder'].encode(keys, *args, **kwargs)
         result_score = self.component['binary_indexer'].query(bin_queries, top_k)
