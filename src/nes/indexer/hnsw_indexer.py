@@ -3,8 +3,11 @@ from typing import List, Tuple
 import numpy as np
 from hnsw_cpy import HnswIndex
 
+from nes.helper import touch_dir
+
 from ..base import TrainableBase as TB
 from .base import BaseBinaryIndexer
+
 
 
 class HnswIndexer(BaseBinaryIndexer):
@@ -27,7 +30,7 @@ class HnswIndexer(BaseBinaryIndexer):
         offset = 0
         for doc_id in doc_ids:
             vector = vectors[offset:offset + self.num_bytes]
-            self.indexer.index(doc_id, vector)
+            self._indexer.index(doc_id, vector)
             offset += self.num_bytes
 
     def query(self, keys: bytes, top_k: int) -> List[List[Tuple[int, float]]]:
@@ -42,12 +45,13 @@ class HnswIndexer(BaseBinaryIndexer):
         while offset + self.num_bytes < n:
             key = keys[offset:offset + self.num_bytes]
             offset += self.num_bytes
-            resp = self.indexer.query(key, top_k)
+            resp = self._indexer.query(key, top_k)
             result.append([(r['id'], r['distance']) for r in resp])
         return result
 
     @TB._timeit
     def dump(self, dump_path: str) -> None:
+        touch_dir(dump_path)
         self._indexer.dump(dump_path)
 
     @staticmethod
