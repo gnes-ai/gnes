@@ -29,3 +29,6 @@ class BertEncoder(BaseEncoder):
     def __setstate__(self, d):
         super().__setstate__(d)
         self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
+
+    def close(self):
+        self.bc_encoder.close()

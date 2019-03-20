@@ -1,9 +1,9 @@
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
+from .cython import IndexCore
 from ..numpyindexer import NumpyIndexer
-from nes.indexer.cybindexer import IndexCore
 
 
 class BIndexer(NumpyIndexer):
@@ -22,7 +22,7 @@ class BIndexer(NumpyIndexer):
         cids = np.array(doc_ids, dtype=np.uint32).tobytes()
         self.bindexer.index_trie(vectors, num_rows, cids)
 
-    def query(self, keys: bytes) -> List[List[int]]:
+    def query(self, keys: bytes, *args, **kwargs) -> List[List[int]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError("keys should be divided by num_bytes")
 
@@ -37,9 +37,6 @@ class BIndexer(NumpyIndexer):
 
     def __getstate__(self):
         d = super().__getstate__()
-        tmp = d['bindexer']
-        d['bindexer'] = None
-        tmp.destroy()
         del d['bindexer']
         return d
 
@@ -51,6 +48,5 @@ class BIndexer(NumpyIndexer):
                                  self._doc_ids.astype(np.uint32).tobytes())
 
     def close(self):
-        tmp = self.bindexer
-        self.bindexer = None
-        tmp.destroy()
+        super().close()
+        self.bindexer.destroy()

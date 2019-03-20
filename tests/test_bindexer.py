@@ -1,10 +1,9 @@
-import ctypes
 import os
 import unittest
 
 import numpy as np
 
-from nes.indexer import BIndexer
+from gnes.indexer import BIndexer
 
 
 class TestFIndexer(unittest.TestCase):

@@ -7,8 +7,8 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from nes import BaseNES, PipelineEncoder
-from nes.document import UniSentDocument, MultiSentDocument
+from gnes import GNES, PipelineEncoder
+from gnes.document import UniSentDocument, MultiSentDocument
 
 
 class TestBertServing(unittest.TestCase):
@@ -62,7 +62,7 @@ class TestBertServing(unittest.TestCase):
         out2 = bbe2.encode(self.test_str)
         self.assertEqual(out, out2)
 
-        nes = BaseNES.load_yaml(self.nes_path)
+        nes = GNES.load_yaml(self.nes_path)
 
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
@@ -80,13 +80,13 @@ class TestBertServing(unittest.TestCase):
         nes.dump(self.dump_path)
         nes.close()
         self.assertTrue(os.path.exists(self.dump_path))
-        nes2 = BaseNES.load(self.dump_path)
+        nes2 = GNES.load(self.dump_path)
         result2 = nes2.query(query, top_k=2)
         self.assertEqual(result, result2)
         nes2.close()
 
         # test multi-sent document
-        nes3 = BaseNES.load_yaml(self.nes_path)
+        nes3 = GNES.load_yaml(self.nes_path)
         nes3.train(self.test_data2)
 
         # TODO: the next add fails for some unknown reason

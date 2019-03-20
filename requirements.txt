@@ -1,14 +1,1 @@
-# for tencent devops
-setuptools>=18.0
-numpy
-termcolor
-pylint
-bert-serving-server
-bert-serving-client
-plyvel
-joblib
-ruamel.yaml
-psutil
-memory_profiler
-third_party/hnsw_cpy/src/.
-gputil
+.

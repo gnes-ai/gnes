@@ -1,6 +1,6 @@
 import unittest
 
-from nes import BaseEncoder as BE, PipelineEncoder
+from gnes import BaseEncoder as BE, PipelineEncoder
 
 
 class _DummyTrainEncoder(BE):

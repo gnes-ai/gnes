@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from nes.indexer import HnswIndexer
+from gnes.indexer import HnswIndexer
 
 
 class TestHnswIndexer(unittest.TestCase):

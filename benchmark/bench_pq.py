@@ -1,5 +1,5 @@
-from memory_profiler import memory_usage
 import numpy as np
+from memory_profiler import memory_usage
 from src.nes.encoder.pq import PQEncoder
 
 
