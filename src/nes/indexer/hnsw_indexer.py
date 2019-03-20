@@ -17,7 +17,7 @@ class HnswIndexer(BaseBinaryIndexer):
 
     @property
     def size(self):
-        return self.indexer.size
+        return self._indexer.size
 
     def add(self, vectors: bytes, doc_ids: List[int]):
         if len(vectors) % len(doc_ids) != 0:
@@ -41,7 +41,7 @@ class HnswIndexer(BaseBinaryIndexer):
         n = len(keys)
 
         result = []
-        while offset + self.num_bytes < n:
+        while offset + self.num_bytes <= n:
             key = keys[offset:offset + self.num_bytes]
             offset += self.num_bytes
             resp = self._indexer.query(key, top_k)
