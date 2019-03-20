@@ -9,6 +9,38 @@ libinfo_content = open(libinfo_py, 'r').readlines()
 version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
 exec(version_line)  # produce __version__
 
+
+extensions = [
+    Extension(
+        'gnes.indexer.bindexer.cython',
+        ['gnes/indexer/bindexer/bindexer.pyx'],
+        extra_compile_args=['-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.hnsw',
+        ['gnes/indexer/hnsw_indexer/cython/hnsw.pyx'],
+        extra_compile_args=['-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.heappq',
+        ['gnes/indexer/hnsw_indexer/cython/heappq.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.queue',
+        ['gnes/indexer/hnsw_indexer/cython/queue.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.prehash',
+        ['gnes/indexer/hnsw_indexer/cython/prehash.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+]
+
 setup(
     name=pkg_name,
     packages=find_packages(),
@@ -23,13 +55,7 @@ setup(
         'setuptools>=18.0',
         'cython',
     ],
-    ext_modules=[
-        Extension(
-            'gnes.indexer.bindexer.cython',
-            ['gnes/indexer/bindexer/bindexer.pyx'],
-            extra_compile_args=['-O3'],
-        ),
-    ],
+    ext_modules=extensions,
     install_requires=[
         'numpy',
         'termcolor',
