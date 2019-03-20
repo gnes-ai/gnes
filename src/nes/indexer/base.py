@@ -1,10 +1,10 @@
 from typing import List, Tuple, Any, Iterator
 
-from ..base import TrainableBase as TB
+from ..base import *
 from ..document import BaseDocument
 
 
-class BaseIndexer(TB):
+class BaseIndexer(TrainableBase):
     def add(self, *args, **kwargs): pass
 
     def query(self, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass

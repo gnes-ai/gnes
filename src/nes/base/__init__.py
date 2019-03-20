@@ -6,9 +6,9 @@ from typing import Dict, Any
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, MemoryCache, time_profile, yaml, parse_arg
+from ..helper import set_logger, MemoryCache, profiling, yaml, parse_arg
 
-__all__ = ['TrainableBase']
+__all__ = ['train_required', 'TrainableBase']
 
 
 class TrainableType(type):
@@ -23,7 +23,7 @@ class TrainableType(type):
         if os.environ.get('NES_PROFILING', False):
             for f_name in ['train', 'encode', 'add', 'query']:
                 if getattr(cls, f_name, None):
-                    setattr(cls, f_name, time_profile(getattr(cls, f_name)))
+                    setattr(cls, f_name, profiling(getattr(cls, f_name)))
 
         if getattr(cls, 'train', None):
             setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
@@ -83,7 +83,6 @@ class TrainableType(type):
 
 
 class TrainableBase(metaclass=TrainableType):
-    _timeit = time_profile
     store_args_kwargs = False
 
     def __init__(self, *args, **kwargs):
@@ -117,12 +116,12 @@ class TrainableBase(metaclass=TrainableType):
     def train(self, *args, **kwargs):
         pass
 
-    @_timeit
+    @profiling
     def dump(self, filename: str) -> None:
         with open(filename, 'wb') as fp:
             pickle.dump(self, fp)
 
-    @_timeit
+    @profiling
     def dump_yaml(self, filename: str) -> None:
         with open(filename, 'w') as fp:
             yaml.dump(self, fp)
@@ -133,7 +132,7 @@ class TrainableBase(metaclass=TrainableType):
             return yaml.load(fp)
 
     @staticmethod
-    @_timeit
+    @profiling
     def load(filename: str):
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
@@ -199,3 +198,6 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['property'] = p
         return r
+
+
+train_required = TrainableBase._train_required

@@ -6,7 +6,6 @@ from typing import List, Dict, Any, Iterator
 import plyvel
 
 from .base import BaseTextIndexer
-from ..base import TrainableBase as TB
 from ..document import BaseDocument
 
 
@@ -79,11 +78,9 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._jobs = []
         self._db_put = False
 
-    @TB._timeit
     def add(self, docs: Iterator[BaseDocument]):
         self._jobs.append(docs)
 
-    @TB._timeit
     def query(self, keys: List[int]) -> List[Dict[str, Any]]:
         self._check_state()
         return super().query(keys)

@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 
 from .base import BaseEncoder
-from ..base import TrainableBase as TB
+from ..base import *
 
 
 class PQEncoder(BaseEncoder):
@@ -29,7 +29,7 @@ class PQEncoder(BaseEncoder):
                                                 self.num_clusters,
                                                 dim_per_byte])
 
-    @TB._train_required
+    @train_required
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

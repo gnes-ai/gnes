@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from .pq import PQEncoder
-from ..base import TrainableBase as TB
+from ..base import *
 from ..helper import batching
 
 DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
@@ -25,7 +25,6 @@ class TFPQEncoder(PQEncoder):
         self._sess.run(tf.global_variables_initializer())
         self.batch_size = 8192
 
-    @TB._timeit
     def _get_graph(self) -> Dict[str, Any]:
         ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
@@ -46,7 +45,7 @@ class TFPQEncoder(PQEncoder):
             'ph_centroids': ph_centroids
         }
 
-    @TB._train_required
+    @train_required
     @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, -1])
