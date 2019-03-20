@@ -45,7 +45,7 @@ class TestFIndexer(unittest.TestCase):
     def test_query(self):
         fd = NumpyIndexer()
         fd.add(self.test_bytes, self.test_docids)
-        res = fd.query(self.query_bytes, )
+        res = fd.query(self.query_bytes, top_k=2)
         print(res)
 
         rt = sum([self.query_result[i][j][0] == res[i][j][0]
@@ -64,7 +64,7 @@ class TestFIndexer(unittest.TestCase):
         tmp.dump(self.dump_path)
 
         fd = NumpyIndexer.load(self.dump_path)
-        res = fd.query(self.query_bytes, )
+        res = fd.query(self.query_bytes, top_k=2)
 
         rt = sum([self.query_result[i][j][0] == res[i][j][0]
                   for i in range(self.query_num)
