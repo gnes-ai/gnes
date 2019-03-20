@@ -3,8 +3,7 @@ from typing import List, Tuple
 import numpy as np
 from hnsw_cpy import HnswIndex
 
-from nes.helper import touch_dir
-
+from ..helper import touch_dir
 from ..base import TrainableBase as TB
 from .base import BaseBinaryIndexer
 
