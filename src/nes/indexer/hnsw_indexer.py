@@ -3,8 +3,7 @@ from typing import List, Tuple
 import numpy as np
 from hnsw_cpy import HnswIndex
 
-from ..helper import touch_dir
-from ..base import TrainableBase as TB
+from ..helper import touch_dir, profiling
 from .base import BaseBinaryIndexer
 
 
@@ -48,13 +47,13 @@ class HnswIndexer(BaseBinaryIndexer):
             result.append([(r['id'], r['distance']) for r in resp])
         return result
 
-    @TB._timeit
+    @profiling
     def dump(self, dump_path: str) -> None:
         touch_dir(dump_path)
         self._indexer.dump(dump_path)
 
     @staticmethod
-    @TB._timeit
+    @profiling
     def load(load_path: str):
         _indexer = HnswIndex.load(load_path)
         hnsw = HnswIndexer(num_bytes=idx.num_bytes)
