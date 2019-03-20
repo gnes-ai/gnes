@@ -4,8 +4,6 @@ RUN wget https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-76
 
 WORKDIR /nes/
 
-ADD third_party ./third_party
-
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
