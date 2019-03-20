@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 
 from .base import BaseEncoder
-from ..base import TrainableBase as TB
+from ..base import *
 from ..helper import get_perm, batching, get_optimal_sample_size
 
 
@@ -38,7 +38,7 @@ class PCALocalEncoder(BaseEncoder):
 
         self.pca_components = np.transpose(comp_tmp)  # 768 x 200
 
-    @TB._train_required
+    @train_required
     @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.pca_components)

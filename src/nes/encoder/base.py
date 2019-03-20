@@ -2,11 +2,11 @@ from typing import List, Any, Union, Dict, Callable
 
 import numpy as np
 
-from ..base import TrainableBase as TB
+from ..base import *
 
 
-class BaseEncoder(TB):
-    @TB._train_required
+class BaseEncoder(TrainableBase):
+    @train_required
     def encode(self, data: Any, *args, **kwargs) -> Any:
         pass
 
@@ -85,7 +85,7 @@ class CompositionalEncoder(BaseEncoder):
 
 
 class PipelineEncoder(CompositionalEncoder):
-    @TB._train_required
+    @train_required
     def encode(self, data: Any, *args, **kwargs) -> Any:
         if not self.component:
             raise NotImplementedError

@@ -31,6 +31,7 @@ class TestBertServing(unittest.TestCase):
                                              '-port_out', self.port_out,
                                              '-max_seq_len', 'NONE',
                                              '-mask_cls_sep',
+                                             '-pooling_layer', '-12',
                                              '-cpu'])
         self.server = BertServer(args)
         self.server.start()
