@@ -3,8 +3,8 @@ import random
 import unittest
 from shutil import rmtree
 
-from nes.document import UniSentDocument, MultiSentDocument
-from nes.indexer import LVDBIndexer
+from gnes.document import UniSentDocument, MultiSentDocument
+from gnes.indexer import LVDBIndexer
 
 
 class TestBaseLVDB(unittest.TestCase):
@@ -41,11 +41,11 @@ class TestBaseLVDB(unittest.TestCase):
     def test_query(self):
         db = LVDBIndexer(self.db_path)
         db.add(self.test_data1)
-        res1 = db.query(self.query_hit_id)
+        res1 = db.query(self.query_hit_id, )
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, len(list(self.test_data1)))
 
-        res2 = db.query(self.query_miss_id)
+        res2 = db.query(self.query_miss_id, )
         num_non_empty = sum(1 for d in res2 if d)
         self.assertEqual(num_non_empty, 0)
         db.close()
@@ -57,11 +57,11 @@ class TestBaseLVDB(unittest.TestCase):
         tmp.close()
 
         db = LVDBIndexer.load(self.db_path)
-        res1 = db.query(self.query_hit_id)
+        res1 = db.query(self.query_hit_id, )
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, len(list(self.test_data1)))
 
-        res2 = db.query(self.query_miss_id)
+        res2 = db.query(self.query_miss_id, )
         num_non_empty = sum(1 for d in res2 if d)
         self.assertEqual(num_non_empty, 0)
         db.close()

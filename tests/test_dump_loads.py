@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from nes import PipelineEncoder
+from gnes import PipelineEncoder
 
 
 class TestDumpAndLoad(unittest.TestCase):

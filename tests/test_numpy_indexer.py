@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from nes.indexer import NumpyIndexer
+from gnes.indexer import NumpyIndexer
 
 
 class TestFIndexer(unittest.TestCase):
@@ -45,7 +45,7 @@ class TestFIndexer(unittest.TestCase):
     def test_query(self):
         fd = NumpyIndexer()
         fd.add(self.test_bytes, self.test_docids)
-        res = fd.query(self.query_bytes, self.top_k)
+        res = fd.query(self.query_bytes, )
         print(res)
 
         rt = sum([self.query_result[i][j][0] == res[i][j][0]
@@ -64,7 +64,7 @@ class TestFIndexer(unittest.TestCase):
         tmp.dump(self.dump_path)
 
         fd = NumpyIndexer.load(self.dump_path)
-        res = fd.query(self.query_bytes, self.top_k)
+        res = fd.query(self.query_bytes, )
 
         rt = sum([self.query_result[i][j][0] == res[i][j][0]
                   for i in range(self.query_num)
