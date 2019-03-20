@@ -25,8 +25,8 @@ setup(
     ],
     ext_modules=[
         Extension(
-            '%s.indexer.bindexer.cython' % pkg_name,
-            ['%s/indexer/bindexer/bindexer.pyx' % pkg_name],
+            'gnes.indexer.bindexer.cython',
+            ['gnes/indexer/bindexer/bindexer.pyx'],
             extra_compile_args=['-O3'],
         ),
     ],

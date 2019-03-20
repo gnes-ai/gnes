@@ -30,7 +30,7 @@ install-deps: &install_deps
 
 pylint: &pylint
   - name: check code style
-    script: pylint src/**/*.py --exit-zero
+    script: pylint **/*.py --exit-zero
 
 unit-test: &unit_test
   - name: run unit test
