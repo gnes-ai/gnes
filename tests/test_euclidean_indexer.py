@@ -10,9 +10,9 @@ from gnes.indexer import EuclideanIndexer
 class TestEUIndexer(unittest.TestCase):
     def setUp(self):
         self.toy_query = np.random.random([1000, 20]).astype(np.float32)
-        self.toy_label = np.random.ranint(0, 1e9, [1000]).tolist()
+        self.toy_label = np.random.randint(0, 1e9, [1000]).tolist()
         self.add_query = np.random.random([1000, 20]).astype(np.float32)
-        self.add_label = np.random.ranint(0, 1e9, [1000]).tolist()
+        self.add_label = np.random.randint(0, 1e9, [1000]).tolist()
 
         self.sub_query = self.toy_query[:10]
         self.dump_path = './test_eu_indexer'
@@ -36,7 +36,7 @@ class TestEUIndexer(unittest.TestCase):
         self.assertEqual(len(ret), self.sub_query.shape[0])
         self.assertEqual(len(ret[0]), 5)
 
-    def dump_load(self):
+    def test_dump_load(self):
         tmp = EuclideanIndexer()
         tmp.add(self.toy_query, self.toy_label)
         tmp.dump(self.dump_path)

@@ -58,7 +58,7 @@ class EuclideanIndexer(BaseIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                ret_i.append((self.doc_ids[_id_i], _score_i))
+                ret_i.append((self._doc_ids[_id_i], _score_i))
             ret.append(ret_i)
 
         return ret
@@ -71,4 +71,6 @@ class EuclideanIndexer(BaseIndexer):
     def __setstate__(self, d):
         super().__setstate__(d)
         self._count = 0
+        self._hnsw = None
+        self._num_dim = None
         self.add(self._all_vectors, self._doc_ids)
