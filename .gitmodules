@@ -1,3 +1,0 @@
-[submodule "third_party/hnsw_cpy"]
-	path = third_party/hnsw_cpy
-	url = git@git.code.oa.com:madwang/hnsw_cpy.git
