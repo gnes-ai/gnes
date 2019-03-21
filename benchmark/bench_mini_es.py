@@ -12,7 +12,7 @@ def prepare_data(unisent=True):
     doc_path = '/ext_data/gnes/PKU-Chinese-Paraphrase-Corpus/formated.test.json'
     data = json.loads(open(doc_path, 'r').read())
     all_docs = []
-    for line in data.keys() + data.values():
+    for line in [*data.keys()]:
         if unisent:
             all_docs.append(UniSentDocument(line))
         else:
@@ -22,23 +22,34 @@ def prepare_data(unisent=True):
 
 
 def stat(docs, kv_data):
-    dump_path = 'test/base-eu-nes.yml'
+    dump_path = 'tests/yaml/base-eu-nes.yml'
     nes = GNES.load_yaml(dump_path)
+    nes.dump_yaml('./t.yml')
+    nes.close()
+    dnes = GNES.load_yaml('./t.yml')
 
-    nes.train(docs)
-    nes.add(docs)
+    dnes.train(docs)
+    dnes.add(docs)
+    dnes.dump_yaml('./t.yml')
+    dnes.dump('./t.pkl')
+    dnes.close()
+
+
+    nes = GNES.load('./t.pkl')
     keys = [*kv_data.keys()]
     label = list(kv_data.values())
     res = nes.query(label, 2)
     count = 0
+    for j, k, l in zip(label[:20], keys[:20], res[:20]):
+        print('Q: {}\n L: {}\nRE: {}\n\n'.format(j, k, l))
     for l, v in zip(keys, res):
-        if res[0][0]['content'] == l:
+        if v[0][0]['content'] == l:
             count += 1
     print(count / len(label))
     return
 
 
 if __name__ == '__main__':
-    for unisent in [True, False]:
+    for unisent in [True]:
         docs, kv_data = prepare_data(unisent)
         stat(docs, kv_data)
