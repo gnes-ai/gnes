@@ -3,7 +3,6 @@ import os
 
 from gnes import GNES
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.helper import profile_logger
 os.environ['NES_PROFILING'] = '1'
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
@@ -28,13 +27,12 @@ def stat(docs, kv_data):
 
     nes.train(docs)
     nes.add(docs)
-    res = nes.query(list(kv_data.keys()), 2)
+    keys = [*kv_data.keys()]
     label = list(kv_data.values())
-    for _ in range(10):
-        print(label[_], res[_])
+    res = nes.query(label, 2)
     count = 0
-    for l, v in zip(label, res):
-        if res[0][0]['content'] = l:
+    for l, v in zip(keys, res):
+        if res[0][0]['content'] == l:
             count += 1
     print(count / len(label))
     return
