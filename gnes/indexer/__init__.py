@@ -5,4 +5,4 @@ from .numpyindexer import NumpyIndexer
 from .hnsw_indexer import HnswIndexer
 
 __all__ = ['LVDBIndexer', 'AsyncLVDBIndexer', 'BaseIndexer',
-           'NumpyIndexer', 'BIndexer', 'HnswIndexer']
+           'NumpyIndexer', 'BIndexer', 'HnswIndexer', 'EuclideanIndexer']
