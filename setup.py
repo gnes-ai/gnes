@@ -9,6 +9,38 @@ libinfo_content = open(libinfo_py, 'r').readlines()
 version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
 exec(version_line)  # produce __version__
 
+
+extensions = [
+    Extension(
+        'gnes.indexer.bindexer.cython',
+        ['gnes/indexer/bindexer/bindexer.pyx'],
+        extra_compile_args=['-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.hnsw',
+        ['gnes/indexer/hnsw_indexer/cython/hnsw.pyx'],
+        extra_compile_args=['-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.heappq',
+        ['gnes/indexer/hnsw_indexer/cython/heappq.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.queue',
+        ['gnes/indexer/hnsw_indexer/cython/queue.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+    Extension(
+        'gnes.indexer.hnsw_indexer.cython.prehash',
+        ['gnes/indexer/hnsw_indexer/cython/prehash.pyx'],
+        extra_compile_args=[
+            '-O3'],
+    ),
+]
+
 setup(
     name=pkg_name,
     packages=find_packages(),
@@ -23,24 +55,18 @@ setup(
         'setuptools>=18.0',
         'cython',
     ],
-    ext_modules=[
-        Extension(
-            'gnes.indexer.bindexer.cython',
-            ['gnes/indexer/bindexer/bindexer.pyx'],
-            extra_compile_args=['-O3'],
-        ),
-    ],
+    ext_modules=extensions,
     install_requires=[
         'numpy',
         'termcolor',
-        'bert-serving-server',
-        'bert-serving-client',
-        'plyvel',
-        'joblib',
-        'ruamel.yaml',
-        'psutil',
-        'memory_profiler',
-        'gputil'
+        'bert-serving-server>=1.8.6',
+        'bert-serving-client>=1.8.6',
+        'plyvel>=1.0.5',
+        'joblib>=0.13.2',
+        'ruamel.yaml>=0.15.89',
+        'psutil>=5.6.1',
+        'memory_profiler>=0.55.0',
+        'gputil>=1.4.0'
     ],
     extras_require={
         'test': ['pylint'],

@@ -24,7 +24,7 @@ install-deps: &install_deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
-        script: "pip install -e . -U -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        script: "pip install -U -e . -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
       - name: check tensorflow works correctly
         script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
@@ -82,7 +82,7 @@ docker-stage: &docker_stage
       - name: push docker
         script: bash docker-push.sh $GIT_TAG
       - name: make notification
-        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：\ndocker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash" > notify.md
+        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：\ndocker pull docker.oa.com/public/$PROJ_NAME:$GIT_TAG && docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash" > notify.md
 
 release-stage: &release_stage1
   - name: notify about release
