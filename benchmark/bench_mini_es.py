@@ -23,14 +23,10 @@ def prepare_data(unisent=True):
 
 def stat(docs, kv_data):
     dump_path = 'tests/yaml/base-eu-nes.yml'
-    nes = GNES.load_yaml(dump_path)
-    nes.dump_yaml('./t.yml')
-    nes.close()
-    dnes = GNES.load_yaml('./t.yml')
+    dnes = GNES.load_yaml(dump_path)
 
     dnes.train(docs)
     dnes.add(docs)
-    dnes.dump_yaml('./t.yml')
     dnes.dump('./t.pkl')
     dnes.close()
 
