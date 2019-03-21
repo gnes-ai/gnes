@@ -1,6 +1,6 @@
 import numpy as np
 from memory_profiler import memory_usage
-from src.nes.encoder.pq import PQEncoder
+from gnes.encoder.pq import PQEncoder
 
 
 def pq_test(vecs, num_bytes, cluster_per_byte):

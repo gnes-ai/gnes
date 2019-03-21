@@ -1,11 +1,9 @@
 import json
 import os
-import sys
 
-sys.path.append('../')
-from src.nes import BaseNES
-from src.nes.document import UniSentDocument, MultiSentDocument
-from src.nes.helper import profile_logger
+from gnes import GNES
+from gnes.document import UniSentDocument, MultiSentDocument
+from gnes.helper import profile_logger
 os.environ['NES_PROFILING'] = '1'
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
@@ -34,14 +32,8 @@ def prepare_data(unisent=True):
 
 
 def bench_train(docs):
-    db_path = './test_leveldb'
-
-    nes = BaseNES(pca_output_dim=200,
-                  num_bytes=20,
-                  cluster_per_byte=255,
-                  port=int(os.environ['BERT_CI_PORT']),
-                  port_out=int(os.environ['BERT_CI_PORT_OUT']),
-                  data_path=db_path)
+    dump_path = 'test/base-nes.yml'
+    nes = GNES.load_yaml(dump_path)
 
     nes.train(docs)
     nes.add(docs)

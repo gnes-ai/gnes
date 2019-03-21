@@ -1,6 +1,6 @@
 import numpy as np
 from memory_profiler import memory_usage
-from src.nes.encoder.pca import PCALocalEncoder
+from gnes.encoder.pca import PCALocalEncoder
 
 
 def pca_test(vecs, output_dim, output_locals):
