@@ -775,12 +775,12 @@ cdef class IndexHnsw:
         if self.config.m_max_0 == -1:
             self.config.m_max_0 = 2 * self.config.m
 
-        print('Ef:\t%d' % self.config.ef)
-        print('Ef-construction:\t%d' % self.config.ef_construction)
-        print('M:\t%d' % self.config.m)
-        print('MMax:\t%d' % self.config.m_max)
-        print('MMax0:\t%d' % self.config.m_max_0)
-        print('Multiplier:\t%.3f' % self.config.level_multiplier)
+        # print('Ef:\t%d' % self.config.ef)
+        # print('Ef-construction:\t%d' % self.config.ef_construction)
+        # print('M:\t%d' % self.config.m)
+        # print('MMax:\t%d' % self.config.m_max)
+        # print('MMax0:\t%d' % self.config.m_max_0)
+        # print('Multiplier:\t%.3f' % self.config.level_multiplier)
 
         self.entry_ptr = NULL
         self.max_level = 0
