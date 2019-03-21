@@ -9,7 +9,6 @@ libinfo_content = open(libinfo_py, 'r').readlines()
 version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
 exec(version_line)  # produce __version__
 
-
 extensions = [
     Extension(
         'gnes.indexer.bindexer.cython',
@@ -45,7 +44,8 @@ setup(
     name=pkg_name,
     packages=find_packages(),
     version=__version__,
-    description='Generic Neural Elastic Search is an end-to-end solution for semantic text search.',
+    package_data={pkg_name: ['resources']},
+    description='Generic Neural Elastic Search is an end-to-end solution for semantic text search',
     author='GNES team',
     url='https://github.com',
     long_description=open('README.md').read(),
@@ -70,5 +70,8 @@ setup(
     ],
     extras_require={
         'test': ['pylint'],
+    },
+    entry_points={
+        'console_scripts': ['gnes=gnes.cli:main'],
     },
 )

@@ -1,8 +1,9 @@
 import inspect
 import os
 import pickle
+import tempfile
 from functools import wraps
-from typing import Dict, Any
+from typing import Dict, Any, Union, TextIO
 
 import ruamel.yaml.constructor
 
@@ -15,6 +16,7 @@ class TrainableType(type):
     default_property = {
         'is_trained': False,
         'batch_size': None,
+        'dump_path': None
     }
 
     def __new__(meta, *args, **kwargs):
@@ -87,6 +89,7 @@ class TrainableBase(metaclass=TrainableType):
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
+        self.dump_path = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self.memcached = MemoryCache(cache_path='.nes_cache')
@@ -117,19 +120,31 @@ class TrainableBase(metaclass=TrainableType):
         pass
 
     @profiling
-    def dump(self, filename: str) -> None:
-        with open(filename, 'wb') as fp:
+    def dump(self, filename: str = None) -> None:
+        f = filename or self.dump_path
+        if not f:
+            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
+            self.dump_path = f
+            self.logger.warning('filename is not specified, write to a temp file: %s' % f)
+        with open(f, 'wb') as fp:
             pickle.dump(self, fp)
 
     @profiling
-    def dump_yaml(self, filename: str) -> None:
-        with open(filename, 'w') as fp:
-            yaml.dump(self, fp)
+    def dump_yaml(self, filename: str = None) -> None:
+        f = filename or self.dump_path
+        if f:
+            with open(filename, 'w') as fp:
+                yaml.dump(self, fp)
+        else:
+            raise ValueError('please specify a filename or dump_path!')
 
     @classmethod
-    def load_yaml(cls, filename: str):
-        with open(filename) as fp:
-            return yaml.load(fp)
+    def load_yaml(cls, filename: Union[str, TextIO]):
+        if isinstance(filename, str):
+            with open(filename) as fp:
+                return yaml.load(fp)
+        else:
+            return yaml.load(filename)
 
     @staticmethod
     @profiling
