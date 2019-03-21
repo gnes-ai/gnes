@@ -1,0 +1,22 @@
+!GNES
+component:
+  encoder:
+    !PipelineEncoder
+    component:
+      - !BertEncoder
+        parameter:
+          kwargs:
+            port: $BERT_CI_PORT
+            port_out: $BERT_CI_PORT_OUT
+        property:
+          is_trained: true
+      - !PCALocalEncoder
+        parameter:
+          output_dim: 32
+          num_locals: 8
+        property:
+          batch_size: 2048
+  binary_indexer: !EuclideanIndexer {}
+  text_indexer: !LVDBIndexer
+    parameter:
+      data_path: ./test_db
