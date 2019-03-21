@@ -1,7 +1,6 @@
 from typing import List, Tuple
 import faiss
 import numpy as np
-
 from .base import BaseIndexer
 
 
