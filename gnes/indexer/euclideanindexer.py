@@ -29,7 +29,7 @@ class EuclideanIndexer(BaseIndexer):
 
         self._hnsw.add(vectors)
 
-        doc_ids = np.array(doc_ids)
+        doc_ids = np.array(doc_ids).astype(np.uint32)
         cur_len = doc_ids.shape[0]
         if self._doc_ids is None:
             self._doc_ids = doc_ids
@@ -37,7 +37,7 @@ class EuclideanIndexer(BaseIndexer):
             self._count += cur_len
         else:
             if self._doc_ids.shape[0] < self._count + len(doc_ids):
-                empty_ids = np.zeros([cur_len*20], dtype=np.int32)
+                empty_ids = np.zeros([cur_len*20], dtype=np.uint32)
                 empty_vecs = np.zeros([cur_len*20, self._num_dim],
                                       dtype=np.float32)
                 self._doc_ids = np.concatenate(
@@ -58,7 +58,7 @@ class EuclideanIndexer(BaseIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                ret_i.append((self._doc_ids[_id_i], _score_i))
+                ret_i.append((int(self._doc_ids[_id_i]), _score_i))
             ret.append(ret_i)
 
         return ret
@@ -73,4 +73,5 @@ class EuclideanIndexer(BaseIndexer):
         self._count = 0
         self._hnsw = None
         self._num_dim = None
-        self.add(self._all_vectors, self._doc_ids)
+        if self._doc_ids is not None:
+            self.add(self._all_vectors, self._doc_ids)
