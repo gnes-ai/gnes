@@ -41,6 +41,11 @@ def get_sys_info():
     return avai, unit_time
 
 
+def touch_dir(base_dir: str) -> None:
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+
+
 def ralloc_estimator(n_lines, num_dim, unit_time, max_mem, max_time=60):
     est_time = num_dim * num_dim * n_lines / 1e9 * unit_time * 2
     est_mem = 60 + 30 * (n_lines * num_dim / 768 / 10000)
