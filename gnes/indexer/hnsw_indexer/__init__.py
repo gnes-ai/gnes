@@ -1,8 +1,8 @@
 from typing import List, Tuple
 
-from gnes.helper import touch_dir, profiling
-from ..base import BaseBinaryIndexer
 from .cython.hnsw import IndexHnsw
+from ..base import BaseBinaryIndexer
+from ...helper import touch_dir, profiling
 
 
 class HnswIndexer(BaseBinaryIndexer):

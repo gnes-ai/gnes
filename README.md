@@ -1,5 +1,15 @@
 # GNES
+
+[![build status](http://badge.orange-ci.oa.com/ai-innersource/nes.svg)]()
+
+
 GNES is Generic Neural Elastic Search, a highly scalable text search system based on deep neural network.
+
+## Install
+
+```bash
+pip install -e . -U
+```
 
 ## Run with Docker
 
