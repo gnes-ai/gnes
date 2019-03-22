@@ -30,7 +30,6 @@ def stat(docs, kv_data):
     dnes.dump('./t.pkl')
     dnes.close()
 
-
     nes = GNES.load('./t.pkl')
     keys = [*kv_data.keys()]
     label = list(kv_data.values())
