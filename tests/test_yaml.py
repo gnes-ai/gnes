@@ -2,8 +2,9 @@ import os
 import unittest
 from shutil import rmtree
 
-from gnes import *
 from gnes.base import TrainableType
+from gnes.encoder import *
+from gnes.module import GNES
 
 
 class foo(metaclass=TrainableType):
