@@ -29,18 +29,23 @@ class BaseDocument:
 
     @classmethod
     def from_file(cls, file_path: str,
-                  min_length: int = None,
-                  max_length: int = None) -> Iterator['BaseDocument']:
+                  min_seq_length: int = None,
+                  max_seq_length: int = None,
+                  max_num_doc: int = None) -> Iterator['BaseDocument']:
+        num_doc = 0
         with open(file_path, encoding='utf8') as fp:
             for v in fp:
+                if max_num_doc is not None and num_doc >= max_num_doc:
+                    break
                 v = v.strip()
-                if min_length is not None and len(v) < min_length:
+                if min_seq_length is not None and len(v) < min_seq_length:
                     v = ''
-                if max_length is not None:
-                    v = v[:max_length]
+                if max_seq_length is not None:
+                    v = v[:max_seq_length]
                 if v.strip():
                     doc = cls(v)
                     if check_doc_valid(doc):
+                        num_doc += 1
                         yield doc
 
 

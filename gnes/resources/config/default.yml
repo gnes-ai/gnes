@@ -44,3 +44,5 @@ component:
   text_indexer: !LVDBIndexer
     parameter:
       data_path: ./test_db
+property:
+  dump_path: /ext_data/demo-model

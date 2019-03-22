@@ -16,10 +16,10 @@ def get_args_parser():
                         version='%(prog)s ' + __version__)
     subparsers = parser.add_subparsers(title='please specify a supported command',
                                        description='Commands',
-                                       help='Description')
+                                       help='Description', dest='cli')
 
     # create the parser for the "command_a" command
-    parser_a = subparsers.add_parser('index', help='indexing document')
+    parser_a = subparsers.add_parser('index', help='building an index')
     parser_a.add_argument('-d', '--document', type=str, required=True,
                           help='text document(s) to index, each line is a doc')
     parser_a.add_argument('-c', '--config', type=argparse.FileType('r'),
@@ -28,12 +28,13 @@ def get_args_parser():
                           help='YAML file for the model config')
 
     # create the parser for the "command_b" command
-    parser_b = subparsers.add_parser('query', help='querying an index')
+    parser_b = subparsers.add_parser('search', help='searching an index')
     parser_b.add_argument('-c', '--config', type=str, required=True,
                           help='YAML file for the model config')
-    parser_b.add_argument('-q', '--query', type=str, required=True,
+    parser_b.add_argument('-q', '--query', type=str, required=False,
                           help='text query(s) to search, each line is a query')
-
+    parser_b.add_argument('-it', '--interactive', action='store_true', default=False,
+                          help='enter the interactive mode for prompt input')
     return parser
 
 

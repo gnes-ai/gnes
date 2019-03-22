@@ -2,6 +2,7 @@ import html
 import inspect
 import logging
 import os
+import sys
 import re
 import time
 from functools import wraps
@@ -366,6 +367,20 @@ def parse_arg(v: str):
             elif v.lower() == 'false':
                 v = False
     return v
+
+
+def countdown(t: int, logger=None, reason: str = 'I am blocking this process'):
+    if not logger:
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+    while t > 0:
+        t -= 1
+        if logger:
+            logger.info('%s second left: %s' % (colored('%3d'%t, 'yellow'), reason))
+        else:
+            sys.stdout.write('\r%d second left before continue: %s' % (t, reason))
+            sys.stdout.flush()
+        time.sleep(1)
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)

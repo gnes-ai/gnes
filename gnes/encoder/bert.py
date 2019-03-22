@@ -1,4 +1,3 @@
-import time
 from typing import List
 
 import numpy as np
@@ -6,7 +5,7 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer, get_args_parser
 
 from .base import BaseEncoder, CompositionalEncoder
-from ..helper import batching
+from ..helper import batching, countdown
 
 
 class BertEncoder(BaseEncoder):
@@ -52,10 +51,13 @@ class BertEncoderServer(BaseEncoder):
             bert_args.append(str(v))
 
         self._bert_args = get_args_parser().parse_args(bert_args)
+        self.is_trained = True
+        self._start_bert_server()
+
+    def _start_bert_server(self):
         self.bert_server = BertServer(self._bert_args)
         self.bert_server.start()
-        self.is_trained = True
-        time.sleep(30)
+        countdown(20, self.logger, 'im blocking this until bert-server is ready')
 
     def __getstate__(self):
         d = super().__getstate__()
@@ -64,8 +66,7 @@ class BertEncoderServer(BaseEncoder):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self.bert_server = BertServer(self._bert_args)
-        self.bert_server.start()
+        self._start_bert_server()
 
     def close(self):
         self.bert_server.close()

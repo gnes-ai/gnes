@@ -89,7 +89,7 @@ class TrainableBase(metaclass=TrainableType):
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
-        self.dump_path = False
+        self.dump_path = None
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self.memcached = MemoryCache(cache_path='.nes_cache')
