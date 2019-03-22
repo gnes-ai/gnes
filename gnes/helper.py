@@ -1,10 +1,9 @@
-import argparse
 import html
 import inspect
 import logging
 import os
-import re
 import sys
+import re
 import time
 from functools import wraps
 from itertools import islice
@@ -19,8 +18,7 @@ from termcolor import colored
 
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
-           'get_args_parser', 'batch_iterator', 'batching',
-           'get_run_args', 'yaml', 'cn_sent_splitter',
+           'batch_iterator', 'batching', 'yaml', 'cn_sent_splitter',
            'profile_logger', 'doc_logger',
            'parse_arg', 'profiling']
 
@@ -147,41 +145,6 @@ class NTLogger:
 
     def warning(self, msg, **kwargs):
         print('W:%s:%s' % (self.context, msg), flush=True)
-
-
-def get_args_parser():
-    from . import __version__
-    parser = argparse.ArgumentParser()
-
-    group1 = parser.add_argument_group('Index options',
-                                       'config index input, vector size, etc.')
-    group1.add_argument('-data_file', type=argparse.FileType('rb'), required=True,
-                        help='the path of the binary file to be indexed')
-    group1.add_argument('-query_file', type=argparse.FileType('rb'), required=True,
-                        help='the path of the binary file to be queried')
-    group1.add_argument('-bytes_per_vector', type=int, required=True,
-                        help='number of bytes per vector')
-    group1.add_argument('-num_data', type=int, default=None,
-                        help='maximum number of vector to query')
-    group1.add_argument('-num_query', type=int, default=None,
-                        help='maximum number of vector to index')
-    group1.add_argument('-index_mode', type=str, choices=['none', 'trie'], default='trie',
-                        help='indexing mode')
-    group1.add_argument('-txt_file', type=str, default='train.wechat.txt',
-                        help='text file name')
-
-    parser.add_argument('-verbose', action='store_true', default=False,
-                        help='turn on additional logging for debug')
-    parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
-    return parser
-
-
-def get_run_args(parser_fn=get_args_parser, printed=True):
-    args = parser_fn().parse_args()
-    if printed:
-        param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
-        print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
-    return args
 
 
 class TimeContext:
@@ -412,6 +375,20 @@ def parse_arg(v: str):
             elif v.lower() == 'false':
                 v = False
     return v
+
+
+def countdown(t: int, logger=None, reason: str = 'I am blocking this process'):
+    if not logger:
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+    while t > 0:
+        t -= 1
+        if logger:
+            logger.info('%s second left: %s' % (colored('%3d'%t, 'yellow'), reason))
+        else:
+            sys.stdout.write('\r%d second left before continue: %s' % (t, reason))
+            sys.stdout.flush()
+        time.sleep(1)
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)

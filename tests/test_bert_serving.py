@@ -7,7 +7,8 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
-from gnes import GNES, PipelineEncoder
+from gnes.encoder import PipelineEncoder
+from gnes.module import GNES
 from gnes.document import UniSentDocument, MultiSentDocument
 
 

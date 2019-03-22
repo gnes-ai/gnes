@@ -1,0 +1,48 @@
+!GNES
+component:
+  encoder:
+    !PipelineEncoder
+    component:
+      - !BertEncoderWithServer
+        component:
+          bert_server:
+            !BertEncoderServer
+            parameter:
+              args:
+                - mask_cls_sep
+              kwargs:
+                port: 5555
+                port_out: 5556
+                model_dir: /ext_data/chinese_L-12_H-768_A-12
+                max_seq_len: NONE
+                pooling_layer: -12
+            property:
+              is_trained: true
+          bert_client:
+            !BertEncoder
+            parameter:
+              kwargs:
+                port: 5555
+                port_out: 5556
+                ignore_all_checks: true
+            property:
+              is_trained: true
+      - !PCALocalEncoder
+        parameter:
+          output_dim: 32
+          num_locals: 8
+        property:
+          batch_size: 2048
+      - !PQEncoder
+        parameter:
+          cluster_per_byte: 8
+          num_bytes: 8
+      - !BinaryEncoder {}
+  binary_indexer: !NumpyIndexer
+    parameter:
+      num_bytes: 8
+  text_indexer: !LVDBIndexer
+    parameter:
+      data_path: ./test_db
+property:
+  dump_path: /ext_data/demo-model

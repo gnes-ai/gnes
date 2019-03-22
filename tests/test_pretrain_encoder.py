@@ -1,6 +1,6 @@
 import unittest
 
-from gnes import BaseEncoder as BE, PipelineEncoder
+from gnes.encoder import BaseEncoder as BE, PipelineEncoder
 
 
 class _DummyTrainEncoder(BE):
