@@ -15,8 +15,9 @@ def index(args):
 
     with GNES.load_yaml(args.config) as gnes:
         for f in glob.glob(args.document):
-            gnes.train(UniSentDocument.from_file(f))
-            gnes.add(UniSentDocument.from_file(f))
+            docs = list(UniSentDocument.from_file(f))
+            gnes.train(docs)
+            gnes.add(docs)
         gnes.dump()
 
 
@@ -25,6 +26,7 @@ def search(args):
     with GNES.load(args.config) as gnes:
         if args.interactive:
             while True:
-                print(gnes.query([input('query: ')], top_k=10))
+                for r in gnes.query([input('query: ')], top_k=10)[0]:
+                    print(r)
         else:
             print(gnes.query([args.query], top_k=10))

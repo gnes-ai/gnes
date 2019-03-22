@@ -15,7 +15,6 @@ component:
                 port_out: 5556
                 model_dir: /ext_data/chinese_L-12_H-768_A-12
                 max_seq_len: NONE
-                pooling_layer: -12
             property:
               is_trained: true
           bert_client:
