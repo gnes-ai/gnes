@@ -3,6 +3,7 @@ import numpy as np
 
 from .base import BaseEncoder
 from ..base import *
+from ..helper import batching
 
 
 class PQEncoder(BaseEncoder):
@@ -30,6 +31,7 @@ class PQEncoder(BaseEncoder):
                                                 dim_per_byte])
 
     @train_required
+    @batching(batch_size=2048)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         dim_per_byte = self._get_dim_per_byte(vecs)
 

@@ -16,7 +16,9 @@ component:
           num_locals: 8
         property:
           batch_size: 2048
-  binary_indexer: !EuclideanIndexer {}
+  binary_indexer: !EuclideanIndexer
+    parameter:
+      ef: 32
   text_indexer: !LVDBIndexer
     parameter:
       data_path: ./test_db
