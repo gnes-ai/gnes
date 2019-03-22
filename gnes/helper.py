@@ -278,12 +278,15 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
              axis: int = 0):
     def _batching(func):
         @wraps(func)
-        def arg_wrapper(self, data, *args, **kwargs):
+        def arg_wrapper(self, data, label=None, *args, **kwargs):
             # priority: decorator > class_attribute
             b_size = (batch_size(data) if callable(batch_size) else batch_size) or getattr(self, 'batch_size', None)
             # no batching if b_size is None
             if b_size is None:
-                return func(self, data, *args, **kwargs)
+                if label is None:
+                    return func(self, data, *args, **kwargs)
+                else:
+                    return func(self, data, label, *args, **kwargs)
 
             if hasattr(self, 'logger'):
                 self.logger.info(
@@ -301,8 +304,13 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
             final_result = None
 
             done_size = 0
+            if label is not None:
+                data = (data, label)
             for b in batch_iterator(data[:total_size], b_size, axis):
-                r = func(self, b, *args, **kwargs)
+                if label is None:
+                    r = func(self, b, *args, **kwargs)
+                else:
+                    r = func(self, b[0], b[1], *args, **kwargs)
                 if isinstance(r, np.ndarray):
                     # first result kicks in
                     if final_result is None:
