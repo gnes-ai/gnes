@@ -2,6 +2,7 @@ from typing import List, Tuple
 import faiss
 import numpy as np
 from .base import BaseIndexer
+from ..helper import batching
 
 
 class EuclideanIndexer(BaseIndexer):
@@ -14,6 +15,7 @@ class EuclideanIndexer(BaseIndexer):
         self._ef = ef
         self._count = 0
 
+    @batching(batch_size=2048)
     def add(self, vectors: np.ndarray, doc_ids: List[int]):
         if len(vectors) != len(doc_ids):
             raise ValueError("vectors length should be equal to doc_ids")
