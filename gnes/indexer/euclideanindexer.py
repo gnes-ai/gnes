@@ -5,12 +5,13 @@ from .base import BaseIndexer
 
 
 class EuclideanIndexer(BaseIndexer):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ef=32, *args, **kwargs):
         super().__init__()
         self._num_dim = None
         self._hnsw = None
         self._all_vectors = None
-        self._doc_ids = None  # type: np.ndarray
+        self._doc_ids = None
+        self._ef = ef
         self._count = 0
 
     def add(self, vectors: np.ndarray, doc_ids: List[int]):
@@ -22,7 +23,7 @@ class EuclideanIndexer(BaseIndexer):
 
         if self._num_dim is None:
             self._num_dim = vectors.shape[1]
-            self._hnsw = faiss.IndexHNSWFlat(self._num_dim, 32)
+            self._hnsw = faiss.IndexHNSWFlat(self._num_dim, self._ef)
         elif self._num_dim != vectors.shape[1]:
             raise ValueError("vectors dimension is not consistent")
 
