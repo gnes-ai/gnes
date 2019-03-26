@@ -1,9 +1,10 @@
 import threading
-from typing import Dict, Callable, Union, List, Optional
+from typing import Dict, Callable, Union, List, Optional, Any
 
 import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
+from zmq.utils import jsonapi
 
 from ..helper import set_logger
 
@@ -18,12 +19,12 @@ class Message:
     def __init__(self, client_id: Union[bytes, str] = b'',
                  req_id: Union[bytes, str] = b'',
                  msg_type: Union[bytes, str] = typ_default,
-                 msg_content: Union[bytes, str] = b'',
+                 msg_content: str = '',
                  route: Union[bytes, str] = b''):
         self._client_id = b''
         self._req_id = b''
         self._msg_type = b''
-        self._msg_content = b''
+        self._msg_content = ''
         self._route = b''
         self.client_id = client_id
         self.req_id = req_id
@@ -74,13 +75,13 @@ class Message:
 
     @property
     def msg_content(self):
-        return self._msg_content.decode()
+        return jsonapi.loads(self._msg_content)
 
     @msg_content.setter
-    def msg_content(self, value: Union[str, bytes]):
-        if not isinstance(value, bytes):
-            value = value.encode()
-        self._msg_content = value
+    def msg_content(self, value: Any):
+        if isinstance(value, bytes):
+            value = value.decode()
+        self._msg_content = jsonapi.dumps(value)
 
     @property
     def route(self):
@@ -180,6 +181,8 @@ class BaseService(threading.Thread):
         poller.register(in_sock, zmq.POLLIN)
         poller.register(ctrl_sock, zmq.POLLIN)
 
+        self._post_init()
+
         try:
             while True:
                 pull_sock = None
@@ -194,6 +197,9 @@ class BaseService(threading.Thread):
                 self.message_handler(msg)
         except StopIteration:
             self.logger.info('terminated')
+
+    def _post_init(self):
+        pass
 
     def _handler_default(self, msg: Message, out: 'zmq.Socket'):
         pass
