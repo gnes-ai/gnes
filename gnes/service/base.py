@@ -1,5 +1,5 @@
 import threading
-from typing import Dict, Callable, Union
+from typing import Dict, Callable, Union, List, Optional
 
 import zmq
 import zmq.decorators as zmqd
@@ -30,6 +30,13 @@ class Message:
         self.msg_type = msg_type
         self.msg_content = msg_content
         self.route = route
+
+    def build(self) -> List[bytes]:
+        return [self._client_id, self._req_id, self._msg_type, self._msg_content, self._route]
+
+    def __repr__(self):
+        return 'client_id: %s, req_id: %s, msg_type: %s, msg_content: %s, route: %s' % \
+               (self.client_id, self.req_id, self.msg_type, self.msg_content, self.route)
 
     @property
     def is_control_message(self) -> bool:
@@ -87,16 +94,31 @@ class Message:
 
 
 def send_message(sock: 'zmq.Socket', msg: 'Message') -> None:
-    sock.send_multipart([msg.client_id, msg.req_id, msg.msg_type, msg.msg_content, msg.route])
+    sock.send_multipart(msg.build())
 
 
-def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 5000) -> None:
+def recv_message(sock: 'zmq.Socket', logger=None) -> Optional['Message']:
+    request = sock.recv_multipart()
+    try:
+        return Message(*request)
+    except ValueError:
+        if logger:
+            logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+            logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)),
+                         exc_info=True)
+        else:
+            raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+
+
+def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 2000):
     with zmq.Context() as ctx:
-        ctx.setsockopt(zmq.LINGER, timeout)
+        ctx.setsockopt(zmq.LINGER, 0)
         with ctx.socket(zmq.PAIR) as ctrl_sock:
             try:
                 ctrl_sock.connect('tcp://%s:%d' % (address, port))
+                ctrl_sock.setsockopt(zmq.RCVTIMEO, timeout)
                 send_message(ctrl_sock, msg)
+                return recv_message(ctrl_sock)
             except zmq.error.Again:
                 raise TimeoutError(
                     'no response from %s:%d (with "timeout"=%d ms), please check the following:'
@@ -104,31 +126,32 @@ def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 5000
                         address, port, timeout))
 
 
-def send_terminate_message(*args, **kwargs) -> None:
-    send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
+def send_terminate_message(*args, **kwargs):
+    return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
 
 
 class BaseService(threading.Thread):
     def __init__(self, args):
         super().__init__()
-        self.verbose = 'verbose' in args and args['verbose']
-        self.logger = set_logger(self.__class__.__name__, self.verbose)
         self.args = args
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self._handler = {}  # type: Dict[str, Callable]
-        self.register_handler(Message.typ_terminate, self.handler_terminate)
-        self.register_handler(Message.typ_ready, self.handler_ready)
-        self.register_handler(Message.typ_default, self.handler_default)
-        self.register_handler(Message.typ_status, self.handler_status)
+        self.register_handler(Message.typ_terminate, self._handler_terminate)
+        self.register_handler(Message.typ_ready, self._handler_ready)
+        self.register_handler(Message.typ_default, self._handler_default)
+        self.register_handler(Message.typ_status, self._handler_status)
 
     def run(self):
         self._run()
 
     def message_handler(self, msg: Message):
+        if not isinstance(msg, Message):
+            self.logger.error('dont know how to handle message: %s' % msg)
         fn = self._handler.get(msg.msg_type, None)
         if fn is None:
             self.logger.error('dont know how to handle message with type: %s' % msg.msg_type)
         else:
-            msg.route += ' : ' + self.__class__.__name__
+            msg.route += ' -> '.join([msg.route, self.__class__.__name__])
             fn(msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
 
     def register_handler(self, msg_type: str, handler: Callable):
@@ -141,17 +164,17 @@ class BaseService(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     @zmqd.socket(zmq.PAIR)
     def _run(self, _, in_sock: 'zmq.Socket', out_sock: 'zmq.Socket', ctrl_sock: 'zmq.Socket'):
-        in_sock.bind('tcp://%s:%d' % (self.args.address_in, self.args.port_in))
-        out_sock.bind('tcp://%s:%d' % (self.args.address_out, self.args.port_out))
-        ctrl_sock.bind('tcp://%s:%d' % (self.args.address_ctrl, self.args.port_ctrl))
+        in_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_in))
+        out_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_out))
+        ctrl_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_ctrl))
         self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
 
         self.logger.info(
-            'listen on %s\t output to %s\t control over %s' % (
-                colored('%s:%d' % (self.args.address_in, self.args.port_in), 'yellow'),
-                colored('%s:%d' % (self.args.address_out, self.args.port_out), 'yellow'),
-                colored('%s:%d' % (self.args.address_ctrl, self.args.port_ctrl), 'yellow')
-            ))
+            'host: %s listen on %s\t output to %s\t control over %s' % (
+                colored(self.args.host, 'yellow'),
+                colored(self.args.port_in, 'yellow'),
+                colored(self.args.port_out, 'yellow'),
+                colored(self.args.port_ctrl, 'yellow')))
 
         poller = zmq.Poller()
         poller.register(in_sock, zmq.POLLIN)
@@ -167,33 +190,35 @@ class BaseService(threading.Thread):
                     pull_sock = ctrl_sock
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
-
-                try:
-                    request = pull_sock.recv_multipart()
-                    msg = Message(*request)
-                except ValueError:
-                    self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-                    self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)),
-                                      exc_info=True)
-                else:
-                    self.message_handler(msg)
+                msg = recv_message(pull_sock, self.logger)
+                self.message_handler(msg)
         except StopIteration:
             self.logger.info('terminated')
 
-    def handler_default(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_default(self, msg: Message, out: 'zmq.Socket'):
         pass
 
-    def handler_status(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_status(self, msg: Message, out: 'zmq.Socket'):
         pass
 
-    def handler_terminate(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
+        send_message(out, msg)
         raise StopIteration
 
-    def handler_ready(self, msg: Message, out: 'zmq.Socket'):
-        pass
+    def _handler_ready(self, msg: Message, out: 'zmq.Socket'):
+        send_message(out, msg)
 
     def close(self):
-        send_terminate_message(self.args.address_ctrl, self.args.port_ctrl)
+        send_terminate_message(self.args.host, self.args.port_ctrl)
+
+    @property
+    def is_ready(self) -> bool:
+        msg = send_ctrl_message(self.args.host, self.args.port_ctrl, Message(msg_type=Message.typ_ready))
+        return True if msg else False
+
+    @property
+    def status(self):
+        return send_ctrl_message(self.args.host, self.args.port_ctrl, Message(msg_type=Message.typ_status))
 
     def __enter__(self):
         return self

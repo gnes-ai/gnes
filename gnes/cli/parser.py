@@ -6,7 +6,6 @@ from termcolor import colored
 
 from .. import __version__
 
-
 def get_args_parser():
     # create the top-level parser
     parser = argparse.ArgumentParser(
