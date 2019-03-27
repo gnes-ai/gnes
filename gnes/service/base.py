@@ -1,5 +1,5 @@
 import threading
-from typing import Dict, Callable, Union, List, Optional, Any
+from typing import Union, List, Optional, Any
 
 import numpy as np
 import zmq
@@ -166,34 +166,44 @@ def send_terminate_message(*args, **kwargs):
     return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
 
 
+class MessageHandler:
+    def __init__(self):
+        self.routes = {}
+        self.logger = set_logger(self.__class__.__name__)
+
+    def register(self, msg_type: str):
+        def decorator(f):
+            self.routes[msg_type] = f
+            return f
+
+        return decorator
+
+    def serve(self, msg: Message):
+        if not isinstance(msg, Message):
+            self.logger.error('dont know how to handle message: %s' % msg)
+        fn = self.routes.get(msg.msg_type, None)
+        if fn is None:
+            self.logger.error('dont know how to handle message with type: %s' % msg.msg_type)
+        else:
+            return fn
+
+
 class BaseService(threading.Thread):
+    handler = MessageHandler()
+
     def __init__(self, args):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self._handler = {}  # type: Dict[str, Callable]
-        self.register_handler(Message.typ_terminate, self._handler_terminate)
-        self.register_handler(Message.typ_ready, self._handler_ready)
-        self.register_handler(Message.typ_default, self._handler_default)
-        self.register_handler(Message.typ_status, self._handler_status)
 
     def run(self):
         self._run()
 
     def message_handler(self, msg: Message):
-        if not isinstance(msg, Message):
-            self.logger.error('dont know how to handle message: %s' % msg)
-        fn = self._handler.get(msg.msg_type, None)
-        if fn is None:
-            self.logger.error('dont know how to handle message with type: %s' % msg.msg_type)
-        else:
+        fn = self.handler.serve(msg)
+        if fn:
             msg.route += ' -> '.join([msg.route, self.__class__.__name__])
-            fn(msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
-
-    def register_handler(self, msg_type: str, handler: Callable):
-        if msg_type in self._handler:
-            self.logger.warning('handler of the message type: %s is already registered, will override' % msg_type)
-        self._handler[msg_type] = handler
+            fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
 
     @zmqd.context()
     @zmqd.socket(zmq.PULL)
@@ -236,16 +246,20 @@ class BaseService(threading.Thread):
     def _post_init(self):
         pass
 
+    @handler.register(Message.typ_default)
     def _handler_default(self, msg: Message, out: 'zmq.Socket'):
         pass
 
+    @handler.register(Message.typ_status)
     def _handler_status(self, msg: Message, out: 'zmq.Socket'):
         pass
 
+    @handler.register(Message.typ_terminate)
     def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
         send_message(out, msg)
         raise StopIteration
 
+    @handler.register(Message.typ_ready)
     def _handler_ready(self, msg: Message, out: 'zmq.Socket'):
         send_message(out, msg)
 
