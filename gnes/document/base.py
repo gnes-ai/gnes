@@ -14,6 +14,10 @@ class BaseDocument:
         self.sentence_ids = np.random.randint(0, ctypes.c_uint(-1).value, len(self.sentences),
                                               dtype=np.uint32).tolist()
 
+    @property
+    def is_empty(self):
+        return len(self.sentences) == 0
+
     def parse_sentences(self, text: str) -> List[str]:
         raise NotImplementedError
 
@@ -24,7 +28,9 @@ class BaseDocument:
     def from_list(cls, c: List[str], max_num_doc: int = None, **kwargs) -> List['BaseDocument']:
         result = []
         for d in c:
-            result.append(cls(d, *kwargs))
+            n = cls(d, *kwargs)
+            if not n.is_empty:
+                result.append(n)
             if max_num_doc is not None and len(result) >= max_num_doc:
                 break
         return result
