@@ -1,5 +1,5 @@
 import ctypes
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class BaseDocument:
     def from_list(cls, c: List[str], max_num_doc: int = None, **kwargs) -> List['BaseDocument']:
         result = []
         for d in c:
-            n = cls(d, *kwargs)
+            n = cls(d, **kwargs)
             if not n.is_empty:
                 result.append(n)
             if max_num_doc is not None and len(result) >= max_num_doc:
@@ -94,3 +94,13 @@ def filter_sentences(lst: List[str],
             if max_num_seq and len(result) >= max_num_seq:
                 break
     return result
+
+
+def get_all_sentences(lst: List[BaseDocument]) -> Tuple[List[str], List[Tuple[int, int]]]:
+    result_s = []
+    result_id = []
+    for d in lst:
+        for s_id, s in zip(d.sentence_ids, d.sentences):
+            result_s.append(s)
+            result_id.append((s_id, d))
+    return result_s, result_id

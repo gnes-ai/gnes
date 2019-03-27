@@ -1,7 +1,7 @@
 import zmq
 
-from .base import BaseService, Message
-from ..document import MultiSentDocument
+from . import BaseService, Message, send_message
+from ..document import MultiSentDocument, get_all_sentences
 from ..encoder import PipelineEncoder
 
 
@@ -13,6 +13,7 @@ class EncoderService(BaseService):
         elif self.args.yaml_path:
             self.encoder = PipelineEncoder.load_yaml(self.args.yaml_path)
 
-    def _handler_default(self, msg: Message, out: 'zmq.Socket'):
-        ds = MultiSentDocument.from_list(msg.msg_content)
-        pass
+    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+        sents, sent_ids = get_all_sentences(MultiSentDocument.from_list(msg.msg_content))
+        vecs = self.encoder.encode(sents)
+        send_message(out, msg.copy_mod(msg_content=vecs))

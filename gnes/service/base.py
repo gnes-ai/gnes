@@ -1,6 +1,7 @@
 import threading
 from typing import Dict, Callable, Union, List, Optional, Any
 
+import numpy as np
 import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
@@ -16,24 +17,40 @@ class Message:
     typ_status = prefix_ctrl + 'STATUS'
     typ_default = 'DEFAULT'
 
-    def __init__(self, client_id: Union[bytes, str] = b'',
+    def __init__(self,
+                 client_id: Union[bytes, str] = b'',
                  req_id: Union[bytes, str] = b'',
                  msg_type: Union[bytes, str] = typ_default,
-                 msg_content: str = '',
+                 msg_content: Any = '',
+                 content_type: bytes = b'',
                  route: Union[bytes, str] = b''):
         self._client_id = b''
         self._req_id = b''
         self._msg_type = b''
-        self._msg_content = ''
+        self._msg_content = b''
         self._route = b''
+        self._content_type = b''
         self.client_id = client_id
         self.req_id = req_id
         self.msg_type = msg_type
+        self.content_type = content_type
         self.msg_content = msg_content
         self.route = route
 
     def build(self) -> List[bytes]:
-        return [self._client_id, self._req_id, self._msg_type, self._msg_content, self._route]
+        return [self._client_id, self._req_id, self._msg_type, self._msg_content, self._content_type, self._route]
+
+    def copy_mod(self, **kwargs) -> 'Message':
+        y = Message()
+        y._client_id = self._client_id
+        y._req_id = self._req_id
+        y._msg_type = self._msg_type
+        y._msg_content = self._msg_content
+        y._route = self._route
+        y._content_type = self._content_type
+        for k, v in kwargs.items():
+            setattr(y, k, v)
+        return y
 
     def __repr__(self):
         return 'client_id: %s, req_id: %s, msg_type: %s, msg_content: %s, route: %s' % \
@@ -75,13 +92,31 @@ class Message:
 
     @property
     def msg_content(self):
+        ct = self.content_type
+        if 'dtype' in ct and 'shape' in ct:
+            return np.frombuffer(memoryview(self._msg_content), dtype=str(ct['dtype'])).reshape(ct['shape'])
         return jsonapi.loads(self._msg_content)
 
     @msg_content.setter
     def msg_content(self, value: Any):
+        if isinstance(value, np.ndarray):
+            array_info = dict(dtype=str(value.dtype), shape=value.shape)
+            self.content_type = array_info
+            self._msg_content = value
+        else:
+            if isinstance(value, bytes):
+                value = value.decode()
+            self._msg_content = jsonapi.dumps(value)
+
+    @property
+    def content_type(self):
+        return jsonapi.loads(self._content_type)
+
+    @content_type.setter
+    def content_type(self, value: Any):
         if isinstance(value, bytes):
             value = value.decode()
-        self._msg_content = jsonapi.dumps(value)
+        self._content_type = jsonapi.dumps(value)
 
     @property
     def route(self):
