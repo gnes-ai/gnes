@@ -21,9 +21,9 @@ class TestBertServing(unittest.TestCase):
         self.nes_path = os.path.join(dirname, 'yaml', 'base-nes.yml')
         self.db_path = './test_leveldb'
 
-        self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
-        self.test_data2 = list(MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
-        self.test_str = [d.content for d in self.test_data1]
+        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_str = [s for d in self.test_data1 for s in d.sentences]
         self.port = os.environ.get('BERT_CI_PORT', '7125')
         self.port_out = os.environ.get('BERT_CI_PORT_OUT', '7126')
 
