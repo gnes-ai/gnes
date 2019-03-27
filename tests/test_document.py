@@ -58,6 +58,6 @@ class TestDocument(unittest.TestCase):
         docs1 = UniSentDocument.from_file('tmp.txt')
         docs2 = MultiSentDocument.from_file('tmp.txt')
         self.assertEqual(len(docs1), 3)
-        self.assertEqual(len(docs2), 3)
+        self.assertEqual(len(docs2), 2)
         docs1 = UniSentDocument.from_file('tmp.txt', min_seq_length=3)
         self.assertEqual(len(docs1), 2)
