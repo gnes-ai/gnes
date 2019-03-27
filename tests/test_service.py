@@ -1,12 +1,12 @@
 import unittest
 
-from gnes.cli.service import get_service_parser
+from gnes.cli.parser import set_service_parser
 from gnes.service.base import BaseService
 
 
 class TestService(unittest.TestCase):
     def test_service_open_close(self):
-        args = get_service_parser().parse_args([])
+        args = set_service_parser().parse_args([])
         with BaseService(args) as bs:
             bs.start()
             self.assertTrue(bs.is_ready)

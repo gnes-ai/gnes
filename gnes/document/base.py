@@ -96,11 +96,11 @@ def filter_sentences(lst: List[str],
     return result
 
 
-def get_all_sentences(lst: List[BaseDocument]) -> Tuple[List[str], List[Tuple[int, int]]]:
+def get_all_sentences(lst: List[BaseDocument]) -> Tuple[List[str], np.ndarray]:
     result_s = []
     result_id = []
     for d in lst:
         for s_id, s in zip(d.sentence_ids, d.sentences):
             result_s.append(s)
             result_id.append((s_id, d))
-    return result_s, result_id
+    return result_s, np.array(result_id)

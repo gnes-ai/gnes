@@ -1,32 +1,31 @@
-from .parser import get_run_args
+import sys
 
-__all__ = []
+from termcolor import colored
+
+from . import api
+from .parser import get_main_parser
+
+__all__ = ['main']
+
+
+def get_run_args(parser_fn=get_main_parser, printed=True):
+    parser = parser_fn()
+    if len(sys.argv) > 1:
+        args = parser.parse_args()
+        if printed:
+            param_str = '\n'.join(['%20s = %s' % (colored(k, 'yellow'), v) for k, v in sorted(vars(args).items())])
+            print('usage: %s\n%s\n%s\n' % (' '.join(sys.argv), '_' * 50, param_str))
+        return args
+    else:
+        parser.print_help()
+        exit()
 
 
 def main():
     args = get_run_args()
-    globals().get(args.cli)(args)
+    getattr(api, args.cli, no_cli_error)(args)
 
 
-def index(args):
-    from ..module import GNES
-    from gnes.document import UniSentDocument
-    import glob
-
-    with GNES.load_yaml(args.config) as gnes:
-        for f in glob.glob(args.document):
-            docs = list(UniSentDocument.from_file(f))
-            gnes.train(docs)
-            gnes.add(docs)
-        gnes.dump()
-
-
-def search(args):
-    from ..module import GNES
-    with GNES.load(args.config) as gnes:
-        if args.interactive:
-            while True:
-                for r in gnes.query([input('query: ')], top_k=10)[0]:
-                    print(r)
-        else:
-            print(gnes.query([args.query], top_k=10))
+def no_cli_error(*args, **kwargs):
+    get_main_parser().print_help()
+    exit()

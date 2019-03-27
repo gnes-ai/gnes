@@ -13,17 +13,19 @@ class EncoderService(BS):
             self.logger.info('load a trained encoder')
         elif self.args.yaml_path:
             self.encoder = PipelineEncoder.load_yaml(self.args.yaml_path)
-            self.logger.info('initialized an encoder from YAML: empty weights, training is needed')
+            self.logger.info('uninitialized an encoder built from YAML, need training')
 
     @BS.handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        sents, sent_ids = get_all_sentences(MultiSentDocument.from_list(msg.msg_content))
-        vecs = self.encoder.encode(sents)
-        send_message(out, msg.copy_mod(msg_content=vecs))
-        send_message(out, msg.copy_mod(msg_content=sent_ids, msg_type='SENT_ID_MAP'))
-
-    @BS.handler.register(Message.typ_train)
-    def _handler_train(self, msg: 'Message', out: 'zmq.Socket'):
-        sents, sent_ids = get_all_sentences(MultiSentDocument.from_list(msg.msg_content))
-        self.encoder.train(sents)
-        self.encoder.dump(self.args.model_dump)
+        doc_batch = MultiSentDocument.from_list(msg.msg_content)
+        sents, sent_ids = get_all_sentences(doc_batch)
+        if self.args.train:
+            self.encoder.train(sents)
+            self.encoder.dump(self.args.model_path)
+        else:
+            vecs = self.encoder.encode(sents)
+            # send out a three-part message to out
+            # they are syncronized by the msg.req_id
+            send_message(out, msg.copy_mod(msg_content=vecs))
+            send_message(out, msg.copy_mod(msg_content=sent_ids, msg_type='SENT_ID_MAP'))
+            send_message(out, msg.copy_mod(msg_content=doc_batch, msg_type='DOC_ID_MAP'))
