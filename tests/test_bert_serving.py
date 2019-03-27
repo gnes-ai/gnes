@@ -7,9 +7,9 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.helper import get_args_parser
 
+from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder import PipelineEncoder
 from gnes.module import GNES
-from gnes.document import UniSentDocument, MultiSentDocument
 
 
 class TestBertServing(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestBertServing(unittest.TestCase):
 
         self.test_data1 = list(UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
         self.test_data2 = list(MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt')))
-        self.test_str = [d._content for d in self.test_data1]
+        self.test_str = [d.content for d in self.test_data1]
         self.port = os.environ.get('BERT_CI_PORT', '7125')
         self.port_out = os.environ.get('BERT_CI_PORT_OUT', '7126')
 

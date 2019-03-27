@@ -50,7 +50,7 @@ class LVDBIndexer(BaseTextIndexer):
         return bytes(json.dumps({
             'id': doc.id,
             'sentences': list(doc.sentences),
-            'content': doc._content},
+            'content': doc.content},
             ensure_ascii=False), 'utf8')
 
     @staticmethod

@@ -1,6 +1,7 @@
 import ctypes
-import random
-from typing import Iterator, List
+from typing import List
+
+import numpy as np
 
 from ..helper import cn_sent_splitter, doc_logger
 
@@ -8,10 +9,37 @@ __all__ = ['BaseDocument', 'UniSentDocument', 'MultiSentDocument']
 
 
 class BaseDocument:
-    def __init__(self, text: str, doc_id: int = None):
-        self._id = random.randint(0, ctypes.c_uint(-1).value) if doc_id is None else doc_id
-        self._content = text
-        self._sentences = self.parse_sentences(text)
+    def __init__(self, text: str, doc_id: int = None, **kwargs):
+        self.id = np.random.randint(0, ctypes.c_uint(-1).value) if doc_id is None else doc_id
+        self.content = text
+        self.sentences = self.filter_sentences(self.parse_sentences(text), **kwargs)
+        self.sentence_ids = np.random.randint(0, ctypes.c_uint(-1).value, len(self.sentences),
+                                              dtype=np.uint32).tolist()
+
+    def filter_sentences(self, lst: List[str],
+                         min_len_seq: int = None,
+                         max_len_seq: int = None,
+                         max_num_seq: int = None,
+                         cutoff: bool = False,
+                         strip: bool = True,
+                         to_lower: bool = False) -> List[str]:
+        result = []
+        for s in lst:
+            if cutoff and max_len_seq:
+                s = s[:max_len_seq]
+            if strip:
+                s = s.strip()
+            if to_lower:
+                s = s.lower()
+            if min_len_seq and len(s) < min_len_seq:
+                s = ''
+            if max_len_seq and len(s) > max_len_seq:
+                s = ''
+            if s:
+                result.append(s)
+                if max_num_seq and len(result) >= max_num_seq:
+                    break
+        return result
 
     def parse_sentences(self, text: str) -> List[str]:
         raise NotImplementedError
@@ -19,34 +47,19 @@ class BaseDocument:
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.__dict__)
 
-    @property
-    def id(self) -> int:
-        return self._id
-
-    @property
-    def sentences(self) -> List[str]:
-        return self._sentences
+    @classmethod
+    def from_list(cls, c: List[str], max_num_doc: int = None, **kwargs) -> List['BaseDocument']:
+        result = []
+        for d in c:
+            result.append(cls(d, *kwargs))
+            if max_num_doc is not None and len(result) >= max_num_doc:
+                break
+        return result
 
     @classmethod
-    def from_file(cls, file_path: str,
-                  min_seq_length: int = None,
-                  max_seq_length: int = None,
-                  max_num_doc: int = None) -> Iterator['BaseDocument']:
-        num_doc = 0
+    def from_file(cls, file_path: str, **kwargs) -> List['BaseDocument']:
         with open(file_path, encoding='utf8') as fp:
-            for v in fp:
-                if max_num_doc is not None and num_doc >= max_num_doc:
-                    break
-                v = v.strip()
-                if min_seq_length is not None and len(v) < min_seq_length:
-                    v = ''
-                if max_seq_length is not None:
-                    v = v[:max_seq_length]
-                if v.strip():
-                    doc = cls(v)
-                    if check_doc_valid(doc):
-                        num_doc += 1
-                        yield doc
+            return cls.from_list([v.strip() for v in fp.readlines()], **kwargs)
 
 
 class UniSentDocument(BaseDocument):
