@@ -16,6 +16,7 @@ class Message:
     typ_ready = prefix_ctrl + 'READY'
     typ_status = prefix_ctrl + 'STATUS'
     typ_default = 'DEFAULT'
+    typ_train = 'TRAIN'
 
     def __init__(self,
                  client_id: Union[bytes, str] = b'',

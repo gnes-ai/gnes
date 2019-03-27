@@ -6,6 +6,7 @@ from termcolor import colored
 
 from .. import __version__
 
+
 def get_args_parser():
     # create the top-level parser
     parser = argparse.ArgumentParser(
@@ -23,7 +24,8 @@ def get_args_parser():
                           help='text document(s) to index, each line is a doc')
     parser_a.add_argument('-c', '--config', type=argparse.FileType('r'),
                           default=pkg_resources.resource_stream('gnes',
-                                                                '/'.join(('resources', 'config', 'default.yml'))),
+                                                                '/'.join(
+                                                                    ('resources', 'config', 'gnes', 'default.yml'))),
                           help='YAML file for the model config')
 
     # create the parser for the "command_b" command
