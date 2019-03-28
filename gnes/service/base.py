@@ -106,7 +106,10 @@ class Message:
         ct = self.content_type
         if 'dtype' in ct and 'shape' in ct:
             return np.frombuffer(memoryview(self._msg_content), dtype=str(ct['dtype'])).reshape(ct['shape'])
-        return jsonapi.loads(self._msg_content)
+        elif ct == 'binary':
+            return self._msg_content
+        else:
+            return jsonapi.loads(self._msg_content)
 
     @msg_content.setter
     def msg_content(self, value: Any):
@@ -114,9 +117,10 @@ class Message:
             array_info = dict(dtype=str(value.dtype), shape=value.shape)
             self.content_type = array_info
             self._msg_content = value
+        elif isinstance(value, bytes):
+            self.content_type = 'binary'
+            self._msg_content = value
         else:
-            if isinstance(value, bytes):
-                value = value.decode()
             self._msg_content = jsonapi.dumps(value)
 
     @property
