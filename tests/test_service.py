@@ -43,5 +43,8 @@ class TestService(unittest.TestCase):
             ctx.setsockopt(zmq.LINGER, 0)
             with ctx.socket(zmq.PUSH) as in_sock:
                 in_sock.connect('tcp://%s:%d' % (args.host, args.port_in))
-                send_message(in_sock, Message(msg_content=self.test_data1))
+                try:
+                    send_message(in_sock, Message(msg_content=self.test_data1))
+                except TimeoutError:
+                    print('indexer is not started, output is timeout')
                 countdown(20)

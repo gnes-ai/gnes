@@ -45,9 +45,11 @@ class EncoderService(BS):
             vecs = self.encoder.encode(sents)
             # send out a three-part message to out
             # they are syncronized by the msg.req_id
-            send_message(out, msg.copy_mod(msg_content=vecs))
-            send_message(out, msg.copy_mod(msg_content=sent_ids, msg_type='SENT_ID_MAP'))
-            send_message(out, msg.copy_mod(msg_content=doc_batch, msg_type='DOC_ID_MAP'))
+            self.logger.info('send back result')
+            send_message(out, msg.copy_mod(msg_content=vecs), self.args.timeout)
+            send_message(out, msg.copy_mod(msg_content=sent_ids, msg_type='SENT_ID_MAP'), self.args.timeout)
+            send_message(out, msg.copy_mod(msg_content=doc_batch, msg_type='DOC_ID_MAP'), self.args.timeout)
+            self.logger.info('done!')
 
     def close(self):
         if self.encoder:

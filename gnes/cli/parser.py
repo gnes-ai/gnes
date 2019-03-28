@@ -46,6 +46,8 @@ def set_service_parser(parser=set_base_parser()):
                         help='port for output data')
     parser.add_argument('--port_ctrl', type=int, default=5312,
                         help='port for control the service')
+    parser.add_argument('--timeout', type=int, default=5000,
+                        help='timeout (ms) of all communication')
     return parser
 
 

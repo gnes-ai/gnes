@@ -236,6 +236,7 @@ class BaseService(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     @zmqd.socket(zmq.PAIR)
     def _run(self, _, in_sock: 'zmq.Socket', out_sock: 'zmq.Socket', ctrl_sock: 'zmq.Socket'):
+        _.setsockopt(zmq.LINGER, 0)
         self.logger.info('bind sockets...')
         in_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_in))
         out_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_out))
