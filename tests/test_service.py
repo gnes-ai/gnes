@@ -12,6 +12,7 @@ class TestService(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'encoder.bin')
         self.data_path = os.path.join(dirname, 'tangshi.txt')
+        self.encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
         with open(self.data_path, encoding='utf8') as fp:
             self.test_data1 = [v for v in fp if v.strip()]
 
@@ -27,7 +28,9 @@ class TestService(unittest.TestCase):
     def test_encoder_service_train(self):
         # test training
         parser = set_encoder_service_parser()
-        args = parser.parse_args(['--train', '--model_path', self.dump_path])
+        args = parser.parse_args(['--train',
+                                  '--model_path', self.dump_path,
+                                  '--yaml_path', self.encoder_yaml_path])
         with zmq.Context() as ctx, EncoderService(args):
             ctx.setsockopt(zmq.LINGER, 0)
             with ctx.socket(zmq.PUSH) as in_sock:
