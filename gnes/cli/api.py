@@ -1,7 +1,6 @@
 def encode(args):
     from ..service import EncoderService
     with EncoderService(args) as es:
-        es.start()
         es.join()
 
 
