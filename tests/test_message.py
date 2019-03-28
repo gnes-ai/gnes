@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from gnes.service import Message
+from gnes.service.base import Message
 
 
 class TestMessage(unittest.TestCase):
@@ -29,3 +29,7 @@ class TestMessage(unittest.TestCase):
         m = Message(msg_content=a)
         print(m.content_type)
         self.assertEqual(a.decode(), m.msg_content)
+
+        a = ['001张九龄：感遇四首之一', 'dasd']
+        m = Message(msg_content=a)
+        self.assertEqual(a, m.msg_content)

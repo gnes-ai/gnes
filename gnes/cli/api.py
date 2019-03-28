@@ -1,10 +1,13 @@
 def encode(args):
-    pass
+    from ..service import EncoderService
+    with EncoderService(args) as es:
+        es.start()
+        es.join()
 
 
 def index(args):
     from ..module import GNES
-    from gnes.document import UniSentDocument
+    from ..document import UniSentDocument
     import glob
 
     with GNES.load_yaml(args.config) as gnes:

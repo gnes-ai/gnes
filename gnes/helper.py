@@ -2,8 +2,8 @@ import html
 import inspect
 import logging
 import os
-import sys
 import re
+import sys
 import time
 from functools import wraps
 from itertools import islice
@@ -377,18 +377,21 @@ def parse_arg(v: str):
     return v
 
 
-def countdown(t: int, logger=None, reason: str = 'I am blocking this process'):
+def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
     if not logger:
         sys.stdout.write('\n')
         sys.stdout.flush()
     while t > 0:
         t -= 1
+        msg = '%ss left: %s' % (colored('%3d' % t, 'yellow'), reason)
         if logger:
-            logger.info('%s second left: %s' % (colored('%3d'%t, 'yellow'), reason))
+            logger.info(msg)
         else:
-            sys.stdout.write('\r%d second left before continue: %s' % (t, reason))
+            sys.stdout.write('\r%s' % msg)
             sys.stdout.flush()
         time.sleep(1)
+    sys.stdout.write('\n')
+    sys.stdout.flush()
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)

@@ -13,7 +13,6 @@ from ..helper import set_logger
 class Message:
     prefix_ctrl = 'CTRL_'
     typ_terminate = prefix_ctrl + 'TERMINATE'
-    typ_ready = prefix_ctrl + 'READY'
     typ_status = prefix_ctrl + 'STATUS'
     typ_default = 'DEFAULT'
     typ_train = 'TRAIN'
@@ -38,8 +37,19 @@ class Message:
         self.msg_content = msg_content
         self.route = route
 
-    def build(self) -> List[bytes]:
+    def to_bytes(self) -> List[bytes]:
         return [self._client_id, self._req_id, self._msg_type, self._msg_content, self._content_type, self._route]
+
+    @staticmethod
+    def from_bytes(client_id, req_id, msg_type, msg_content, content_type, route):
+        x = Message()
+        x._client_id = client_id
+        x._req_id = req_id
+        x._msg_type = msg_type
+        x._msg_content = msg_content
+        x._content_type = content_type
+        x._route = route
+        return x
 
     def copy_mod(self, **kwargs) -> 'Message':
         y = Message()
@@ -130,37 +140,51 @@ class Message:
         self._route = value
 
 
-def send_message(sock: 'zmq.Socket', msg: 'Message') -> None:
-    sock.send_multipart(msg.build())
-
-
-def recv_message(sock: 'zmq.Socket', logger=None) -> Optional['Message']:
-    request = sock.recv_multipart()
+def send_message(sock: 'zmq.Socket', msg: 'Message', timeout: int = -1) -> None:
     try:
-        return Message(*request)
-    except ValueError:
-        if logger:
-            logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-            logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)),
-                         exc_info=True)
+        if timeout > 0:
+            sock.setsockopt(zmq.SNDTIMEO, timeout)
         else:
-            raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+            sock.setsockopt(zmq.SNDTIMEO, -1)
+
+        sock.send_multipart(msg.to_bytes())
+    except zmq.error.Again:
+        raise TimeoutError(
+            'no response from sock %s after timeout=%dms, please check the following:'
+            'is the server still online? is the network broken? are "port" correct? ' % (
+                sock, timeout))
+    finally:
+        sock.setsockopt(zmq.SNDTIMEO, -1)
+
+
+def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
+    response = []
+    try:
+        if timeout > 0:
+            sock.setsockopt(zmq.RCVTIMEO, timeout)
+        else:
+            sock.setsockopt(zmq.RCVTIMEO, -1)
+        response = sock.recv_multipart()
+        return Message.from_bytes(*response)
+    except ValueError:
+        raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
+    except zmq.error.Again:
+        raise TimeoutError(
+            'no response from sock %s after timeout=%dms, please check the following:'
+            'is the server still online? is the network broken? are "port" correct? ' % (
+                sock, timeout))
+    finally:
+        sock.setsockopt(zmq.RCVTIMEO, -1)
 
 
 def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 2000):
+    # control message is short, set a timeout and ask for quick response
     with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)
         with ctx.socket(zmq.PAIR) as ctrl_sock:
-            try:
-                ctrl_sock.connect('tcp://%s:%d' % (address, port))
-                ctrl_sock.setsockopt(zmq.RCVTIMEO, timeout)
-                send_message(ctrl_sock, msg)
-                return recv_message(ctrl_sock)
-            except zmq.error.Again:
-                raise TimeoutError(
-                    'no response from %s:%d (with "timeout"=%d ms), please check the following:'
-                    'is the server still online? is the network broken? are "port" correct? ' % (
-                        address, port, timeout))
+            ctrl_sock.connect('tcp://%s:%d' % (address, port))
+            send_message(ctrl_sock, msg, timeout)
+            return recv_message(ctrl_sock, timeout)
 
 
 def send_terminate_message(*args, **kwargs):
@@ -196,6 +220,7 @@ class BaseService(threading.Thread):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+        self.is_ready = threading.Event()
 
     def run(self):
         self._run()
@@ -211,6 +236,7 @@ class BaseService(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     @zmqd.socket(zmq.PAIR)
     def _run(self, _, in_sock: 'zmq.Socket', out_sock: 'zmq.Socket', ctrl_sock: 'zmq.Socket'):
+        self.logger.info('bind sockets...')
         in_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_in))
         out_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_out))
         ctrl_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_ctrl))
@@ -228,6 +254,7 @@ class BaseService(threading.Thread):
         poller.register(ctrl_sock, zmq.POLLIN)
 
         self._post_init()
+        self.is_ready.set()
 
         try:
             while True:
@@ -239,7 +266,7 @@ class BaseService(threading.Thread):
                     pull_sock = ctrl_sock
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
-                msg = recv_message(pull_sock, self.logger)
+                msg = recv_message(pull_sock)
                 self.message_handler(msg)
         except StopIteration:
             self.logger.info('terminated')
@@ -260,23 +287,16 @@ class BaseService(threading.Thread):
         send_message(out, msg)
         raise StopIteration
 
-    @handler.register(Message.typ_ready)
-    def _handler_ready(self, msg: Message, out: 'zmq.Socket'):
-        send_message(out, msg)
-
     def close(self):
         send_terminate_message(self.args.host, self.args.port_ctrl)
-
-    @property
-    def is_ready(self) -> bool:
-        msg = send_ctrl_message(self.args.host, self.args.port_ctrl, Message(msg_type=Message.typ_ready))
-        return True if msg else False
 
     @property
     def status(self):
         return send_ctrl_message(self.args.host, self.args.port_ctrl, Message(msg_type=Message.typ_status))
 
     def __enter__(self):
+        self.start()
+        self.is_ready.wait()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

@@ -5,7 +5,7 @@ import pkg_resources
 from .. import __version__
 
 
-def get_base_parser():
+def set_base_parser():
     # create the top-level parser
     parser = argparse.ArgumentParser(
         description='GNES v%s: Generic Neural Elastic Search '
@@ -16,7 +16,7 @@ def get_base_parser():
     return parser
 
 
-def set_nes_index_parser(parser=get_base_parser()):
+def set_nes_index_parser(parser=set_base_parser()):
     parser.add_argument('--document', type=str, required=True,
                         help='text document(s) to index, each line is a doc')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
@@ -27,7 +27,7 @@ def set_nes_index_parser(parser=get_base_parser()):
     return parser
 
 
-def set_nes_search_parser(parser=get_base_parser()):
+def set_nes_search_parser(parser=set_base_parser()):
     parser.add_argument('--model_path', type=str, required=True,
                         help='binary dump of a trained encoder')
     parser.add_argument('--query', type=str, required=False,
@@ -37,34 +37,35 @@ def set_nes_search_parser(parser=get_base_parser()):
     return parser
 
 
-def set_service_parser(parser=get_base_parser()):
-    parser.add_argument('--host', type=str, default='127.0.0.1',
+def set_service_parser(parser=set_base_parser()):
+    parser.add_argument('--host', type=str, default='0.0.0.0',
                         help='the ip address of the host')
-    parser.add_argument('--port_in', type=int, default=5555,
+    parser.add_argument('--port_in', type=int, default=5310,
                         help='port for input data')
-    parser.add_argument('--port_out', type=int, default=5556,
+    parser.add_argument('--port_out', type=int, default=5311,
                         help='port for output data')
-    parser.add_argument('--port_ctrl', type=int, default=5557,
+    parser.add_argument('--port_ctrl', type=int, default=5312,
                         help='port for control the service')
     return parser
 
 
-def set_encoder_service_parser(parser=set_service_parser()):
+def set_encoder_service_parser(parser=set_base_parser()):
+    set_service_parser(parser)
     parser.add_argument('--model_path', type=str, default=None,
-                        help='binary dump of a trained encoder')
+                        help='binary dump of a trained encoder, override the path if with --train')
     parser.add_argument('--train', action='store_true', default=False,
                         help='train an encoder and dump the model to a file')
-    parser.add_argument('--yaml_path', type=str,
-                        default=pkg_resources.resource_filename('gnes',
-                                                                '/'.join(
-                                                                    ('resources', 'config', 'encoder', 'default.yml'))),
+    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
+                        default=pkg_resources.resource_stream('gnes',
+                                                              '/'.join(
+                                                                  ('resources', 'config', 'encoder', 'default.yml'))),
                         help='binary dump of a trained encoder')
     return parser
 
 
 def get_main_parser():
     # create the top-level parser
-    parser = get_base_parser()
+    parser = set_base_parser()
     sp = parser.add_subparsers(title='please specify a supported command',
                                description='Commands',
                                help='Description', dest='cli')
