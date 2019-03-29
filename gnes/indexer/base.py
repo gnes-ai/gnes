@@ -31,7 +31,7 @@ class BaseTextIndexer(BaseIndexer):
     def query(self, keys: List[int]) -> List[Any]: pass
 
 
-class CompositionalIndexer(CompositionalEncoder):
+class MultiheadIndexer(CompositionalEncoder):
     def add(self, comp_name: str, *args) -> None:
         if not self.is_pipeline and comp_name in self.component:
             self.component[comp_name].add(*args)
