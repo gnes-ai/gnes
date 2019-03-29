@@ -39,3 +39,9 @@ To enable profiling:
 ```bash
 export NES_PROFILING=1
 ```
+
+## Run Encoder Service via Docker
+
+```bash
+docker run -v $(pwd)/test.yml:/test.yml -v /data1/cips/data:/ext_data docker.oa.com/public/aipd-gnes-encoder:5930f22 --train --yaml_path /test.yml
+```
