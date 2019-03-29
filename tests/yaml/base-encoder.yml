@@ -8,8 +8,8 @@
             args:
               - mask_cls_sep
             kwargs:
-              port: 5555
-              port_out: 5556
+              port: $BERT_CI_PORT
+              port_out: $BERT_CI_PORT_OUT
               model_dir: $BERT_CI_MODEL
               max_seq_len: NONE
               pooling_layer: -12
@@ -19,8 +19,8 @@
           !BertEncoder
           parameter:
             kwargs:
-              port: 5555
-              port_out: 5556
+              port: $BERT_CI_PORT
+              port_out: $BERT_CI_PORT_OUT
               ignore_all_checks: true
           property:
             is_trained: true
