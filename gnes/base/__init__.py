@@ -7,7 +7,7 @@ from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, MemoryCache, profiling, yaml, parse_arg
+from ..helper import set_logger, MemoryCache, profiling, yaml
 
 __all__ = ['train_required', 'TrainableBase']
 
@@ -201,8 +201,8 @@ class TrainableBase(metaclass=TrainableType):
 
     @staticmethod
     def _convert_env_var(v):
-        if isinstance(v, str) and v.startswith('$'):
-            return parse_arg(os.environ.get(v.strip('$'), v))
+        if isinstance(v, str):
+            return os.path.expandvars(v)
         else:
             return v
 
