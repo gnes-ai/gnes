@@ -1,0 +1,20 @@
+version: '3'
+services:
+  encoder:
+    build: .
+      context: ./
+      dockerfile: Dockerfile-encoder
+    image: docker.oa.com:8080/public/aipd-gnes-encoder:master
+    deploy:
+      mode: replicated
+      replicas: 2
+    ports:
+     - "5000:5000"
+    networks:
+      - gnes
+  indexer:
+    networks:
+      - gnes
+  networks:
+    gnes:
+      - port: 8082

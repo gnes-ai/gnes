@@ -14,7 +14,7 @@ pip install -e . -U
 ## Run with Docker
 
 ```bash
-docker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/aipd-nes:master bash
+docker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/aipd-gnes:master bash
 ```
 
 To maintainers, after commit your code, please do 

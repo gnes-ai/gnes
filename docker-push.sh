@@ -2,7 +2,7 @@
 
 set -ex
 
-PROJ_NAME=aipd-nes
+PROJ_NAME=aipd-gnes
 GIT_TAG=$1
 
 if [ -z "$1" ]

@@ -1,8 +1,10 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_service_parser
-from gnes.service import BaseService
+import zmq
+
+from gnes.cli.parser import set_service_parser, set_encoder_service_parser
+from gnes.service import BaseService, EncoderService, send_message, Message
 
 
 class TestService(unittest.TestCase):
@@ -23,19 +25,19 @@ class TestService(unittest.TestCase):
         with BaseService(args) as bs:
             self.assertTrue(bs.is_ready)
 
-    # def test_encoder_service_train(self):
-    #     # test training
-    #     parser = set_encoder_service_parser()
-    #     args = parser.parse_args(['--train',
-    #                               '--model_path', self.dump_path,
-    #                               '--yaml_path', self.encoder_yaml_path])
-    #     with zmq.Context() as ctx, EncoderService(args):
-    #         ctx.setsockopt(zmq.LINGER, 0)
-    #         with ctx.socket(zmq.PUSH) as in_sock:
-    #             in_sock.connect('tcp://%s:%d' % (args.host, args.port_in))
-    #             send_message(in_sock, Message(msg_content=self.test_data1))
-    #             while not os.path.exists(self.dump_path):
-    #                 pass
+    def test_encoder_service_train(self):
+        # test training
+        parser = set_encoder_service_parser()
+        args = parser.parse_args(['--train',
+                                  '--model_path', self.dump_path,
+                                  '--yaml_path', self.encoder_yaml_path])
+        with zmq.Context() as ctx, EncoderService(args):
+            ctx.setsockopt(zmq.LINGER, 0)
+            with ctx.socket(zmq.PUSH) as in_sock:
+                in_sock.connect('tcp://%s:%d' % (args.host, args.port_in))
+                send_message(in_sock, Message(msg_content=self.test_data1))
+                while not os.path.exists(self.dump_path):
+                    pass
 
         # test encode
         # args = parser.parse_args(['--model_path', self.dump_path])

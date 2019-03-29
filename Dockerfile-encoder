@@ -1,0 +1,3 @@
+FROM Dockerfile
+
+CMD ['gnes', 'encode']
