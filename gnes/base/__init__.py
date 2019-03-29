@@ -3,13 +3,15 @@ import os
 import pickle
 import tempfile
 from functools import wraps
-from typing import Dict, Any, Union, TextIO
+from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
 from ..helper import set_logger, MemoryCache, profiling, yaml, parse_arg
 
 __all__ = ['train_required', 'TrainableBase']
+
+T = TypeVar('T', bound='TrainableBase')
 
 
 class TrainableType(type):
@@ -125,9 +127,9 @@ class TrainableBase(metaclass=TrainableType):
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
             self.dump_path = f
-            self.logger.warning('filename is not specified, write to a temp file: %s' % f)
         with open(f, 'wb') as fp:
             pickle.dump(self, fp)
+        self.logger.info('model is dump to %s' % f)
 
     @profiling
     def dump_yaml(self, filename: str = None) -> None:
@@ -139,7 +141,7 @@ class TrainableBase(metaclass=TrainableType):
             raise ValueError('please specify a filename or dump_path!')
 
     @classmethod
-    def load_yaml(cls, filename: Union[str, TextIO]):
+    def load_yaml(cls: Type[T], filename: Union[str, TextIO]) -> T:
         if isinstance(filename, str):
             with open(filename) as fp:
                 return yaml.load(fp)
@@ -148,7 +150,7 @@ class TrainableBase(metaclass=TrainableType):
 
     @staticmethod
     @profiling
-    def load(filename: str):
+    def load(filename: str) -> T:
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 

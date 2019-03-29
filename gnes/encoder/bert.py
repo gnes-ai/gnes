@@ -5,7 +5,7 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer, get_args_parser
 
 from .base import BaseEncoder, CompositionalEncoder
-from ..helper import batching, countdown
+from ..helper import batching
 
 
 class BertEncoder(BaseEncoder):
@@ -57,7 +57,7 @@ class BertEncoderServer(BaseEncoder):
     def _start_bert_server(self):
         self.bert_server = BertServer(self._bert_args)
         self.bert_server.start()
-        countdown(20, self.logger, 'im blocking this until bert-server is ready')
+        self.bert_server.is_ready.wait()
 
     def __getstate__(self):
         d = super().__getstate__()

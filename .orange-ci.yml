@@ -8,7 +8,7 @@ ok-stage: &ok_stage
         options:
           fromFile: comment.txt
       - name: make notification
-        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/gnes/)" > notify.md
       - name: message
         type: wework:message
         options:
@@ -55,7 +55,7 @@ notify-pipeline1: &np1
   network: devnet
   stages:
     - name: make notification
-      script: echo "# 🚀 NES的Master分支刚刚更新！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
+      script: echo "# 🚀 NES的Master分支刚刚更新！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看](https://git.code.oa.com/ai-innersource/gnes/)" > notify.md
     - name: send mail
       type: mail:send
       options:
@@ -82,7 +82,7 @@ docker-stage: &docker_stage
       - name: push docker
         script: bash docker-push.sh $GIT_TAG
       - name: make notification
-        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：\ndocker pull docker.oa.com/public/$PROJ_NAME:$GIT_TAG && docker run --network=host -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash" > notify.md
+        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新！\n运行此版本：\ndocker pull docker.oa.com/public/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash" > notify.md
 
 release-stage: &release_stage1
   - name: notify about release
@@ -124,9 +124,9 @@ docker-pipeline1: &dp1
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/hanhxiao/gnes-keys/blob/master/env
   env:
-    PROJ_NAME: aipd-nes
+    PROJ_NAME: aipd-gnes
     GIT_TAG: master
   stages:
     - <<: *docker_stage
@@ -136,9 +136,9 @@ docker-pipeline2: &dp2
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/hanhxiao/gnes-keys/blob/master/env
   env:
-    PROJ_NAME: aipd-nes
+    PROJ_NAME: aipd-gnes
     GIT_TAG: $ORANGE_BRANCH
   stages:
     - <<: *docker_stage
