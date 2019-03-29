@@ -28,7 +28,7 @@ class TestMessage(unittest.TestCase):
         a = b'a23dsa'
         m = Message(msg_content=a)
         print(m.content_type)
-        self.assertEqual(a.decode(), m.msg_content)
+        self.assertEqual(a, m.msg_content)
 
         a = ['001张九龄：感遇四首之一', 'dasd']
         m = Message(msg_content=a)
