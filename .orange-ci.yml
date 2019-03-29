@@ -124,7 +124,7 @@ docker-pipeline1: &dp1
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/gnes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
   env:
     PROJ_NAME: aipd-gnes
     GIT_TAG: master
@@ -136,7 +136,7 @@ docker-pipeline2: &dp2
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/gnes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
   env:
     PROJ_NAME: aipd-gnes
     GIT_TAG: $ORANGE_BRANCH
