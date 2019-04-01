@@ -18,7 +18,7 @@ class GNES(CompositionalEncoder):
         ids, sents = doc_mapper.sent_id_sentence
         bin_vectors = self.component['encoder'].encode(sents, *args, **kwargs)
         self.component['binary_indexer'].add(ids, bin_vectors)
-        self.component['text_indexer'].add(doc_mapper.doc_id_document)
+        self.component['text_indexer'].add(*doc_mapper.doc_id_document)
 
     @train_required
     def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
