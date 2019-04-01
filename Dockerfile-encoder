@@ -1,3 +1,0 @@
-FROM Dockerfile
-
-ENTRYPOINT ['gnes', 'encode']
