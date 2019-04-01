@@ -14,7 +14,7 @@ pip install -e . -U
 ## Run with Docker
 
 ```bash
-docker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/aipd-nes:master bash
+docker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/aipd-gnes:master bash
 ```
 
 To maintainers, after commit your code, please do 
@@ -38,4 +38,10 @@ To enable profiling:
 
 ```bash
 export NES_PROFILING=1
+```
+
+## Run Encoder Service via Docker
+
+```bash
+docker run -v $(pwd)/test.yml:/test.yml -v /data1/cips/data:/ext_data docker.oa.com/public/aipd-gnes-encoder:5930f22 --train --yaml_path /test.yml
 ```

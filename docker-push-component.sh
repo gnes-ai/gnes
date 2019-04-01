@@ -2,14 +2,15 @@
 
 set -ex
 
-PROJ_NAME=aipd-gnes
+TARGET=encoder
+PROJ_NAME=aipd-gnes-$TARGET
 GIT_TAG=$1
 
 if [ -z "$1" ]
   then
     GIT_TAG=$(git rev-parse --short HEAD)
     printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
-    docker build --rm -t docker.oa.com/public/$PROJ_NAME:$GIT_TAG .
+    docker build --rm --target $TARGET -t docker.oa.com/public/${PROJ_NAME}:$GIT_TAG .
     docker push docker.oa.com/public/$PROJ_NAME:$GIT_TAG
     printf 'done! and to run the container simply do:\n'
     printf "\e[1;33mdocker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"

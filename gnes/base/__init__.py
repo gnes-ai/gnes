@@ -142,6 +142,7 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def load_yaml(cls: Type[T], filename: Union[str, TextIO]) -> T:
+        if not filename: raise FileNotFoundError
         if isinstance(filename, str):
             with open(filename) as fp:
                 return yaml.load(fp)
@@ -151,6 +152,7 @@ class TrainableBase(metaclass=TrainableType):
     @staticmethod
     @profiling
     def load(filename: str) -> T:
+        if not filename: raise FileNotFoundError
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
@@ -199,8 +201,8 @@ class TrainableBase(metaclass=TrainableType):
 
     @staticmethod
     def _convert_env_var(v):
-        if isinstance(v, str) and v.startswith('$'):
-            return parse_arg(os.environ.get(v.strip('$'), v))
+        if isinstance(v, str):
+            return parse_arg(os.path.expandvars(v))
         else:
             return v
 

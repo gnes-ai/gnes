@@ -217,6 +217,10 @@ class MessageHandler:
             return fn
 
 
+class ComponentNotLoad(Exception):
+    pass
+
+
 class BaseService(threading.Thread):
     handler = MessageHandler()
 
@@ -258,10 +262,9 @@ class BaseService(threading.Thread):
         poller.register(in_sock, zmq.POLLIN)
         poller.register(ctrl_sock, zmq.POLLIN)
 
-        self._post_init()
-        self.is_ready.set()
-
         try:
+            self._post_init()
+            self.is_ready.set()
             while True:
                 pull_sock = None
                 socks = dict(poller.poll())
@@ -275,6 +278,10 @@ class BaseService(threading.Thread):
                 self.message_handler(msg)
         except StopIteration:
             self.logger.info('terminated')
+        except ComponentNotLoad:
+            self.logger.error('component can not be correctly loaded, terminated')
+        finally:
+            self.is_ready.set()
 
     def _post_init(self):
         pass
