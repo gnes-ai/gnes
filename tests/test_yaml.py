@@ -73,11 +73,11 @@ class TestYaml(unittest.TestCase):
 
     def test_dump2(self):
         dummyPipeline.store_args_kwargs = False
-        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
+        pe0 = dummyPipeline(a=23, b=32, c=['123', '456'])
         self.assertEqual(pe0._init_kwargs_dict, {})
         dummyPipeline.store_args_kwargs = True
-        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
-        self.assertEqual(pe0._init_kwargs_dict, {'kwargs': dict(a=23, b='32', c=['123', '456'])})
+        pe0 = dummyPipeline(a=23, b=32, c=['123', '456'])
+        self.assertEqual(pe0._init_kwargs_dict, {'kwargs': dict(a=23, b=32, c=['123', '456'])})
         pe0.dump_yaml(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
         dummyPipeline.store_args_kwargs = False
@@ -97,7 +97,7 @@ class TestYaml(unittest.TestCase):
         PipelineEncoder.store_args_kwargs = True
         pe = dummyPipeline.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
-        self.assertEqual(pe._init_kwargs_dict, {'kwargs': dict(a=23, b='32', c=['123', '456'])})
+        self.assertEqual(pe._init_kwargs_dict, {'kwargs': dict(a=23, b=32, c=['123', '456'])})
         PipelineEncoder.store_args_kwargs = False
         pe = dummyPipeline.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
@@ -113,7 +113,7 @@ class TestYaml(unittest.TestCase):
         PipelineEncoder.store_args_kwargs = True
         pe = dummyPipeline.load_yaml(self.dump_path)
         self.assertEqual(type(pe), PipelineEncoder)
-        self.assertEqual(pe._init_kwargs_dict, {'args': (23, '32', ['123', '456'])})
+        self.assertEqual(pe._init_kwargs_dict, {'args': (23, 32, ['123', '456'])})
 
         PipelineEncoder.store_args_kwargs = False
         pe = dummyPipeline.load_yaml(self.dump_path)
