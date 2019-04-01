@@ -17,11 +17,8 @@ services:
       - gnes
     command: --train --yaml_path /test.yml
     volumes:
-      - yaml_path: /test.yml
-      - ext_data: /ext_data
+      - "/data1/cips/test.yml:/test.yml"
+      - "/data1/cips/data:/ext_data"
 networks:
   gnes:
 
-volumes:
-  yaml_path: $(pwd)/test.yml
-  ext_data: /data1/cips/data
