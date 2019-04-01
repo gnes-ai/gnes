@@ -1,5 +1,4 @@
 import os
-import time
 import unittest
 from shutil import rmtree
 
@@ -36,7 +35,7 @@ class TestBertServing(unittest.TestCase):
                                              '-cpu'])
         self.server = BertServer(args)
         self.server.start()
-        time.sleep(30)
+        self.server.is_ready.wait()
 
     def test_bert_client(self):
         bc = BertClient(port=int(self.port),
@@ -106,5 +105,3 @@ class TestBertServing(unittest.TestCase):
         if os.path.exists(self.db_path):
             rmtree(self.db_path)
         self.server.close()
-        # wait until all socket close safely
-        time.sleep(5)
