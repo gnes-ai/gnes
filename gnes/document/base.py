@@ -107,12 +107,8 @@ class DocumentMapper:
 
     @property
     def sent_id_sentence(self) -> Tuple[Union[np.ndarray, List[int]], List[str]]:
-        result_s = []
-        result_id = []
-        for d in self._docs:
-            for s_id, s in zip(d.sentence_ids, d.sentences):
-                result_s.append(s)
-                result_id.append((s_id, d))
+        result_s = [s for d in self._docs for s in d.sentences]
+        result_id = [s_id for d in self._docs for s_id in d.sentence_ids]
         return self.list2array(result_id), result_s
 
     @property
