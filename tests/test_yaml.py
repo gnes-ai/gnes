@@ -64,7 +64,7 @@ class TestYaml(unittest.TestCase):
         self.assertEqual(a._init_kwargs_dict, {'c': 2, 'a': 3, 'b': 1})
 
     def test_dump(self):
-        pe0 = dummyPipeline(a=23, b='32', c=['123', '456'])
+        pe0 = dummyPipeline(a=23, b=32, c=['123', '456'])
         pe0.dump_yaml(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
         pe = dummyPipeline.load_yaml(self.dump_path)
