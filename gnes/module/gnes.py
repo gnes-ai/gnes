@@ -18,6 +18,7 @@ class GNES(CompositionalEncoder):
         ids, sents = doc_mapper.sent_id_sentence
         bin_vectors = self.component['encoder'].encode(sents, *args, **kwargs)
         self.component['binary_indexer'].add(ids, bin_vectors)
+        print(ids)
         self.component['text_indexer'].add(ids, sents)
 
     @train_required
