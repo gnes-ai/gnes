@@ -13,6 +13,8 @@ class BertEncoder(BaseEncoder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        print(args)
+        print(kwargs)
         self.bc_encoder = BertClient(*args, **kwargs)
         self.is_trained = True
         self._bc_encoder_args = args
