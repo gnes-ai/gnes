@@ -1,18 +1,19 @@
-version: '3'
+version: '3.4'
 services:
   encoder:
-    build: .
+    build:
+      context: .
       target: encoder
-    image: docker.oa.com:8080/public/aipd-gnes-encoder:master
+    image: docker.oa.com/public/aipd-gnes-encoder:5930f22
     deploy:
       mode: replicated
       replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
     ports:
       - "5000:5000"
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
     networks:
       - gnes
     command: --train --yaml_path /test.yml
