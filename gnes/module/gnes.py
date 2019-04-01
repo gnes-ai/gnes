@@ -1,24 +1,24 @@
-from typing import Iterator, List, Tuple, Dict
+from typing import List, Tuple, Dict
 
 from ..base import *
 from ..document import *
 from ..encoder import *
-from ..indexer import *
 from ..helper import batching
 
 
 class GNES(CompositionalEncoder):
-    def train(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
-        sents = [s for d in iter_doc for s in d.sentences]
+    def train(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
+        sents = DocumentMapper(lst_doc).sent_id_sentence[1]
         self.component['encoder'].train(sents, *args, **kwargs)
 
     @train_required
     @batching
-    def add(self, iter_doc: Iterator[BaseDocument], *args, **kwargs) -> None:
-        sents, ids = map(list, zip(*[(s, d.id) for d in iter_doc for s in d.sentences]))
+    def add(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
+        doc_mapper = DocumentMapper(lst_doc)
+        ids, sents = doc_mapper.sent_id_sentence
         bin_vectors = self.component['encoder'].encode(sents, *args, **kwargs)
-        self.component['binary_indexer'].add(bin_vectors, ids)
-        self.component['text_indexer'].add(iter_doc)
+        self.component['binary_indexer'].add(ids, bin_vectors)
+        self.component['text_indexer'].add(*doc_mapper.doc_id_document)
 
     @train_required
     def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:

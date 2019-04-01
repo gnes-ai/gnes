@@ -1,4 +1,3 @@
-import ctypes
 import os
 import unittest
 
@@ -23,22 +22,22 @@ class TestEUIndexer(unittest.TestCase):
 
     def test_add(self):
         fd = EuclideanIndexer()
-        fd.add(self.toy_query, self.toy_label)
+        fd.add(self.toy_label, self.toy_query)
         self.assertEqual(fd._count, self.toy_query.shape[0])
-        fd.add(self.add_query, self.add_label)
+        fd.add(self.add_label, self.add_query)
         self.assertEqual(fd._count,
                          self.toy_query.shape[0]+self.add_query.shape[0])
 
     def test_query(self):
         fd = EuclideanIndexer()
-        fd.add(self.toy_query, self.toy_label)
+        fd.add(self.toy_label, self.toy_query)
         ret = fd.query(self.sub_query, top_k=5)
         self.assertEqual(len(ret), self.sub_query.shape[0])
         self.assertEqual(len(ret[0]), 5)
 
     def test_dump_load(self):
         tmp = EuclideanIndexer()
-        tmp.add(self.toy_query, self.toy_label)
+        tmp.add(self.toy_label, self.toy_query)
         tmp.dump(self.dump_path)
 
         fd = EuclideanIndexer.load(self.dump_path)

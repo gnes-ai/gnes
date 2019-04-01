@@ -12,17 +12,17 @@ class BIndexer(NumpyIndexer):
         super().__init__(num_bytes, *args, **kwargs)
         self.bindexer = IndexCore(num_bytes, 4)
 
-    def add(self, vectors: bytes, doc_ids: List[int]):
+    def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
             raise ValueError("vectors should equal to num_bytes*len(doc_ids)")
 
-        super().add(vectors, doc_ids)
+        super().add(doc_ids, vectors, *args, **kwargs)
         num_rows = len(doc_ids)
 
         cids = np.array(doc_ids, dtype=np.uint32).tobytes()
         self.bindexer.index_trie(vectors, num_rows, cids)
 
-    def query(self, keys: bytes, *args, **kwargs) -> List[List[int]]:
+    def query(self, keys: bytes, top_k: int = 1, *args, **kwargs) -> List[List[int]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError("keys should be divided by num_bytes")
 

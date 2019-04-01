@@ -32,7 +32,7 @@ class TestFIndexer(unittest.TestCase):
 
     def test_db(self):
         fd = BIndexer(self.toy_data.shape[1])
-        fd.add(self.toy_data.tobytes(), self.toy_label)
+        fd.add(self.toy_label, self.toy_data.tobytes())
         rs = fd.query(self.toy_query.tobytes())
         self.assertEqual(self.toy_data.shape, fd._vectors.shape)
         self.assertEqual(len(self.toy_label), len(fd._doc_ids))
@@ -40,7 +40,7 @@ class TestFIndexer(unittest.TestCase):
 
     def test_dump_load(self):
         fd = BIndexer(self.toy_data.shape[1])
-        fd.add(self.toy_data.tobytes(), self.toy_label)
+        fd.add(self.toy_label, self.toy_data.tobytes())
         fd.dump(self.dump_path)
 
         fd2 = BIndexer.load(self.dump_path)
