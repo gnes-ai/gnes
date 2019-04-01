@@ -7,10 +7,10 @@ WORKDIR /nes/
 ADD . ./
 RUN pip install -U -e .
 
-FROM gnes-base AS encoder
+FROM base AS encoder
 
 ENTRYPOINT ["gnes", "encode"]
 
-FROM gnes-base AS indexer
+FROM base AS indexer
 
 ENTRYPOINT ["gnes", "index"]
