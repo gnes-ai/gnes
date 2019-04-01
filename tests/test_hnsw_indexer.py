@@ -37,13 +37,13 @@ class TestHnswIndexer(unittest.TestCase):
 
     def test_add(self):
         hnsw = HnswIndexer(num_bytes=self.n_bytes)
-        hnsw.add(self.test_bytes, self.test_docids)
+        hnsw.add(self.test_docids, self.test_bytes)
         self.assertEqual(self.n_bytes, hnsw.num_bytes)
         self.assertEqual(self.n_lines, hnsw.size)
 
     def test_query(self):
         hnsw = HnswIndexer(num_bytes=self.n_bytes)
-        hnsw.add(self.test_bytes, self.test_docids)
+        hnsw.add(self.test_docids, self.test_bytes)
         res = hnsw.query(self.query_bytes, self.top_k)
         print(res)
 
@@ -59,7 +59,7 @@ class TestHnswIndexer(unittest.TestCase):
 
     def dump_load(self):
         tmp = HnswIndexer(num_bytes=self.n_bytes)
-        tmp.add(self.test_bytes, self.test_docids)
+        tmp.add(self.test_docids, self.test_bytes)
         tmp.dump(self.dump_path)
 
         hnsw = HnswIndexer.load(self.dump_path)

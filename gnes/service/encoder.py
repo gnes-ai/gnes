@@ -1,7 +1,7 @@
 import zmq
 
-from . import BaseService as BS, Message, ComponentNotLoad
-from ..document import MultiSentDocument, get_all_sentences
+from . import BaseService as BS, Message, ComponentNotLoad, send_message
+from ..document import MultiSentDocument, DocumentMapper
 from ..encoder import PipelineEncoder
 
 
@@ -26,8 +26,8 @@ class EncoderService(BS):
 
     @BS.handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        doc_batch = MultiSentDocument.from_list(msg.msg_content)
-        sents, sent_ids = get_all_sentences(doc_batch)
+        doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
+        sents, sent_ids = doc_mapper.sent_id_sentence
         if not sents:
             self.logger.error('received an empty list, nothing to do')
             return
@@ -36,16 +36,11 @@ class EncoderService(BS):
             self.encoder.dump(self.args.model_path)
         else:
             vecs = self.encoder.encode(sents)
-            # send out a three-part message to out
-            # they are syncronized by the msg.req_id
-            # self.logger.info('send back result')
-            # # binary indexer
-            # send_message(out, msg.copy_mod(msg_content=(sent_id, vecs)), self.args.timeout)
-            # # s-leveldb indexer
-            # send_message(out, msg.copy_mod(msg_content=(sent_id, doc_id), msg_type='SENT_ID_MAP'), self.args.timeout)
-            # # d-leveldb indexer
-            # send_message(out, msg.copy_mod(msg_content=(doc_id, doc_content), msg_type='DOC_ID_MAP'), self.args.timeout)
-            #
+            send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
+            send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type='SENT_ID_MAP'),
+                         self.args.timeout)
+            send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type='SENT_ID_MAP'),
+                         self.args.timeout)
             # # QUERY
             # # encode -> vecs
             # # binary indexer: vecs -> sent_id  SCORE

@@ -1,7 +1,7 @@
 import json
 import time
 from threading import Thread
-from typing import List, Dict, Any, Iterator
+from typing import List, Dict, Any
 
 import plyvel
 
@@ -25,14 +25,14 @@ class LVDBIndexer(BaseTextIndexer):
         super().__setstate__(d)
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
-    def add(self, docs: Iterator[BaseDocument]):
+    def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
         with self._db.write_batch() as wb:
-            for d in docs:
-                doc_id = self._int2bytes(d.id)
+            for k, d in zip(keys, docs):
+                doc_id = self._int2bytes(k)
                 doc = self._doc2bytes(d)
                 wb.put(doc_id, doc)
 
-    def query(self, keys: List[int]) -> List[Dict[str, Any]]:
+    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Dict[str, Any]]:
         res = []
         for k in keys:
             doc_id = self._int2bytes(k)
@@ -78,28 +78,24 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._jobs = []
         self._db_put = False
 
-    def add(self, docs: Iterator[BaseDocument]):
-        self._jobs.append(docs)
+    def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
+        self._jobs.append((keys, docs))
 
-    def query(self, keys: List[int]) -> List[Dict[str, Any]]:
+    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Dict[str, Any]]:
         self._check_state()
-        return super().query(keys)
+        return super().query(keys, top_k)
 
-    def _add(self, docs: Iterator[BaseDocument]):
+    def _add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
         self._db_put = True
-        with self._db.write_batch() as wb:
-            for d in docs:
-                doc_id = self._int2bytes(d.id)
-                doc = self._doc2bytes(d)
-                wb.put(doc_id, doc)
+        super().add(keys, docs)
         self._db_put = False
 
     def _db_write(self):
         while True:
             time.sleep(1)
             if self._jobs:
-                docs = self._jobs.pop()
-                self._add(docs)
+                keys, docs = self._jobs.pop()
+                self._add(keys, docs)
 
     def _check_state(self):
         while self._jobs or self._db_put:

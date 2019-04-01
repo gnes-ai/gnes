@@ -12,7 +12,7 @@ class NumpyIndexer(BaseBinaryIndexer):
         self._vectors = None  # type: np.ndarray
         self._doc_ids = None  # type: np.ndarray
 
-    def add(self, vectors: bytes, doc_ids: List[int]):
+    def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) % len(doc_ids) != 0:
             raise ValueError("vectors bytes should be divided by doc_ids")
 
@@ -32,7 +32,7 @@ class NumpyIndexer(BaseBinaryIndexer):
             self._vectors = vectors
             self._doc_ids = doc_ids
 
-    def query(self, keys: bytes, top_k: int) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
         keys = np.frombuffer(keys, dtype=np.uint8).reshape([-1, 1, self.num_bytes])
 
         dist = keys - np.expand_dims(self._vectors, axis=0)

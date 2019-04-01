@@ -1,5 +1,5 @@
 import ctypes
-from typing import List, Tuple
+from typing import List, Tuple, Union, Any
 
 import numpy as np
 
@@ -96,11 +96,31 @@ def filter_sentences(lst: List[str],
     return result
 
 
-def get_all_sentences(lst: List[BaseDocument]) -> Tuple[List[str], np.ndarray]:
-    result_s = []
-    result_id = []
-    for d in lst:
-        for s_id, s in zip(d.sentence_ids, d.sentences):
-            result_s.append(s)
-            result_id.append((s_id, d))
-    return result_s, np.array(result_id)
+class DocumentMapper:
+    def __init__(self, docs: List[BaseDocument], key_as_ndarray: bool = False):
+        self._docs = docs
+        self._key_as_nparray = key_as_ndarray
+        self.length = len(docs)
+
+    def list2array(self, lst: List[int]) -> Union[np.ndarray, List[int]]:
+        return np.array(lst) if self._key_as_nparray else lst
+
+    @property
+    def sent_id_sentence(self) -> Tuple[Union[np.ndarray, List[int]], List[str]]:
+        result_s = []
+        result_id = []
+        for d in self._docs:
+            for s_id, s in zip(d.sentence_ids, d.sentences):
+                result_s.append(s)
+                result_id.append((s_id, d))
+        return self.list2array(result_id), result_s
+
+    @property
+    def sent_id_doc_id(self) -> Tuple[Union[np.ndarray, List[int]], Union[np.ndarray, List[int]]]:
+        result_sid = [s_id for d in self._docs for s_id in d.sentence_ids]
+        result_did = [d.id for d in self._docs for _ in d.sentence_ids]
+        return self.list2array(result_sid), self.list2array(result_did)
+
+    @property
+    def doc_id_document(self) -> Tuple[Union[np.ndarray, List[int]], List[Any]]:
+        return self.list2array([d.id for d in self._docs]), self._docs

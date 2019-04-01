@@ -11,7 +11,7 @@ class HnswIndexer(BaseBinaryIndexer):
         self.num_bytes = num_bytes
         self._indexer = IndexHnsw(num_bytes, **kwargs)
 
-    def add(self, vectors: bytes, doc_ids: List[int]):
+    def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) % len(doc_ids) != 0:
             raise ValueError("vectors bytes should be divided by doc_ids")
 
@@ -24,7 +24,7 @@ class HnswIndexer(BaseBinaryIndexer):
             self._indexer.index(doc_id, vector)
             offset += self.num_bytes
 
-    def query(self, keys: bytes, top_k: int) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError(
                 "vectors bytes length should be divided by bytes_num")

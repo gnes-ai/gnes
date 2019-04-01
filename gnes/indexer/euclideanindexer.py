@@ -1,6 +1,8 @@
 from typing import List, Tuple
+
 import faiss
 import numpy as np
+
 from .base import BaseIndexer
 from ..helper import batching
 
@@ -16,7 +18,7 @@ class EuclideanIndexer(BaseIndexer):
         self._count = 0
 
     @batching(batch_size=2048)
-    def add(self, vectors: np.ndarray, doc_ids: List[int]):
+    def add(self, doc_ids: List[int], vectors: np.ndarray, *args, **kwargs):
         if len(vectors) != len(doc_ids):
             raise ValueError("vectors length should be equal to doc_ids")
 
@@ -39,19 +41,19 @@ class EuclideanIndexer(BaseIndexer):
             self._count += cur_len
         else:
             if self._doc_ids.shape[0] < self._count + len(doc_ids):
-                empty_ids = np.zeros([cur_len*20], dtype=np.uint32)
-                empty_vecs = np.zeros([cur_len*20, self._num_dim],
+                empty_ids = np.zeros([cur_len * 20], dtype=np.uint32)
+                empty_vecs = np.zeros([cur_len * 20, self._num_dim],
                                       dtype=np.float32)
                 self._doc_ids = np.concatenate(
-                                    [self._doc_ids, empty_ids], axis=0)
+                    [self._doc_ids, empty_ids], axis=0)
                 self._all_vectors = np.concatenate(
-                                    [self._all_vectors, empty_vecs], axis=0)
+                    [self._all_vectors, empty_vecs], axis=0)
 
-            self._doc_ids[self._count: (self._count+cur_len)] = doc_ids
-            self._all_vectors[self._count: (self._count+cur_len)] = vectors
+            self._doc_ids[self._count: (self._count + cur_len)] = doc_ids
+            self._all_vectors[self._count: (self._count + cur_len)] = vectors
             self._count += len(doc_ids)
 
-    def query(self, keys: np.ndarray, top_k: int) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
         if keys.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
@@ -76,4 +78,4 @@ class EuclideanIndexer(BaseIndexer):
         self._hnsw = None
         self._num_dim = None
         if self._doc_ids is not None:
-            self.add(self._all_vectors, self._doc_ids)
+            self.add(self._doc_ids, self._all_vectors)

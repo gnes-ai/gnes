@@ -11,7 +11,7 @@ def index(args):
 
     with GNES.load_yaml(args.config) as gnes:
         for f in glob.glob(args.document):
-            docs = list(UniSentDocument.from_file(f))
+            docs = UniSentDocument.from_file(f)
             gnes.train(docs)
             gnes.add(docs)
         gnes.dump()

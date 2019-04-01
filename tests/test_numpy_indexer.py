@@ -37,14 +37,14 @@ class TestFIndexer(unittest.TestCase):
 
     def test_add(self):
         fd = NumpyIndexer()
-        fd.add(self.test_bytes, self.test_docids)
+        fd.add(self.test_docids, self.test_bytes)
         self.assertEqual(self.n_bytes, fd.num_bytes)
         self.assertEqual(self.n_lines, len(fd._doc_ids))
         self.assertEqual(self.n_lines, len(fd._vectors))
 
     def test_query(self):
         fd = NumpyIndexer()
-        fd.add(self.test_bytes, self.test_docids)
+        fd.add(self.test_docids, self.test_bytes)
         res = fd.query(self.query_bytes, top_k=2)
         print(res)
 
@@ -60,7 +60,7 @@ class TestFIndexer(unittest.TestCase):
 
     def dump_load(self):
         tmp = NumpyIndexer()
-        tmp.add(self.test_bytes, self.test_docids)
+        tmp.add(self.test_docids, self.test_bytes)
         tmp.dump(self.dump_path)
 
         fd = NumpyIndexer.load(self.dump_path)

@@ -22,17 +22,15 @@ class IndexerService(BS):
 
     @BS.handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        self.indexer.add('binary_indexer', msg.msg_content)
+        self.indexer.add(*msg.msg_content, head_name='binary_indexer')
 
     @BS.handler.register('SENT_ID_MAP')
     def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
-        # msg.msg_content is a numpy array with two columns
-        x = msg.msg_content.tolist()
-        self.indexer.add('sent_doc_indexer', msg.msg_content)
+        self.indexer.add(*msg.msg_content, head_name='sent_doc_indexer')
 
     @BS.handler.register('DOC_ID_MAP')
     def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self.indexer.add('doc_content_indexer', msg.msg_content)
+        self.indexer.add(*msg.msg_content, head_name='doc_content_indexer')
 
     def close(self):
         if self.indexer:
