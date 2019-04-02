@@ -27,14 +27,14 @@ class LVDBIndexer(BaseTextIndexer):
     def add(self, keys: List[int], docs: List[Any], *args, **kwargs):
         with self._db.write_batch() as wb:
             for k, d in zip(keys, docs):
-                doc_id = self._int2bytes(k)
+                doc_id = pickle.dumps(k)
                 doc = pickle.dumps(d)
                 wb.put(doc_id, doc)
 
     def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Any]:
         res = []
         for k in keys:
-            doc_id = self._int2bytes(k)
+            doc_id = pickle.dumps(k)
             v = self._db.get(doc_id)
             res.append(pickle.loads(v) if v else self._NOT_FOUND)
         return res
