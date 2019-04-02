@@ -91,6 +91,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._thread.setDaemon(1)
         self._thread.start()
         self._is_busy = Event()
+        self._jobs = []
 
     def close(self):
         self._jobs.clear()
