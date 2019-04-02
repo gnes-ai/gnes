@@ -56,6 +56,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
         self._is_busy = Event()
+        self._exit_signal = Event()
         self._jobs = []
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
         self._thread.setDaemon(1)
@@ -74,7 +75,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._is_busy.clear()
 
     def _db_write(self):
-        while True:
+        while not self._exit_signal:
             if self._jobs:
                 keys, docs = self._jobs.pop()
                 self._add(keys, docs)
@@ -83,6 +84,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         d = super().__getstate__()
         del d['_thread']
         del d['_is_busy']
+        del d['_exit_signal']
         return d
 
     def __setstate__(self, d):
@@ -95,5 +97,6 @@ class AsyncLVDBIndexer(LVDBIndexer):
 
     def close(self):
         self._jobs.clear()
+        self._exit_signal.set()
         self._thread.join()
         super().close()
