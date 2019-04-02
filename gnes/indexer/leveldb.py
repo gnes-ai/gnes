@@ -59,7 +59,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._exit_signal = Event()
         self._jobs = []
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
-        self._thread.setDaemon(1)
+        # self._thread.setDaemon(1)
         self._thread.start()
 
     def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
@@ -90,7 +90,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
     def __setstate__(self, d):
         super().__setstate__(d)
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
-        self._thread.setDaemon(1)
+        # self._thread.setDaemon(1)
         self._thread.start()
         self._is_busy = Event()
         self._jobs = []
