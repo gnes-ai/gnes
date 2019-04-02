@@ -55,7 +55,8 @@ class LVDBIndexer(BaseTextIndexer):
 class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
-        self._is_busy = Event()
+        self._is_idle = Event()
+        self._is_idle.set()
         self._exit_signal = Event()
         self._jobs = []
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
@@ -66,13 +67,13 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._jobs.append((keys, docs))
 
     def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Any]:
-        self._is_busy.wait()
+        self._is_idle.wait()
         return super().query(keys, top_k)
 
     def _add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
-        self._is_busy.set()
+        self._is_idle.clear()
         super().add(keys, docs)
-        self._is_busy.clear()
+        self._is_idle.set()
 
     def _db_write(self):
         while not self._exit_signal:
@@ -92,7 +93,8 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
         # self._thread.setDaemon(1)
         self._thread.start()
-        self._is_busy = Event()
+        self._is_idle = Event()
+        self._is_idle.set()
         self._jobs = []
 
     def close(self):
