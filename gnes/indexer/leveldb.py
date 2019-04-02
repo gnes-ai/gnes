@@ -95,5 +95,5 @@ class AsyncLVDBIndexer(LVDBIndexer):
 
     def close(self):
         self._jobs.clear()
-        self._is_busy.wait()
+        self._thread.join()
         super().close()
