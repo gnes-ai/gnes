@@ -56,10 +56,10 @@ class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
         self._is_busy = Event()
+        self._jobs = []
         self._thread = Thread(target=self._db_write, args=(), kwargs=None)
         self._thread.setDaemon(1)
         self._thread.start()
-        self._jobs = []
 
     def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
         self._jobs.append((keys, docs))
@@ -93,5 +93,6 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._is_busy = Event()
 
     def close(self):
+        self._jobs.clear()
         self._is_busy.wait()
         super().close()
