@@ -10,6 +10,7 @@ cdef struct queue_entry:
 cdef struct queue:
     queue_entry *head
     queue_entry *tail
+    unsigned int size
 
 
 cdef queue* init_queue()
