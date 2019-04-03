@@ -7,6 +7,7 @@ cdef queue* init_queue():
     cdef queue* q = <queue*> PyMem_Malloc(sizeof(queue))
     q.head = NULL
     q.tail = NULL
+    q.size = 0
     return q
 
 cdef void queue_free(queue* q_ptr):
@@ -28,6 +29,7 @@ cdef void queue_push_head(queue* q_ptr, queue_value data):
     else:
         q_ptr.head.prev = entry
         q_ptr.head = entry
+    q_ptr.size += 1
 
 
 cdef queue_value queue_pop_head(queue* q_ptr):
@@ -45,7 +47,7 @@ cdef queue_value queue_pop_head(queue* q_ptr):
         q_ptr.tail = NULL
     else:
         q_ptr.head.prev = NULL
-
+    q_ptr.size -= 1
 
     entry.data = NULL
     entry.next = NULL
@@ -73,6 +75,7 @@ cdef void queue_push_tail(queue *q_ptr, queue_value data):
     else:
         q_ptr.tail.next = entry
         q_ptr.tail = entry
+    q_ptr.size += 1
 
 cdef queue_value queue_pop_tail(queue* q_ptr):
     cdef queue_entry *entry
@@ -89,6 +92,7 @@ cdef queue_value queue_pop_tail(queue* q_ptr):
         q_ptr.head = NULL
     else:
         q_ptr.tail.next = NULL
+    q_ptr.size -= 1
 
     entry.data = NULL
     entry.prev = NULL

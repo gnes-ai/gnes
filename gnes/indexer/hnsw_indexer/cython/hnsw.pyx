@@ -13,17 +13,17 @@ from libc.stdlib cimport rand, RAND_MAX
 from libc.string cimport memcpy
 from libc.math cimport log, floor, abs
 
-from .heappq cimport heappq, pq_entity, init_heappq, free_heappq, heappq_push, heappq_pop_min, heappq_peak_min, heappq_pop_max, heappq_peak_max
-from .queue cimport queue, init_queue, queue_push_tail, queue_pop_head, queue_free, queue_is_empty
-from .prehash cimport prehash_map, init_prehash_map, prehash_insert, prehash_get, prehash_free
+from hnsw_cpy.cython_core.heappq cimport heappq, pq_entity, init_heappq, free_heappq, heappq_push, heappq_pop_min, heappq_peak_min, heappq_pop_max, heappq_peak_max
+from hnsw_cpy.cython_core.queue cimport queue, init_queue, queue_push_tail, queue_pop_head, queue_free, queue_is_empty
+from hnsw_cpy.cython_core.prehash cimport prehash_map, init_prehash_map, prehash_insert, prehash_get, prehash_free
 
 
 cdef hnswNode* create_node(UIDX id, USHORT level, BVECTOR vector, USHORT bytes_num):
      cdef hnswNode *node = <hnswNode*> PyMem_Malloc(sizeof(hnswNode))
      node.id = id
      node.level = level
+     node.low_level = 0
      node.next = NULL
-     node.in_degree = 0
      cdef USHORT N = bytes_num * sizeof(UCHAR)
 
      node.vector = <BVECTOR> PyMem_Malloc(N)
@@ -36,6 +36,7 @@ cdef hnswNode* create_node(UIDX id, USHORT level, BVECTOR vector, USHORT bytes_n
      for l in range(level+1):
          edge_set = <hnsw_edge_set*> PyMem_Malloc(sizeof(hnsw_edge_set))
          edge_set.size = 0
+         edge_set.indegree = 0
          edge_set.head_ptr = NULL
          edge_set.last_ptr = NULL
 
@@ -43,13 +44,13 @@ cdef hnswNode* create_node(UIDX id, USHORT level, BVECTOR vector, USHORT bytes_n
 
      return node
 
-cdef void _add_edge(hnswNode* f, hnswNode* t, DIST dist, UINT level):
+cdef void _add_edge(hnswNode* from_node, hnswNode* target_node, DIST dist, UINT level):
     cdef hnsw_edge* edge = <hnsw_edge*> PyMem_Malloc(sizeof(hnsw_edge))
-    edge.node = t
+    edge.node = target_node
     edge.dist = dist
     edge.next = NULL
 
-    cdef hnsw_edge_set* edge_set = f.edges[level]
+    cdef hnsw_edge_set* edge_set = from_node.edges[level]
     if edge_set.head_ptr == NULL:
         edge_set.head_ptr = edge
         edge_set.last_ptr = edge
@@ -58,19 +59,21 @@ cdef void _add_edge(hnswNode* f, hnswNode* t, DIST dist, UINT level):
         edge_set.last_ptr = edge
 
     edge_set.size += 1
-    t.in_degree += 1
+
+    target_node.edges[level].indegree += 1
 
 
 cdef queue* _empty_edge_set(hnswNode* node, USHORT level, bint check_island):
     cdef queue* island_nodes = init_queue()
-
     cdef hnsw_edge_set* edge_set = node.edges[level]
     cdef hnsw_edge* head_edge = edge_set.head_ptr
+
     while head_edge != NULL:
         if check_island:
-            head_edge.node.in_degree -= 1
             queue_push_tail(island_nodes, head_edge.node)
-
+            # WIP: must under the condition: check_island = True
+            # WIP: DONT MODIFY THIS CODE LINE
+            head_edge.node.edges[level].indegree -= 1
 
         edge_set.head_ptr = head_edge.next
         head_edge.next = NULL
@@ -97,27 +100,24 @@ cpdef USHORT hamming_dist(BVECTOR x, BVECTOR y, USHORT datalen):
 
 
 cdef void _free_node(hnswNode* node):
-    cdef hnswNode* next_node = node
-    cdef hnswNode* cur_node
-    cdef USHORT level
+    cdef USHORT level = node.level
+    cdef USHORT low_level = node.low_level
     cdef USHORT l
     cdef queue* neighbors
-    while next_node != NULL:
-        level = next_node.level
-        for l in range(level+1):
-            neighbors = _empty_edge_set(next_node, l, False)
-            queue_free(neighbors)
 
-            PyMem_Free(next_node.edges[l])
-            next_node.edges[l] = NULL
+    for l in range(low_level, level+1):
+        neighbors = _empty_edge_set(node, l, False)
+        queue_free(neighbors)
 
-        PyMem_Free(next_node.edges)
-        next_node.edges = NULL
-        PyMem_Free(next_node.vector)
-        next_node.vector = NULL
-        cur_node = next_node
-        next_node = next_node.next
-        PyMem_Free(cur_node)
+        PyMem_Free(node.edges[l])
+        node.edges[l] = NULL
+
+    PyMem_Free(node.edges)
+    node.edges = NULL
+    PyMem_Free(node.vector)
+    node.vector = NULL
+    node.next = NULL
+    PyMem_Free(node)
 
 cdef class IndexHnsw:
     cdef hnswConfig* config
@@ -173,6 +173,7 @@ cdef class IndexHnsw:
         cdef heappq* neighbors_pq
         cdef heappq* selected_pq
         cdef pq_entity* pq_e
+        cdef USHORT _l
 
         while l >= 0:
             # navigate the graph and create edges with the closest nodes we find
@@ -180,14 +181,20 @@ cdef class IndexHnsw:
             selected_pq = self._select_neighbors(vector, neighbors_pq, self.config.m, l, True)
             free_heappq(neighbors_pq)
 
-            #pq_e = heappq_peak_min(selected_pq)
-            #if pq_e.priority == 0:
-            #    neighbor = <hnswNode*> pq_e.value
-            #    new_node.next = neighbor.next
-            #    neighbor.next = new_node
-            #    level = neighbor.level
-            #    free_heappq(selected_pq)
-            #    break
+            pq_e = heappq_peak_min(selected_pq)
+            if pq_e.priority <= self.config.epsilon:
+                neighbor = <hnswNode*> pq_e.value
+                new_node.next = neighbor.next
+                neighbor.next = new_node
+                new_node.low_level = l+1
+
+                for _l in range(new_node.low_level):
+                    PyMem_Free(new_node.edges[_l])
+                    new_node.edges[_l] = NULL
+                    new_node.edges[_l] = neighbor.edges[_l]
+
+                free_heappq(selected_pq)
+                break
 
             while selected_pq.size > 0:
                 pq_e = heappq_pop_max(selected_pq)
@@ -206,7 +213,6 @@ cdef class IndexHnsw:
                     m_max = self.config.m_max_0
                 if neighbor.edges[l].size > m_max:
                     self._prune_neighbors(neighbor, self.config.m, l)
-
 
 
             l -= 1
@@ -239,6 +245,8 @@ cdef class IndexHnsw:
         cdef pq_entity* pq_e
         cdef pq_entity* _e
 
+        cdef USHORT not_found_steps = 0
+
         while candidates_pq.size > 0:
             pq_e = heappq_pop_min(candidates_pq)
             priority = pq_e.priority
@@ -248,8 +256,11 @@ cdef class IndexHnsw:
 
             lower_bound = heappq_peak_max(result_pq).priority
 
-            if priority > lower_bound:
+            # if priority > lower_bound and result_pq.size >= ef:
+            if priority > lower_bound or not_found_steps >= ef:
                 break
+            elif priority == lower_bound:
+                not_found_steps += 1
 
             edge_set = candidate.edges[level]
             next_edge = edge_set.head_ptr
@@ -269,10 +280,17 @@ cdef class IndexHnsw:
                     heappq_push(candidates_pq, dist, neighbor)
                     heappq_push(result_pq, dist, neighbor)
 
+                    if lower_bound < dist:
+                        lower_bound = dist
+
                     if result_pq.size > ef:
                         _e = heappq_pop_max(result_pq)
                         _e.value = NULL
                         PyMem_Free(_e)
+
+                        lower_bound = heappq_peak_max(result_pq).priority
+
+                    not_found_steps = 0
 
                 # TODO: uncomment the following codes to enlarge search space
                 # elif dist == lower_bound:
@@ -445,7 +463,7 @@ cdef class IndexHnsw:
 
         while not queue_is_empty(island_nodes):
             island = <hnswNode*> queue_pop_head(island_nodes)
-            if island.in_degree > 3:
+            if island.edges[level].indegree > int(0.5*self.config.m):
                 continue
 
             entry_ptr = self.entry_ptr
@@ -498,7 +516,7 @@ cdef class IndexHnsw:
             l -= 1
 
 
-        cdef UINT ef = max(self.config.ef, top_k)
+        cdef UINT ef = max(2*self.config.ef, top_k)
         cdef heappq* neighbors_pq = self.search_level(query, entry_ptr, ef, 0)
         cdef USHORT count = 0
 
@@ -554,6 +572,7 @@ cdef class IndexHnsw:
         cdef queue* candidates_queue = init_queue()
 
         cdef hnswNode* node_ptr = self.entry_ptr
+        cdef hnswNode* next_node
         cdef hnswNode* neighbor
         cdef hnsw_edge_set* edge_set
         cdef hnsw_edge* next_edge
@@ -564,14 +583,24 @@ cdef class IndexHnsw:
         while not queue_is_empty(candidates_queue):
             node_ptr = <hnswNode*> queue_pop_head(candidates_queue)
 
+            # get linked nodes
+            next_node = node_ptr.next
+            while next_node != NULL:
+                if next_node.id in visited_nodes:
+                    next_node = next_node.next
+                    continue
+                queue_push_tail(candidates_queue, next_node)
+                visited_nodes.add(next_node.id)
+                next_node = next_node.next
+
             edge_set = node_ptr.edges[0]
             next_edge = edge_set.head_ptr
 
             while next_edge != NULL:
                 neighbor = next_edge.node
-                if neighbor == NULL:
-                    next_edge = next_edge.next
-                    continue
+                #if neighbor == NULL:
+                #    next_edge = next_edge.next
+                #    continue
 
                 if neighbor.id in visited_nodes:
                     next_edge = next_edge.next
@@ -592,30 +621,51 @@ cdef class IndexHnsw:
     cpdef void dump(self, model_path):
         bf_m = open(os.path.join(model_path, 'graph.meta'), 'wb')
         bf_e = open(os.path.join(model_path, 'graph.edges'), 'wb')
+        bf_inv = open(os.path.join(model_path, 'graph.inv'), 'wb')
 
         # dump hnsw config struct
-        bd = struct.pack("IHHIiiiiif", self.total_size, self.bytes_num, self.max_level, self.entry_ptr.id, self.config.ef, self.config.ef_construction, self.config.m, self.config.m_max, self.config.m_max_0, self.config.level_multiplier)
+        bd = struct.pack("IHHIiiiiiff", self.total_size, self.bytes_num, self.max_level, self.entry_ptr.id, self.config.ef, self.config.ef_construction, self.config.m, self.config.m_max, self.config.m_max_0, self.config.level_multiplier, self.config.epsilon)
         bf_m.write(bd)
 
         cdef queue* nodes_queue = self._get_nodes()
+
         cdef hnsw_edge_set* edge_set
         cdef hnsw_edge* next_edge
+        cdef hnswNode* next_node
+        cdef hnswNode* prev_node
         cdef int l = 0
         cdef UIDX node_id
         cdef DIST dist
 
         while not queue_is_empty(nodes_queue):
             node_ptr = <hnswNode*> queue_pop_head(nodes_queue)
-            bd = struct.pack("IH", node_ptr.id, node_ptr.level)
+            bd = struct.pack("IHH", node_ptr.id, node_ptr.level, node_ptr.low_level)
 
             bf_m.write(bd + PyBytes_FromStringAndSize(<char*> node_ptr.vector, self.bytes_num))
             bf_e.write(bd)
 
-            l = node_ptr.level
+            next_node = node_ptr.next
+
+            if next_node != NULL:
+                prev_node = node_ptr
+                _inv_data = b''
+                _count = 0
+                while next_node != NULL:
+                    inv_bd = struct.pack('II', prev_node.id, next_node.id)
+                    _inv_data += inv_bd
+
+                    prev_node = next_node
+                    next_node = next_node.next
+                    _count += 1
+                bf_inv.write(struct.pack('H', _count) + _inv_data)
+
+            #l = node_ptr.level
 
             edges_bytes = b''
             edges_data_size = 0
-            while l >= 0:
+
+            for l in range(node_ptr.low_level, node_ptr.level+1):
+
                 edge_set = node_ptr.edges[l]
 
                 level_edges_bytes = struct.pack('HH', l, edge_set.size)
@@ -634,7 +684,7 @@ cdef class IndexHnsw:
                 edges_bytes += level_edges_bytes
                 edges_data_size += level_edge_data_size
 
-                l -= 1
+                #l -= 1
 
             edges_bytes = struct.pack('H', edges_data_size) + edges_bytes
 
@@ -643,16 +693,17 @@ cdef class IndexHnsw:
         queue_free(nodes_queue)
         bf_m.close()
         bf_e.close()
+        bf_inv.close()
 
     cpdef void load(self, model_path):
 
         bf_m = open(os.path.join(model_path, 'graph.meta'), 'rb')
 
-        graph_meta_size = 2*sizeof(UIDX) + 2*sizeof(USHORT) + 5*sizeof(int) + sizeof(float)
+        graph_meta_size = 2*sizeof(UIDX) + 2*sizeof(USHORT) + 5*sizeof(int) + 2*sizeof(float)
 
         # load hnsw config struct
         binary_data = bf_m.read(graph_meta_size)
-        tuple_of_data = struct.unpack("IHHIiiiiif", binary_data)
+        tuple_of_data = struct.unpack("IHHIiiiiiff", binary_data)
 
         total_size = tuple_of_data[0]
         bytes_num = tuple_of_data[1]
@@ -669,19 +720,23 @@ cdef class IndexHnsw:
         self.config.m_max = tuple_of_data[7]
         self.config.m_max_0 = tuple_of_data[8]
         self.config.level_multiplier = tuple_of_data[9]
+        self.config.epsilon = tuple_of_data[10]
 
-        node_meta_size = sizeof(UIDX) + sizeof(USHORT)
+        node_meta_size = sizeof(UIDX) + 2*sizeof(USHORT)
         node_size = node_meta_size + self.bytes_num*sizeof(UCHAR)
 
         cdef int count = 0
         cdef hnswNode* node_ptr
         cdef prehash_map* nodes_map = init_prehash_map()
+        cdef UIDX id
+        cdef USHORT level, low_level
 
         while count < total_size:
             bd = bf_m.read(node_size)
-            id, level = struct.unpack("IH", bd[:node_meta_size])
+            id, level, low_level = struct.unpack("IHH", bd[:node_meta_size])
             vector = bd[node_meta_size:]
             node_ptr = create_node(id, level, vector, self.bytes_num)
+            node_ptr.low_level = low_level
             prehash_insert(nodes_map, id, node_ptr)
 
             count += 1
@@ -689,16 +744,17 @@ cdef class IndexHnsw:
 
         self.entry_ptr = <hnswNode*> prehash_get(nodes_map, entry_id)
 
-
         # load graph edges
         bf_e = open(os.path.join(model_path, 'graph.edges'), 'rb')
 
         count = 0
         cdef hnswNode* neighbor_ptr
+        cdef USHORT _level
+
 
         while count < total_size:
-            bd = bf_e.read(sizeof(UIDX) + sizeof(USHORT))
-            id, level = struct.unpack('IH', bd)
+            bd = bf_e.read(sizeof(UIDX) + 2*sizeof(USHORT))
+            id, level, low_level = struct.unpack('IHH', bd)
             node_ptr = <hnswNode*> prehash_get(nodes_map, id)
 
             bd = bf_e.read(sizeof(USHORT))
@@ -707,7 +763,7 @@ cdef class IndexHnsw:
             node_edges_data = bf_e.read(data_len)
             _start_pos = 0
 
-            while level >= 0:
+            for _level in range(node_ptr.low_level, level+1):
                 _l, _size = struct.unpack('HH', node_edges_data[_start_pos:_start_pos+2*sizeof(USHORT)])
                 _start_pos += 2*sizeof(USHORT)
                 while _size > 0:
@@ -720,10 +776,35 @@ cdef class IndexHnsw:
                 level -= 1
 
             count += 1
-
-        prehash_free(nodes_map)
         bf_e.close()
 
+        # load inverted nodes
+        cdef hnswNode* prev_node
+        cdef hnswNode* next_node = NULL
+        cdef USHORT _0, _1
+
+        bf_inv = open(os.path.join(model_path, 'graph.inv'), 'rb')
+        bd = bf_inv.read(sizeof(USHORT))
+        while len(bd) > 0:
+            _count = struct.unpack('H', bd)[0]
+            for _0 in range(_count):
+                p_id, n_id = struct.unpack('II', bf_inv.read(2*sizeof(UIDX)))
+                if next_node != NULL and next_node.id == p_id:
+                    prev_node = next_node
+                else:
+                    prev_node = <hnswNode*> prehash_get(nodes_map, p_id)
+
+                next_node = <hnswNode*> prehash_get(nodes_map, n_id)
+
+                prev_node.next = next_node
+                for _1 in range(next_node.low_level):
+                    PyMem_Free(next_node.edges[_1])
+                    next_node.edges[_1] = prev_node.edges[_1]
+
+            bd = bf_inv.read(sizeof(USHORT))
+        bf_inv.close()
+
+        prehash_free(nodes_map)
 
     cdef void free_hnsw(self):
         cdef queue* nodes_queue = self._get_nodes()
@@ -732,7 +813,6 @@ cdef class IndexHnsw:
             _free_node(node_ptr)
 
         queue_free(nodes_queue)
-
         PyMem_Free(self.config)
         self.config = NULL
 
@@ -765,6 +845,7 @@ cdef class IndexHnsw:
         self.config.m = kwargs.get('m', 12)
         self.config.m_max = kwargs.get('m_max', -1)
         self.config.m_max_0 = kwargs.get('m_max_0', -1)
+        self.config.epsilon = kwargs.get('epsilon', 0)
 
         if self.config.level_multiplier == -1:
             self.config.level_multiplier = 1.0 / log(1.0*self.config.m)
@@ -775,12 +856,12 @@ cdef class IndexHnsw:
         if self.config.m_max_0 == -1:
             self.config.m_max_0 = 2 * self.config.m
 
-        # print('Ef:\t%d' % self.config.ef)
-        # print('Ef-construction:\t%d' % self.config.ef_construction)
-        # print('M:\t%d' % self.config.m)
-        # print('MMax:\t%d' % self.config.m_max)
-        # print('MMax0:\t%d' % self.config.m_max_0)
-        # print('Multiplier:\t%.3f' % self.config.level_multiplier)
+        print('Ef:\t%d' % self.config.ef)
+        print('Ef-construction:\t%d' % self.config.ef_construction)
+        print('M:\t%d' % self.config.m)
+        print('MMax:\t%d' % self.config.m_max)
+        print('MMax0:\t%d' % self.config.m_max_0)
+        print('Multiplier:\t%.3f' % self.config.level_multiplier)
 
         self.entry_ptr = NULL
         self.max_level = 0

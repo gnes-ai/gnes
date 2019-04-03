@@ -15,16 +15,17 @@ cdef struct hnsw_edge:
 cdef struct hnsw_edge_set:
     hnsw_edge* head_ptr
     hnsw_edge* last_ptr
-    UINT size
+    USHORT size
+
+    USHORT indegree
 
 cdef struct hnswNode:
     UIDX id
     BVECTOR vector
     USHORT level
+    USHORT low_level
     hnsw_edge_set** edges
     hnswNode* next
-    USHORT in_degree
-
 
 cdef struct hnswConfig:
     float level_multiplier
@@ -33,3 +34,4 @@ cdef struct hnswConfig:
     int m
     int m_max
     int m_max_0
+    float epsilon
