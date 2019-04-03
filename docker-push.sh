@@ -22,6 +22,13 @@ _docker_push() {
     fi
 }
 
-_docker_push "base"
-_docker_push "encoder"
-_docker_push "indexer"
+if [ -z "$1" ]
+then
+    _docker_push "base"
+    _docker_push "encoder"
+    _docker_push "indexer"
+else
+    _docker_push "base" "master"
+    _docker_push "encoder" "master"
+    _docker_push "indexer" "master"
+fi

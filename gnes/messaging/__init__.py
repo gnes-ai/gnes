@@ -102,8 +102,10 @@ class Message:
     @property
     def msg_content(self):
         ct = self.content_type
-        if 'dtype' in ct and 'shape' in ct:
+        if isinstance(ct, dict) and ct['content_type'] == 'array':
             return np.frombuffer(memoryview(self._msg_content), dtype=str(ct['dtype'])).reshape(ct['shape'])
+        elif isinstance(ct, dict) and ct['content_type'] == 'tuple':
+            return ct['id'], self._msg_content
         elif ct == 'binary':
             return self._msg_content
         else:
@@ -112,12 +114,14 @@ class Message:
     @msg_content.setter
     def msg_content(self, value: Any):
         if isinstance(value, np.ndarray):
-            array_info = dict(dtype=str(value.dtype), shape=value.shape)
-            self.content_type = array_info
+            self.content_type = dict(content_type='array', dtype=str(value.dtype), shape=value.shape)
             self._msg_content = value
         elif isinstance(value, bytes):
             self.content_type = 'binary'
             self._msg_content = value
+        elif isinstance(value, tuple) and isinstance(value[0], list) and isinstance(value[1], bytes):
+            self.content_type = dict(content_type='tuple', id=value[0])
+            self._msg_content = value[1]
         else:
             self._msg_content = jsonapi.dumps(value)
 
