@@ -55,12 +55,13 @@ class LVDBIndexer(BaseTextIndexer):
 class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
+        self._is_listening = Event()
+        self._is_listening.set()
         self._is_idle = Event()
         self._is_idle.set()
-        self._exit_signal = Event()
         self._jobs = []
-        self._thread = Thread(target=self._db_write, args=(), kwargs=None)
-        # self._thread.setDaemon(1)
+        self._thread = Thread(target=self._db_write)
+        self._thread.setDaemon(1)
         self._thread.start()
 
     def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
@@ -70,35 +71,35 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._is_idle.wait()
         return super().query(keys, top_k)
 
-    def _add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
-        self._is_idle.clear()
-        super().add(keys, docs)
-        self._is_idle.set()
-
     def _db_write(self):
-        while not self._exit_signal:
-            if self._jobs:
+        while self._is_listening.is_set():
+            while self._jobs:
+                self._is_idle.clear()
                 keys, docs = self._jobs.pop()
-                self._add(keys, docs)
+                super().add(keys, docs)
+            self._is_idle.set()
 
     def __getstate__(self):
         d = super().__getstate__()
         del d['_thread']
         del d['_is_busy']
-        del d['_exit_signal']
+        del d['_is_listening']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._thread = Thread(target=self._db_write, args=(), kwargs=None)
-        # self._thread.setDaemon(1)
-        self._thread.start()
+        self._is_listening = Event()
+        self._is_listening.set()
         self._is_idle = Event()
         self._is_idle.set()
+        self._thread = Thread(target=self._db_write)
+        self._thread.setDaemon(1)
+        self._thread.start()
         self._jobs = []
 
     def close(self):
         self._jobs.clear()
-        self._exit_signal.set()
+        self._is_listening.clear()
+        self._is_idle.wait()
         self._thread.join()
         super().close()
