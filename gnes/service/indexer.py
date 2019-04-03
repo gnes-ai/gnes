@@ -1,7 +1,8 @@
 import zmq
 
-from .base import BaseService as BS, Message, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
+from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..indexer.base import MultiheadIndexer
+from ..messaging import *
 
 
 class IndexerService(BS):

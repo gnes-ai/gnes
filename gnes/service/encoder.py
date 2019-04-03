@@ -1,8 +1,9 @@
 import zmq
 
-from .base import BaseService as BS, Message, ComponentNotLoad, send_message, ServiceMode, ServiceError, MessageHandler
+from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..document import MultiSentDocument, DocumentMapper
 from ..encoder import PipelineEncoder
+from ..messaging import *
 
 
 class EncoderService(BS):
