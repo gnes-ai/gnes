@@ -7,10 +7,11 @@ from ..numpyindexer import NumpyIndexer
 
 
 class BIndexer(NumpyIndexer):
-    def __init__(self, num_bytes: int = None, *args, **kwargs):
+    def __init__(self, num_bytes: int = None, ef: int = 20, *args, **kwargs):
         # super init will outut: self._vectors, self._doc_ids
         super().__init__(num_bytes, *args, **kwargs)
-        self.bindexer = IndexCore(num_bytes, 4)
+        self.ef = ef
+        self.bindexer = IndexCore(num_bytes, 4, ef)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
@@ -29,10 +30,14 @@ class BIndexer(NumpyIndexer):
         num_rows = int(len(keys) / self.num_bytes)
 
         # no return for empty result
-        q_idx, d_idx = self.bindexer.find_batch_trie(keys, num_rows)
+        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows)
+        # q_idx, d_idx = self.bindexer.find_batch_trie(keys, num_rows)
         result = [[] for _ in range(num_rows)]
-        for (q, d) in zip(q_idx, d_idx):
-            result[q].append(d)
+        for (i, d, q) in zip(doc_ids, dists, q_idx):
+            result[q].append((i, d))
+        for q in range(num_rows):
+            result[q] = result[q][:top_k]
+
         return result
 
     def __getstate__(self):
@@ -42,7 +47,7 @@ class BIndexer(NumpyIndexer):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self.bindexer = IndexCore(self.num_bytes, 4)
+        self.bindexer = IndexCore(self.num_bytes, 4, self.ef)
         self.bindexer.index_trie(self._vectors.tobytes(),
                                  len(self._doc_ids),
                                  self._doc_ids.astype(np.uint32).tobytes())

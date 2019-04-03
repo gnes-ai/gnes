@@ -19,9 +19,9 @@ class TestFIndexer(unittest.TestCase):
 
         self.toy_query = np.array([[1, 2, 1, 2],
                                    [2, 1, 3, 4],
-                                   [3, 2, 2, 1]]).astype(np.uint8)
+                                   [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[234, 123], [432, 1], []]
+        self.toy_exp = [[(234, 0), (123, 0)], [(432, 0), (1, 0)], [(234, 1), (123, 1)]]
 
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'indexer.bin')
@@ -33,7 +33,7 @@ class TestFIndexer(unittest.TestCase):
     def test_db(self):
         fd = BIndexer(self.toy_data.shape[1])
         fd.add(self.toy_label, self.toy_data.tobytes())
-        rs = fd.query(self.toy_query.tobytes())
+        rs = fd.query(self.toy_query.tobytes(), 2)
         self.assertEqual(self.toy_data.shape, fd._vectors.shape)
         self.assertEqual(len(self.toy_label), len(fd._doc_ids))
         self.assertEqual(rs, self.toy_exp)
@@ -44,5 +44,5 @@ class TestFIndexer(unittest.TestCase):
         fd.dump(self.dump_path)
 
         fd2 = BIndexer.load(self.dump_path)
-        rs = fd2.query(self.toy_query.tobytes())
+        rs = fd2.query(self.toy_query.tobytes(), 2)
         self.assertEqual(rs, self.toy_exp)
