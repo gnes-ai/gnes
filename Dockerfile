@@ -9,8 +9,13 @@ RUN pip install -U -e .
 
 FROM base AS encoder
 
+EXPOSE 5310
+EXPOSE 5311
+
 ENTRYPOINT ["gnes", "encode"]
 
 FROM base AS indexer
+
+EXPOSE 5311
 
 ENTRYPOINT ["gnes", "index"]
