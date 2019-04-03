@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: encoder
-    image: docker.oa.com/public/aipd-gnes-encoder:5930f22
+    image: docker.oa.com/public/aipd-gnes-encoder:69bf5ca
     deploy:
       mode: replicated
       replicas: 2
@@ -13,13 +13,34 @@ services:
         delay: 5s
         max_attempts: 3
     ports:
-      - "5000:5000"
+      - "5310:5310"
     networks:
-      - gnes
-    command: --train --yaml_path /test.yml
+      - gnes-net
+    command: --mode TRAIN --yaml_path /test_encoder.yml
     volumes:
-      - "/data1/cips/test.yml:/test.yml"
+      - "/data1/cips/test_encoder.yml:/test_encoder.yml"
       - "/data1/cips/data:/ext_data"
+  indexer:
+    build:
+      context: .
+      target: indexer
+    image: docker.oa.com/public/aipd-gnes-indexer:69bf5ca
+    command: --mode ADD --yaml_path /test_indexer.yml
+    volumes:
+      - "/data1/cips/test_indexer.yml:/test_indexer.yml"
+    networks:
+      - gnes-net
+    deploy:
+      mode: replicated
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
 networks:
-  gnes:
+  gnes-net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
 
