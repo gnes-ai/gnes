@@ -13,9 +13,9 @@ from libc.stdlib cimport rand, RAND_MAX
 from libc.string cimport memcpy
 from libc.math cimport log, floor, abs
 
-from hnsw_cpy.cython_core.heappq cimport heappq, pq_entity, init_heappq, free_heappq, heappq_push, heappq_pop_min, heappq_peak_min, heappq_pop_max, heappq_peak_max
-from hnsw_cpy.cython_core.queue cimport queue, init_queue, queue_push_tail, queue_pop_head, queue_free, queue_is_empty
-from hnsw_cpy.cython_core.prehash cimport prehash_map, init_prehash_map, prehash_insert, prehash_get, prehash_free
+from gnes.indexer.hnsw_indexer.cython.heappq cimport heappq, pq_entity, init_heappq, free_heappq, heappq_push, heappq_pop_min, heappq_peak_min, heappq_pop_max, heappq_peak_max
+from gnes.indexer.hnsw_indexer.cython.queue cimport queue, init_queue, queue_push_tail, queue_pop_head, queue_free, queue_is_empty
+from gnes.indexer.hnsw_indexer.cython.prehash cimport prehash_map, init_prehash_map, prehash_insert, prehash_get, prehash_free
 
 
 cdef hnswNode* create_node(UIDX id, USHORT level, BVECTOR vector, USHORT bytes_num):
