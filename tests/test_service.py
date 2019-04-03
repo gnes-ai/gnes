@@ -21,6 +21,7 @@ class TestService(unittest.TestCase):
         with open(self.data_path, encoding='utf8') as fp:
             self.test_data1 = [v for v in fp if v.strip()]
 
+    @classmethod
     def tearDownClass(cls):
         if os.path.exists(cls.dump_path):
             os.remove(cls.dump_path)

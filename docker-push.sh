@@ -13,7 +13,7 @@ if [ -z "$1" ]
     docker build --rm --target $TARGET -t docker.oa.com/public/${PROJ_NAME}:$GIT_TAG .
     docker push docker.oa.com/public/$PROJ_NAME:$GIT_TAG
     printf 'done! and to run the container simply do:\n'
-    printf "\e[1;33mdocker run -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
+    printf "\e[1;33mdocker run --rm -v /data1/cips/data:/ext_data -it docker.oa.com/public/$PROJ_NAME:$GIT_TAG bash\e[0m\n"
   else
     GIT_TAG=$1
     printf "you are publishing a new version: \e[1;33m$GIT_TAG\e[0m\n"
