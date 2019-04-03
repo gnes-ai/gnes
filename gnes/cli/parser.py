@@ -28,7 +28,7 @@ def set_nes_index_parser(parser=set_base_parser()):
 
 
 def set_nes_search_parser(parser=set_base_parser()):
-    parser.add_argument('--model_path', type=str, required=True,
+    parser.add_argument('--dump_path', type=str, required=True,
                         help='binary dump of a trained encoder')
     parser.add_argument('--query', type=str, required=False,
                         help='text query(s) to search, each line is a query')
@@ -52,28 +52,26 @@ def set_service_parser(parser=set_base_parser()):
 
 
 def set_encoder_service_parser(parser=set_base_parser()):
+    from ..service import ServiceMode
     set_service_parser(parser)
-    parser.add_argument('--model_path', type=str, default=None,
-                        help='binary dump of a trained encoder, override the path if with --train')
-    parser.add_argument('--train', action='store_true', default=False,
-                        help='train an encoder and dump the model to a file')
+    parser.add_argument('--dump_path', type=str, default=None,
+                        help='binary dump of the service')
+    parser.add_argument('--mode', type=ServiceMode.from_string, choices=list(ServiceMode),
+                        required=True,
+                        help='mode of this service')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=pkg_resources.resource_stream('gnes',
-                                                              '/'.join(
-                                                                  ('resources', 'config', 'encoder', 'default.yml'))),
-                        help='binary dump of a trained encoder')
+                        default=pkg_resources.resource_stream(
+                            'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),
+                        help='yaml config of the service')
     return parser
 
 
 def set_indexer_service_parser(parser=set_base_parser()):
-    set_service_parser(parser)
-    parser.add_argument('--model_path', type=str, default=None,
-                        help='binary dump of a trained encoder, override the path if with --train')
-    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=pkg_resources.resource_stream('gnes',
-                                                              '/'.join(
-                                                                  ('resources', 'config', 'encoder', 'default.yml'))),
-                        help='binary dump of a trained encoder')
+    set_encoder_service_parser(parser)
+    parser.add_argument('--top_k', type=int, default=10,
+                        help='number of top results to retrieve')
+    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+        'gnes', '/'.join(('resources', 'config', 'indexer', 'default.yml'))))
     return parser
 
 
@@ -84,7 +82,7 @@ def get_main_parser():
                                description='Commands',
                                help='Description', dest='cli')
 
-    set_indexer_service_parser(sp.add_parser('index', help='building an index'))
     set_nes_search_parser(sp.add_parser('search', help='searching an index'))
-    set_encoder_service_parser(sp.add_parser('encode', help='searching an index'))
+    set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
+    set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     return parser

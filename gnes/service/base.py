@@ -1,4 +1,5 @@
 import threading
+from enum import Enum
 from typing import Union, List, Optional, Any
 
 import numpy as np
@@ -8,6 +9,22 @@ from termcolor import colored
 from zmq.utils import jsonapi
 
 from ..helper import set_logger
+
+
+class ServiceMode(Enum):
+    TRAIN = 0
+    ADD = 1
+    QUERY = 2
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def from_string(s):
+        try:
+            return ServiceMode[s]
+        except KeyError:
+            raise ValueError()
 
 
 class Message:
@@ -209,15 +226,19 @@ class MessageHandler:
 
     def serve(self, msg: Message):
         if not isinstance(msg, Message):
-            self.logger.error('dont know how to handle message: %s' % msg)
+            raise ServiceError('dont know how to handle message: %s' % msg)
         fn = self.routes.get(msg.msg_type, None)
         if fn is None:
-            self.logger.error('dont know how to handle message with type: %s' % msg.msg_type)
+            raise ServiceError('dont know how to handle message with type: %s' % msg.msg_type)
         else:
             return fn
 
 
 class ComponentNotLoad(Exception):
+    pass
+
+
+class ServiceError(Exception):
     pass
 
 
@@ -234,11 +255,14 @@ class BaseService(threading.Thread):
         self._run()
 
     def message_handler(self, msg: Message):
-        fn = self.handler.serve(msg)
-        if fn:
-            msg.route += ' -> '.join([msg.route, self.__class__.__name__])
-            self.logger.info('handling a message with route: %s' % msg.route)
-            fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
+        try:
+            fn = self.handler.serve(msg)
+            if fn:
+                msg.route += ' -> '.join([msg.route, self.__class__.__name__])
+                self.logger.info('handling a message of type: %s with route: %s' % (msg.msg_type, msg.route))
+                fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
+        except ServiceError as e:
+            self.logger.error(e)
 
     @zmqd.context()
     @zmqd.socket(zmq.PULL)
@@ -266,6 +290,7 @@ class BaseService(threading.Thread):
         try:
             self._post_init()
             self.is_ready.set()
+            self.logger.info('ready and listening')
             while True:
                 pull_sock = None
                 socks = dict(poller.poll())

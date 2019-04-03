@@ -1,0 +1,11 @@
+!PipelineEncoder
+component:
+  binary_indexer: !NumpyIndexer
+    parameter:
+      num_bytes: 8
+  sent_doc_indexer: !LVDBIndexer
+    parameter:
+      data_path: ./test_db1
+  doc_content_indexer: !LVDBIndexer
+    parameter:
+      data_path: ./test_db2
