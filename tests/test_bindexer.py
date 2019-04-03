@@ -19,9 +19,9 @@ class TestFIndexer(unittest.TestCase):
 
         self.toy_query = np.array([[1, 2, 1, 2],
                                    [2, 1, 3, 4],
-                                   [3, 2, 2, 1]]).astype(np.uint8)
+                                   [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[234, 123], [432, 1], []]
+        self.toy_exp = [[(234, 0), (123, 0)], [(432, 0), (1, 0)], [(234, 1), (123, 1)]]
 
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'indexer.bin')
