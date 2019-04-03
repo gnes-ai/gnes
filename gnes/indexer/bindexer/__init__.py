@@ -32,7 +32,7 @@ class BIndexer(NumpyIndexer):
         result = [[] for _ in range(num_rows)]
 
         # find the indexed items with same value
-        q_idx, doc_ids = self.find_batch_trie(keys, num_rows)
+        q_idx, doc_ids = self.bindexer.find_batch_trie(keys, num_rows)
         for (i, q) in zip(doc_ids, q_idx):
             result[q].append((i, 0))
 
