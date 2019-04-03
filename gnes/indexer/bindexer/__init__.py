@@ -10,6 +10,7 @@ class BIndexer(NumpyIndexer):
     def __init__(self, num_bytes: int = None, ef: int = 20, *args, **kwargs):
         # super init will outut: self._vectors, self._doc_ids
         super().__init__(num_bytes, *args, **kwargs)
+        self.ef = ef
         self.bindexer = IndexCore(num_bytes, 4, ef)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
@@ -46,7 +47,7 @@ class BIndexer(NumpyIndexer):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self.bindexer = IndexCore(self.num_bytes, 4)
+        self.bindexer = IndexCore(self.num_bytes, 4, self.ef)
         self.bindexer.index_trie(self._vectors.tobytes(),
                                  len(self._doc_ids),
                                  self._doc_ids.astype(np.uint32).tobytes())
