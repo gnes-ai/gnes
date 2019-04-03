@@ -1,11 +1,13 @@
 import zmq
 
-from .base import BaseService as BS, Message, ComponentNotLoad, send_message, ServiceMode, ServiceError
+from .base import BaseService as BS, Message, ComponentNotLoad, send_message, ServiceMode, ServiceError, MessageHandler
 from ..document import MultiSentDocument, DocumentMapper
 from ..encoder import PipelineEncoder
 
 
 class EncoderService(BS):
+    handler = MessageHandler(BS.handler)
+
     def _post_init(self):
         self.encoder = None
         try:
@@ -24,10 +26,10 @@ class EncoderService(BS):
     def _raise_empty_model_error(self):
         raise ValueError('no model config available, exit!')
 
-    @BS.handler.register(Message.typ_default)
+    @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
-        sents, sent_ids = doc_mapper.sent_id_sentence
+        sent_ids, sents = doc_mapper.sent_id_sentence
         if not sents:
             raise ServiceError('received an empty list, nothing to do')
         if self.args.mode == ServiceMode.TRAIN:
@@ -44,7 +46,7 @@ class EncoderService(BS):
             vecs = self.encoder.encode(sents)
             send_message(out, msg.copy_mod(msg_content=vecs), self.args.timeout)
         else:
-            raise ServiceError('unknown service mode: %s' % self.args.mode)
+            raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 
     def close(self):
         if self.encoder:

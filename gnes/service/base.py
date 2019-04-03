@@ -213,8 +213,8 @@ def send_terminate_message(*args, **kwargs):
 
 
 class MessageHandler:
-    def __init__(self):
-        self.routes = {}
+    def __init__(self, mh: 'MessageHandler' = None):
+        self.routes = {k: v for k, v in mh.routes.items()} if mh else {}
         self.logger = set_logger(self.__class__.__name__)
 
     def register(self, msg_type: str):

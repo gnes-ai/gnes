@@ -1,10 +1,12 @@
 import zmq
 
-from .base import BaseService as BS, Message, ComponentNotLoad, ServiceMode, ServiceError
+from .base import BaseService as BS, Message, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..indexer.base import MultiheadIndexer
 
 
 class IndexerService(BS):
+    handler = MessageHandler(BS.handler)
+
     def _post_init(self):
         self.indexer = None
         try:
@@ -20,20 +22,20 @@ class IndexerService(BS):
             else:
                 raise ComponentNotLoad
 
-    @BS.handler.register(Message.typ_default)
+    @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         if self.args.mode == ServiceMode.ADD:
             self.indexer.add(*msg.msg_content, head_name='binary_indexer')
         elif self.args.mode == ServiceMode.QUERY:
             self.indexer.query(msg.msg_content, top_k=self.args.top_k)
         else:
-            raise ServiceError('unknown service mode: %s' % self.args.mode)
+            raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 
-    @BS.handler.register('SENT_ID_MAP')
+    @handler.register('SENT_ID_MAP')
     def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
         self.indexer.add(*msg.msg_content, head_name='sent_doc_indexer')
 
-    @BS.handler.register('DOC_ID_MAP')
+    @handler.register('DOC_ID_MAP')
     def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
         self.indexer.add(*msg.msg_content, head_name='doc_content_indexer')
 
