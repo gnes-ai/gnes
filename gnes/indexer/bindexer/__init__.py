@@ -29,10 +29,11 @@ class BIndexer(NumpyIndexer):
         num_rows = int(len(keys) / self.num_bytes)
 
         # no return for empty result
-        q_idx, d_idx = self.bindexer.find_batch_trie(keys, num_rows)
+        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows)
+        # q_idx, d_idx = self.bindexer.find_batch_trie(keys, num_rows)
         result = [[] for _ in range(num_rows)]
-        for (q, d) in zip(q_idx, d_idx):
-            result[q].append(d)
+        for (i, d, q) in zip(doc_ids, dists, q_idx):
+            result[q].append((i, d))
         return result
 
     def __getstate__(self):
