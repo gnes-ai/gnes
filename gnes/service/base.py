@@ -237,6 +237,7 @@ class BaseService(threading.Thread):
         fn = self.handler.serve(msg)
         if fn:
             msg.route += ' -> '.join([msg.route, self.__class__.__name__])
+            self.logger.info('handling a message with route: %s' % msg.route)
             fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
 
     @zmqd.context()

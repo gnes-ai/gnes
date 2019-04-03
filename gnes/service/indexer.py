@@ -1,7 +1,7 @@
 import zmq
 
-from gnes.indexer.base import MultiheadIndexer
 from . import BaseService as BS, Message
+from ..indexer.base import MultiheadIndexer
 
 
 class IndexerService(BS):

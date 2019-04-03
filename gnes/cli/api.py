@@ -5,16 +5,9 @@ def encode(args):
 
 
 def index(args):
-    from ..module import GNES
-    from ..document import UniSentDocument
-    import glob
-
-    with GNES.load_yaml(args.config) as gnes:
-        for f in glob.glob(args.document):
-            docs = UniSentDocument.from_file(f)
-            gnes.train(docs)
-            gnes.add(docs)
-        gnes.dump()
+    from ..service import IndexerService
+    with IndexerService(args) as es:
+        es.join()
 
 
 def search(args):
