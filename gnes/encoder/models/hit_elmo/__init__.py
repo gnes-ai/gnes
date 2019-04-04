@@ -21,16 +21,13 @@ class HitElmo(BaseTorchModel):
     codes are borrowed from: https://github.com/HIT-SCIR/ELMoForManyLangs
     """
 
-    def __init__(self,
-                 model_dir,
-                 config_path,
-                 use_cuda=None,
-                 *args,
-                 **kwargs):
-        super().__init__(model_dir, use_cuda, *args, **kwargs)
+    def __init__(self, model_dir, config_path, use_cuda=None, *args, **kwargs):
+        super().__init__(use_cuda=use_cuda, *args, **kwargs)
 
         with open(config_path, 'r') as f:
             self.config = json.load(f)
+
+        self.model_dir = model_dir
 
         # initializse model instance
         self.get_model()
