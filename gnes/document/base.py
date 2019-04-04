@@ -98,13 +98,13 @@ def filter_sentences(lst: List[str],
 
 class DocumentMapper:
     def __init__(self, docs: List[BaseDocument], key_as_ndarray: bool = False):
-        self._docs = docs
         self._key_as_nparray = key_as_ndarray
         self.length = len(docs)
-        self._sentences = [s for d in self._docs for s in d.sentences]
-        self._sentence_ids = self.list2array([s_id for d in self._docs for s_id in d.sentence_ids])
-        self._doc_ids_repeat = self.list2array([d.id for d in self._docs for _ in d.sentence_ids])
-        self._doc_ids = self.list2array([d.id for d in self._docs])
+        self._sentences = [s for d in docs for s in d.sentences]
+        self._sentence_ids = self.list2array([s_id for d in docs for s_id in d.sentence_ids])
+        self._doc_ids_repeat = self.list2array([d.id for d in docs for _ in d.sentence_ids])
+        self._doc_ids = self.list2array([d.id for d in docs])
+        self._contents = [d.content for d in docs]
 
     def list2array(self, lst: List[int]) -> Union[np.ndarray, List[int]]:
         return np.array(lst) if self._key_as_nparray else lst
@@ -119,4 +119,4 @@ class DocumentMapper:
 
     @property
     def doc_id_document(self) -> Tuple[Union[np.ndarray, List[int]], List[Any]]:
-        return self._doc_ids, self._docs
+        return self._doc_ids, self._contents
