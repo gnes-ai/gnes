@@ -29,12 +29,21 @@ class BIndexer(NumpyIndexer):
 
         num_rows = int(len(keys) / self.num_bytes)
 
-        # no return for empty result
-        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows)
-        # q_idx, d_idx = self.bindexer.find_batch_trie(keys, num_rows)
         result = [[] for _ in range(num_rows)]
+
+        # find the indexed items with same value
+        q_idx, doc_ids = self.bindexer.find_batch_trie(keys, num_rows)
+        for (i, q) in zip(doc_ids, q_idx):
+            result[q].append((i, 0))
+
+        # search the indexed items with similary value
+        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows)
         for (i, d, q) in zip(doc_ids, dists, q_idx):
+            if d == 0:
+                continue
             result[q].append((i, d))
+
+        # get the top-k
         for q in range(num_rows):
             result[q] = result[q][:top_k]
 
