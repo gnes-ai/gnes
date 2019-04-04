@@ -37,7 +37,6 @@ class HitElmo(BaseTorchModel):
 
         with open(config_path, 'r') as f:
             self.config = json.load(f)
-
         """
             0 for the word encoder
             1 for the first LSTM hidden layer
@@ -125,7 +124,8 @@ class HitElmo(BaseTorchModel):
                 elif self.pooling_layer >= 0:
                     payload = data[self.pooling_layer]
                 else:
-                    raise ValueError('pooling_layer = %d is not supported now!' % self.pooling_layer)
+                    raise ValueError('pooling_layer = %d is not supported now!'
+                                     % self.pooling_layer)
 
                 pooled_data = payload
                 if self.pooling_strategy == 'REDUCE_MEAN':
@@ -133,9 +133,13 @@ class HitElmo(BaseTorchModel):
                 elif self.pooling_strategy == 'REDUCE_MAX':
                     pooled_data = np.amax(payload, axis=0)
                 elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
-                    pooled_data = np.concatenate((np.mean(payload, axis=0), np.amax(payload, axis=0)), axis=1)
+                    pooled_data = np.concatenate(
+                        (np.mean(payload, axis=0), np.amax(payload, axis=0)),
+                        axis=1)
                 else:
-                    raise ValueError('pooling_strategy: %s has not been implemented' % self.pooling_strategy)
+                    raise ValueError(
+                        'pooling_strategy: %s has not been implemented' %
+                        self.pooling_strategy)
 
                 after_elmo.append(pooled_data)
 

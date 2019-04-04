@@ -163,25 +163,14 @@ class TimeContext:
 
 
 class Tokenizer:
-    _is_init = False
-
     def __init__(self, dict_path : str = None):
         self._jieba = jieba.Tokenizer()
         self._jieba.cache_file = "gnes.jieba_wrapper.cache"
 
         if dict_path is not None:
-            self._load(dict_path=dict_path)
-
-    def _load(self, dict_path=None):
-        if self._is_init:
-            return
-        if dict_path:
             self._jieba.load_userdict(dict_path)
-        self._is_init = True
 
     def tokenize(self, text, with_position=False):
-        if not self._is_init:
-            raise Exception('Tokenizer does not init.')
         if not with_position:
             return self._jieba.lcut(text)    # resulted token list
         else:

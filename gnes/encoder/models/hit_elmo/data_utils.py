@@ -7,7 +7,6 @@ import torch
 from torch.autograd import Variable
 
 
-
 def get_lengths_from_binary_sequence_mask(mask: torch.Tensor):
     """
     Compute sequence lengths for each batch element in a tensor using a
