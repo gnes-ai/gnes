@@ -9,20 +9,37 @@ from ..helper import set_logger
 from ..messaging import *
 
 
-class ServiceMode(Enum):
-    TRAIN = 0
-    ADD = 1
-    QUERY = 2
-
+class BetterEnum(Enum):
     def __str__(self):
         return self.name
 
-    @staticmethod
-    def from_string(s):
+    @classmethod
+    def from_string(cls, s):
         try:
-            return ServiceMode[s]
+            return cls[s]
         except KeyError:
             raise ValueError()
+
+
+class SocketType(BetterEnum):
+    PULL_BIND = 0
+    PULL_CONNECT = 1
+    PUSH_BIND = 2
+    PUSH_CONNECT = 3
+    SUB_BIND = 4
+    SUB_CONNECT = 5
+    PUB_BIND = 6
+    PUB_CONNECT = 7
+
+    @property
+    def is_bind(self):
+        return self.value % 2 == 0
+
+
+class ServiceMode(BetterEnum):
+    TRAIN = 0
+    ADD = 1
+    QUERY = 2
 
 
 class ComponentNotLoad(Exception):
@@ -57,12 +74,14 @@ class MessageHandler:
 
 class BaseService(threading.Thread):
     handler = MessageHandler()
+    default_host = '0.0.0.0'
 
     def __init__(self, args):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.is_ready = threading.Event()
+        self.is_event_loop = threading.Event()
 
     def run(self):
         self._run()
@@ -78,23 +97,46 @@ class BaseService(threading.Thread):
             self.logger.error(e)
 
     @zmqd.context()
-    @zmqd.socket(zmq.PULL)
-    @zmqd.socket(zmq.PUSH)
     @zmqd.socket(zmq.PAIR)
-    def _run(self, _, in_sock: 'zmq.Socket', out_sock: 'zmq.Socket', ctrl_sock: 'zmq.Socket'):
-        _.setsockopt(zmq.LINGER, 0)
+    def _run(self, ctx, ctrl_sock: 'zmq.Socket'):
+        ctx.setsockopt(zmq.LINGER, 0)
         self.logger.info('bind sockets...')
-        in_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_in))
-        out_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_out))
-        ctrl_sock.bind('tcp://%s:%d' % (self.args.host, self.args.port_ctrl))
+        ctrl_sock.bind('tcp://%s:%d' % (self.default_host, self.args.port_ctrl))
+        in_sock = {
+            SocketType.PULL_BIND: lambda: ctx.socket(zmq.PULL),
+            SocketType.PULL_CONNECT: lambda: ctx.socket(zmq.PULL),
+            SocketType.SUB_BIND: lambda: ctx.socket(zmq.SUB),
+            SocketType.SUB_CONNECT: lambda: ctx.socket(zmq.SUB)
+        }[self.args.socket_in]()
+
+        out_sock = {
+            SocketType.PUB_BIND: lambda: ctx.socket(zmq.PUB),
+            SocketType.PUB_CONNECT: lambda: ctx.socket(zmq.PUB),
+            SocketType.PUSH_BIND: lambda: ctx.socket(zmq.PUSH),
+            SocketType.PUSH_CONNECT: lambda: ctx.socket(zmq.PUSH)
+        }[self.args.socket_out]()
+
+        if self.args.socket_in.is_bind:
+            in_sock.bind('tcp://%s:%d' % (self.args.host_in, self.args.port_in))
+            self.logger.info('in-bind')
+        else:
+            in_sock.connect('tcp://%s:%d' % (self.args.host_in, self.args.port_in))
+            self.logger.info('in-connect')
+
+        if self.args.socket_out.is_bind:
+            out_sock.bind('tcp://%s:%d' % (self.args.host_out, self.args.port_out))
+            self.logger.info('out-bind')
+        else:
+            out_sock.connect('tcp://%s:%d' % (self.args.host_out, self.args.port_out))
+            self.logger.info('out-connect')
+
         self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
 
         self.logger.info(
-            'host: %s listen on %s\t output to %s\t control over %s' % (
-                colored(self.args.host, 'yellow'),
-                colored(self.args.port_in, 'yellow'),
-                colored(self.args.port_out, 'yellow'),
-                colored(self.args.port_ctrl, 'yellow')))
+            'input %s:%s\t output %s:%s\t control over %s:%s' % (
+                self.args.host_in, colored(self.args.port_in, 'yellow'),
+                self.args.host_out, colored(self.args.port_out, 'yellow'),
+                self.default_host, colored(self.args.port_ctrl, 'yellow')))
 
         poller = zmq.Poller()
         poller.register(in_sock, zmq.POLLIN)
@@ -103,8 +145,9 @@ class BaseService(threading.Thread):
         try:
             self._post_init()
             self.is_ready.set()
+            self.is_event_loop.set()
             self.logger.info('ready and listening')
-            while True:
+            while self.is_event_loop.is_set():
                 pull_sock = None
                 socks = dict(poller.poll())
                 if socks.get(in_sock) == zmq.POLLIN:
@@ -116,11 +159,15 @@ class BaseService(threading.Thread):
                 msg = recv_message(pull_sock)
                 self.message_handler(msg)
         except StopIteration:
-            self.logger.info('terminated')
+            self.logger.info('break from the event loop')
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
         finally:
             self.is_ready.set()
+            self.is_event_loop.clear()
+            self.in_sock.close()
+            self.out_sock.close()
+        self.logger.info('terminated')
 
     def _post_init(self):
         pass
@@ -136,14 +183,16 @@ class BaseService(threading.Thread):
     @handler.register(Message.typ_terminate)
     def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
         send_message(out, msg)
+        self.is_event_loop.clear()
         raise StopIteration
 
     def close(self):
-        send_terminate_message(self.args.host, self.args.port_ctrl)
+        if self.is_event_loop.is_set():
+            send_terminate_message(self.default_host, self.args.port_ctrl)
 
     @property
     def status(self):
-        return send_ctrl_message(self.args.host, self.args.port_ctrl, Message(msg_type=Message.typ_status))
+        return send_ctrl_message(self.default_host, self.args.port_ctrl, Message(msg_type=Message.typ_status))
 
     def __enter__(self):
         self.start()
