@@ -3,17 +3,27 @@ import torch.nn as nn
 
 
 class EmbeddingLayer(nn.Module):
-    def __init__(self, n_d, word2id, embs=None, fix_emb=True, oov='<oov>', pad='<pad>', normalize=True, logger=None):
+
+    def __init__(self,
+                 n_d,
+                 word2id,
+                 embs=None,
+                 fix_emb=True,
+                 oov='<oov>',
+                 pad='<pad>',
+                 normalize=True,
+                 logger=None):
         super().__init__()
         self.logger = logger
         if embs is not None:
             embwords, embvecs = embs
 
-            self.logger.info(
-                "{} pre-trained word embeddings loaded.".format(len(word2id)))
+            self.logger.info("{} pre-trained word embeddings loaded.".format(
+                len(word2id)))
             if n_d != len(embvecs[0]):
-                self.logger.warning("[WARNING] n_d ({}) != word vector size ({}). Use {} for embeddings.".format(
-                    n_d, len(embvecs[0]), len(embvecs[0])))
+                self.logger.warning(
+                    "[WARNING] n_d ({}) != word vector size ({}). Use {} for embeddings."
+                    .format(n_d, len(embvecs[0]), len(embvecs[0])))
                 n_d = len(embvecs[0])
 
         self.word2id = word2id

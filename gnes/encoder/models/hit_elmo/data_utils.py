@@ -1,6 +1,6 @@
-
 import random
 import torch
+
 
 def preprocess_data(sents, max_chars=None):
     """
@@ -35,7 +35,13 @@ def recover(li, ind):
     return li
 
 
-def create_one_batch(x, word2id, char2id, config, oov='<oov>', pad='<pad>', sort=True):
+def create_one_batch(x,
+                     word2id,
+                     char2id,
+                     config,
+                     oov='<oov>',
+                     pad='<pad>',
+                     sort=True):
     """
     Create one batch of input.
     :param x: List[List[str]]
@@ -71,8 +77,9 @@ def create_one_batch(x, word2id, char2id, config, oov='<oov>', pad='<pad>', sort
 
     # get a batch of character id whose size is (batch x max_len x max_chars)
     if char2id is not None:
-        bow_id, eow_id, oov_id, pad_id = [char2id.get(
-            key, None) for key in ('<eow>', '<bow>', oov, pad)]
+        bow_id, eow_id, oov_id, pad_id = [
+            char2id.get(key, None) for key in ('<eow>', '<bow>', oov, pad)
+        ]
 
         assert bow_id is not None and eow_id is not None and oov_id is not None and pad_id is not None
 
@@ -86,8 +93,8 @@ def create_one_batch(x, word2id, char2id, config, oov='<oov>', pad='<pad>', sort
             raise ValueError('Unknown token_embedder: {0}'.format(
                 config['token_embedder']['name']))
 
-        batch_c = torch.LongTensor(
-            batch_size, max_len, max_chars).fill_(pad_id)
+        batch_c = torch.LongTensor(batch_size, max_len,
+                                   max_chars).fill_(pad_id)
 
         for i, x_i in enumerate(x):
             for j, x_ij in enumerate(x_i):
@@ -128,7 +135,15 @@ def create_one_batch(x, word2id, char2id, config, oov='<oov>', pad='<pad>', sort
 
 
 # shuffle training examples and create mini-batches
-def create_batches(x, batch_size, word2id, char2id, config, perm=None, shuffle=False, sort=True, text=None):
+def create_batches(x,
+                   batch_size,
+                   word2id,
+                   char2id,
+                   config,
+                   perm=None,
+                   shuffle=False,
+                   sort=True,
+                   text=None):
     ind = list(range(len(x)))
     lst = perm or list(range(len(x)))
     if shuffle:
@@ -149,15 +164,15 @@ def create_batches(x, batch_size, word2id, char2id, config, perm=None, shuffle=F
     for i in range(nbatch):
         start_id, end_id = i * size, (i + 1) * size
         bw, bc, blens, bmasks = create_one_batch(
-            x[start_id: end_id], word2id, char2id, config, sort=sort)
+            x[start_id:end_id], word2id, char2id, config, sort=sort)
         sum_len += sum(blens)
         batches_w.append(bw)
         batches_c.append(bc)
         batches_lens.append(blens)
         batches_masks.append(bmasks)
-        batches_ind.append(ind[start_id: end_id])
+        batches_ind.append(ind[start_id:end_id])
         if text is not None:
-            batches_text.append(text[start_id: end_id])
+            batches_text.append(text[start_id:end_id])
 
     if sort:
         perm = list(range(nbatch))

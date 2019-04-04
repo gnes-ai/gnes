@@ -6,6 +6,7 @@ from .highway import Highway
 
 
 class LstmTokenEmbedder(nn.Module):
+
     def __init__(self, config, word_emb_layer, char_emb_layer, use_cuda=False):
         super(LstmTokenEmbedder, self).__init__()
         self.config = config
@@ -19,8 +20,13 @@ class LstmTokenEmbedder(nn.Module):
 
         if char_emb_layer is not None:
             emb_dim += char_emb_layer.n_d * 2
-            self.char_lstm = nn.LSTM(char_emb_layer.n_d, char_emb_layer.n_d, num_layers=1, bidirectional=True,
-                                     batch_first=True, dropout=config['dropout'])
+            self.char_lstm = nn.LSTM(
+                char_emb_layer.n_d,
+                char_emb_layer.n_d,
+                num_layers=1,
+                bidirectional=True,
+                batch_first=True,
+                dropout=config['dropout'])
 
         self.projection = nn.Linear(emb_dim, self.output_dim, bias=True)
 
@@ -29,16 +35,18 @@ class LstmTokenEmbedder(nn.Module):
         batch_size, seq_len = shape
         if self.word_emb_layer is not None:
             word_emb = self.word_emb_layer(
-                Variable(word_inp).cuda() if self.use_cuda else Variable(word_inp))
+                Variable(word_inp).cuda() if self.
+                use_cuda else Variable(word_inp))
             embs.append(word_emb)
 
         if self.char_emb_layer is not None:
             chars_inp = chars_inp.view(batch_size * seq_len, -1)
             chars_emb = self.char_emb_layer(
-                Variable(chars_inp).cuda() if self.use_cuda else Variable(chars_inp))
+                Variable(chars_inp).cuda() if self.
+                use_cuda else Variable(chars_inp))
             _, (chars_outputs, __) = self.char_lstm(chars_emb)
-            chars_outputs = chars_outputs.contiguous(
-            ).view(-1, self.config['token_embedder']['char_dim'] * 2)
+            chars_outputs = chars_outputs.contiguous().view(
+                -1, self.config['token_embedder']['char_dim'] * 2)
             embs.append(chars_outputs)
 
         token_embedding = torch.cat(embs, dim=2)
@@ -47,6 +55,7 @@ class LstmTokenEmbedder(nn.Module):
 
 
 class ConvTokenEmbedder(nn.Module):
+
     def __init__(self, config, word_emb_layer, char_emb_layer, use_cuda):
         super(ConvTokenEmbedder, self).__init__()
         self.config = config
@@ -71,8 +80,7 @@ class ConvTokenEmbedder(nn.Module):
                     in_channels=char_embed_dim,
                     out_channels=num,
                     kernel_size=width,
-                    bias=True
-                )
+                    bias=True)
                 self.convolutions.append(conv)
 
             self.convolutions = nn.ModuleList(self.convolutions)
@@ -81,7 +89,9 @@ class ConvTokenEmbedder(nn.Module):
             self.n_highway = cnn_config['n_highway']
 
             self.highways = Highway(
-                self.n_filters, self.n_highway, activation=torch.nn.functional.relu)
+                self.n_filters,
+                self.n_highway,
+                activation=torch.nn.functional.relu)
             self.emb_dim += self.n_filters
 
         self.projection = nn.Linear(self.emb_dim, self.output_dim, bias=True)
@@ -92,14 +102,16 @@ class ConvTokenEmbedder(nn.Module):
         if self.word_emb_layer is not None:
             batch_size, seq_len = word_inp.size(0), word_inp.size(1)
             word_emb = self.word_emb_layer(
-                Variable(word_inp).cuda() if self.use_cuda else Variable(word_inp))
+                Variable(word_inp).cuda() if self.
+                use_cuda else Variable(word_inp))
             embs.append(word_emb)
 
         if self.char_emb_layer is not None:
             chars_inp = chars_inp.view(batch_size * seq_len, -1)
 
             character_embedding = self.char_emb_layer(
-                Variable(chars_inp).cuda() if self.use_cuda else Variable(chars_inp))
+                Variable(chars_inp).cuda() if self.
+                use_cuda else Variable(chars_inp))
 
             character_embedding = torch.transpose(character_embedding, 1, 2)
 
