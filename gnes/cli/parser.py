@@ -2,6 +2,7 @@ import argparse
 
 import pkg_resources
 
+from gnes.service.base import SocketType, BaseService
 from .. import __version__
 
 
@@ -44,12 +45,20 @@ def set_nes_search_parser(parser=None):
 def set_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    parser.add_argument('--host', type=str, default='0.0.0.0',
-                        help='the ip address of the host')
     parser.add_argument('--port_in', type=int, default=5310,
                         help='port for input data')
     parser.add_argument('--port_out', type=int, default=5311,
                         help='port for output data')
+    parser.add_argument('--host_in', type=str, default=BaseService.default_host,
+                        help='host address for input')
+    parser.add_argument('--host_out', type=str, default=BaseService.default_host,
+                        help='host address for output')
+    parser.add_argument('--socket_in', type=SocketType.from_string, choices=list(SocketType),
+                        default=SocketType.PULL_BIND,
+                        help='socket type for input port')
+    parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
+                        default=SocketType.PUSH_BIND,
+                        help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int, default=5312,
                         help='port for control the service')
     parser.add_argument('--timeout', type=int, default=5000,
@@ -71,6 +80,9 @@ def set_encoder_service_parser(parser=None):
                         default=pkg_resources.resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),
                         help='yaml config of the service')
+
+    parser.set_defaults(socket_in=SocketType.PULL_BIND)
+    parser.set_defaults(socket_out=SocketType.PUSH_BIND)
     return parser
 
 
@@ -88,6 +100,8 @@ def set_indexer_service_parser(parser=None):
     # +1 is reserved for port_ctrl
     parser.set_defaults(port_out=parser.get_default('port_out') + 2)
     parser.set_defaults(port_ctrl=parser.get_default('port_out') + 2)
+    parser.set_defaults(socket_in=SocketType.PULL_CONNECT)
+    parser.set_defaults(socket_out=SocketType.PUSH_BIND)
     return parser
 
 
