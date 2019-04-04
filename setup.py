@@ -59,6 +59,7 @@ setup(
     install_requires=[
         'numpy',
         'termcolor',
+        'jieba',
         'bert-serving-server>=1.8.6',
         'bert-serving-client>=1.8.6',
         'plyvel>=1.0.5',
@@ -66,7 +67,7 @@ setup(
         'ruamel.yaml>=0.15.89',
         'psutil>=5.6.1',
         'memory_profiler>=0.55.0',
-        'gputil>=1.4.0'
+        'gputil>=1.4.0',
     ],
     extras_require={
         'test': ['pylint'],
