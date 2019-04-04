@@ -24,7 +24,8 @@ class TestElmoEncoder(unittest.TestCase):
             model_dir=os.environ.get('ELMO_CI_MODEL', '/zhs.model'),
             config_path=os.environ.get(
                 'ELMO_CI_CONFIG',
-                '/zhs.model/cnn_50_100_512_4096_sample.json'))
+                '/zhs.model/cnn_50_100_512_4096_sample.json'),
+            pooling_strategy="REDUCE_MEAN")
 
     def test_encoding(self):
         vec = self.elmo_encoder.encode(self.test_str)

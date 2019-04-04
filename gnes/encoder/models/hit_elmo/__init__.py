@@ -45,7 +45,7 @@ class HitElmo(BaseTorchModel):
             -2 for all 3 layers
         """
         self.pooling_layer = kwargs.get('pooling_layer', -1)
-        self.pooling_strategy = kwargs.get('pooling_strategy', 'NONE')
+        self.pooling_strategy = kwargs.get('pooling_strategy', None)
 
         # initializse model instance
         self.get_model()
@@ -117,8 +117,6 @@ class HitElmo(BaseTorchModel):
                         data = data.cpu()
                     data = data.numpy()
 
-                pooling_layer
-
                 if self.pooling_layer == -1:
                     payload = np.average(data, axis=0)
                 elif self.pooling_layer >= 0:
@@ -127,8 +125,10 @@ class HitElmo(BaseTorchModel):
                     raise ValueError('pooling_layer = %d is not supported now!'
                                      % self.pooling_layer)
 
-                pooled_data = payload
-                if self.pooling_strategy == 'REDUCE_MEAN':
+                pooled_data = None
+                if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
+                    pooled_data = payload
+                elif self.pooling_strategy == 'REDUCE_MEAN':
                     pooled_data = np.mean(payload, axis=0)
                 elif self.pooling_strategy == 'REDUCE_MAX':
                     pooled_data = np.amax(payload, axis=0)
