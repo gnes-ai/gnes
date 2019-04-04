@@ -69,7 +69,7 @@ class HitElmo(BaseTorchModel):
 
         return encoder_output
 
-    def predict(self, x: List[str], *args, **kwargs):
+    def predict(self, x: List[str], *args, **kwargs) -> np.ndarray:
         output_layer = kwargs.get('output_layer', -1)
 
         if self.config['token_embedder']['name'].lower() == 'cnn':

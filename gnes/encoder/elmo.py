@@ -3,8 +3,10 @@ from typing import List
 import torch
 import numpy as np
 
-from .base import BaseEncoder, CompositionalEncoder
 from ..helper import batching
+
+from .base import BaseEncoder, CompositionalEncoder
+from .models.hit_elmo import HitElmo
 
 
 class ElmoEncoder(BaseEncoder):
@@ -14,19 +16,14 @@ class ElmoEncoder(BaseEncoder):
         super().__init__(*args, **kwargs)
         self.model_dir = model_dir
         # TODO: load Elmo model
-        self.elmo_encoder = NULL
+        self.elmo_encoder = HitElmo(*args, **kwargs)
         self.is_trained = True
         self._encoder_args = args
         self._encoder_kwargs = kwargs
 
-    def get_model(self):
-        self.use_cuda = torch.cuda.is_available()
-
-
-
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        return self.elmo_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
+        return self.elmo_encoder.predict(text, *args, **kwargs)  # type: np.ndarray
 
     def __getstate__(self):
         d = super().__getstate__()
