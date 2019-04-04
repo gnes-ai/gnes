@@ -3,7 +3,7 @@ from typing import List
 import torch
 import numpy as np
 
-from ..helper import batching
+from ..helper import batching, cn_tokenizer
 
 from .base import BaseEncoder, CompositionalEncoder
 from .models.hit_elmo import HitElmo
@@ -25,7 +25,7 @@ class ElmoEncoder(BaseEncoder):
         # tokenize text
         batch_tokens = []
         for sent in text:
-            batch_tokens.append(sent.split())
+            batch_tokens.append(cn_tokenizer.tokenize(sent))
         return self.elmo_encoder.predict(batch_tokens, *args, **kwargs)
 
     def __getstate__(self):
