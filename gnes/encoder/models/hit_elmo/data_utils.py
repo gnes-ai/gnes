@@ -1,7 +1,11 @@
 from typing import List
 
 import random
+import itertools
+
 import torch
+from torch.autograd import Variable
+
 
 
 def get_lengths_from_binary_sequence_mask(mask: torch.Tensor):

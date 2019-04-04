@@ -4,6 +4,8 @@ import os
 import json
 
 import torch
+from torch.autograd import Variable
+
 import numpy as np
 
 from ..base_torch import BaseTorchModel
@@ -26,6 +28,9 @@ class HitElmo(BaseTorchModel):
 
         with open(config_path, 'r') as f:
             self.config = json.load(f)
+
+        self.batch_size = kwargs.get('batch_size', 500)
+
 
         self.model_dir = model_dir
 
@@ -119,7 +124,7 @@ class HitElmo(BaseTorchModel):
         # For the model trained with character-based word encoder.
         if self.config['token_embedder']['char_dim'] > 0:
             self.char_lexicon = {}
-            with open(os.path.join(self.model_dir, 'char.dict'), 'r') as f:
+            with open(os.path.join(self.model_dir, 'char.dic'), 'r') as f:
                 for line in f:
                     tokens = line.strip().split('\t')
                     if len(tokens) == 1:
@@ -128,7 +133,7 @@ class HitElmo(BaseTorchModel):
                     self.char_lexicon[token] = int(i)
 
             char_emb_layer = EmbeddingLayer(
-                config['token_embedder']['char_dim'],
+                self.config['token_embedder']['char_dim'],
                 self.char_lexicon,
                 fix_emb=False,
                 embs=None,
@@ -142,7 +147,7 @@ class HitElmo(BaseTorchModel):
         # For the model trained with word form word encoder.
         if self.config['token_embedder']['word_dim'] > 0:
             self.word_lexicon = {}
-            with open(os.path.join(self.model_dir, 'word.dict'), 'r') as f:
+            with open(os.path.join(self.model_dir, 'word.dic'), 'r') as f:
                 for line in f:
                     tokens = line.strip().split('\t')
                     if len(tokens) == 1:
@@ -151,7 +156,7 @@ class HitElmo(BaseTorchModel):
                     self.word_lexicon[token] = int(i)
 
             word_emb_layer = EmbeddingLayer(
-                config['token_embedder']['word_dim'],
+                self.config['token_embedder']['word_dim'],
                 self.word_lexicon,
                 fix_emb=False,
                 embs=None,
@@ -164,17 +169,17 @@ class HitElmo(BaseTorchModel):
 
         if self.config['token_embedder']['name'].lower() == 'cnn':
             self.token_embedder = ConvTokenEmbedder(
-                config, word_emb_layer, char_emb_layer, self.use_cuda)
+                self.config, word_emb_layer, char_emb_layer, self.use_cuda)
         elif self.config['token_embedder']['name'].lower() == 'lstm':
             self.token_embedder = LstmTokenEmbedder(
-                config, word_emb_layer, char_emb_layer, self.use_cuda)
+                self.config, word_emb_layer, char_emb_layer, self.use_cuda)
 
         if self.config['encoder']['name'].lower() == 'elmo':
-            self.encoder = ElmobiLm(config, self.use_cuda)
+            self.encoder = ElmobiLm(self.config, self.use_cuda)
         elif self.config['encoder']['name'].lower() == 'lstm':
-            self.encoder = LstmbiLm(config, self.use_cuda)
+            self.encoder = LstmbiLm(self.config, self.use_cuda)
 
-        self.output_dim = config['encoder']['projection_dim']
+        self.output_dim = self.config['encoder']['projection_dim']
 
         if self.use_cuda:
             self.cuda()

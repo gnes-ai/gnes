@@ -18,10 +18,12 @@ class ElmoEncoder(BaseEncoder):
         model_dir = kwargs.get('model_dir', None)
         if model_dir is None:
             raise ValueError('model_dir argument is not specified!')
+        kwargs.pop('model_dir')
 
         config_path = kwargs.get('config_path', None)
         if config_path is None:
             raise ValueError('config_path is not specified!')
+        kwargs.pop('config_path')
 
         self.elmo_encoder = HitElmo(model_dir, config_path, *args, **kwargs)
         self.is_trained = True
