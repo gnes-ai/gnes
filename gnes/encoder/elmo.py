@@ -12,11 +12,17 @@ class ElmoEncoder(BaseEncoder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.model_dir = model_dir
         # TODO: load Elmo model
         self.elmo_encoder = NULL
         self.is_trained = True
         self._encoder_args = args
         self._encoder_kwargs = kwargs
+
+    def get_model(self):
+        self.use_cuda = torch.cuda.is_available()
+
+
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
