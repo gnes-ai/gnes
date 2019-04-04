@@ -1,3 +1,5 @@
+from typing import List, Any, Dict
+
 import os
 import json
 
@@ -9,6 +11,7 @@ from .embedding_layer import EmbeddingLayer
 from .token_embedder import ConvTokenEmbedder, LstmTokenEmbedder
 from .elmo import ElmobiLm
 from .lstm import LstmbiLm
+from .data_utils import preprocess_data, create_batches, recover
 
 
 class HitElmo(BaseTorchModel):
@@ -16,6 +19,7 @@ class HitElmo(BaseTorchModel):
 
     codes are borrowed from: https://github.com/HIT-SCIR/ELMoForManyLangs
     """
+
     def __init__(self, model_dir, config_path=None, use_cuda=None, *args, **kwargs):
         super().__init__(model_dir, use_cuda, *args, **kwargs)
 
@@ -24,7 +28,87 @@ class HitElmo(BaseTorchModel):
 
         with open(config_path, 'r') as f:
             config = json.load(f)
+        self.config = config
 
+        # initializse model instance
+        self.get_model(config)
+
+        # load model from checkout point
+        self.load_model(self.model_dir)
+
+    def forward(self, word_inp, chars_package, mask_package):
+    """
+    :param word_inp:
+    :param chars_package:
+    :param mask_package:
+    :return:
+    """
+    token_embedding = self.token_embedder(
+        word_inp, chars_package, (mask_package[0].size(0), mask_package[0].size(1)))
+    if self.config['encoder']['name'] == 'elmo':
+        mask = Variable(mask_package[0]).cuda(
+        ) if self.use_cuda else Variable(mask_package[0])
+        encoder_output = self.encoder(token_embedding, mask)
+        sz = encoder_output.size()
+        token_embedding = torch.cat(
+            [token_embedding, token_embedding], dim=2).view(1, sz[1], sz[2], sz[3])
+        encoder_output = torch.cat(
+            [token_embedding, encoder_output], dim=0)
+    elif self.config['encoder']['name'] == 'lstm':
+        encoder_output = self.encoder(token_embedding)
+    else:
+        raise ValueError('Unknown encoder: {0}'.format(
+            self.config['encoder']['name']))
+
+    return encoder_output
+
+    def predict(self, x: List[str], *args, **kwargs):
+        output_layer = kwargs.get('output_layer', -1)
+
+        if self.config['token_embedder']['name'].lower() == 'cnn':
+            input_data, text = preprocess_data(
+                x, self.config['token_embedder']['max_characters_per_token'])
+        else:
+            input_data, text = preprocess_data(x)
+
+         # create test batches from the input data.
+        test_w, test_c, test_lens, test_masks, test_text, recover_ind = create_batches(
+            input_data, self.batch_size, self.word_lexicon, self.char_lexicon, self.config, text=text)
+
+        cnt = 0
+
+        after_elmo = []
+        for w, c, lens, masks, texts in zip(test_w, test_c, test_lens, test_masks, test_text):
+            output = self.forward(w, c, masks)
+            for i, text in enumerate(texts):
+                if self.config['encoder']['name'].lower() == 'lstm':
+                    data = output[i, 1:lens[i]-1, :].data
+                    if self.use_cuda:
+                        data = data.cpu()
+                    data = data.numpy()
+                elif self.config['encoder']['name'].lower() == 'elmo':
+                    data = output[:, i, 1:lens[i]-1, :].data
+                    if self.use_cuda:
+                        data = data.cpu()
+                    data = data.numpy()
+
+                if output_layer == -1:
+                    payload = np.average(data, axis=0)
+                elif output_layer == -2:
+                    payload = data
+                else:
+                    payload = data[output_layer]
+                after_elmo.append(payload)
+
+                cnt += 1
+                if cnt % 1000 == 0:
+                    self.logger.info('Finished {0} sentences.'.format(cnt))
+
+        after_elmo = recover(after_elmo, recover_ind)
+
+        return after_elmo
+
+    def get_model(self, config):
         # For the model trained with character-based word encoder.
         if config['token_embedder']['char_dim'] > 0:
             self.char_lexicon = {}
@@ -37,7 +121,7 @@ class HitElmo(BaseTorchModel):
                     self.char_lexicon[token] = int(i)
 
             char_emb_layer = EmbeddingLayer(
-                self.config['token_embedder']['char_dim'], self.char_lexicon, fix_emb=False, embs=None, logger=self.logger)
+                config['token_embedder']['char_dim'], self.char_lexicon, fix_emb=False, embs=None, logger=self.logger)
             self.logger.info('char embedding size: ' +
                              str(len(char_emb_layer.word2id)))
         else:
@@ -79,9 +163,6 @@ class HitElmo(BaseTorchModel):
 
         if self.use_cuda:
             self.cuda()
-
-        self.load_model(self.model_dir)
-
 
     def load_model(self, path):
         self.token_embedder.load_state_dict(torch.load(os.path.join(path, 'token_embedder.pkl'),
