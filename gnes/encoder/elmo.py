@@ -15,13 +15,15 @@ class ElmoEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # model_dir = kwargs.get('model_dir', None)
-        # if model_dir is None:
-        #     raise ValueError('Unknown model_dir argument')
+        model_dir = kwargs.get('model_dir', None)
+        if model_dir is None:
+            raise ValueError('model_dir argument is not specified!')
 
-        # config_path = kwargs.get('config_path', None)
+        config_path = kwargs.get('config_path', None)
+        if config_path is None:
+            raise ValueError('config_path is not specified!')
 
-        self.elmo_encoder = HitElmo(*args, **kwargs)
+        self.elmo_encoder = HitElmo(model_dir, config_path, *args, **kwargs)
         self.is_trained = True
         self._encoder_args = args
         self._encoder_kwargs = kwargs

@@ -23,15 +23,11 @@ class HitElmo(BaseTorchModel):
 
     def __init__(self,
                  model_dir,
-                 config_path=None,
+                 config_path,
                  use_cuda=None,
                  *args,
                  **kwargs):
         super().__init__(model_dir, use_cuda, *args, **kwargs)
-
-        config_path = kwargs.get('config_path', None)
-        if config_path is None:
-            raise ValueError('config_path is not specified!')
 
         with open(config_path, 'r') as f:
             self.config = json.load(f)
