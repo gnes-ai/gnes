@@ -15,24 +15,18 @@ class ElmoEncoder(BaseEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        model_dir = kwargs.get('model_dir', None)
-        if model_dir is None:
-            raise ValueError('model_dir argument is not specified!')
-        kwargs.pop('model_dir')
-
-        config_path = kwargs.get('config_path', None)
-        if config_path is None:
-            raise ValueError('config_path is not specified!')
-        kwargs.pop('config_path')
-
-        self.elmo_encoder = HitElmo(model_dir, config_path, *args, **kwargs)
+        self.elmo_encoder = HitElmo(*args, **kwargs)
         self.is_trained = True
         self._encoder_args = args
         self._encoder_kwargs = kwargs
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        return self.elmo_encoder.predict(text, *args, **kwargs)  # type: np.ndarray
+        # tokenize text
+        batch_tokens = []
+        for sent in text:
+            batch_tokens.append(sent.split())
+        return self.elmo_encoder.predict(batch_tokens, *args, **kwargs)
 
     def __getstate__(self):
         d = super().__getstate__()

@@ -23,16 +23,30 @@ class HitElmo(BaseTorchModel):
     codes are borrowed from: https://github.com/HIT-SCIR/ELMoForManyLangs
     """
 
-    def __init__(self, model_dir, config_path, use_cuda=None, *args, **kwargs):
-        super().__init__(use_cuda=use_cuda, *args, **kwargs)
+    def __init__(self, use_cuda=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        model_dir = kwargs.get('model_dir', None)
+        if model_dir is None:
+            raise ValueError('model_dir argument is not specified!')
+        self.model_dir = model_dir
+
+        config_path = kwargs.get('config_path', None)
+        if config_path is None:
+            raise ValueError('config_path is not specified!')
 
         with open(config_path, 'r') as f:
             self.config = json.load(f)
 
-        self.batch_size = kwargs.get('batch_size', 500)
-
-
-        self.model_dir = model_dir
+        """
+            0 for the word encoder
+            1 for the first LSTM hidden layer
+            2 for the second LSTM hidden layer
+            -1 for an average of 3 layers. (default)
+            -2 for all 3 layers
+        """
+        self.pooling_layer = kwargs.get('pooling_layer', -1)
+        self.pooling_strategy = kwargs.get('pooling_strategy', 'NONE')
 
         # initializse model instance
         self.get_model()
@@ -104,13 +118,26 @@ class HitElmo(BaseTorchModel):
                         data = data.cpu()
                     data = data.numpy()
 
-                if output_layer == -1:
+                pooling_layer
+
+                if self.pooling_layer == -1:
                     payload = np.average(data, axis=0)
-                elif output_layer == -2:
-                    payload = data
+                elif self.pooling_layer >= 0:
+                    payload = data[self.pooling_layer]
                 else:
-                    payload = data[output_layer]
-                after_elmo.append(payload)
+                    raise ValueError('pooling_layer = %d is not supported now!' % self.pooling_layer)
+
+                pooled_data = payload
+                if self.pooling_strategy == 'REDUCE_MEAN':
+                    pooled_data = np.mean(payload, axis=0)
+                elif self.pooling_strategy == 'REDUCE_MAX':
+                    pooled_data = np.amax(payload, axis=0)
+                elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
+                    pooled_data = np.concatenate((np.mean(payload, axis=0), np.amax(payload, axis=0)), axis=1)
+                else:
+                    raise ValueError('pooling_strategy: %s has not been implemented' % self.pooling_strategy)
+
+                after_elmo.append(pooled_data)
 
                 cnt += 1
                 if cnt % 1000 == 0:
