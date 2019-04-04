@@ -61,6 +61,7 @@ setup(
         'termcolor',
         'bert-serving-server>=1.8.6',
         'bert-serving-client>=1.8.6',
+        'torch',
         'plyvel>=1.0.5',
         'joblib>=0.13.2',
         'ruamel.yaml>=0.15.89',
