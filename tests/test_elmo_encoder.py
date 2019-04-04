@@ -14,12 +14,17 @@ class TestElmoEncoder(unittest.TestCase):
         self.dump_path = os.path.join(dirname, 'elmo_encoder.bin')
         # self.bbe_path = os.path.join(dirname, 'yaml', 'bert-binary-encoder.yml')
 
-        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
-        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        self.test_data1 = UniSentDocument.from_file(
+            os.path.join(dirname, 'tangshi.txt'))
+        self.test_data2 = MultiSentDocument.from_file(
+            os.path.join(dirname, 'tangshi.txt'))
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
-        self.elmo_encoder = ElmoEncoder(model_dir=os.environ.get('ELMO_CI_MODEL', '/zhs_model'))
-
+        self.elmo_encoder = ElmoEncoder(
+            model_dir=os.environ.get('ELMO_CI_MODEL', '/zhs.model'),
+            config_path=os.environ.get(
+                'ELMO_CI_CONFIG',
+                '/zhs.model/cnn_50_100_512_4096_sample.json'))
 
     def test_encoding(self):
         vec = self.elmo_encoder.encode(self.test_str)

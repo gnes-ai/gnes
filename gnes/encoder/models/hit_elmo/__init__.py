@@ -4,6 +4,7 @@ import os
 import json
 
 import torch
+import numpy as np
 
 from ..base_torch import BaseTorchModel
 
@@ -28,15 +29,15 @@ class HitElmo(BaseTorchModel):
                  **kwargs):
         super().__init__(model_dir, use_cuda, *args, **kwargs)
 
-        config_path = config_path if config_path else os.path.join(
-            self.model_dir, 'config.json')
+        config_path = kwargs.get('config_path', None)
+        if config_path is None:
+            raise ValueError('config_path is not specified!')
 
         with open(config_path, 'r') as f:
-            config = json.load(f)
-        self.config = config
+            self.config = json.load(f)
 
         # initializse model instance
-        self.get_model(config)
+        self.get_model()
 
         # load model from checkout point
         self.load_model(self.model_dir)
@@ -121,9 +122,9 @@ class HitElmo(BaseTorchModel):
 
         return after_elmo
 
-    def get_model(self, config):
+    def get_model(self):
         # For the model trained with character-based word encoder.
-        if config['token_embedder']['char_dim'] > 0:
+        if self.config['token_embedder']['char_dim'] > 0:
             self.char_lexicon = {}
             with open(os.path.join(self.model_dir, 'char.dict'), 'r') as f:
                 for line in f:
@@ -146,7 +147,7 @@ class HitElmo(BaseTorchModel):
             char_emb_layer = None
 
         # For the model trained with word form word encoder.
-        if config['token_embedder']['word_dim'] > 0:
+        if self.config['token_embedder']['word_dim'] > 0:
             self.word_lexicon = {}
             with open(os.path.join(self.model_dir, 'word.dict'), 'r') as f:
                 for line in f:
@@ -168,16 +169,16 @@ class HitElmo(BaseTorchModel):
             self.word_lexicon = None
             word_emb_layer = None
 
-        if config['token_embedder']['name'].lower() == 'cnn':
+        if self.config['token_embedder']['name'].lower() == 'cnn':
             self.token_embedder = ConvTokenEmbedder(
                 config, word_emb_layer, char_emb_layer, self.use_cuda)
-        elif config['token_embedder']['name'].lower() == 'lstm':
+        elif self.config['token_embedder']['name'].lower() == 'lstm':
             self.token_embedder = LstmTokenEmbedder(
                 config, word_emb_layer, char_emb_layer, self.use_cuda)
 
-        if config['encoder']['name'].lower() == 'elmo':
+        if self.config['encoder']['name'].lower() == 'elmo':
             self.encoder = ElmobiLm(config, self.use_cuda)
-        elif config['encoder']['name'].lower() == 'lstm':
+        elif self.config['encoder']['name'].lower() == 'lstm':
             self.encoder = LstmbiLm(config, self.use_cuda)
 
         self.output_dim = config['encoder']['projection_dim']
