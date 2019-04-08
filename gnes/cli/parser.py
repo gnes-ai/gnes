@@ -63,6 +63,11 @@ def set_service_parser(parser=None):
                         help='port for control the service')
     parser.add_argument('--timeout', type=int, default=5000,
                         help='timeout (ms) of all communication')
+    parser.add_argument('--dump_interval', type=int, default=60,
+                        help='dump the service every n seconds')
+    parser.add_argument('--read_only', action='store_true', default=False,
+                        help='do not allow the service to modify the model, '
+                             'dump_path and dump_interval will be ignored')
     return parser
 
 

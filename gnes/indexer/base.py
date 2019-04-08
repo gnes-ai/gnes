@@ -41,7 +41,7 @@ class MultiheadIndexer(CompositionalEncoder):
 
         # get unique sentence_id and query the corresponding doc_id
         sent_ids = list(set(s_id for id_score in sent_id_topk for s_id, score in id_score if s_id >= 0))
-        doc_ids = self.component['sent_doc_indexer'].query(sent_ids)
+        doc_ids = self.component['sent_doc_indexer'].query(sent_ids, normalized_score=True)
         sent_id2doc_id = {s_id: d_id for s_id, d_id in zip(sent_ids, doc_ids)}
 
         # get unique doc_id and query the corresponding doc_content
