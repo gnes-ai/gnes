@@ -723,6 +723,9 @@ cdef class IndexCore:
     def load(self, load_path):
         self._load(bytes(load_path, 'utf8'))
 
+    cpdef destroy(self):
+        self.free_trie()
+
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
         dist = 0
