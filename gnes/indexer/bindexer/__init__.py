@@ -2,8 +2,8 @@ from typing import List
 
 import numpy as np
 
-from .cython import IndexCore
-from .base import BaseBinaryIndexer
+from .bindexer import IndexCore
+from ..base import BaseBinaryIndexer
 
 
 class BIndexer(BaseBinaryIndexer):
