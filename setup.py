@@ -70,9 +70,6 @@ setup(
         'gputil>=1.4.0',
         'elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2'
     ],
-    # dependency_links=[
-    #     "https://github.com/HIT-SCIR/ELMoForManyLangs/archive/master.zip#egg=elmoformanylangs-0.0.2"
-    # ],
     extras_require={
         'test': ['pylint'],
     },
