@@ -13,27 +13,17 @@ from elmoformanylangs import Embedder
 class ElmoEncoder(BaseEncoder):
     store_args_kwargs = True
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, model_dir, batch_size=64, pooling_layer=-1, pooling_strategy='REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        model_dir = kwargs.get('model_dir', None)
-        if model_dir is None:
-            raise ValueError('model_dir argument is not specified!')
         self.model_dir = model_dir
 
-        # config_path = kwargs.get('config_path', None)
-        # if config_path is None:
-        #     raise ValueError('config_path is not specified!')
-
-        # with open(config_path, 'r') as f:
-        #     self.config = json.load(f)
-
-        self.batch_size = kwargs.get('batch_size', 64)
-        self.pooling_layer = kwargs.get('pooling_layer', -1)
+        self.batch_size = batch_size
+        self.pooling_layer = pooling_layer
         if self.pooling_layer > 2:
             raise ValueError('pooling_layer = %d is not supported now!' %
                              self.pooling_layer)
-        self.pooling_strategy = kwargs.get('pooling_strategy', 'REDUCE_MEAN')
+        self.pooling_strategy = pooling_strategy
 
         self._elmo = Embedder(
             model_dir=self.model_dir, batch_size=self.batch_size)
