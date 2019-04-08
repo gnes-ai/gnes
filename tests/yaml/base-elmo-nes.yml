@@ -3,7 +3,7 @@ component:
   encoder:
     !PipelineEncoder
     component:
-      - !BertEncoder
+      - !ElmoEncoder
         parameter:
           kwargs:
             model_dir: $ELMO_CI_MODEL
