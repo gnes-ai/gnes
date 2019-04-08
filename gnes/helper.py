@@ -16,6 +16,8 @@ from psutil import virtual_memory
 from ruamel.yaml import YAML
 from termcolor import colored
 
+import jieba
+
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
            'batch_iterator', 'batching', 'yaml', 'cn_sent_splitter',
@@ -158,6 +160,36 @@ class TimeContext:
     def __exit__(self, typ, value, traceback):
         self.duration = time.perf_counter() - self.start
         print(colored('    [%3.3f secs]' % self.duration, 'green'), flush=True)
+
+
+class Tokenizer:
+    def __init__(self, dict_path : str = None):
+        self._jieba = jieba.Tokenizer()
+        self._jieba.cache_file = "gnes.jieba_wrapper.cache"
+
+        if dict_path is not None:
+            self._jieba.load_userdict(dict_path)
+
+    def tokenize(self, text, with_position=False):
+        if not with_position:
+            return self._jieba.lcut(text)    # resulted token list
+        else:
+            return self._jieba.tokenize(
+                text
+            )    # triple data consisting of (token, start_pos, end_pos)
+
+    def _add_user_dict(self, dict_path, pos):
+        with open(dict_path, "r") as fr:
+            for line in fr.readlines():
+                word = line.decode("utf8").strip("\r\n").split("\t")[0]
+                if self._contains_chinese(word):
+                    self._jieba.add_word(word, tag=pos)
+
+    def _delete_user_dict(self, dict_path):
+        with open(dict_path, "r") as fr:
+            for line in fr.readlines():
+                word = line.decode("utf8").strip("\r\n").split("\t")[0]
+                self._jieba.del_word(word)
 
 
 class SentenceSplitter:
@@ -395,6 +427,7 @@ def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)
+cn_tokenizer = Tokenizer()
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
 profiling = time_profile
