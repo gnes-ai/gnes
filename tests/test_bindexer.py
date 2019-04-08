@@ -37,7 +37,7 @@ class TestFIndexer(unittest.TestCase):
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
-        fd = BIndexer(self.toy_data.shape[1], save_path='./BIndexer.bin')
+        fd = BIndexer(self.toy_data.shape[1], data_path='./BIndexer.bin')
         fd.add(self.toy_label, self.toy_data.tobytes())
         fd.dump(self.dump_path)
 

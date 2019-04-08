@@ -9,14 +9,14 @@ class IndexerService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        self.indexer = None
+        self._model = None
         try:
-            self.indexer = MultiheadIndexer.load(self.args.dump_path)
+            self._model = MultiheadIndexer.load(self.args.dump_path)
             self.logger.info('load an indexer')
         except FileNotFoundError:
             if self.args.mode == ServiceMode.ADD:
                 try:
-                    self.indexer = MultiheadIndexer.load_yaml(self.args.yaml_path)
+                    self._model = MultiheadIndexer.load_yaml(self.args.yaml_path)
                     self.logger.info('load an uninitialized indexer, indexing is needed!')
                 except FileNotFoundError:
                     raise ComponentNotLoad
@@ -26,21 +26,19 @@ class IndexerService(BS):
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         if self.args.mode == ServiceMode.ADD:
-            self.indexer.add(*msg.msg_content, head_name='binary_indexer')
+            self._model.add(*msg.msg_content, head_name='binary_indexer')
+            self.is_model_changed.set()
         elif self.args.mode == ServiceMode.QUERY:
-            self.indexer.query(msg.msg_content, top_k=self.args.top_k)
+            self._model.query(msg.msg_content, top_k=self.args.top_k)
         else:
             raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 
-    @handler.register('SENT_ID_MAP')
+    @handler.register(Message.typ_sent_id)
     def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self.indexer.add(*msg.msg_content, head_name='sent_doc_indexer')
+        self._model.add(*msg.msg_content, head_name='sent_doc_indexer')
+        self.is_model_changed.set()
 
-    @handler.register('DOC_ID_MAP')
+    @handler.register(Message.typ_doc_id)
     def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self.indexer.add(*msg.msg_content, head_name='doc_content_indexer')
-
-    def close(self):
-        if self.indexer:
-            self.indexer.close()
-        super().close()
+        self._model.add(*msg.msg_content, head_name='doc_content_indexer')
+        self.is_model_changed.set()

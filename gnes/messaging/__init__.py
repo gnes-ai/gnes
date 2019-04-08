@@ -14,6 +14,8 @@ class Message:
     typ_status = prefix_ctrl + 'STATUS'
     typ_default = 'DEFAULT'
     typ_train = 'TRAIN'
+    typ_sent_id = 'SENT_ID_MAP'
+    typ_doc_id = 'DOC_ID_MAP'
 
     def __init__(self,
                  client_id: Union[bytes, str] = b'',

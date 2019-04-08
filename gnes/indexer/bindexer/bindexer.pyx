@@ -6,8 +6,6 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
 from libc.stdlib cimport qsort
 from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
-import random
-import math
 
 DEF data_size_per_time = 100000
 DEF node_size_per_time = 100000
@@ -724,6 +722,9 @@ cdef class IndexCore:
 
     def load(self, load_path):
         self._load(bytes(load_path, 'utf8'))
+
+    cpdef destroy(self):
+        self.free_trie()
 
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
