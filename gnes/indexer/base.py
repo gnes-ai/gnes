@@ -38,6 +38,7 @@ class MultiheadIndexer(CompositionalEncoder):
 
     def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
         sent_id_topk = self.component['binary_indexer'].query(keys, top_k)
+        print(sent_id_topk)
 
         # get unique sentence_id and query the corresponding doc_id
         sent_ids = list(set(s_id for id_score in sent_id_topk for s_id, score in id_score if s_id >= 0))

@@ -24,6 +24,7 @@ class TestMHIndexer(unittest.TestCase):
         self.doc_content = ['d1', 'd2']
         self.query1 = np.array([1, 2]).astype(np.uint8)
         self.query2 = np.array([2, 1]).astype(np.uint8)
+        self.query1and2 = np.array([[1, 2], [2, 1]]).astype(np.uint8)
 
     def test_load(self):
         MultiheadIndexer.load_yaml(self.yaml_path)
@@ -34,5 +35,12 @@ class TestMHIndexer(unittest.TestCase):
         mhi.add(self.doc_keys_uniq, self.doc_content, head_name='doc_content_indexer')
         mhi.add(self.sent_keys, self.sent_bin.tobytes(), head_name='binary_indexer')
 
-        print(mhi.query(self.query1.tobytes(), top_k=1))
-        print(mhi.query(self.query2.tobytes(), top_k=1))
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1), [[('d1', 0)]])
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1), [[('d2', 0)]])
+
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2), [[('d1', 0), ('d2', 0)]])
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2), [[('d2', 0), ('d1', 0)]])
+
+        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1), [[('d1', 0)], [('d2', 0)]])
+        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2),
+                         [[('d1', 0), ('d2', 0)], [('d2', 0), ('d1', 0)]])
