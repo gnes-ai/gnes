@@ -67,8 +67,10 @@ setup(
         'ruamel.yaml>=0.15.89',
         'psutil>=5.6.1',
         'memory_profiler>=0.55.0',
-        'gputil>=1.4.0',
-        'git+git://github.com:HIT-SCIR/ELMoForManyLangs.git@41b95ec#egg=elmoformanylangs'
+        'gputil>=1.4.0'
+    ],
+    dependency_links=[
+        "git+ssh://git@github.com:HIT-SCIR/ELMoForManyLangs.git@41b95ec#egg=elmoformanylangs"
     ],
     extras_require={
         'test': ['pylint'],
