@@ -7,7 +7,7 @@ RUN wget https://models-1252847528.cos.ap-guangzhou.myqcloud.com/zhs.model.tar.b
 WORKDIR /nes/
 
 ADD . ./
-RUN pip install -U -e .
+RUN pip install -U -e --process-dependency-links .
 
 FROM base AS encoder
 
