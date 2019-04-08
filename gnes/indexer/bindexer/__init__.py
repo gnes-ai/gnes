@@ -2,7 +2,7 @@ from typing import List
 
 import numpy as np
 
-from .bindexer import IndexCore
+from .cython import IndexCore
 from ..base import BaseBinaryIndexer
 
 
