@@ -3,15 +3,22 @@ from typing import List
 import numpy as np
 
 from .cython import IndexCore
-from ..numpyindexer import NumpyIndexer
+from .base import BaseBinaryIndexer
 
 
-class BIndexer(NumpyIndexer):
-    def __init__(self, num_bytes: int = None, ef: int = 20, *args, **kwargs):
-        # super init will outut: self._vectors, self._doc_ids
-        super().__init__(num_bytes, *args, **kwargs)
+class BIndexer(BaseBinaryIndexer):
+    def __init__(self, num_bytes: int = None,
+                 ef: int = 20,
+                 insert_iterations: int = 1000,
+                 query_iterations: int = 1000,
+                 save_path: str = './bindexer.bin',
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.ef = ef
-        self.bindexer = IndexCore(num_bytes, 4, ef)
+        self.insert_iterations = insert_iterations
+        self.query_iterations = query_iterations
+        self.save_path = save_path
+        self.bindexer = IndexCore(num_bytes, 4, ef, insert_iterations, query_iterations)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
@@ -50,16 +57,17 @@ class BIndexer(NumpyIndexer):
         return result
 
     def __getstate__(self):
+        self.bindexer.save(self.save_path)
         d = super().__getstate__()
         del d['bindexer']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self.bindexer = IndexCore(self.num_bytes, 4, self.ef)
-        self.bindexer.index_trie(self._vectors.tobytes(),
-                                 len(self._doc_ids),
-                                 self._doc_ids.astype(np.uint32).tobytes())
+        self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
+                                  self.insert_iterations,
+                                  self.query_iterations)
+        self.bindexer.load(self.save_path)
 
     def close(self):
         super().close()
