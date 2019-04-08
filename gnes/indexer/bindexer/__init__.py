@@ -19,7 +19,9 @@ class BIndexer(BaseBinaryIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
         self.save_path = save_path
-        self.bindexer = IndexCore(num_bytes, 4, ef, insert_iterations, query_iterations)
+        self.bindexer = IndexCore(num_bytes, 4, ef,
+                                  insert_iterations,
+                                  query_iterations)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:

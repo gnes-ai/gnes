@@ -106,7 +106,6 @@ cdef class IndexCore:
     def __cinit__(self, bytes_per_vector, bytes_per_label, ef,
                   max_insert_iterations=1000,
                   max_query_iterations=5000,
-                  debugging_mode=0,
                   update_single_neighbor=1):
         self.bytes_per_vector = bytes_per_vector
         self.bytes_per_label = bytes_per_label
@@ -114,7 +113,6 @@ cdef class IndexCore:
         self.update_single_neighbor = update_single_neighbor
         self.max_insert_iterations = max_insert_iterations
         self.max_query_iterations = max_query_iterations
-        self.debugging_mode = debugging_mode
 
         self.nodes_capacity = 0
         self.data_capacity = 0
