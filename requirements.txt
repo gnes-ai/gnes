@@ -1,1 +1,2 @@
 .
+git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2
