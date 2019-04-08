@@ -1,4 +1,4 @@
-!PipelineEncoder
+!MultiheadIndexer
 component:
   binary_indexer: !BIndexer
     parameter:
