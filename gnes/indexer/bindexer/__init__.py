@@ -14,6 +14,7 @@ class BIndexer(BaseBinaryIndexer):
                  save_path: str = './bindexer.bin',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.num_bytes = num_bytes
         self.ef = ef
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
