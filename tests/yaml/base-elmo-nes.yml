@@ -5,10 +5,9 @@ component:
     component:
       - !ElmoEncoder
         parameter:
-          kwargs:
-            model_dir: $ELMO_CI_MODEL
-            pooling_layer: -1
-            pooling_stragy: REDUCE_MEAN
+          model_dir: $ELMO_CI_MODEL
+          pooling_layer: -1
+          pooling_stragy: REDUCE_MEAN
         property:
           is_trained: true
       - !PCALocalEncoder
