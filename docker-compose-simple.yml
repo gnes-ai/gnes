@@ -1,0 +1,20 @@
+version: '3.4'
+services:
+  encoder:
+    image: "docker.oa.com/public/aipd-gnes-encoder:${BUILD_ID}"
+    ports:
+      - "5310:5310"
+    network_mode: "host"
+    command: --mode $SERVER_MODE --yaml_path /test_encoder.yml --dump_path /ext_data/test_encode.bin
+    volumes:
+      - "/data1/cips/test_encoder.yml:/test_encoder.yml"
+      - "/data1/cips/data:/ext_data"
+  indexer:
+    image: "docker.oa.com/public/aipd-gnes-indexer:${BUILD_ID}"
+    command: --mode $SERVER_MODE --yaml_path /test_indexer.yml --dump_path /ext_data/test_index.bin --host_in 0.0.0.0
+    volumes:
+      - "/data1/cips/test_indexer.yml:/test_indexer.yml"
+      - "/data1/cips/data:/ext_data"
+    network_mode: "host"
+    depends_on:
+      - encoder

@@ -10,14 +10,14 @@ class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        self.encoder = None
+        self._model = None
         try:
-            self.encoder = PipelineEncoder.load(self.args.dump_path)
+            self._model = PipelineEncoder.load(self.args.dump_path)
             self.logger.info('load a trained encoder')
         except FileNotFoundError:
             if self.args.mode == ServiceMode.TRAIN:
                 try:
-                    self.encoder = PipelineEncoder.load_yaml(self.args.yaml_path)
+                    self._model = PipelineEncoder.load_yaml(self.args.yaml_path)
                     self.logger.info('load an uninitialized encoder, training is needed!')
                 except FileNotFoundError:
                     raise ComponentNotLoad
@@ -34,22 +34,17 @@ class EncoderService(BS):
         if not sents:
             raise ServiceError('received an empty list, nothing to do')
         if self.args.mode == ServiceMode.TRAIN:
-            self.encoder.train(sents)
-            self.encoder.dump(self.args.dump_path)
+            self._model.train(sents)
+            self.is_model_changed.set()
         elif self.args.mode == ServiceMode.ADD:
-            vecs = self.encoder.encode(sents)
+            vecs = self._model.encode(sents)
             send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
-            send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type='SENT_ID_MAP'),
+            send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type=Message.typ_sent_id),
                          self.args.timeout)
-            send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type='SENT_ID_MAP'),
+            send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type=Message.typ_doc_id),
                          self.args.timeout)
         elif self.args.mode == ServiceMode.QUERY:
-            vecs = self.encoder.encode(sents)
+            vecs = self._model.encode(sents)
             send_message(out, msg.copy_mod(msg_content=vecs), self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
-
-    def close(self):
-        if self.encoder:
-            self.encoder.close()
-        super().close()

@@ -1,4 +1,5 @@
 import threading
+import time
 from enum import Enum
 
 import zmq
@@ -82,9 +83,35 @@ class BaseService(threading.Thread):
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.is_ready = threading.Event()
         self.is_event_loop = threading.Event()
+        self.is_model_changed = threading.Event()
+        self._model = None
 
     def run(self):
         self._run()
+
+    def _start_auto_dump(self):
+        if self.args.dump_interval > 0 and not self.args.read_only:
+            self._auto_dump_thread = threading.Thread(target=self._auto_dump)
+            self._auto_dump_thread.setDaemon(1)
+            self._auto_dump_thread.start()
+
+    def _auto_dump(self):
+        while self.is_event_loop.is_set():
+            if self.is_model_changed.is_set():
+                self.logger.info(
+                    'auto-dumping on every %ds...' % self.args.dump_interval)
+                self._model.dump(self.args.dump_path)
+                time.sleep(self.args.dump_interval)
+                self.is_model_changed.clear()
+
+    def dump(self):
+        if not self.args.read_only:
+            if self._model:
+                self.logger.info('dumping changes to the model...')
+                self._model.dump(self.args.dump_path)
+                self.logger.info('dumping finished!')
+        else:
+            self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
     def message_handler(self, msg: Message):
         try:
@@ -146,6 +173,7 @@ class BaseService(threading.Thread):
             self._post_init()
             self.is_ready.set()
             self.is_event_loop.set()
+            self._start_auto_dump()
             self.logger.info('ready and listening')
             while self.is_event_loop.is_set():
                 pull_sock = None
@@ -158,6 +186,8 @@ class BaseService(threading.Thread):
                     self.logger.error('received message from unknown socket: %s' % socks)
                 msg = recv_message(pull_sock)
                 self.message_handler(msg)
+                if self.args.dump_interval == 0:
+                    self.dump()
         except StopIteration:
             self.logger.info('break from the event loop')
         except ComponentNotLoad:
@@ -187,6 +217,9 @@ class BaseService(threading.Thread):
         raise StopIteration
 
     def close(self):
+        if self._model:
+            self.dump()
+            self._model.close()
         if self.is_event_loop.is_set():
             send_terminate_message(self.default_host, self.args.port_ctrl)
 

@@ -3,6 +3,7 @@ import os
 
 from gnes import GNES
 from gnes.document import UniSentDocument, MultiSentDocument
+
 os.environ['NES_PROFILING'] = '1'
 os.environ['BERT_CI_PORT'] = '7125'
 os.environ['BERT_CI_PORT_OUT'] = '7126'
@@ -27,7 +28,7 @@ def stat(docs, kv_data):
 
     dnes.train(docs)
     dnes.add(docs)
-    dnes.dump('./t.pkl')
+    dnes.auto_dump('./t.pkl')
     dnes.close()
 
     nes = GNES.load('./t.pkl')
