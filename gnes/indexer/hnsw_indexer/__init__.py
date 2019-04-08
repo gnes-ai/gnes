@@ -43,7 +43,7 @@ class HnswIndexer(BaseBinaryIndexer):
     @profiling
     def dump(self, dump_path: str) -> None:
         touch_dir(dump_path)
-        self._indexer.auto_dump(dump_path)
+        self._indexer.dump(dump_path)
 
     @staticmethod
     @profiling

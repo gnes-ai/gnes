@@ -136,7 +136,7 @@ class TrainableBase(metaclass=TrainableType):
         f = filename or self.dump_path
         if f:
             with open(filename, 'w') as fp:
-                yaml.auto_dump(self, fp)
+                yaml.dump(self, fp)
         else:
             raise ValueError('please specify a filename or dump_path!')
 
