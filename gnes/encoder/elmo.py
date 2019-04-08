@@ -30,11 +30,12 @@ class ElmoEncoder(BaseEncoder):
         self.batch_size = kwargs.get('batch_size', 64)
         self.pooling_layer = kwargs.get('pooling_layer', -1)
         if self.pooling_layer > 2:
-            raise ValueError('pooling_layer = %d is not supported now!'
-                                     % self.pooling_layer)
+            raise ValueError('pooling_layer = %d is not supported now!' %
+                             self.pooling_layer)
         self.pooling_strategy = kwargs.get('pooling_strategy', None)
 
-        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
+        self._elmo = Embedder(
+            model_dir=self.model_dir, batch_size=self.batch_size)
 
         self.is_trained = True
         self._encoder_args = args
@@ -57,8 +58,8 @@ class ElmoEncoder(BaseEncoder):
             elif self.pooling_layer >= 0:
                 _layer_data = token_encodes[self.pooling_layer]
             else:
-                raise ValueError('pooling_layer = %d is not supported now!'
-                                     % self.pooling_layer)
+                raise ValueError('pooling_layer = %d is not supported now!' %
+                                 self.pooling_layer)
 
             _pooled_data = None
             if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
@@ -78,7 +79,6 @@ class ElmoEncoder(BaseEncoder):
             pooled_data.append(_pooled_data)
         return pooled_data
 
-
     def __getstate__(self):
         d = super().__getstate__()
         del d['_elmo']
@@ -86,7 +86,8 @@ class ElmoEncoder(BaseEncoder):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
+        self._elmo = Embedder(
+            model_dir=self.model_dir, batch_size=self.batch_size)
 
     def close(self):
         super().close()
