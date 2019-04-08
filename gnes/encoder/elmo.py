@@ -77,7 +77,7 @@ class ElmoEncoder(BaseEncoder):
                     'pooling_strategy: %s has not been implemented' %
                     self.pooling_strategy)
             pooled_data.append(_pooled_data)
-        return pooled_data
+        return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
