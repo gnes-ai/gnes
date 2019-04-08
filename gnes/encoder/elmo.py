@@ -1,5 +1,6 @@
 from typing import List
 
+import json
 import torch
 import numpy as np
 
@@ -65,12 +66,12 @@ class ElmoEncoder(BaseEncoder):
             if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
                 _pooled_data = payload
             elif self.pooling_strategy == 'REDUCE_MEAN':
-                _pooled_data = np.mean(payload, axis=0)
+                _pooled_data = np.mean(_layer_data, axis=0)
             elif self.pooling_strategy == 'REDUCE_MAX':
-                _pooled_data = np.amax(payload, axis=0)
+                _pooled_data = np.amax(_layer_data, axis=0)
             elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
                 _pooled_data = np.concatenate(
-                    (np.mean(payload, axis=0), np.amax(payload, axis=0)),
+                    (np.mean(_layer_data, axis=0), np.amax(_layer_data, axis=0)),
                     axis=1)
             else:
                 raise ValueError(
