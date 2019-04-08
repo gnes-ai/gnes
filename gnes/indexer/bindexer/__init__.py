@@ -32,7 +32,8 @@ class BIndexer(BaseBinaryIndexer):
         cids = np.array(doc_ids, dtype=np.uint32).tobytes()
         self.bindexer.index_trie(vectors, num_rows, cids)
 
-    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, *args, **kwargs) -> List[List[Tuple[int, Union[float, int]]]]:
+    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, *args, **kwargs) -> List[
+        List[Tuple[int, Union[float, int]]]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError("keys should be divided by num_bytes")
 
@@ -70,6 +71,3 @@ class BIndexer(BaseBinaryIndexer):
                                   self.insert_iterations,
                                   self.query_iterations)
         self.bindexer.load(self.data_path)
-
-    def close(self):
-        self.bindexer.destroy()

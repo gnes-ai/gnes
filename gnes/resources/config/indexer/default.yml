@@ -3,10 +3,10 @@ component:
   binary_indexer: !BIndexer
     parameter:
       num_bytes: 8
-      data_path: /ext_data/binary_index.ext
+      data_path: /out_data/binary_index.ext
   sent_doc_indexer: !LVDBIndexer
     parameter:
-      data_path: /ext_data/sent_doc_index.ext
+      data_path: /out_data/sent_doc_index.ext
   doc_content_indexer: !LVDBIndexer
     parameter:
-      data_path: /ext_data/doc_content_index.ext
+      data_path: /out_data/doc_content_index.ext

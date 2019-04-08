@@ -100,7 +100,7 @@ class BaseService(threading.Thread):
             if self.is_model_changed.is_set():
                 self.logger.info(
                     'auto-dumping on every %ds...' % self.args.dump_interval)
-                self._model.dump(self.args.dump_path)
+                self.dump()
                 time.sleep(self.args.dump_interval)
                 self.is_model_changed.clear()
 
