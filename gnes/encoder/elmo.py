@@ -21,19 +21,19 @@ class ElmoEncoder(BaseEncoder):
             raise ValueError('model_dir argument is not specified!')
         self.model_dir = model_dir
 
-        config_path = kwargs.get('config_path', None)
-        if config_path is None:
-            raise ValueError('config_path is not specified!')
+        # config_path = kwargs.get('config_path', None)
+        # if config_path is None:
+        #     raise ValueError('config_path is not specified!')
 
-        with open(config_path, 'r') as f:
-            self.config = json.load(f)
+        # with open(config_path, 'r') as f:
+        #     self.config = json.load(f)
 
         self.batch_size = kwargs.get('batch_size', 64)
         self.pooling_layer = kwargs.get('pooling_layer', -1)
         if self.pooling_layer > 2:
             raise ValueError('pooling_layer = %d is not supported now!' %
                              self.pooling_layer)
-        self.pooling_strategy = kwargs.get('pooling_strategy', None)
+        self.pooling_strategy = kwargs.get('pooling_strategy', 'REDUCE_MEAN')
 
         self._elmo = Embedder(
             model_dir=self.model_dir, batch_size=self.batch_size)
@@ -64,7 +64,7 @@ class ElmoEncoder(BaseEncoder):
 
             _pooled_data = None
             if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
-                _pooled_data = payload
+                _pooled_data = _layer_data
             elif self.pooling_strategy == 'REDUCE_MEAN':
                 _pooled_data = np.mean(_layer_data, axis=0)
             elif self.pooling_strategy == 'REDUCE_MAX':
