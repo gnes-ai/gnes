@@ -98,11 +98,11 @@ class BaseService(threading.Thread):
     def _auto_dump(self):
         while self.is_event_loop.is_set():
             if self.is_model_changed.is_set():
+                self.is_model_changed.clear()
                 self.logger.info(
-                    'auto-dumping on every %ds...' % self.args.dump_interval)
+                    'auto-dumping the new change of the model every %ds...' % self.args.dump_interval)
                 self.dump()
                 time.sleep(self.args.dump_interval)
-                self.is_model_changed.clear()
 
     def dump(self):
         if not self.args.read_only:

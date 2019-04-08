@@ -36,7 +36,9 @@ class IndexerService(BS):
     @handler.register(Message.typ_sent_id)
     def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
         self._model.add(*msg.msg_content, head_name='sent_doc_indexer')
+        self.is_model_changed.set()
 
     @handler.register(Message.typ_doc_id)
     def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
         self._model.add(*msg.msg_content, head_name='doc_content_indexer')
+        self.is_model_changed.set()
