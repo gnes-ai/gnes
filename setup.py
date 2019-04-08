@@ -68,7 +68,7 @@ setup(
         'psutil>=5.6.1',
         'memory_profiler>=0.55.0',
         'gputil>=1.4.0',
-        'git+git://git@github.com:HIT-SCIR/ELMoForManyLangs.git@41b95ec#egg=elmoformanylangs'
+        'git+git://github.com:HIT-SCIR/ELMoForManyLangs.git@41b95ec#egg=elmoformanylangs'
     ],
     extras_require={
         'test': ['pylint'],
