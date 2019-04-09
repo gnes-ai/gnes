@@ -1,3 +1,4 @@
+import time
 import uuid
 
 import zmq
@@ -7,23 +8,22 @@ from ..messaging import send_message, Message
 
 
 class BaseClient(TrainableBase):
-    def __init__(self, host_in: str = 'localhost',
-                 host_out: str = 'localhost',
-                 port_in: int = 5555, port_out: int = 5556,
-                 identity: str = None, timeout: int = -1,
+    def __init__(self, host_in: str,
+                 host_out: str,
+                 port_in: int, port_out: int,
+                 timeout: int, identity: str = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.identity = identity or str(uuid.uuid4())
         self.timeout = timeout
         self._context = zmq.Context()
+        self._context.setsockopt(zmq.LINGER, 0)
 
         self._sender = self._context.socket(zmq.PUSH)
-        self._sender.setsockopt(zmq.LINGER, 0)
         self._sender.connect('tcp://%s:%d' % (host_in, port_in))
 
         self._receiver = self._context.socket(zmq.SUB)
-        self._receiver.setsockopt(zmq.LINGER, 0)
         self._receiver.setsockopt(zmq.SUBSCRIBE, self.identity.encode('ascii'))
         self._receiver.connect('tcp://%s:%d' % (host_out, port_out))
 
@@ -32,7 +32,8 @@ class BaseClient(TrainableBase):
         send_message(self._sender, Message(client_id=self.identity,
                                            req_id=req_id,
                                            msg_content=texts,
-                                           route='client'), timeout=self.timeout)
+                                           route=self.__class__.__name__), timeout=self.timeout)
+        time.sleep(2)
 
     def send_receive(self, texts):
         self.send(texts)

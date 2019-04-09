@@ -129,7 +129,7 @@ def set_indexer_service_parser(parser=None):
     parser.set_defaults(port_out=parser.get_default('port_out') + 2)
     parser.set_defaults(port_ctrl=parser.get_default('port_out') + 2)
     parser.set_defaults(socket_in=SocketType.PULL_CONNECT)
-    parser.set_defaults(socket_out=SocketType.PUSH_BIND)
+    parser.set_defaults(socket_out=SocketType.PUB_BIND)
     return parser
 
 
