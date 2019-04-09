@@ -59,10 +59,33 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int, default=5312,
-                        help='port for control the service')
     parser.add_argument('--timeout', type=int, default=5000,
                         help='timeout (ms) of all communication')
+
+    return parser
+
+
+def set_client_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    from ..service import ServiceMode
+    import sys
+    parser.add_argument('--mode', type=ServiceMode.from_string, choices=list(ServiceMode),
+                        required=True,
+                        help='mode of this client')
+    parser.add_argument('--txt_file', type=argparse.FileType('r'),
+                        default=sys.stdin,
+                        help='text file to be used, each line is a doc/query')
+    return parser
+
+
+def set_controllable_service_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    parser.add_argument('--port_ctrl', type=int, default=5312,
+                        help='port for control the service')
     parser.add_argument('--dump_interval', type=int, default=60,
                         help='dump the service every n seconds')
     parser.add_argument('--read_only', action='store_true', default=False,
@@ -75,7 +98,7 @@ def set_encoder_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     from ..service import ServiceMode
-    set_service_parser(parser)
+    set_controllable_service_parser(parser)
     parser.add_argument('--dump_path', type=str, default=None,
                         help='binary dump of the service')
     parser.add_argument('--mode', type=ServiceMode.from_string, choices=list(ServiceMode),
@@ -117,7 +140,7 @@ def get_main_parser():
                                description='Commands',
                                help='Description', dest='cli')
 
-    set_nes_search_parser(sp.add_parser('search', help='searching an index'))
+    set_client_parser(sp.add_parser('client', help='searching an index'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     return parser
