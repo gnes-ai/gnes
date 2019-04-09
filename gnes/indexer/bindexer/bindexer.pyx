@@ -476,7 +476,7 @@ cdef class IndexCore:
         sort_Datadist(self.W, w_len)
         if is_query:
             for i in range(self.ef*10):
-                if self.W[i].data_coordi.x != self.NULL_coordi.x:
+                if i < w_len:
                     self.res_query[i] = self.W[i].data_coordi
                 else:
                     self.res_query[i] = self.NULL_coordi
