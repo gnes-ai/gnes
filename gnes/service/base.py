@@ -145,17 +145,13 @@ class BaseService(threading.Thread):
 
         if self.args.socket_in.is_bind:
             in_sock.bind('tcp://%s:%d' % (self.args.host_in, self.args.port_in))
-            self.logger.info('in-bind')
         else:
             in_sock.connect('tcp://%s:%d' % (self.args.host_in, self.args.port_in))
-            self.logger.info('in-connect')
 
         if self.args.socket_out.is_bind:
             out_sock.bind('tcp://%s:%d' % (self.args.host_out, self.args.port_out))
-            self.logger.info('out-bind')
         else:
             out_sock.connect('tcp://%s:%d' % (self.args.host_out, self.args.port_out))
-            self.logger.info('out-connect')
 
         self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
 

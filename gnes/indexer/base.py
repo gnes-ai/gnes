@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any, Dict, Optional
 
 from ..base import *
 from ..encoder import CompositionalEncoder
@@ -36,12 +36,15 @@ class MultiheadIndexer(CompositionalEncoder):
         if not self.is_pipeline and head_name in self.component:
             self.component[head_name].add(keys, docs)
 
-    def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
-        sent_id_topk = self.component['binary_indexer'].query(keys, top_k)
+    def query(self, keys: bytes, top_k: int,
+              sent_recall_factor: int = 10,
+              return_field: Optional[Tuple] = ('id', 'content'), *args, **kwargs) -> List[
+        List[Tuple[Dict, float]]]:
+        sent_id_topk = self.component['binary_indexer'].query(keys, top_k * sent_recall_factor, normalized_score=True)
 
         # get unique sentence_id and query the corresponding doc_id
         sent_ids = list(set(s_id for id_score in sent_id_topk for s_id, score in id_score if s_id >= 0))
-        doc_ids = self.component['sent_doc_indexer'].query(sent_ids, normalized_score=True)
+        doc_ids = self.component['sent_doc_indexer'].query(sent_ids)
         sent_id2doc_id = {s_id: d_id for s_id, d_id in zip(sent_ids, doc_ids)}
 
         # get unique doc_id and query the corresponding doc_content
@@ -53,10 +56,12 @@ class MultiheadIndexer(CompositionalEncoder):
         for id_score in sent_id_topk:
             result = defaultdict(int)
             for s_id, score in id_score:
-                result[sent_id2doc_id[s_id]] += score
+                normalizer = len(doc_id2content[sent_id2doc_id[s_id]]['sentences'])
+                result[sent_id2doc_id[s_id]] += score / normalizer
             sorted_d = sorted(result.items(), key=lambda kv: kv[1], reverse=True)
-            # this top_k is unnecessary for now
-            sorted_d = [(doc_id2content[d_id], score) for d_id, score in sorted_d][:top_k]
+            sorted_d = [({k: doc_id2content[d_id][k] for k in return_field} if return_field else doc_id2content[d_id],
+                         score) for d_id, score in
+                        sorted_d][:top_k]
             final_result.append(sorted_d)
 
         return final_result
