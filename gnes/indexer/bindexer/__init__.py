@@ -47,7 +47,7 @@ class BIndexer(BaseBinaryIndexer):
             result[q].append((i, 1. if normalized_score else 0))
 
         # search the indexed items with similary value
-        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows)
+        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows, top_k)
         for (i, d, q) in zip(doc_ids, dists, q_idx):
             if d == 0:
                 continue
