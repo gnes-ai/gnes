@@ -29,7 +29,8 @@ class IndexerService(BS):
             self._model.add(*msg.msg_content, head_name='binary_indexer')
             self.is_model_changed.set()
         elif self.args.mode == ServiceMode.QUERY:
-            self._model.query(msg.msg_content, top_k=self.args.top_k)
+            result = self._model.query(msg.msg_content, top_k=self.args.top_k)
+            send_message(out, msg.copy_mod(msg_content=result), self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 

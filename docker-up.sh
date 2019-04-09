@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export BUILD_ID=$1
-export SERVER_MODE="ADD"
+export SERVER_MODE=$2
 export OUTPUT_DIR=$(pwd)"/tmp_data"
 
 mkdir -p $OUTPUT_DIR

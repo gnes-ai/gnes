@@ -9,14 +9,13 @@ from functools import wraps
 from itertools import islice
 from typing import Iterator, Any, Union, List, Callable
 
+import jieba
 import numpy as np
 from joblib import Memory
 from memory_profiler import memory_usage
 from psutil import virtual_memory
 from ruamel.yaml import YAML
 from termcolor import colored
-
-import jieba
 
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
@@ -117,16 +116,23 @@ def set_logger(context, verbose=False):
     if os.name == 'nt':  # for Windows
         return NTLogger(context, verbose)
 
+    # Remove all handlers associated with the root logger object.
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     logger = logging.getLogger(context)
-    logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-    formatter = logging.Formatter(
-        '%(levelname)-.1s:' + context + ':[%(filename).3s:%(funcName).3s:%(lineno)3d]:%(message)s', datefmt=
-        '%m-%d %H:%M:%S')
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
-    console_handler.setFormatter(formatter)
-    logger.handlers = []
-    logger.addHandler(console_handler)
+    logger.propagate = False
+    if not logger.handlers:
+        logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+        formatter = logging.Formatter(
+            '%(levelname)-.1s:' + context + ':[%(filename).3s:%(funcName).3s:%(lineno)3d]:%(message)s', datefmt=
+            '%m-%d %H:%M:%S')
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
+        console_handler.setFormatter(formatter)
+        logger.handlers = []
+        logger.addHandler(console_handler)
+
     return logger
 
 
@@ -163,7 +169,7 @@ class TimeContext:
 
 
 class Tokenizer:
-    def __init__(self, dict_path : str = None):
+    def __init__(self, dict_path: str = None):
         self._jieba = jieba.Tokenizer()
         self._jieba.cache_file = "gnes.jieba_wrapper.cache"
 
@@ -172,11 +178,11 @@ class Tokenizer:
 
     def tokenize(self, text, with_position=False):
         if not with_position:
-            return self._jieba.lcut(text)    # resulted token list
+            return self._jieba.lcut(text)  # resulted token list
         else:
             return self._jieba.tokenize(
                 text
-            )    # triple data consisting of (token, start_pos, end_pos)
+            )  # triple data consisting of (token, start_pos, end_pos)
 
     def _add_user_dict(self, dict_path, pos):
         with open(dict_path, "r") as fr:
