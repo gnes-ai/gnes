@@ -6,6 +6,8 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
 from libc.stdlib cimport qsort
 from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
+import random
+import math
 
 DEF data_size_per_time = 100000
 DEF node_size_per_time = 100000
@@ -98,12 +100,14 @@ cdef class IndexCore:
     cdef DataDist*C
     cdef Data**V
     cdef coordi*res
+    cdef coordi*res_query
     cdef coordi*entry_node
     cdef UCR update_single_neighbor, debugging_mode, initialized
 
     def __cinit__(self, bytes_per_vector, bytes_per_label, ef,
                   max_insert_iterations=1000,
                   max_query_iterations=5000,
+                  debugging_mode=0,
                   update_single_neighbor=1):
         self.bytes_per_vector = bytes_per_vector
         self.bytes_per_label = bytes_per_label
@@ -111,6 +115,7 @@ cdef class IndexCore:
         self.update_single_neighbor = update_single_neighbor
         self.max_insert_iterations = max_insert_iterations
         self.max_query_iterations = max_query_iterations
+        self.debugging_mode = debugging_mode
 
         self.nodes_capacity = 0
         self.data_capacity = 0
@@ -134,6 +139,7 @@ cdef class IndexCore:
         self.C = <DataDist*> PyMem_Malloc(sizeof(DataDist)*search_c_max)
         self.W = <DataDist*> PyMem_Malloc(sizeof(DataDist)*self.ef*10)
         self.res = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef)
+        self.res_query = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef*10)
 
         self.NULL_coordi.x = UST_max
         self.NULL_coordi.y = UIDX_max
@@ -467,14 +473,21 @@ cdef class IndexCore:
                     break
             c_len -= 1
 
-
         sort_Datadist(self.W, w_len)
-        for i in range(self.ef):
-            if i < w_len:
-                self.res[i] = self.W[i].data_coordi
-            else:
-                self.res[i] = self.NULL_coordi
-        res = self.res
+        if is_query:
+            for i in range(self.ef*10):
+                if i < w_len:
+                    self.res_query[i] = self.W[i].data_coordi
+                else:
+                    self.res_query[i] = self.NULL_coordi
+            res = self.res_query
+        else:
+            for i in range(self.ef):
+                if i < w_len:
+                    self.res[i] = self.W[i].data_coordi
+                else:
+                    self.res[i] = self.NULL_coordi
+            res = self.res
         return res
 
     cdef void update_neighbors(self, coordi cur_coordi, coordi neigh_coordi):
@@ -603,7 +616,7 @@ cdef class IndexCore:
             q_pt += self.bytes_per_vector
         return final_idx, final_result
 
-    cpdef nsw_search(self, unsigned char*query, const UIDX num_query):
+    cpdef nsw_search(self, unsigned char*query, const UIDX num_query, const UIDX top_k):
         cdef array.array res_dist = array.array('L')
         cdef array.array res_docs = array.array('L')
         cdef array.array res_idx = array.array('L')
@@ -618,11 +631,13 @@ cdef class IndexCore:
                 self.cur_vec[_1] = query[_1]
             query += self.bytes_per_vector
             res = self.search_neighbors(self.cur_vec, is_query)
-            for _1 in range(self.ef):
+            for _1 in range(top_k):
                 if res[_1].x != self.NULL_coordi.x:
                     res_idx.append(_0)
                     res_docs.append(self.id2data(res[_1]).doc_id)
                     res_dist.append(self.vec_distance(self.cur_vec, self.id2vec(res[_1])))
+                else:
+                    break
 
         return res_docs, res_dist, res_idx
 
@@ -723,9 +738,6 @@ cdef class IndexCore:
     def load(self, load_path):
         self._load(bytes(load_path, 'utf8'))
 
-    cpdef destroy(self):
-        self.free_trie()
-
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
         dist = 0
@@ -753,12 +765,16 @@ cdef class IndexCore:
             y = self.all_data[0][i].parent.y
             print(x, y, self.all_nodes[x][y].key)
 
+    def destroy(self):
+        self.free_trie()
+
     cdef void free_trie(self):
         cdef UIDX _
         PyMem_Free(self.V)
         PyMem_Free(self.W)
         PyMem_Free(self.C)
         PyMem_Free(self.res)
+        PyMem_Free(self.res_query)
         PyMem_Free(self.entry_node)
         PyMem_Free(self.cur_vec)
         for _ in range(int(self.nodes_capacity/node_size_per_time)):
