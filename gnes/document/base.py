@@ -14,6 +14,10 @@ class BaseDocument:
         self.sentence_ids = np.random.randint(0, ctypes.c_uint(-1).value, len(self.sentences),
                                               dtype=np.uint32).tolist()
 
+    def as_dict(self):
+        return dict(id=self.id, content=self.content,
+                    sentences=self.sentences, sentence_ids=self.sentence_ids)
+
     @property
     def is_empty(self):
         return len(self.sentences) == 0
@@ -104,7 +108,7 @@ class DocumentMapper:
         self._sentence_ids = self.list2array([s_id for d in docs for s_id in d.sentence_ids])
         self._doc_ids_repeat = self.list2array([d.id for d in docs for _ in d.sentence_ids])
         self._doc_ids = self.list2array([d.id for d in docs])
-        self._contents = [d.content for d in docs]
+        self._contents = [d.as_dict() for d in docs]
 
     def list2array(self, lst: List[int]) -> Union[np.ndarray, List[int]]:
         return np.array(lst) if self._key_as_nparray else lst

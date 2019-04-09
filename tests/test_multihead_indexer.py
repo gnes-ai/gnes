@@ -21,7 +21,12 @@ class TestMHIndexer(unittest.TestCase):
                                   [2, 1]]).astype(np.uint8)
         self.doc_keys = [1, 1, 1, 2, 2, 2]
         self.doc_keys_uniq = [1, 2]
-        self.doc_content = ['d1', 'd2']
+        self.doc_content = [dict(id=1, content='d1',
+                                 sentences=['d11', 'd12', 'd13'],
+                                 sentence_ids=[1, 2, 3]),
+                            dict(id=2, content='d2',
+                                 sentences=['d21', 'd22', 'd23'],
+                                 sentence_ids=[4, 5, 6])]
         self.query1 = np.array([1, 2]).astype(np.uint8)
         self.query2 = np.array([2, 1]).astype(np.uint8)
         self.query1and2 = np.array([[1, 2], [2, 1]]).astype(np.uint8)
@@ -35,12 +40,16 @@ class TestMHIndexer(unittest.TestCase):
         mhi.add(self.doc_keys_uniq, self.doc_content, head_name='doc_content_indexer')
         mhi.add(self.sent_keys, self.sent_bin.tobytes(), head_name='binary_indexer')
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1), [[('d1', 0)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1), [[('d2', 0)]])
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1), [[(self.doc_content[0], 1.0)]])
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1), [[(self.doc_content[1], 1.0)]])
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2), [[('d1', 0), ('d2', 0)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2), [[('d2', 0), ('d1', 0)]])
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2),
+                         [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.)]])
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2),
+                         [[(self.doc_content[1], 1.0), (self.doc_content[0], 0.)]])
 
-        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1), [[('d1', 0)], [('d2', 0)]])
+        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1),
+                         [[(self.doc_content[0], 1.0)], [(self.doc_content[1], 1.0)]])
         self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2),
-                         [[('d1', 0), ('d2', 0)], [('d2', 0), ('d1', 0)]])
+                         [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.0)],
+                          [(self.doc_content[1], 1.0), (self.doc_content[0], 0.0)]])
