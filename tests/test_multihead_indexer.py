@@ -40,16 +40,25 @@ class TestMHIndexer(unittest.TestCase):
         mhi.add(self.doc_keys_uniq, self.doc_content, head_name='doc_content_indexer')
         mhi.add(self.sent_keys, self.sent_bin.tobytes(), head_name='binary_indexer')
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1), [[(self.doc_content[0], 1.0)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1), [[(self.doc_content[1], 1.0)]])
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1, return_field=('id',)),
+                         [[({'id': self.doc_content[0]['id']}, 1.0)]])
+        self.assertEqual(
+            mhi.query(self.query1.tobytes(), top_k=1,
+                      return_field=('id', 'content', 'sentences', 'sentence_ids')),
+            [[(self.doc_content[0], 1.0)]])
+        self.assertEqual(
+            mhi.query(self.query1.tobytes(), top_k=1,
+                      return_field=None),
+            [[(self.doc_content[0], 1.0)]])
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1, return_field=None), [[(self.doc_content[1], 1.0)]])
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2),
+        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2, return_field=None),
                          [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2),
+        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2, return_field=None),
                          [[(self.doc_content[1], 1.0), (self.doc_content[0], 0.)]])
 
-        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1),
+        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1, return_field=None),
                          [[(self.doc_content[0], 1.0)], [(self.doc_content[1], 1.0)]])
-        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2),
+        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2, return_field=None),
                          [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.0)],
                           [(self.doc_content[1], 1.0), (self.doc_content[0], 0.0)]])
