@@ -1,49 +1,39 @@
 from typing import List
 
-import json
-import torch
 import numpy as np
-
-from ..helper import batching, cn_tokenizer
-
-from .base import BaseEncoder, CompositionalEncoder
 from elmoformanylangs import Embedder
+
+from .base import BaseEncoder
+from ..helper import batching, cn_tokenizer
 
 
 class ElmoEncoder(BaseEncoder):
-    store_args_kwargs = True
 
-    def __init__(self, model_dir, batch_size=64, pooling_layer=-1, pooling_strategy='REDUCE_MEAN', *args, **kwargs):
+    def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
+                 pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
 
         self.batch_size = batch_size
-        self.pooling_layer = pooling_layer
-        if self.pooling_layer > 2:
+        if pooling_layer > 2:
             raise ValueError('pooling_layer = %d is not supported now!' %
-                             self.pooling_layer)
+                             pooling_layer)
+        self.pooling_layer = pooling_layer
         self.pooling_strategy = pooling_strategy
 
-        self._elmo = Embedder(
-            model_dir=self.model_dir, batch_size=self.batch_size)
-
+        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
         self.is_trained = True
-        self._encoder_args = args
-        self._encoder_kwargs = kwargs
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
-        batch_tokens = []
-        for sent in text:
-            batch_tokens.append(cn_tokenizer.tokenize(sent))
+        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
 
         elmo_encodes = self._elmo.sents2elmo(batch_tokens, output_layer=-2)
 
         pooled_data = []
         for token_encodes in elmo_encodes:
-            _layer_data = None
             if self.pooling_layer == -1:
                 _layer_data = np.average(token_encodes, axis=0)
             elif self.pooling_layer >= 0:
@@ -52,7 +42,6 @@ class ElmoEncoder(BaseEncoder):
                 raise ValueError('pooling_layer = %d is not supported now!' %
                                  self.pooling_layer)
 
-            _pooled_data = None
             if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
                 _pooled_data = _layer_data
             elif self.pooling_strategy == 'REDUCE_MEAN':
@@ -79,6 +68,3 @@ class ElmoEncoder(BaseEncoder):
         super().__setstate__(d)
         self._elmo = Embedder(
             model_dir=self.model_dir, batch_size=self.batch_size)
-
-    def close(self):
-        super().close()
