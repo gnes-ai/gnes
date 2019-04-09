@@ -139,7 +139,7 @@ cdef class IndexCore:
         self.C = <DataDist*> PyMem_Malloc(sizeof(DataDist)*search_c_max)
         self.W = <DataDist*> PyMem_Malloc(sizeof(DataDist)*self.ef*10)
         self.res = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef)
-        self.res_query = <coordi*> PyMem_Malloc(sizeof(coordi)*search_w_max)
+        self.res_query = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef*10)
 
         self.NULL_coordi.x = UST_max
         self.NULL_coordi.y = UIDX_max
