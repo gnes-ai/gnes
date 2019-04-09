@@ -636,6 +636,8 @@ cdef class IndexCore:
                     res_idx.append(_0)
                     res_docs.append(self.id2data(res[_1]).doc_id)
                     res_dist.append(self.vec_distance(self.cur_vec, self.id2vec(res[_1])))
+                else:
+                    break
 
         return res_docs, res_dist, res_idx
 
