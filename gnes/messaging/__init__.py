@@ -106,8 +106,10 @@ class Message:
         ct = self.content_type
         if isinstance(ct, dict) and ct['content_type'] == 'array':
             return np.frombuffer(memoryview(self._msg_content), dtype=str(ct['dtype'])).reshape(ct['shape'])
-        elif isinstance(ct, dict) and ct['content_type'] == 'tuple':
+        elif isinstance(ct, dict) and ct['content_type'] == 'map-bytes':
             return ct['id'], self._msg_content
+        elif isinstance(ct, dict) and ct['content_type'] == 'map-any':
+            return ct['id'], jsonapi.loads(self._msg_content)
         elif ct == 'binary':
             return self._msg_content
         else:
@@ -122,8 +124,11 @@ class Message:
             self.content_type = 'binary'
             self._msg_content = value
         elif isinstance(value, tuple) and isinstance(value[0], list) and isinstance(value[1], bytes):
-            self.content_type = dict(content_type='tuple', id=value[0])
+            self.content_type = dict(content_type='map-bytes', id=value[0])
             self._msg_content = value[1]
+        elif isinstance(value, tuple) and isinstance(value[0], list) and not isinstance(value[1], bytes):
+            self.content_type = dict(content_type='map-any', id=value[0])
+            self._msg_content = jsonapi.dumps(value[1])
         else:
             self._msg_content = jsonapi.dumps(value)
 
