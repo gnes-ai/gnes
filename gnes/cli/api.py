@@ -22,15 +22,19 @@ def search(args):
 
 
 def client(args):
-    from ..client import BaseClient
-    from ..service import ServiceMode
+    from ..service import ClientService
 
-    with BaseClient(args.host_in, args.host_out, args.port_in, args.port_out, timeout=args.timeout) as bc:
+    with ClientService(args) as cs:
         data = [v for v in args.txt_file if v.strip()]
         if not data:
             raise ValueError('input text file is empty, nothing to do')
         else:
-            if args.mode == ServiceMode.QUERY:
-                print(bc.send_receive(data))
-            else:
-                bc.send(data)
+            result = cs.query(data)
+            if result:
+                print(type(result))
+                print(result.client_id)
+                print(result.req_id)
+                print(result.content_type)
+                print(result.msg_type)
+                print(type(result.msg_content))
+        cs.join()

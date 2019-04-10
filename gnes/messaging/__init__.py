@@ -4,8 +4,7 @@ import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['Message', 'send_message', 'recv_message',
-           'send_ctrl_message', 'send_terminate_message']
+__all__ = ['Message', 'send_message', 'recv_message']
 
 
 class Message:
@@ -188,17 +187,3 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
                 sock, timeout))
     finally:
         sock.setsockopt(zmq.RCVTIMEO, -1)
-
-
-def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 2000):
-    # control message is short, set a timeout and ask for quick response
-    with zmq.Context() as ctx:
-        ctx.setsockopt(zmq.LINGER, 0)
-        with ctx.socket(zmq.PAIR) as ctrl_sock:
-            ctrl_sock.connect('tcp://%s:%d' % (address, port))
-            send_message(ctrl_sock, msg, timeout)
-            return recv_message(ctrl_sock, timeout)
-
-
-def send_terminate_message(*args, **kwargs):
-    return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
