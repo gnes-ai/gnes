@@ -3,7 +3,7 @@ component:
   encoder:
     !PipelineEncoder
     component:
-      - !ElmoEncoder
+      - !FlairEncoder
         parameter:
           model_dir: $FLAIR_CI_MODEL
           pooling_stragy: REDUCE_MEAN

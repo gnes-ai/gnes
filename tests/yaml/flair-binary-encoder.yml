@@ -1,6 +1,6 @@
 !PipelineEncoder
 component:
-  - !ElmoEncoder
+  - !FlairEncoder
     parameter:
       model_name: $FLAIR_CI_MODEL
       pooling_stragy: REDUCE_MEAN

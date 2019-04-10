@@ -12,7 +12,7 @@ class TestElmoEncoder(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
-        self.dump_path = os.path.join(dirname, 'elmo_encoder.bin')
+        self.dump_path = os.path.join(dirname, 'flair_encoder.bin')
         self.ebe_path = os.path.join(dirname, 'yaml', 'flair-binary-encoder.yml')
         self.nes_path = os.path.join(dirname, 'yaml', 'base-flair-nes.yml')
         self.db_path = './test_leveldb'
@@ -29,7 +29,7 @@ class TestElmoEncoder(unittest.TestCase):
             pooling_strategy="REDUCE_MEAN")
         vec = flair_encoder.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
-        self.assertEqual(vec.shape[1], 2048)
+        self.assertEqual(vec.shape[1], 512)
 
         num_bytes = 8
 

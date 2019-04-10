@@ -4,10 +4,7 @@ from .base import BaseEncoder
 from ..helper import batching
 from flair.data import Sentence
 from flair.embeddings import FlairEmbeddings
-
-
-flair_embedding_forward = FlairEmbeddings('multi-forward-fast')
-
+import torch
 
 class FlairEncoder(BaseEncoder):
 
@@ -33,23 +30,22 @@ class FlairEncoder(BaseEncoder):
 
         pooled_data = []
         for sentence in flair_encodes:
-            _layer_data = [s.embedding for s in sentence]
+            _layer_data = torch.stack([s.embedding for s in sentence])
             if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
                 _pooled_data = _layer_data
             elif self.pooling_strategy == 'REDUCE_MEAN':
-                _pooled_data = np.mean(_layer_data, axis=0)
+                _pooled_data = torch.mean(_layer_data, 0)
             elif self.pooling_strategy == 'REDUCE_MAX':
-                _pooled_data = np.amax(_layer_data, axis=0)
+                _pooled_data = torch.max(_layer_data, 0)[0]
             elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
-                _pooled_data = np.concatenate(
-                    (np.mean(_layer_data, axis=0), np.amax(_layer_data, axis=0)),
-                    axis=1)
+                _pooled_data = torch.cat(
+                    (torch.mean(_layer_data, 0), torch.max(_layer_data, 0)[0]), 0)
             else:
                 raise ValueError(
                     'pooling_strategy: %s has not been implemented' %
                     self.pooling_strategy)
             pooled_data.append(_pooled_data)
-        return np.asarray(pooled_data, dtype=np.float32)
+        return np.asarray(torch.stack(pooled_data), dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
