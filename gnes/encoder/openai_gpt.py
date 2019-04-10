@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 
 import torch
-from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel, OpenAIGPTLMHeadModel
+from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel
 
 from .base import BaseEncoder
 from ..helper import batching
