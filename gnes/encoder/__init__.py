@@ -1,7 +1,7 @@
 from .base import BaseEncoder, BinaryEncoder, CompositionalEncoder, PipelineEncoder
 from .bert import BertEncoder, BertEncoderServer
 from .elmo import ElmoEncoder
-from .openai_gpt import OpenAIGPTEncoder
+from .gpt import GPTEncoder
 from .pca import PCALocalEncoder
 from .pq import PQEncoder
 from .tf_pq import TFPQEncoder
@@ -15,4 +15,4 @@ __all__ = ['BaseEncoder',
            'CompositionalEncoder',
            'PipelineEncoder',
            'ElmoEncoder',
-           'OpenAIGPTEncoder']
+           'GPTEncoder']

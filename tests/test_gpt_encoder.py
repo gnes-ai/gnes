@@ -4,7 +4,7 @@ from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder import PipelineEncoder
-from gnes.encoder import OpenAIGPTEncoder
+from gnes.encoder import GPTEncoder
 from gnes.module import GNES
 
 
@@ -24,7 +24,7 @@ class TestElmoEncoder(unittest.TestCase):
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
     def test_encoding(self):
-        _encoder = OpenAIGPTEncoder(
+        _encoder = GPTEncoder(
             model_dir=os.environ.get(
                 'GPT_CI_MODEL',
                 'https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/openai_gpt'

@@ -9,7 +9,7 @@ from .base import BaseEncoder
 from ..helper import batching
 
 
-class OpenAIGPTEncoder(BaseEncoder):
+class GPTEncoder(BaseEncoder):
 
     def __init__(self,
                  model_dir: str,
