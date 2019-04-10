@@ -641,6 +641,59 @@ cdef class IndexCore:
 
         return res_docs, res_dist, res_idx
 
+    cpdef force_search(self, unsigned char*query, const UIDX num_query, UIDX top_k):
+        cdef array.array res_dist = array.array('L')
+        cdef array.array res_docs = array.array('L')
+        cdef array.array res_idx = array.array('L')
+        cdef DataDist w_far
+        top_k = min(top_k, self.num_data)
+
+        cdef coordi tmp
+        cdef UCR*tmp_vec
+        cdef UIDX _0, _1, _2, _3, _id, _dist, _dist_far
+
+        for _0 in range(num_query):
+            Q = <DataDist*> PyMem_Malloc(sizeof(DataDist) * top_k)
+            w_far.dist = 0
+            for _1 in range(self.bytes_per_vector):
+                self.cur_vec[_1] = query[_1]
+            query += self.bytes_per_vector
+            for _2 in range(self.cur_data_blocks):
+                for _3 in range(data_size_per_time):
+                    _id = _2 * data_size_per_time + _3
+                    if _id < self.num_data:
+                        tmp.x = _2
+                        tmp.y = _3
+                        tmp_vec = self.id2vec(tmp)
+                        if _id < top_k:
+                            Q[_id].data_coordi = tmp
+                            Q[_id].dist = self.vec_distance(self.id2vec(tmp), self.cur_vec)
+                            Q[_id].data = &self.all_data[_2][_3]
+                            if Q[_id].dist > w_far.dist:
+                                w_far = Q[_id]
+                        else:
+                            _dist = self.vec_distance(self.id2vec(tmp), self.cur_vec)
+                            if _dist < w_far.dist:
+                                _dist_far = 0
+                                for _1 in range(top_k):
+                                    if Q[_1].data == w_far.data:
+                                        Q[_1].data = &self.all_data[_2][_3]
+                                        Q[_1].data_coordi = tmp
+                                        Q[_1].dist = _dist
+                                        break
+                                for _1 in range(top_k):
+                                    if Q[_1].dist > _dist_far:
+                                        _dist_far = Q[_1].dist
+                                        w_far = Q[_1]
+            sort_Datadist(Q, top_k)
+            for _1 in range(top_k):
+                res_idx.append(_0)
+                res_docs.append(Q[_1].data.doc_id)
+                res_dist.append(Q[_1].dist)
+            PyMem_Free(Q)
+
+        return res_docs, res_dist, res_idx
+
     def __dealloc__(self):
         self.free_trie()
 
