@@ -27,7 +27,7 @@ class TestElmoEncoder(unittest.TestCase):
         _encoder = GPTEncoder(
             model_dir=os.environ.get(
                 'GPT_CI_MODEL',
-                'https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/openai_gpt'
+                '/openai_gpt'
             ),
             pooling_strategy="REDUCE_MEAN")
         vec = _encoder.encode(self.test_str)
