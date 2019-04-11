@@ -45,6 +45,7 @@ basic-pipeline: &bp1
     BERT_CI_PORT_OUT: 7126
     BERT_CI_MODEL: /chinese_L-12_H-768_A-12
     ELMO_CI_MODEL: /zhs.model
+    FLAIR_CI_MODEL: multi-forward-fast
     NES_PROFILING: 1
   stages:
     - <<: *install_deps
