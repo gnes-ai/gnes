@@ -48,6 +48,7 @@ basic-pipeline: &bp1
     FLAIR_CI_MODEL: multi-forward-fast
     GPT_CI_MODEL: /openai_gpt
     GPT2_CI_MODEL: /openai_gpt2
+    XL_CI_MODEL: /transformer_xl_wt103
     NES_PROFILING: 1
   stages:
     - <<: *install_deps
