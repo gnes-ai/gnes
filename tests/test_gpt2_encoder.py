@@ -8,7 +8,7 @@ from gnes.encoder import GPT2Encoder
 from gnes.module import GNES
 
 
-class TestElmoEncoder(unittest.TestCase):
+class TestGPT2Encoder(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
@@ -18,9 +18,9 @@ class TestElmoEncoder(unittest.TestCase):
         self.db_path = './test_leveldb'
 
         self.test_data1 = UniSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
+            os.path.join(dirname, 'sonnets.txt'))
         self.test_data2 = MultiSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
+            os.path.join(dirname, 'sonnets.txt'))
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
     def test_encoding(self):
