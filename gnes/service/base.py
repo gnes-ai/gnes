@@ -59,7 +59,8 @@ class ServiceError(Exception):
     pass
 
 
-def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketType') -> Tuple['zmq.Socket', str]:
+def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketType', identity: 'str' = None) -> Tuple[
+    'zmq.Socket', str]:
     sock = {
         SocketType.PULL_BIND: lambda: ctx.socket(zmq.PULL),
         SocketType.PULL_CONNECT: lambda: ctx.socket(zmq.PULL),
@@ -83,6 +84,9 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
             sock.connect(host)
         else:
             sock.connect('tcp://%s:%d' % (host, port))
+
+    if socket_type in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
+        sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
 
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 
@@ -122,6 +126,7 @@ class BaseService(threading.Thread):
         self.is_model_changed = threading.Event()
         self.is_handler_done = threading.Event()
         self._model = None
+        self.identity = args.identity if 'identity' in args else None
 
     def run(self):
         self._run()
@@ -165,8 +170,10 @@ class BaseService(threading.Thread):
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
         self.logger.info('bind sockets...')
-        in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in)
-        out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out)
+        in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
+                                  getattr(self, 'identity', None))
+        out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
+                                   getattr(self, 'identity', None))
         ctrl_sock, self.ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
         self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
 

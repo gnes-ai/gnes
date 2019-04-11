@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import zmq
 
-from .base import BaseService as BS, MessageHandler, SocketType
+from .base import BaseService as BS, MessageHandler
 from ..messaging import *
 
 
@@ -11,8 +11,6 @@ class ClientService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        if self.args.socket_in in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
-            self.in_sock.setsockopt(zmq.SUBSCRIBE, self.args.identity.encode('ascii'))
         self.result = []
 
     @handler.register(Message.typ_default)
