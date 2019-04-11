@@ -84,6 +84,17 @@ class TestService(unittest.TestCase):
             result = cs.query(self.test_data1)
             self.assertEqual(result.msg_content, self.test_data1)
 
+        # with muliple dummy workers
+        with MapProxyService(m_args), \
+             ReduceProxyService(r_args), \
+             ProxyService(w_args), \
+             ProxyService(w_args), \
+             ProxyService(w_args), \
+             ProxyService(w_args), \
+             ClientService(c_args) as cs:
+            result = cs.query(self.test_data1)
+            self.assertEqual(result.msg_content, self.test_data1)
+
     # def test_encoder_service_train(self):
     #     # test training
     #     parser = set_encoder_service_parser()
