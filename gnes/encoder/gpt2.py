@@ -3,13 +3,13 @@ from typing import List
 import numpy as np
 
 import torch
-from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel
+from pytorch_pretrained_bert import GPT2Model, GPT2Tokenizer
 
 from .base import BaseEncoder
 from ..helper import batching
 
 
-class GPTEncoder(BaseEncoder):
+class GPT2Encoder(BaseEncoder):
 
     def __init__(self,
                  model_dir: str,
@@ -22,10 +22,10 @@ class GPTEncoder(BaseEncoder):
         self.model_dir = model_dir
 
         # Load pre-trained model tokenizer (vocabulary)
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(model_dir)
+        self._tokenizer = GPT2Tokenizer.from_pretrained(model_dir)
 
         # Load pre-trained model (weights)
-        self._model = OpenAIGPTModel.from_pretrained(model_dir)
+        self._model = GPT2Model.from_pretrained(model_dir)
         self._model.eval()
 
         self._use_cuda = (use_cuda is not True) and torch.cuda.is_available()
@@ -46,10 +46,7 @@ class GPTEncoder(BaseEncoder):
         tokens_lens = []
         max_len = 0
         for _ in text:
-            tokens = self._tokenizer.tokenize(_)
-
-            # Convert token to vocabulary indices
-            token_ids = self._tokenizer.convert_tokens_to_ids(tokens)
+            token_ids = self._tokenizer.encode(_)
             token_len = len(token_ids)
 
             if max_len < token_len:
@@ -81,7 +78,7 @@ class GPTEncoder(BaseEncoder):
         with torch.no_grad():
             # the encoded-hidden-states at the top of the model, as a
             # torch.FloatTensor of size [batch_size, sequence_length, hidden_size]
-            output_tensor = self._model(tokens_tensor)
+            output_tensor, _ = self._model(tokens_tensor)
             output_dim = output_tensor.shape[2]
 
             tiled_masks = masks_tensor.unsqueeze(2).repeat(1, 1, output_dim)
@@ -127,8 +124,8 @@ class GPTEncoder(BaseEncoder):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
-        self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
+        self._tokenizer = GPT2Tokenizer.from_pretrained(self.model_dir)
+        self._model = GPT2Model.from_pretrained(self.model_dir)
         self._model.eval()
 
         self._use_cuda = (self._use_cuda is

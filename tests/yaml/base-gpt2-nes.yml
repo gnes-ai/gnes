@@ -1,0 +1,28 @@
+!GNES
+component:
+  encoder:
+    !PipelineEncoder
+    component:
+      - !GPT2Encoder
+        parameter:
+          model_dir: $GPT2_CI_MODEL
+          pooling_stragy: REDUCE_MEAN
+        property:
+          is_trained: true
+      - !PCALocalEncoder
+        parameter:
+          output_dim: 32
+          num_locals: 8
+        property:
+          batch_size: 2048
+      - !PQEncoder
+        parameter:
+          cluster_per_byte: 8
+          num_bytes: 8
+      - !BinaryEncoder {}
+  binary_indexer: !NumpyIndexer
+    parameter:
+      num_bytes: 8
+  text_indexer: !LVDBIndexer
+    parameter:
+      data_path: ./test_db
