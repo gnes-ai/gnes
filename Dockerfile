@@ -8,6 +8,8 @@ RUN wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/openai_gpt.tar.bz
 
 RUN wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/openai_gpt2.tar.bz2 -qO openai_gpt2.tar.bz2; tar -xvjf openai_gpt2.tar.bz2; rm openai_gpt2.tar.bz2
 
+RUN wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/transformer_xl_wt103.tar.bz2 -qO transformer_xl_wt103.tar.bz2; tar -xvjf transformer_xl_wt103.tar.bz2; rm transformer_xl_wt103.tar.bz2
+
 RUN wget https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings-v0.4/lm-multi-forward-fast-v0.1.pt; mkdir -p /root/.flair/embeddings/; mv lm-multi-forward-fast-v0.1.pt /root/.flair/embeddings/
 
 WORKDIR /nes/
