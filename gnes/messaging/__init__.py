@@ -4,8 +4,17 @@ import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['Message', 'send_message', 'recv_message',
-           'send_ctrl_message', 'send_terminate_message']
+__all__ = ['Message', 'send_message', 'recv_message']
+
+
+def _int2bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, 'big')
+
+
+def _bytes2int(xbytes: bytes) -> int:
+    return int.from_bytes(xbytes, 'big')
+
+
 
 
 class Message:
@@ -20,6 +29,8 @@ class Message:
     def __init__(self,
                  client_id: Union[bytes, str] = b'',
                  req_id: Union[bytes, str] = b'',
+                 part_id: int = 1,
+                 num_part: int = 1,
                  msg_type: Union[bytes, str] = typ_default,
                  msg_content: Any = '',
                  content_type: bytes = b'',
@@ -30,21 +41,34 @@ class Message:
         self._msg_content = b''
         self._route = b''
         self._content_type = b''
+        self._part_id = b''
+        self._num_part = b''
         self.client_id = client_id
         self.req_id = req_id
+        self.part_id = part_id
+        self.num_part = num_part
         self.msg_type = msg_type
         self.content_type = content_type
         self.msg_content = msg_content
         self.route = route
 
     def to_bytes(self) -> List[bytes]:
-        return [self._client_id, self._req_id, self._msg_type, self._msg_content, self._content_type, self._route]
+        return [self._client_id,
+                self._req_id,
+                self._part_id,
+                self._num_part,
+                self._msg_type,
+                self._msg_content,
+                self._content_type,
+                self._route]
 
     @staticmethod
-    def from_bytes(client_id, req_id, msg_type, msg_content, content_type, route):
+    def from_bytes(client_id, req_id, part_id, num_part, msg_type, msg_content, content_type, route):
         x = Message()
         x._client_id = client_id
         x._req_id = req_id
+        x._part_id = part_id
+        x._num_part = num_part
         x._msg_type = msg_type
         x._msg_content = msg_content
         x._content_type = content_type
@@ -55,6 +79,8 @@ class Message:
         y = Message()
         y._client_id = self._client_id
         y._req_id = self._req_id
+        y._part_id = self._part_id
+        y._num_part = self._num_part
         y._msg_type = self._msg_type
         y._msg_content = self._msg_content
         y._route = self._route
@@ -64,8 +90,12 @@ class Message:
         return y
 
     def __repr__(self):
-        return 'client_id: %s, req_id: %s, msg_type: %s, msg_content: %s, route: %s' % \
-               (self.client_id, self.req_id, self.msg_type, self.msg_content, self.route)
+        return 'client_id: %s, req_id: %s, parts: %d/%d, msg_type: %s, msg_content: %s, route: %s' % \
+               (self.client_id, self.req_id, self.part_id, self.num_part, self.msg_type, self.msg_content, self.route)
+
+    @property
+    def unique_id(self) -> str:
+        return self.client_id + self.req_id
 
     @property
     def is_control_message(self) -> bool:
@@ -74,6 +104,22 @@ class Message:
     @property
     def client_id(self):
         return self._client_id.decode()
+
+    @property
+    def part_id(self):
+        return _bytes2int(self._part_id)
+
+    @part_id.setter
+    def part_id(self, value: int):
+        self._part_id = _int2bytes(value)
+
+    @property
+    def num_part(self):
+        return _bytes2int(self._num_part)
+
+    @num_part.setter
+    def num_part(self, value: int):
+        self._num_part = _int2bytes(value)
 
     @client_id.setter
     def client_id(self, value: Union[str, bytes]):
@@ -106,8 +152,10 @@ class Message:
         ct = self.content_type
         if isinstance(ct, dict) and ct['content_type'] == 'array':
             return np.frombuffer(memoryview(self._msg_content), dtype=str(ct['dtype'])).reshape(ct['shape'])
-        elif isinstance(ct, dict) and ct['content_type'] == 'tuple':
+        elif isinstance(ct, dict) and ct['content_type'] == 'map-bytes':
             return ct['id'], self._msg_content
+        elif isinstance(ct, dict) and ct['content_type'] == 'map-any':
+            return ct['id'], jsonapi.loads(self._msg_content)
         elif ct == 'binary':
             return self._msg_content
         else:
@@ -122,8 +170,11 @@ class Message:
             self.content_type = 'binary'
             self._msg_content = value
         elif isinstance(value, tuple) and isinstance(value[0], list) and isinstance(value[1], bytes):
-            self.content_type = dict(content_type='tuple', id=value[0])
+            self.content_type = dict(content_type='map-bytes', id=value[0])
             self._msg_content = value[1]
+        elif isinstance(value, tuple) and isinstance(value[0], list) and not isinstance(value[1], bytes):
+            self.content_type = dict(content_type='map-any', id=value[0])
+            self._msg_content = jsonapi.dumps(value[1])
         else:
             self._msg_content = jsonapi.dumps(value)
 
@@ -183,17 +234,3 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
                 sock, timeout))
     finally:
         sock.setsockopt(zmq.RCVTIMEO, -1)
-
-
-def send_ctrl_message(address: str, port: int, msg: Message, timeout: int = 2000):
-    # control message is short, set a timeout and ask for quick response
-    with zmq.Context() as ctx:
-        ctx.setsockopt(zmq.LINGER, 0)
-        with ctx.socket(zmq.PAIR) as ctrl_sock:
-            ctrl_sock.connect('tcp://%s:%d' % (address, port))
-            send_message(ctrl_sock, msg, timeout)
-            return recv_message(ctrl_sock, timeout)
-
-
-def send_terminate_message(*args, **kwargs):
-    return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)

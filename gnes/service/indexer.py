@@ -1,7 +1,6 @@
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..indexer.base import MultiheadIndexer
 from ..messaging import *
 
 
@@ -9,6 +8,8 @@ class IndexerService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
+        from ..indexer.base import MultiheadIndexer
+
         self._model = None
         try:
             self._model = MultiheadIndexer.load(self.args.dump_path)
