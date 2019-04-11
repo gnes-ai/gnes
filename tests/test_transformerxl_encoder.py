@@ -12,15 +12,15 @@ class TestTransformerXLEncoder(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
-        self.dump_path = os.path.join(dirname, 'gpt_encoder.bin')
+        self.dump_path = os.path.join(dirname, 'xl_encoder.bin')
         self.xl_path = os.path.join(dirname, 'yaml', 'xl-binary-encoder.yml')
         self.nes_path = os.path.join(dirname, 'yaml', 'base-xl-nes.yml')
         self.db_path = './test_leveldb'
 
         self.test_data1 = UniSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
+            os.path.join(dirname, 'sonnets_small.txt'))
         self.test_data2 = MultiSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
+            os.path.join(dirname, 'sonnets_small.txt'))
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
     def test_encoding(self):
@@ -37,7 +37,7 @@ class TestTransformerXLEncoder(unittest.TestCase):
         num_bytes = 8
 
         xl = PipelineEncoder.load_yaml(self.xl_path)
-        self.assertRaises(RuntimeError, gpt.encode)
+        self.assertRaises(RuntimeError, xl.encode)
 
         xl.train(self.test_str)
         out = xl.encode(self.test_str)

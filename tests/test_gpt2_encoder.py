@@ -18,9 +18,9 @@ class TestGPT2Encoder(unittest.TestCase):
         self.db_path = './test_leveldb'
 
         self.test_data1 = UniSentDocument.from_file(
-            os.path.join(dirname, 'sonnets.txt'))
+            os.path.join(dirname, 'sonnets_small.txt'))
         self.test_data2 = MultiSentDocument.from_file(
-            os.path.join(dirname, 'sonnets.txt'))
+            os.path.join(dirname, 'sonnets_small.txt'))
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
     def test_encoding(self):
