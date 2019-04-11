@@ -28,7 +28,7 @@ class GPTEncoder(BaseEncoder):
         self._model = OpenAIGPTModel.from_pretrained(model_dir)
         self._model.eval()
 
-        self._use_cuda = (use_cuda is not True) and torch.cuda.is_available()
+        self._use_cuda = (use_cuda is not False) and torch.cuda.is_available()
 
         if self._use_cuda:
             self._model.to('cuda')
