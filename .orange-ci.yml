@@ -47,6 +47,7 @@ basic-pipeline: &bp1
     ELMO_CI_MODEL: /zhs.model
     FLAIR_CI_MODEL: multi-forward-fast
     GPT_CI_MODEL: /openai_gpt
+    GPT2_CI_MODEL: /openai_gpt2
     NES_PROFILING: 1
   stages:
     - <<: *install_deps
