@@ -13,6 +13,7 @@ class TransformerXLEncoder(BaseEncoder):
 
     def __init__(self,
                  model_dir: str,
+                 batch_size: int = 64,
                  use_cuda: bool = None,
                  pooling_strategy: str = 'REDUCE_MEAN',
                  *args,
@@ -20,6 +21,7 @@ class TransformerXLEncoder(BaseEncoder):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
+        self.batch_size = batch_size
 
         # Load pre-trained model tokenizer (vocabulary)
         self._tokenizer = TransfoXLTokenizer.from_pretrained(model_dir)
