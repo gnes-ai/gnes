@@ -81,7 +81,7 @@ class TransformerXLEncoder(BaseEncoder):
         with torch.no_grad():
             # the encoded-hidden-states at the top of the model, as a
             # torch.FloatTensor of size [batch_size, sequence_length, hidden_size]
-            output_tensor = self._model(tokens_tensor)
+            output_tensor, _ = self._model(tokens_tensor)
             output_dim = output_tensor.shape[2]
 
             tiled_masks = masks_tensor.unsqueeze(2).repeat(1, 1, output_dim)
