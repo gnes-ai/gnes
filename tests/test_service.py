@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_controllable_service_parser
+from gnes.cli.parser import set_service_parser
 from gnes.service import BaseService
 
 
@@ -27,7 +27,7 @@ class TestService(unittest.TestCase):
             os.remove(cls.dump_path)
 
     def test_service_open_close(self):
-        args = set_controllable_service_parser().parse_args([])
+        args = set_service_parser().parse_args([])
         with BaseService(args) as bs:
             self.assertTrue(bs.is_ready)
 
