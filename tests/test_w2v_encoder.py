@@ -1,6 +1,5 @@
 import os
 import unittest
-from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder import PipelineEncoder
@@ -39,4 +38,4 @@ class TestElmoEncoder(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists(self.dump_path):
-            rmtree(self.dump_path)
+            os.rm(self.dump_path)
