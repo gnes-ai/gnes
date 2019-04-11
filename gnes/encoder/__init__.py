@@ -20,5 +20,5 @@ __all__ = ['BaseEncoder',
            'ElmoEncoder',
            'GPTEncoder',
            'GPT2Encoder',
-           'W2vModel',
+           'W2vEncoder',
            'FlairEncoder']
