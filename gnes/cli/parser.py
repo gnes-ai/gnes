@@ -44,7 +44,7 @@ def set_nes_search_parser(parser=None):
 
 
 def set_service_parser(parser=None):
-    from ..service import SocketType, BaseService
+    from ..service.base import SocketType, BaseService
     if not parser:
         parser = set_base_parser()
     parser.add_argument('--port_in', type=int, default=5310,
@@ -74,7 +74,7 @@ def set_service_parser(parser=None):
 
 
 def set_client_parser(parser=None):
-    from ..service import SocketType
+    from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
@@ -98,7 +98,7 @@ def set_client_parser(parser=None):
 def set_encoder_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    from ..service import ServiceMode, SocketType
+    from ..service.base import ServiceMode, SocketType
     set_service_parser(parser)
     parser.add_argument('--dump_path', type=str, default=None,
                         help='binary dump of the service')
@@ -116,7 +116,7 @@ def set_encoder_service_parser(parser=None):
 
 
 def set_indexer_service_parser(parser=None):
-    from gnes.service.base import SocketType
+    from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
     set_encoder_service_parser(parser)

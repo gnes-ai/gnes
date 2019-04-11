@@ -74,7 +74,7 @@ def build_socket(ctx, host, port, socket_type: 'SocketType'):
             sock.bind('tcp://%s:%d' % (host, port))
     else:
         if port is None:
-            sock.connect('tcp://%s' % host)
+            sock.connect(host)
         else:
             sock.connect('tcp://%s:%d' % (host, port))
 
