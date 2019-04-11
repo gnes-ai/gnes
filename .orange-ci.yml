@@ -39,13 +39,16 @@ unit-test: &unit_test
 basic-pipeline: &bp1
   network: idc-ai-sse4
   docker:
-    image: docker.oa.com:8080/public/ailab-faiss-bert-elmo:latest
+    image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai:latest
   env:
     BERT_CI_PORT: 7125
     BERT_CI_PORT_OUT: 7126
     BERT_CI_MODEL: /chinese_L-12_H-768_A-12
     ELMO_CI_MODEL: /zhs.model
     FLAIR_CI_MODEL: multi-forward-fast
+    GPT_CI_MODEL: /openai_gpt
+    GPT2_CI_MODEL: /openai_gpt2
+    XL_CI_MODEL: /transformer_xl_wt103
     NES_PROFILING: 1
   stages:
     - <<: *install_deps
