@@ -39,7 +39,7 @@ unit-test: &unit_test
 basic-pipeline: &bp1
   network: idc-ai-sse4
   docker:
-    image: docker.oa.com:8080/public/ailab-faiss-bert-openai:latest
+    image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai:latest
   env:
     BERT_CI_PORT: 7125
     BERT_CI_PORT_OUT: 7126
