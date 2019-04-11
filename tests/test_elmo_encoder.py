@@ -46,7 +46,7 @@ class TestElmoEncoder(unittest.TestCase):
 
         ebe.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
-        ebe2 = ebe.load(self.dump_path)
+        ebe2 = PipelineEncoder.load(self.dump_path)
         out2 = ebe2.encode(self.test_str)
         # TODO: fix this
         # self.assertEqual(out, out2)

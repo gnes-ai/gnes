@@ -3,7 +3,7 @@ component:
   encoder:
     !PipelineEncoder
     component:
-      - !OpenAIGPTEncoder
+      - !GPTEncoder
         parameter:
           model_dir: $GPT_CI_MODEL
           pooling_stragy: REDUCE_MEAN

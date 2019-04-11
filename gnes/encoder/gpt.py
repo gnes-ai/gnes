@@ -25,17 +25,11 @@ class GPTEncoder(BaseEncoder):
         # Load pre-trained model tokenizer (vocabulary)
         self._tokenizer = OpenAIGPTTokenizer.from_pretrained(model_dir)
 
-        self._use_cuda = use_cuda
-        if self._use_cuda is None:
-            self._use_cuda = torch.cuda.is_available()
-
         # Load pre-trained model (weights)
         self._model = OpenAIGPTModel.from_pretrained(model_dir)
         self._model.eval()
 
-        self._use_cuda = use_cuda
-        if self._use_cuda is None:
-            self._use_cuda = torch.cuda.is_available()
+        self._use_cuda = (use_cuda is not True) and torch.cuda.is_available()
 
         if self._use_cuda:
             self._model.to('cuda')
@@ -133,8 +127,11 @@ class GPTEncoder(BaseEncoder):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(
-            self.model_dir, cache_dir=self.cache_dir)
-        self._model = OpenAIGPTModel.from_pretrained(
-            self.model_dir, cache_dir=self.cache_dir)
+        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
+        self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
         self._model.eval()
+
+        self._use_cuda = (self._use_cuda is
+                          not False) and torch.cuda.is_available()
+        if self._use_cuda:
+            self._model.to('cuda')

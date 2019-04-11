@@ -47,9 +47,8 @@ class TestElmoEncoder(unittest.TestCase):
 
         gpt.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
-        gpt2 = gpt.load(self.dump_path)
+        gpt2 = PipelineEncoder.load(self.dump_path)
         out2 = gpt2.encode(self.test_str)
-        # TODO: fix this
         self.assertEqual(out, out2)
 
         nes = GNES.load_yaml(self.nes_path)
