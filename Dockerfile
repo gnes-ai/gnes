@@ -12,6 +12,8 @@ RUN wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/transformer_xl_wt
 
 RUN wget https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings-v0.4/lm-multi-forward-fast-v0.1.pt; mkdir -p /root/.flair/embeddings/; mv lm-multi-forward-fast-v0.1.pt /root/.flair/embeddings/
 
+RUN wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/sgns.wiki.bigram-char.bz2; bzip2 -d sgns.wiki.bigram-char.bz2; mv sgns.wiki.bigram-char /sgns.wiki.bigram-char; head -1000 /sgns.wiki.bigram-char > /sgns.wiki.bigram-char.sample
+
 WORKDIR /nes/
 
 ADD . ./
