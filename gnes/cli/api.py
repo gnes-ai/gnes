@@ -10,17 +10,6 @@ def index(args):
         es.join()
 
 
-def search(args):
-    from ..module import GNES
-    with GNES.load(args.config) as gnes:
-        if args.interactive:
-            while True:
-                for r in gnes.query([input('query: ')], top_k=10)[0]:
-                    print(r)
-        else:
-            print(gnes.query([args.query], top_k=10))
-
-
 def client(args):
     from ..service import ClientService
 

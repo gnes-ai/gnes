@@ -2,7 +2,6 @@ import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..document import MultiSentDocument, DocumentMapper
-from ..encoder import PipelineEncoder
 from ..messaging import *
 
 
@@ -10,6 +9,8 @@ class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
+        from ..encoder import PipelineEncoder
+
         self._model = None
         try:
             self._model = PipelineEncoder.load(self.args.dump_path)

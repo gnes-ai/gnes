@@ -1,8 +1,9 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_service_parser
-from gnes.service import BaseService
+from gnes.cli.parser import set_service_parser, set_proxy_service_parser, set_client_parser
+from gnes.service import BaseService, ProxyService, ClientService
+from gnes.service.proxy import MapProxyService, ReduceProxyService
 
 
 class TestService(unittest.TestCase):
@@ -30,6 +31,58 @@ class TestService(unittest.TestCase):
         args = set_service_parser().parse_args([])
         with BaseService(args) as bs:
             self.assertTrue(bs.is_ready)
+
+    def test_proxy_service(self):
+        p_args = set_proxy_service_parser().parse_args([
+            '--socket_in', 'PULL_BIND',
+            '--socket_out', 'PUSH_BIND',
+        ])
+        c_args = set_client_parser().parse_args([
+            '--port_in', str(p_args.port_out),
+            '--port_out', str(p_args.port_in),
+            '--socket_in', 'PULL_CONNECT',
+            '--socket_out', 'PUSH_CONNECT',
+            '--wait_reply'
+        ])
+        with ProxyService(p_args), ClientService(c_args) as cs:
+            result = cs.query(self.test_data1)
+            self.assertEqual(result.msg_content, self.test_data1)
+
+    def test_map_proxy_service(self):
+        m_args = set_proxy_service_parser().parse_args([
+            '--port_in', '1111',
+            '--port_out', '1112',
+            '--socket_in', 'PULL_BIND',
+            '--socket_out', 'PUSH_BIND',
+            '--batch_size', '10'
+        ])
+        r_args = set_proxy_service_parser().parse_args([
+            '--port_in', '1113',
+            '--port_out', '1114',
+            '--socket_in', 'PULL_BIND',
+            '--socket_out', 'PUSH_BIND',
+        ])
+        # dummy work for simple forwarding
+        w_args = set_proxy_service_parser().parse_args([
+            '--port_in', str(m_args.port_out),
+            '--port_out', str(r_args.port_in),
+            '--socket_in', 'PULL_CONNECT',
+            '--socket_out', 'PUSH_CONNECT',
+        ])
+
+        c_args = set_client_parser().parse_args([
+            '--port_in', str(r_args.port_out),  # receive from reducer-proxy
+            '--port_out', str(m_args.port_in),  # send to mapper-proxy
+            '--socket_in', 'PULL_CONNECT',
+            '--socket_out', 'PUSH_CONNECT',
+            '--wait_reply'
+        ])
+        with MapProxyService(m_args), \
+             ReduceProxyService(r_args), \
+             ProxyService(w_args), \
+             ClientService(c_args) as cs:
+            result = cs.query(self.test_data1)
+            self.assertEqual(result.msg_content, self.test_data1)
 
     # def test_encoder_service_train(self):
     #     # test training

@@ -2,6 +2,7 @@ from .base import BaseService, ComponentNotLoad, ServiceMode, SocketType
 from .client import ClientService
 from .encoder import EncoderService
 from .indexer import IndexerService
+from .proxy import ProxyService, MapProxyService, ReduceProxyService
 
 __all__ = ['BaseService',
            'EncoderService',
@@ -9,4 +10,7 @@ __all__ = ['BaseService',
            'IndexerService',
            'ServiceMode',
            'SocketType',
-           'ClientService']
+           'ClientService',
+           'ProxyService',
+           'MapProxyService',
+           'ReduceProxyService']

@@ -1,6 +1,7 @@
 import threading
 import time
 from enum import Enum
+from typing import Tuple
 
 import zmq
 import zmq.decorators as zmqd
@@ -20,6 +21,11 @@ class BetterEnum(Enum):
             return cls[s]
         except KeyError:
             raise ValueError()
+
+
+class ReduceOp(BetterEnum):
+    CONCAT = 0
+    ALWAYS_ONE = 1
 
 
 class SocketType(BetterEnum):
@@ -53,7 +59,7 @@ class ServiceError(Exception):
     pass
 
 
-def build_socket(ctx, host, port, socket_type: 'SocketType'):
+def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketType') -> Tuple['zmq.Socket', str]:
     sock = {
         SocketType.PULL_BIND: lambda: ctx.socket(zmq.PULL),
         SocketType.PULL_CONNECT: lambda: ctx.socket(zmq.PULL),
@@ -220,7 +226,7 @@ class BaseService(threading.Thread):
 
     @handler.register(Message.typ_terminate)
     def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
-        send_message(out, msg)
+        send_message(out, msg, self.args.timeout)
         self.is_event_loop.clear()
         raise StopIteration
 
@@ -229,11 +235,11 @@ class BaseService(threading.Thread):
             self.dump()
             self._model.close()
         if self.is_event_loop.is_set():
-            send_terminate_message(self.ctrl_addr)
+            send_terminate_message(self.ctrl_addr, timeout=self.args.timeout)
 
     @property
     def status(self):
-        return send_ctrl_message(self.ctrl_addr, Message(msg_type=Message.typ_status))
+        return send_ctrl_message(self.ctrl_addr, Message(msg_type=Message.typ_status), self.args.time_out)
 
     def __enter__(self):
         self.start()
@@ -244,7 +250,7 @@ class BaseService(threading.Thread):
         self.close()
 
 
-def send_ctrl_message(address: str, msg: Message, timeout: int = 2000):
+def send_ctrl_message(address: str, msg: Message, timeout: int):
     # control message is short, set a timeout and ask for quick response
     with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)

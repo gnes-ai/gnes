@@ -115,6 +115,22 @@ def set_encoder_service_parser(parser=None):
     return parser
 
 
+def set_proxy_service_parser(parser=None):
+    from ..service.base import SocketType
+    from inspect import isclass
+    from ..service import proxy as my_proxy
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    parser.add_argument('--proxy_type', type=str, choices=[x for x in dir(my_proxy) if isclass(getattr(my_proxy, x))],
+                        help='type of proxy')
+    parser.add_argument('--batch_size', type=int,
+                        help='the size of the request to split')
+    parser.set_defaults(socket_in=SocketType.PULL_BIND,
+                        socket_out=SocketType.PUB_BIND)
+    return parser
+
+
 def set_indexer_service_parser(parser=None):
     from ..service.base import SocketType
     if not parser:

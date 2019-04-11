@@ -43,14 +43,6 @@ class LVDBIndexer(BaseTextIndexer):
         super().close()
         self._db.close()
 
-    @staticmethod
-    def _int2bytes(x: int) -> bytes:
-        return x.to_bytes((x.bit_length() + 7) // 8, 'big')
-
-    @staticmethod
-    def _bytes2int(xbytes: bytes) -> int:
-        return int.from_bytes(xbytes, 'big')
-
 
 class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
