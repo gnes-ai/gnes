@@ -6,6 +6,7 @@ component:
       - !TransformerXLEncoder
         parameter:
           model_dir: $XL_CI_MODEL
+          use_cuda: false
           pooling_stragy: REDUCE_MEAN
         property:
           is_trained: true
