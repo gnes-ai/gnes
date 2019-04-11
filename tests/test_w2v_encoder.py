@@ -38,4 +38,4 @@ class TestElmoEncoder(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists(self.dump_path):
-            os.rm(self.dump_path)
+            os.remove(self.dump_path)
