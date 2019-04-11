@@ -26,7 +26,7 @@ class TestGPT2Encoder(unittest.TestCase):
     def test_encoding(self):
         _encoder = GPT2Encoder(
             model_dir=os.environ.get(
-                'GPT_CI_MODEL',
+                'GPT2_CI_MODEL',
                 '/openai_gpt2'
             ),
             pooling_strategy="REDUCE_MEAN")
