@@ -33,7 +33,7 @@ class Word2VecEncoder(BaseEncoder):
         pooled_data = []
 
         for tokens in batch_tokens:
-            _layer_data = self.word2vec_df.loc(tokens).dropna()
+            _layer_data = self.word2vec_df.loc[tokens].dropna()
             _pooled = pooling_pd(_layer_data, self.pooling_strategy)
             pooled_data.append(_pooled)
         return np.asarray(pooled_data, dtype=np.float32)
