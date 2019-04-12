@@ -32,8 +32,7 @@ class BIndexer(BaseBinaryIndexer):
         cids = np.array(doc_ids, dtype=np.uint32).tobytes()
         self.bindexer.index_trie(vectors, num_rows, cids)
 
-    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, *args, **kwargs) -> List[
-        List[Tuple[int, Union[float, int]]]]:
+    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, method: str='nsw', *args, **kwargs) -> List[List[Tuple[int, Union[float, int]]]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError("keys should be divided by num_bytes")
 
@@ -41,21 +40,26 @@ class BIndexer(BaseBinaryIndexer):
 
         result = [[] for _ in range(num_rows)]
 
-        # find the indexed items with same value
-        q_idx, doc_ids = self.bindexer.find_batch_trie(keys, num_rows)
-        for (i, q) in zip(doc_ids, q_idx):
-            result[q].append((i, 1. if normalized_score else 0))
+        if method == 'nsw':
+            # find the indexed items with same value
+            q_idx, doc_ids = self.bindexer.find_batch_trie(keys, num_rows)
+            for (i, q) in zip(doc_ids, q_idx):
+                result[q].append((i, 1. if normalized_score else 0))
 
-        # search the indexed items with similary value
-        doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows, top_k)
-        for (i, d, q) in zip(doc_ids, dists, q_idx):
-            if d == 0:
-                continue
-            result[q].append((i, (1. - d / self.num_bytes) if normalized_score else d))
+            # search the indexed items with similary value
+            doc_ids, dists, q_idx = self.bindexer.nsw_search(keys, num_rows, top_k)
+            for (i, d, q) in zip(doc_ids, dists, q_idx):
+                if d == 0:
+                    continue
+                result[q].append((i, (1. - d / self.num_bytes) if normalized_score else d))
 
-        # get the top-k
-        for q in range(num_rows):
-            result[q] = result[q][:top_k]
+            # get the top-k
+            for q in range(num_rows):
+                result[q] = result[q][:top_k]
+        elif method == 'force':
+            doc_ids, dists, q_idx = self.bindexer.force_search(keys, num_rows, top_k)
+            for (i, d, q) in zip(doc_ids, dists, q_idx):
+                result[q].append((i, (1. - d / self.num_bytes) if normalized_score else d))
 
         return result
 
