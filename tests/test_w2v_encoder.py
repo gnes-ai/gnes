@@ -19,7 +19,7 @@ class TestElmoEncoder(unittest.TestCase):
 
     def test_encoding(self):
         w2v_encoder = Word2VecEncoder(
-            embedding_path=os.environ['WORD2VEC_MODEL'],
+            model_dir=os.environ['WORD2VEC_MODEL'],
             pooling_strategy="REDUCE_MEAN")
         vec = w2v_encoder.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
@@ -27,7 +27,7 @@ class TestElmoEncoder(unittest.TestCase):
 
     def test_dump_load(self):
         w2v_encoder = Word2VecEncoder(
-            embedding_path=os.environ['WORD2VEC_MODEL'],
+            model_dir=os.environ['WORD2VEC_MODEL'],
             pooling_strategy="REDUCE_MEAN")
         w2v_encoder.dump(self.dump_path)
         w2v_encoder2 = Word2VecEncoder.load(self.dump_path)

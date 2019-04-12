@@ -3,8 +3,8 @@ import unittest
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.encoder import PipelineEncoder
 from gnes.encoder import GPTEncoder
+from gnes.encoder import PipelineEncoder
 from gnes.module import GNES
 
 

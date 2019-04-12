@@ -10,11 +10,13 @@ URL_TRANSFORMER_XL="https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/transf
 URL_WORD2VEC="https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/sgns.wiki.bigram-char.bz2"
 
 wget ${URL_CHINESE_BERT} -qO temp.zip; unzip temp.zip; rm temp.zip
+wget ${URL_WORD2VEC} -qO tmp.bz2; bzip2 -d tmp.bz2; rm tmp.bz2
 
-bz2array=($URL_CHINESE_ELMO $URL_GPT $URL_GPT2 $URL_TRANSFORMER_XL $URL_WORD2VEC)
+tarbz2array=($URL_CHINESE_ELMO $URL_GPT $URL_GPT2 $URL_TRANSFORMER_XL)
 
-for url in "${array[@]}"
+for url in "${tarbz2array[@]}"
 do
-    printf "downloading "%${url}
-    wget ${url} -qO tmp.tar.bz2; tar -xvjf tmp.tar.bz2; rm tmp.tar.bz2
+    printf "downloading ${url}\n"
+    wget ${url} -qO tmp.tar.bz2; tar -xjf tmp.tar.bz2; rm tmp.tar.bz2
 done
+

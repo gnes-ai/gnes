@@ -13,8 +13,6 @@ class TestService(unittest.TestCase):
     encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
 
     def setUp(self):
-        if 'BERT_CI_MODEL' not in os.environ:
-            os.environ['BERT_CI_MODEL'] = '/ext_data/chinese_L-12_H-768_A-12/'
         with open(self.data_path, encoding='utf8') as fp:
             self.test_data1 = [v for v in fp if v.strip()]
 
