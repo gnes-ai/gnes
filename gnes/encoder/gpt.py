@@ -5,7 +5,7 @@ import torch
 from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel
 
 from .base import BaseEncoder
-from ..helper import batching
+from ..helper import batching, pooling_torch
 
 
 class GPTEncoder(BaseEncoder):
@@ -23,11 +23,7 @@ class GPTEncoder(BaseEncoder):
         self.batch_size = batch_size
 
         # Load pre-trained model tokenizer (vocabulary)
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(model_dir)
-
-        # Load pre-trained model (weights)
-        self._model = OpenAIGPTModel.from_pretrained(model_dir)
-        self._model.eval()
+        self._init_model_tokenizer()
 
         self._use_cuda = use_cuda and torch.cuda.is_available()
 
@@ -38,6 +34,17 @@ class GPTEncoder(BaseEncoder):
 
         self.is_trained = True
 
+    def _get_token_ids(self, x):
+        return self._tokenizer.convert_tokens_to_ids(self._tokenizer.tokenize(x))
+
+    def _get_output_tensor(self, x):
+        return self._model(x)
+
+    def _init_model_tokenizer(self):
+        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
+        self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
+        self._model.eval()
+
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         batch_size = len(text)
@@ -47,10 +54,8 @@ class GPTEncoder(BaseEncoder):
         tokens_lens = []
         max_len = 0
         for _ in text:
-            tokens = self._tokenizer.tokenize(_)
-
             # Convert token to vocabulary indices
-            token_ids = self._tokenizer.convert_tokens_to_ids(tokens)
+            token_ids = self._get_token_ids(_)
             token_len = len(token_ids)
 
             if max_len < token_len:
@@ -68,54 +73,21 @@ class GPTEncoder(BaseEncoder):
         # Convert inputs to PyTorch tensors
         tokens_tensor = torch.tensor(batch_data)
         tokens_lens = torch.LongTensor(tokens_lens)
-        masks_tensor = torch.arange(max_len)[None, :] < tokens_lens[:, None]
-        masks_tensor = masks_tensor.to(
-            masks_tensor.device, dtype=torch.float32)
+        mask_tensor = torch.arange(max_len)[None, :] < tokens_lens[:, None]
+        mask_tensor = mask_tensor.to(
+            mask_tensor.device, dtype=torch.float32)
 
         if self._use_cuda:
             # If you have a GPU, put everything on cuda
             tokens_tensor = tokens_tensor.to('cuda')
-            tokens_lens = tokens_lens.to('cuda')
-            masks_tensor = masks_tensor.to('cuda')
+            mask_tensor = mask_tensor.to('cuda')
 
         # Predict hidden states features for each layer
         with torch.no_grad():
             # the encoded-hidden-states at the top of the model, as a
             # torch.FloatTensor of size [batch_size, sequence_length, hidden_size]
-            output_tensor = self._model(tokens_tensor)
-            output_dim = output_tensor.shape[2]
-
-            tiled_masks = masks_tensor.unsqueeze(2).repeat(1, 1, output_dim)
-
-            output_tensor = torch.mul(tiled_masks, output_tensor)
-
-            minus_mask = lambda x, m: x - (1.0 - m).unsqueeze(2) * 1e30
-            mul_mask = lambda x, m: torch.mul(x, m.unsqueeze(2))
-
-            masked_reduce_mean = lambda x, m: torch.div(torch.sum(mul_mask(x, m), dim=1),
-                                                        torch.sum(m.unsqueeze(2), dim=1) + 1e-10)
-            masked_reduce_max = lambda x, m: torch.max(minus_mask(x, m), 1)[0]
-
-            if self.pooling_strategy == 'REDUCE_MEAN':
-                # sumed_tensor = torch.sum(output_tensor, dim=1)
-                # output_tensor = torch.div(
-                #     sumed_tensor,
-                #     tokens_lens.unsqueeze(1).repeat(1, output_dim).to(
-                #         tokens_lens.device, dtype=torch.float32))
-                output_tensor = masked_reduce_mean(output_tensor, masks_tensor)
-            elif self.pooling_strategy == 'REDUCE_MAX':
-                # minus_output = output_tensor - (1.0 - tiled_masks) * 1e30
-                # output_tensor, _ = torch.max(minus_output, 1)
-                output_tensor = masked_reduce_max(output_tensor, masks_tensor)
-            elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
-                output_tensor = torch.cat(
-                    (masked_reduce_mean(output_tensor, masks_tensor),
-                     masked_reduce_max(output_tensor, masks_tensor)),
-                    dim=1)
-            else:
-                raise ValueError(
-                    'pooling_strategy: %s has not been implemented' %
-                    self.pooling_strategy)
+            output_tensor = self._get_output_tensor(tokens_tensor)
+            output_tensor = pooling_torch(output_tensor, mask_tensor, self.pooling_strategy)
 
         if self._use_cuda:
             output_tensor = output_tensor.cpu()
@@ -129,11 +101,6 @@ class GPTEncoder(BaseEncoder):
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
-        self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
-        self._model.eval()
-
-        self._use_cuda = (self._use_cuda is
-                          not False) and torch.cuda.is_available()
-        if self._use_cuda:
-            self._model.to('cuda')
+        self._init_model_tokenizer()
+        self._use_cuda = self._use_cuda and torch.cuda.is_available()
+        if self._use_cuda: self._model.to('cuda')

@@ -4,7 +4,7 @@ import numpy as np
 from elmoformanylangs import Embedder
 
 from .base import BaseEncoder
-from ..helper import batching, cn_tokenizer
+from ..helper import batching, cn_tokenizer, pooling_np
 
 
 class ElmoEncoder(BaseEncoder):
@@ -42,21 +42,8 @@ class ElmoEncoder(BaseEncoder):
                 raise ValueError('pooling_layer = %d is not supported now!' %
                                  self.pooling_layer)
 
-            if self.pooling_strategy is None or self.pooling_strategy == 'NONE':
-                _pooled_data = _layer_data
-            elif self.pooling_strategy == 'REDUCE_MEAN':
-                _pooled_data = np.mean(_layer_data, axis=0)
-            elif self.pooling_strategy == 'REDUCE_MAX':
-                _pooled_data = np.amax(_layer_data, axis=0)
-            elif self.pooling_strategy == 'REDUCE_MEAN_MAX':
-                _pooled_data = np.concatenate(
-                    (np.mean(_layer_data, axis=0), np.amax(_layer_data, axis=0)),
-                    axis=1)
-            else:
-                raise ValueError(
-                    'pooling_strategy: %s has not been implemented' %
-                    self.pooling_strategy)
-            pooled_data.append(_pooled_data)
+            _pooled = pooling_np(_layer_data, self.pooling_strategy)
+            pooled_data.append(_pooled)
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):

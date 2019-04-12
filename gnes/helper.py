@@ -274,6 +274,44 @@ def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -
     return total_size
 
 
+def pooling_np(data_array, pooling_strategy):
+    if pooling_strategy == 'REDUCE_MEAN':
+        _pooled_data = np.mean(data_array, axis=0)
+    elif pooling_strategy == 'REDUCE_MAX':
+        _pooled_data = np.amax(data_array, axis=0)
+    elif pooling_strategy == 'REDUCE_MEAN_MAX':
+        _pooled_data = np.concatenate(
+            (np.mean(data_array, axis=0),
+             np.amax(data_array, axis=0)), axis=1)
+    else:
+        raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
+    return _pooled_data
+
+
+def pooling_torch(data_tensor, mask_tensor, pooling_strategy):
+    import torch
+
+    minus_mask = lambda x, m: x - (1.0 - m).unsqueeze(2) * 1e30
+    mul_mask = lambda x, m: torch.mul(x, m.unsqueeze(2))
+
+    masked_reduce_mean = lambda x, m: torch.div(torch.sum(mul_mask(x, m), dim=1),
+                                                torch.sum(m.unsqueeze(2), dim=1) + 1e-10)
+    masked_reduce_max = lambda x, m: torch.max(minus_mask(x, m), 1)[0]
+
+    if pooling_strategy == 'REDUCE_MEAN':
+        output_tensor = masked_reduce_mean(data_tensor, mask_tensor)
+    elif pooling_strategy == 'REDUCE_MAX':
+        output_tensor = masked_reduce_max(data_tensor, mask_tensor)
+    elif pooling_strategy == 'REDUCE_MEAN_MAX':
+        output_tensor = torch.cat(
+            (masked_reduce_mean(data_tensor, mask_tensor),
+             masked_reduce_max(data_tensor, mask_tensor)), dim=1)
+    else:
+        raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
+
+    return output_tensor
+
+
 def batching(func: Callable[[Any], np.ndarray] = None, *,
              batch_size: Union[int, Callable] = None, num_batch=None,
              axis: int = 0):
