@@ -13,8 +13,8 @@ wget ${URL_CHINESE_BERT} -qO temp.zip; unzip temp.zip; rm temp.zip
 
 bz2array=($URL_CHINESE_ELMO $URL_GPT $URL_GPT2 $URL_TRANSFORMER_XL $URL_WORD2VEC)
 
-for url in "${array[@]}"
+for url in "${bz2array[@]}"
 do
-    printf "downloading "%${url}
-    wget ${url} -qO tmp.tar.bz2; tar -xvjf tmp.tar.bz2; rm tmp.tar.bz2
+    printf "downloading ${url}\n"
+    wget ${url} -qO tmp.tar.bz2; tar -xjf tmp.tar.bz2; rm tmp.tar.bz2
 done
