@@ -40,6 +40,8 @@ basic-pipeline: &bp1
   network: idc-ai-sse4
   docker:
     image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
+  env:
+    GNES_ENV_SET: orange-ci
   stages:
     - <<: *install_deps
     - <<: *pylint
