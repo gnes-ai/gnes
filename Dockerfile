@@ -2,14 +2,14 @@ FROM docker.oa.com:8080/public/ailab-py3-torch:latest AS dependency
 
 RUN mkdir /wheels
 
+WORKDIR /nes/
+
 COPY setup.py ./setup.py
 
 RUN pip wheel . --wheel-dir=/wheels
 
 
 FROM dependency as base
-
-WORKDIR /nes/
 
 COPY --from=dependency /wheels /tmp/wheels
 
