@@ -1,21 +1,40 @@
 version: '3.4'
 services:
+  income-proxy:
+    user: ${MUID}
+    image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
+    network_mode: "host"
+    command: --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
   encoder:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-encoder:${BUILD_ID}"
     network_mode: "host"
-    command: --mode $SERVER_MODE --yaml_path /test_encoder.yml --dump_path /ext_data/test_encode.bin
+    command: --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_encoder.yml --dump_path /ext_data/test_encode.bin
     volumes:
       - "${PWD}/encoder.yml:/test_encoder.yml"
       - "/data1/cips/data:/ext_data"
+    depends_on:
+      - income-proxy
+      - middleman-proxy
+  middleman-proxy:
+    user: ${MUID}
+    image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
+    network_mode: "host"
+    command: --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
   indexer:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-indexer:${BUILD_ID}"
-    command: --mode $SERVER_MODE --yaml_path /test_indexer.yml --dump_path /out_data/test_index.bin --host_in 0.0.0.0
+    command: --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_indexer.yml --dump_path /out_data/test_index.bin
     volumes:
       - "${PWD}/indexer.yml:/test_indexer.yml"
       - "/data1/cips/data:/ext_data"
       - "${OUTPUT_DIR}:/out_data"
     network_mode: "host"
     depends_on:
-      - encoder
+      - middleman-proxy
+      - outgoing-proxy
+  outgoing-proxy:
+    user: ${MUID}
+    image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
+    network_mode: "host"
+    command: --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT} --socket_in PULL_BIND --socket_out PUB_BIND
