@@ -9,7 +9,7 @@ from ..helper import batching, cn_tokenizer, pooling_pd
 
 class Word2VecEncoder(BaseEncoder):
     def __init__(self, embedding_path: str = 'sgns.wiki.bigram-char',
-                 skiprows: int = 0,
+                 skiprows: int = 1,
                  batch_size: int = 64,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
