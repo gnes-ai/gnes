@@ -18,6 +18,7 @@ class Word2VecEncoder(BaseEncoder):
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
+        self._init_word_embedding()
 
     def _init_word_embedding(self):
         self.word2vec_df = pd.read_table(self.embedding_path, sep=' ', quoting=3, header=None, skiprows=skiprows,
