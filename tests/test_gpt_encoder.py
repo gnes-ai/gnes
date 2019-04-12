@@ -3,8 +3,8 @@ import unittest
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.encoder import PipelineEncoder
 from gnes.encoder import GPTEncoder
+from gnes.encoder import PipelineEncoder
 from gnes.module import GNES
 
 
@@ -25,7 +25,7 @@ class TestElmoEncoder(unittest.TestCase):
 
     def test_encoding(self):
         _encoder = GPTEncoder(
-            model_dir=os.environ.get(
+            model_path=os.environ.get(
                 'GPT_CI_MODEL',
                 '/openai_gpt'
             ),

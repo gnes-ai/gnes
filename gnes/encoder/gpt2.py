@@ -11,6 +11,6 @@ class GPT2Encoder(GPTEncoder):
         return self._model(x)[0]
 
     def _init_model_tokenizer(self):
-        self._tokenizer = GPT2Tokenizer.from_pretrained(self.model_dir)
-        self._model = GPT2Model.from_pretrained(self.model_dir)
+        self._tokenizer = GPT2Tokenizer.from_pretrained(self.model_path)
+        self._model = GPT2Model.from_pretrained(self.model_path)
         self._model.eval()
