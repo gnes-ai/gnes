@@ -4,7 +4,7 @@ from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder import PipelineEncoder
-from gnes.encoder.zalandor_flair import FlairEncoder
+from gnes.encoder.flair import FlairEncoder
 from gnes.module import GNES
 
 

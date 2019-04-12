@@ -1,7 +1,6 @@
 from typing import List
 
 import numpy as np
-
 import torch
 from pytorch_pretrained_bert import GPT2Model, GPT2Tokenizer
 
@@ -90,7 +89,8 @@ class GPT2Encoder(BaseEncoder):
             minus_mask = lambda x, m: x - (1.0 - m).unsqueeze(2) * 1e30
             mul_mask = lambda x, m: torch.mul(x, m.unsqueeze(2))
 
-            masked_reduce_mean = lambda x, m : torch.div(torch.sum(mul_mask(x, m), dim=1), torch.sum(m.unsqueeze(2), dim=1) + 1e-10)
+            masked_reduce_mean = lambda x, m: torch.div(torch.sum(mul_mask(x, m), dim=1),
+                                                        torch.sum(m.unsqueeze(2), dim=1) + 1e-10)
             masked_reduce_max = lambda x, m: torch.max(minus_mask(x, m), 1)[0]
 
             if self.pooling_strategy == 'REDUCE_MEAN':

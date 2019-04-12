@@ -1,7 +1,9 @@
-from typing import List
-import numpy as np
 import os
+from typing import List
+
+import numpy as np
 from joblib import Parallel, delayed
+
 from .base import BaseEncoder
 from ..helper import batching, cn_tokenizer
 
@@ -27,14 +29,14 @@ class W2vModel:
                 else:
                     if len(buff) == 50000:
                         res = Parallel(n_jobs=20, verbose=0)(
-                                delayed(trans)(line) for line in buff)
+                            delayed(trans)(line) for line in buff)
                         self.w2v.update(dict([i for i in res if i[0] != -1]))
                         buff = []
                     else:
                         buff.append(line)
         if len(buff) != 0:
             res = Parallel(n_jobs=20, verbose=0)(
-                    delayed(trans)(line) for line in buff)
+                delayed(trans)(line) for line in buff)
             self.w2v.update(dict(res))
 
     def encode(self, tokens):

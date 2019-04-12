@@ -1,10 +1,13 @@
 from typing import List
+
 import numpy as np
-from .base import BaseEncoder
-from ..helper import batching
+import torch
 from flair.data import Sentence
 from flair.embeddings import FlairEmbeddings
-import torch
+
+from .base import BaseEncoder
+from ..helper import batching
+
 
 class FlairEncoder(BaseEncoder):
 
