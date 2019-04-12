@@ -30,10 +30,16 @@ class TestFIndexer(unittest.TestCase):
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
 
-    def test_db(self):
+    def test_nsw_search(self):
         fd = BIndexer(self.toy_data.shape[1])
         fd.add(self.toy_label, self.toy_data.tobytes())
-        rs = fd.query(self.toy_query.tobytes(), 2)
+        rs = fd.query(self.toy_query.tobytes(), 2, method='nsw')
+        self.assertEqual(rs, self.toy_exp)
+
+    def test_force_search(self):
+        fd = BIndexer(self.toy_data.shape[1])
+        fd.add(self.toy_label, self.toy_data.tobytes())
+        rs = fd.query(self.toy_query.tobytes(), 2, method='force')
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
