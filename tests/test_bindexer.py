@@ -34,14 +34,16 @@ class TestFIndexer(unittest.TestCase):
         fd = BIndexer(self.toy_data.shape[1])
         fd.add(self.toy_label, self.toy_data.tobytes())
         rs = fd.query(self.toy_query.tobytes(), 2, method='nsw')
-        rs = sorted(rs, key=lambda x:(x[1], -x[0]))
+        for i in range(len(rs)):
+            rs[i] = sorted(rs[i], key=lambda x:(x[1], -x[0]))
         self.assertEqual(rs, self.toy_exp)
 
     def test_force_search(self):
         fd = BIndexer(self.toy_data.shape[1])
         fd.add(self.toy_label, self.toy_data.tobytes())
         rs = fd.query(self.toy_query.tobytes(), 2, method='force')
-        rs = sorted(rs, key=lambda x:(x[1], -x[0]))
+        for i in range(len(rs)):
+            rs[i] = sorted(rs[i], key=lambda x:(x[1], -x[0]))
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
@@ -51,4 +53,6 @@ class TestFIndexer(unittest.TestCase):
 
         fd2 = BIndexer.load(self.dump_path)
         rs = fd2.query(self.toy_query.tobytes(), 2)
+        for i in range(len(rs)):
+            rs[i] = sorted(rs[i], key=lambda x:(x[1], -x[0]))
         self.assertEqual(rs, self.toy_exp)
