@@ -21,7 +21,8 @@ class Word2VecEncoder(BaseEncoder):
         self._init_word_embedding()
 
     def _init_word_embedding(self):
-        self.word2vec_df = pd.read_table(self.embedding_path, sep=' ', quoting=3, header=None, skiprows=skiprows,
+        self.word2vec_df = pd.read_table(self.embedding_path, sep=' ', quoting=3,
+                                         header=None, skiprows=self.skiprows,
                                          index_col=0)
         self.word2vec_df = self.word2vec_df.astype(np.float32).dropna(axis=1).dropna(axis=0)
 
