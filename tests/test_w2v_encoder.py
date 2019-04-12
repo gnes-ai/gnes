@@ -2,8 +2,7 @@ import os
 import unittest
 
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.encoder import PipelineEncoder
-from gnes.encoder.w2v import W2vEncoder
+from gnes.encoder.w2v import Word2VecEncoder
 
 
 class TestElmoEncoder(unittest.TestCase):
@@ -19,7 +18,7 @@ class TestElmoEncoder(unittest.TestCase):
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
 
     def test_encoding(self):
-        w2v_encoder = W2vEncoder(
+        w2v_encoder = Word2VecEncoder(
             model_name='sgns.wiki.bigram-char.sample',
             pooling_strategy="REDUCE_MEAN")
         vec = w2v_encoder.encode(self.test_str)
@@ -27,11 +26,11 @@ class TestElmoEncoder(unittest.TestCase):
         self.assertEqual(vec.shape[1], 300)
 
     def test_dump_load(self):
-        w2v_encoder = W2vEncoder(
+        w2v_encoder = Word2VecEncoder(
             model_name='sgns.wiki.bigram-char.sample',
             pooling_strategy="REDUCE_MEAN")
         w2v_encoder.dump(self.dump_path)
-        w2v_encoder2 = W2vEncoder.load(self.dump_path)
+        w2v_encoder2 = Word2VecEncoder.load(self.dump_path)
         vec = w2v_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 300)

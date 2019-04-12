@@ -1,64 +1,28 @@
-import os
 from typing import List
 
 import numpy as np
-from joblib import Parallel, delayed
+import pandas as pd
 
 from .base import BaseEncoder
-from ..helper import batching, cn_tokenizer, pooling_np
+from ..helper import batching, cn_tokenizer, pooling_pd
 
 
-class W2vModel:
-    def __init__(self, model_path: str, load_from_line: int):
-        self.w2v = {}
-        count = 0
-        buff = []
-
-        def trans(line):
-            line = line.strip().split()
-            try:
-                res = (line[0], [float(_) for _ in line[1:]])
-            except ValueError:
-                res = (-1, -1)
-            return res
-
-        with open(model_path, 'r') as f:
-            for line in f.readlines():
-                if count < load_from_line:
-                    continue
-                else:
-                    if len(buff) == 50000:
-                        res = Parallel(n_jobs=20, verbose=0)(
-                            delayed(trans)(line) for line in buff)
-                        self.w2v.update(dict([i for i in res if i[0] != -1]))
-                        buff = []
-                    else:
-                        buff.append(line)
-        if len(buff) != 0:
-            res = Parallel(n_jobs=20, verbose=0)(
-                delayed(trans)(line) for line in buff)
-            self.w2v.update(dict(res))
-
-    def encode(self, tokens):
-        return [self.w2v[token] for token in tokens if token in self.w2v]
-
-
-class W2vEncoder(BaseEncoder):
-    def __init__(self, model_name: str = 'sgns.wiki.bigram-char',
-                 load_from_line: int = 0,
+class Word2VecEncoder(BaseEncoder):
+    def __init__(self, embedding_path: str = 'sgns.wiki.bigram-char',
+                 skiprows: int = 0,
                  batch_size: int = 64,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.model_name = model_name
-        self.model_path = os.path.join('/', model_name)
-        self.load_from_line = load_from_line
-        self._w2v = W2vModel(self.model_path, self.load_from_line)
-
+        self.embedding_path = embedding_path
+        self.skiprows = skiprows
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
-
         self.is_trained = True
+
+    def _init_word_embedding(self):
+        self.word2vec_df = pd.read_table(self.embedding_path, sep=' ', quoting=3, header=None, skiprows=skiprows,
+                                         index_col=0)
+        self.word2vec_df = self.word2vec_df.astype(np.float32).dropna(axis=1).dropna(axis=0)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -67,16 +31,16 @@ class W2vEncoder(BaseEncoder):
         pooled_data = []
 
         for tokens in batch_tokens:
-            _layer_data = self._w2v.encode(tokens)
-            _pooled = pooling_np(_layer_data, self.pooling_strategy)
+            _layer_data = self.word2vec_df.loc(tokens).dropna()
+            _pooled = pooling_pd(_layer_data, self.pooling_strategy)
             pooled_data.append(_pooled)
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
-        del d['_w2v']
+        del d['word2vec_df']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
-        self._w2v = W2vModel(self.model_path, self.load_from_line)
+        self._init_word_embedding()

@@ -7,7 +7,7 @@ from .gpt2 import GPT2Encoder
 from .pca import PCALocalEncoder
 from .pq import PQEncoder
 from .tf_pq import TFPQEncoder
-from .w2v import W2vEncoder
+from .w2v import Word2VecEncoder
 
 __all__ = ['BaseEncoder',
            'BertEncoder',
@@ -20,5 +20,5 @@ __all__ = ['BaseEncoder',
            'ElmoEncoder',
            'GPTEncoder',
            'GPT2Encoder',
-           'W2vEncoder',
+           'Word2VecEncoder',
            'FlairEncoder']
