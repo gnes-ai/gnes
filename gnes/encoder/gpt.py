@@ -11,7 +11,7 @@ from ..helper import batching, pooling_torch
 class GPTEncoder(BaseEncoder):
 
     def __init__(self,
-                 model_path: str,
+                 model_dir: str,
                  batch_size: int = 64,
                  use_cuda: bool = False,
                  pooling_strategy: str = 'REDUCE_MEAN',
@@ -19,7 +19,7 @@ class GPTEncoder(BaseEncoder):
                  **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.model_path = model_path
+        self.model_dir = model_dir
         self.batch_size = batch_size
 
         # Load pre-trained model tokenizer (vocabulary)
@@ -41,8 +41,8 @@ class GPTEncoder(BaseEncoder):
         return self._model(x)
 
     def _init_model_tokenizer(self):
-        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_path)
-        self._model = OpenAIGPTModel.from_pretrained(self.model_path)
+        self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
+        self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
         self._model.eval()
 
     @batching

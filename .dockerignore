@@ -1,7 +1,13 @@
 .pyre/
 .idea/
-.orange-ci.yml
 docker-push.sh
+download-models.sh
+docker-up.sh
+.orange-ci.yml
+docker-compose.yml
+docker-compose-simple.yml
+README.ms
 MAINTAINERS
 test*.yml
 toy*
+release.sh

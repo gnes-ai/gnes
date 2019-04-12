@@ -25,7 +25,7 @@ class TestElmoEncoder(unittest.TestCase):
 
     def test_encoding(self):
         _encoder = GPTEncoder(
-            model_path=os.environ.get(
+            model_dir=os.environ.get(
                 'GPT_CI_MODEL',
                 '/openai_gpt'
             ),
