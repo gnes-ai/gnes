@@ -27,9 +27,11 @@ if [ -z "$1" ]
 then
     _docker_push "encoder"
     _docker_push "indexer"
+    _docker_push "proxy"
     _docker_push "base"
 else
     _docker_push "encoder" "master"
     _docker_push "indexer" "master"
+    _docker_push "proxy" "master"
     _docker_push "base" "master"
 fi

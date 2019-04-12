@@ -10,6 +10,12 @@ def index(args):
         es.join()
 
 
+def proxy(args):
+    from ..service import proxy as my_proxy
+    with getattr(my_proxy, args.proxy_type)(args) as es:
+        es.join()
+
+
 def client(args):
     from ..service import ClientService
 
