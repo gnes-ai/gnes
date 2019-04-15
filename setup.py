@@ -53,7 +53,7 @@ setup(
     name=pkg_name,
     packages=find_packages(),
     version=__version__,
-    package_data={pkg_name: ['resources']},
+    include_package_data=True,
     description='Generic Neural Elastic Search is an end-to-end solution for semantic text search',
     author='GNES team',
     url='https://github.com',
