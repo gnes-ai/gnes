@@ -122,7 +122,8 @@ def set_proxy_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
-    parser.add_argument('--proxy_type', type=str, choices=[x for x in dir(my_proxy) if isclass(getattr(my_proxy, x))],
+    parser.add_argument('--proxy_type', type=str,
+                        choices=[x for x in dir(my_proxy) if isclass(getattr(my_proxy, x))],
                         help='type of proxy')
     parser.add_argument('--batch_size', type=int,
                         help='the size of the request to split')

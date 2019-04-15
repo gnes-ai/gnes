@@ -12,6 +12,8 @@ def index(args):
 
 def proxy(args):
     from ..service import proxy as my_proxy
+    if not args.proxy_type:
+        raise ValueError('--proxy_type is required when starting a proxy from CLI')
     with getattr(my_proxy, args.proxy_type)(args) as es:
         es.join()
 
@@ -26,7 +28,6 @@ def client(args):
         else:
             result = cs.query(data)
             if result:
-                print(type(result))
                 print(result.client_id)
                 print(result.req_id)
                 print(result.content_type)
