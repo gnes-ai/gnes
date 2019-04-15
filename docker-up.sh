@@ -22,6 +22,7 @@ export OUTGOING_PROXY_OUT=$(rand_port)
 mkdir -p ${OUTPUT_DIR}
 docker pull docker.oa.com/public/aipd-gnes-encoder:$BUILD_ID
 docker pull docker.oa.com/public/aipd-gnes-indexer:$BUILD_ID
+docker pull docker.oa.com/public/aipd-gnes-proxy:$BUILD_ID
 docker-compose up
 
 # shutdown docker-compose
