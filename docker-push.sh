@@ -5,7 +5,7 @@ set -ex
 _docker_push() {
     TARGET=$1
     GIT_TAG=$2
-    PROJ_NAME=aipd-gnes-$TARGET
+    PROJ_NAME=aipd-gnes
 
     if [ -z "$2" ]
       then
@@ -25,13 +25,7 @@ _docker_push() {
 
 if [ -z "$1" ]
 then
-    _docker_push "encoder"
-    _docker_push "indexer"
-    _docker_push "proxy"
     _docker_push "base"
 else
-    _docker_push "encoder" "master"
-    _docker_push "indexer" "master"
-    _docker_push "proxy" "master"
     _docker_push "base" "master"
 fi

@@ -26,7 +26,6 @@ def client(args):
         else:
             result = cs.query(data)
             if result:
-                print(type(result))
                 print(result.client_id)
                 print(result.req_id)
                 print(result.content_type)

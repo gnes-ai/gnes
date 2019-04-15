@@ -4,12 +4,12 @@ services:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
     network_mode: "host"
-    command: --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
+    command: proxy --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
   encoder:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-encoder:${BUILD_ID}"
     network_mode: "host"
-    command: --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_encoder.yml --dump_path /ext_data/test_encode.bin
+    command: encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_encoder.yml --dump_path /ext_data/test_encode.bin
     volumes:
       - "${PWD}/encoder.yml:/test_encoder.yml"
       - "/data1/cips/data:/ext_data"
@@ -20,11 +20,11 @@ services:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
     network_mode: "host"
-    command: --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
+    command: proxy --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT} --socket_in PULL_BIND --socket_out PUSH_BIND
   indexer:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-indexer:${BUILD_ID}"
-    command: --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_indexer.yml --dump_path /out_data/test_index.bin
+    command: index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN} --socket_in PULL_CONNECT --socket_out PUSH_CONNECT --mode $SERVER_MODE --yaml_path /test_indexer.yml --dump_path /out_data/test_index.bin
     volumes:
       - "${PWD}/indexer.yml:/test_indexer.yml"
       - "/data1/cips/data:/ext_data"
@@ -37,4 +37,4 @@ services:
     user: ${MUID}
     image: "docker.oa.com/public/aipd-gnes-proxy:${BUILD_ID}"
     network_mode: "host"
-    command: --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT} --socket_in PULL_BIND --socket_out PUB_BIND
+    command: proxy --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT} --socket_in PULL_BIND --socket_out PUB_BIND
