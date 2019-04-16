@@ -7,7 +7,7 @@ from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, MemoryCache, profiling, yaml, parse_arg
+from ..helper import set_logger, profiling, yaml, parse_arg
 
 __all__ = ['train_required', 'TrainableBase']
 
@@ -94,18 +94,15 @@ class TrainableBase(metaclass=TrainableType):
         self.dump_path = None
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
-        self.memcached = MemoryCache(cache_path='.nes_cache')
 
     def __getstate__(self):
         d = dict(self.__dict__)
         del d['logger']
-        del d['memcached']
         return d
 
     def __setstate__(self, d):
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__, self.verbose)
-        self.memcached = MemoryCache(cache_path='.nes_cache')
 
     @staticmethod
     def _train_required(func):

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+
 # add this line to import the dialog api
 source "./dialog.sh"
 
@@ -22,6 +22,11 @@ cc=$(TITLE='what is the name of your server';
 dd=$(TITLE='this is just a message to inform user, information collected';
      TITLE_SHORT='example of ui.show_msgbox';
      ui.show_msgbox)
+
+ee=$(TITLE="1. you choose $aa\n2. you choose $bb\n3. you type $cc\n";
+     TITLE_SHORT='example of ui.show_msgbox';
+     ui.show_msgbox)
+
 
 printf "1. you choose $aa\n"
 printf "2. you choose $bb\n"
