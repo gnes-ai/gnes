@@ -41,7 +41,6 @@ then
 else
     TARGET="base"
     GIT_TAG="master"
-    DOCKER_NAMESPACE="docker.oa.com:8080/public"
     printf "you are publishing a new version: \e[1;33m$GIT_TAG\e[0m\n"
     docker build --target $TARGET --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg NO_PROXY=${NO_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --build-arg no_proxy=${no_proxy} --network=host --rm -t ${DOCKER_NAMESPACE}/${PROJ_NAME}:${GIT_TAG} .
     docker push ${DOCKER_NAMESPACE}/${PROJ_NAME}:${GIT_TAG}

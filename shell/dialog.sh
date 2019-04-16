@@ -31,3 +31,12 @@ ui.show_msgbox() {
     dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
 }
 
+show_yesno() {
+    ### Return: 0 for Yes, 1 for No
+    read -p "${TITLE} (y/n)" CONT
+    if [ "$CONT" = "y" ]; then
+      echo 0;
+    else
+      echo 1;
+    fi
+}
