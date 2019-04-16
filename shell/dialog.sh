@@ -16,16 +16,18 @@ ui.show_options() {
 }
 
 ui.show_yesno() {
+    ### Return: 0 for Yes, 1 for No
     dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --yesno "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH};
     echo $?
 }
 
 ui.show_input() {
+    ### Return: string that user input
     dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --inputbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
 }
 
 ui.show_msgbox() {
+    ### show a message box to inform user, return nothing
     dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
 }
-
 
