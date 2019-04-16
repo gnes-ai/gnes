@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _select_namespace() {
-    PS3='Please select the name space you want to pull (type 1 or 2): '
+    PS3='Please select the namespace you want to pull (type 1 or 2): '
     options=("docker.oa" "Tencent Cloud")
     select opt in "${options[@]}"
     do
@@ -19,6 +19,8 @@ _select_namespace() {
     done
     printf "you are pulling image from: \e[1;33m$DOCKER_NAMESPACE\e[0m\n"
 }
+
+_select_namespace
 
 PROJ_NAME="aipd-gnes"
 
