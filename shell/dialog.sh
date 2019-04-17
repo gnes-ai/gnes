@@ -4,6 +4,13 @@ BACK_TITLE='GNES configuration'
 DLG_HEIGHT=15
 DLG_WIDTH=50
 
+read dialog <<< "$(which whiptail dialog 2> /dev/null)"
+
+# exit if none found
+[[ "$dialog" ]] || {
+  echo 'neither whiptail nor dialog found' >&2
+  exit 1
+}
 ui.show_options() {
     ### Arguments
     # TITLE: string
