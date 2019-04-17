@@ -10,7 +10,7 @@ services:
         aliases:
           - income_proxy
     ports:
-      - ${HOST_IN}:${INCOME_PROXY_IN}
+      - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
   encoder:
     image: ${DOCKER_IMG_URL}
     command: >
