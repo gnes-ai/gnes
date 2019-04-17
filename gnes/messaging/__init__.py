@@ -25,6 +25,7 @@ class Message:
     typ_train = 'TRAIN'
     typ_sent_id = 'SENT_ID_MAP'
     typ_doc_id = 'DOC_ID_MAP'
+    typ_any = 'ANY'
 
     def __init__(self,
                  client_id: Union[bytes, str] = b'',

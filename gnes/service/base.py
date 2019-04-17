@@ -95,6 +95,7 @@ class MessageHandler:
     def __init__(self, mh: 'MessageHandler' = None):
         self.routes = {k: v for k, v in mh.routes.items()} if mh else {}
         self.logger = set_logger(self.__class__.__name__)
+        self.any_msg_route = None
 
     def register(self, msg_type: str):
         def decorator(f):
@@ -106,7 +107,9 @@ class MessageHandler:
     def serve(self, msg: Message):
         if not isinstance(msg, Message):
             raise ServiceError('dont know how to handle message: %s' % msg)
-        fn = self.routes.get(msg.msg_type, None)
+
+        _any_msg_fn = self.routes.get(self.any_msg_route)
+        fn = self.routes.get(msg.msg_type, _any_msg_fn)
         if fn is None:
             raise ServiceError('dont know how to handle message with type: %s' % msg.msg_type)
         else:
@@ -127,6 +130,9 @@ class BaseService(threading.Thread):
         self.is_handler_done = threading.Event()
         self._model = None
         self.identity = args.identity if 'identity' in args else None
+
+        # forward message directly that does not match with any routes
+        handler.any_msg_route = self.args.any_msg_route if 'any_msg_route' in args else None
 
     def run(self):
         self._run()
