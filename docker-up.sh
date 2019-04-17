@@ -24,12 +24,13 @@ _select_namespace
 
 PROJ_NAME="aipd-gnes"
 
-export BUILD_ID=$1
-export DOCKER_IMG_URL="${DOCKER_NAMESPACE}/${PROJ_NAME}:${BUILD_ID}"
+export DOCKER_IMG_URL="${DOCKER_NAMESPACE}/${PROJ_NAME}:${1}"
 export SERVER_MODE=$2
-
-# export some variables for the use in docker-compose.yaml
-export MUID=$UID
+export EXT_DATA_DIR="/data/ext_models/"
+export INDEXER_YAML_PATH="/data/han/indexer.yml"
+export ENCODER_YAML_PATH="/data/han/encoder.yml"
+export HOST_PORT_IN=5598
+export HOST_PORT_OUT=5599
 export OUTPUT_DIR=$(pwd)"/tmp_data"
 
 

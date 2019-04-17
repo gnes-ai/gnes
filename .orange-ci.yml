@@ -77,13 +77,13 @@ docker-stage: &docker_stage
       - name: push docker
         script: export DOCKER_NAMESPACE="docker.oa.com:8080/public" && bash docker-push.sh $GIT_TAG
       - name: make notification
-        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >>notify.md
+        script: export DOCKER_NAMESPACE="docker.oa.com:8080/public" && echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >>notify.md
       - name: docker login
         script: docker login -u $TCLOUD_USER -p $TCLOUD_PWD ccr.ccs.tencentyun.com
       - name: push docker
         script: export DOCKER_NAMESPACE="ccr.ccs.tencentyun.com/gnes" && bash docker-push.sh $GIT_TAG
       - name: make notification
-        script: echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >> notify.md
+        script: export DOCKER_NAMESPACE="ccr.ccs.tencentyun.com/gnes" && echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >> notify.md
 
 release-stage: &release_stage1
   - name: notify about release
