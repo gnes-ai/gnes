@@ -5,8 +5,10 @@ import os
 import re
 import sys
 import time
+from copy import copy
 from functools import wraps
 from itertools import islice
+from logging import Formatter
 from typing import Iterator, Any, Union, List, Callable
 
 import jieba
@@ -112,6 +114,28 @@ def time_profile(func):
     return arg_wrapper
 
 
+class ColoredFormatter(Formatter):
+    MAPPING = {
+        'DEBUG': dict(color='white', on_color=None),  # white
+        'INFO': dict(color='white', on_color=None),  # cyan
+        'WARNING': dict(color='red', on_color='on_yellow'),  # yellow
+        'ERROR': dict(color='white', on_color='on_red'),  # 31 for red
+        'CRITICAL': dict(color='red', on_color='on_white'),  # white on red bg
+    }
+
+    PREFIX = '\033['
+    SUFFIX = '\033[0m'
+
+    def __init__(self, pattern, **kwargs):
+        Formatter.__init__(self, pattern, **kwargs)
+
+    def format(self, record):
+        cr = copy(record)
+        seq = self.MAPPING.get(cr.levelname, self.MAPPING['INFO'])  # default white
+        cr.msg = colored(cr.msg, **seq)
+        return Formatter.format(self, cr)
+
+
 def set_logger(context, verbose=False):
     if os.name == 'nt':  # for Windows
         return NTLogger(context, verbose)
@@ -124,7 +148,7 @@ def set_logger(context, verbose=False):
     logger.propagate = False
     if not logger.handlers:
         logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-        formatter = logging.Formatter(
+        formatter = ColoredFormatter(
             '%(levelname)-.1s:' + context + ':[%(filename).3s:%(funcName).3s:%(lineno)3d]:%(message)s', datefmt=
             '%m-%d %H:%M:%S')
         console_handler = logging.StreamHandler()
