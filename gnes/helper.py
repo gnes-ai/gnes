@@ -127,13 +127,13 @@ class ColoredFormatter(Formatter):
     SUFFIX = '\033[0m'
 
     def __init__(self, pattern, **kwargs):
-        super().__init__(self, pattern, **kwargs)
+        super().__init__(pattern, **kwargs)
 
     def format(self, record):
         cr = copy(record)
         seq = self.MAPPING.get(cr.levelname, self.MAPPING['INFO'])  # default white
         cr.msg = colored(cr.msg, **seq)
-        return super().format(self, cr)
+        return super().format(cr)
 
 
 def set_logger(context, verbose=False):
