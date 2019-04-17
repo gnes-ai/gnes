@@ -63,6 +63,8 @@ def set_service_parser(parser=None):
                         help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int,
                         help='port for control the service')
+    parser.add_argument('--any_msg_route', type=str,
+                        help='handler route for unknonw types of message')
     parser.add_argument('--timeout', type=int, default=5000,
                         help='timeout (ms) of all communication')
     parser.add_argument('--dump_interval', type=int, default=5,

@@ -131,7 +131,7 @@ class BaseService(threading.Thread):
         self._model = None
         self.identity = args.identity if 'identity' in args else None
 
-        # forward message directly that does not match with any routes
+        # forward message that does not match with any registed routes
         handler.any_msg_route = self.args.any_msg_route if 'any_msg_route' in args else None
 
     def run(self):
