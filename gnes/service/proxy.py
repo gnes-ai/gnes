@@ -11,10 +11,6 @@ from ..messaging import *
 class ProxyService(BS):
     handler = MessageHandler(BS.handler)
 
-    @handler.register(Message.type_any)
-    def _handler_any(self, msg: 'Message', out: 'zmq.Socket'):
-        send_message(out, msg, self.args.timeout)
-
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
