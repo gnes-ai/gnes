@@ -108,12 +108,16 @@ class MessageHandler:
         if not isinstance(msg, Message):
             raise ServiceError('dont know how to handle message: %s' % msg)
 
-        _unk_msg_fn = self.routes.get(self.unk_msg_route)
-        fn = self.routes.get(msg.msg_type, _unk_msg_fn)
-        if fn is None:
-            raise ServiceError('dont know how to handle message with type: %s' % msg.msg_type)
+        if not msg.msg_type in self.routes:
+            if self.unk_msg_route:
+                self.logger.warning('fall back to %s handler as i dont know how to handle message with type: %s' % (
+                    self.unk_msg_route, msg.msg_type))
+                fn = self.routes.get(self.unk_msg_route)
+            else:
+                raise ServiceError('dont know how to handle message with type: %s' % msg.msg_type)
         else:
-            return fn
+            fn = self.routes.get(msg.msg_type)
+        return fn
 
 
 class BaseService(threading.Thread):

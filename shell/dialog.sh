@@ -6,13 +6,13 @@ BACK_TITLE='GNES Config'
 DLG_HEIGHT=15
 DLG_WIDTH=50
 
-if ! type "$dialog" > /dev/null; then
+if hash "dialog" 2>/dev/null; then
   DIALOG_UI="dialog"
-elif ! type "$whiptail" > /dev/null; then
+elif hash "whiptail" 2>/dev/null; then
   DIALOG_UI="whiptail"
 else
-  printf 'no whiptail or dialog found, try apt-get install whiptail dialog' >&2
-  printf 'fallback to shell interface'
+  printf 'no whiptail or dialog found, try apt-get/brew install dialog/whiptail\n' >&2
+  printf 'fallback to shell interface without gui support\n' >&2
   DIALOG_UI="shell"
 fi
 
