@@ -43,10 +43,10 @@ class IndexerService(BS):
         else:
             raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 
-    @handler.register(Message.typ_sent_id)
-    def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self._index_and_notify(msg, out, 'sent_doc_indexer')
+    # @handler.register(Message.typ_sent_id)
+    # def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
+    #     self._index_and_notify(msg, out, 'sent_doc_indexer')
 
-    @handler.register(Message.typ_doc_id)
-    def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self._index_and_notify(msg, out, 'doc_content_indexer')
+    # @handler.register(Message.typ_doc_id)
+    # def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
+    #     self._index_and_notify(msg, out, 'doc_content_indexer')

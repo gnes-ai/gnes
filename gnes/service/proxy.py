@@ -13,6 +13,7 @@ class ProxyService(BS):
 
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+        print('sending out Message', msg.content_type, msg.msg_content)
         send_message(out, msg, self.args.timeout)
 
 
