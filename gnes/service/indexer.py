@@ -26,7 +26,6 @@ class IndexerService(BS):
 
     def _index_and_notify(self, msg: 'Message', out: 'zmq.Socket', head_name: str):
         res = msg.msg_content
-        print(res)
         self._model.add(res[1], res[0], head_name='binary_indexer')
         self._model.add(*res[2], head_name='sent_doc_indexer')
         self._model.add(*res[3], head_name='doc_content_indexer')

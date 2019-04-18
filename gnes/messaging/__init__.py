@@ -157,7 +157,6 @@ class Message:
         elif isinstance(ct, dict) and ct['content_type'] == 'map-any':
             return ct['id'], jsonapi.loads(self._msg_content)
         elif isinstance(ct, dict) and ct['content_type'] == 'map-mix':
-            print(ct, self._msg_content)
             return self._msg_content, ct['id'], ct['ex0'], ct['ex1']
         elif ct == 'binary':
             return self._msg_content
