@@ -39,11 +39,15 @@ class EncoderService(BS):
             self.is_model_changed.set()
         elif self.args.mode == ServiceMode.ADD:
             vecs = self._model.encode(sents)
-            send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
-            send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type=Message.typ_sent_id),
-                         self.args.timeout)
-            send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type=Message.typ_doc_id),
-                         self.args.timeout)
+            send_message(out, msg.copy_mod(msg_content=(
+                    vecs, sent_ids,
+                    doc_mapper.sent_id_doc_id,
+                    doc_mapper.doc_id_document)), self.args.timeout)
+            # send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
+            # send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type=Message.typ_sent_id),
+            #              self.args.timeout)
+            # send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type=Message.typ_doc_id),
+            #              self.args.timeout)
         elif self.args.mode == ServiceMode.QUERY:
             vecs = self._model.encode(sents)
             send_message(out, msg.copy_mod(msg_content=vecs), self.args.timeout)

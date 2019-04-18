@@ -156,6 +156,8 @@ class Message:
             return ct['id'], self._msg_content
         elif isinstance(ct, dict) and ct['content_type'] == 'map-any':
             return ct['id'], jsonapi.loads(self._msg_content)
+        elif isinstance(ct, dict) and ct['content_type'] == 'map-mix':
+            return self._msg_content, ct['id'][0], ct['id'][1], ct['id'][2]
         elif ct == 'binary':
             return self._msg_content
         else:
@@ -166,6 +168,10 @@ class Message:
         if isinstance(value, np.ndarray):
             self.content_type = dict(content_type='array', dtype=str(value.dtype), shape=value.shape)
             self._msg_content = value
+        elif isinstance(value, tuple) and isinstance(value[0], bytes):
+            self.content_type = dict(content_type='map-mix', id=[value[1], value[2], value[3]])
+            self._msg_content = value[0]
+
         elif isinstance(value, bytes):
             self.content_type = 'binary'
             self._msg_content = value
