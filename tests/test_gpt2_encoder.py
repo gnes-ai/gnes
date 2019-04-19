@@ -4,7 +4,7 @@ from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.gpt2 import GPT2Encoder
+from gnes.encoder.gpt import GPT2Encoder
 from gnes.module.gnes import GNES
 
 
