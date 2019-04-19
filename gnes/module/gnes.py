@@ -2,7 +2,7 @@ from typing import List, Tuple, Dict
 
 from ..base import *
 from ..document import *
-from ..encoder import *
+from ..encoder.base import CompositionalEncoder
 from ..helper import batching
 
 

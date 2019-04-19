@@ -2,8 +2,10 @@ import os
 import unittest
 
 from gnes.cli.parser import set_service_parser, set_proxy_service_parser, set_client_parser
-from gnes.service import BaseService, ProxyService, ClientService
-from gnes.service.proxy import MapProxyService, ReduceProxyService
+from gnes.service.base import BaseService
+from gnes.service.client import ClientService
+
+from gnes.service.proxy import MapProxyService, ReduceProxyService, ProxyService
 
 
 class TestService(unittest.TestCase):

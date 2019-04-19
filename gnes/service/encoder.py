@@ -9,7 +9,7 @@ class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        from ..encoder import PipelineEncoder
+        from ..encoder.base import PipelineEncoder
 
         self._model = None
         try:

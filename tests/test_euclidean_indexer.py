@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer import EuclideanIndexer
+from gnes.indexer.euclideanindexer import EuclideanIndexer
 
 
 class TestEUIndexer(unittest.TestCase):
