@@ -25,7 +25,10 @@ class IndexerService(BS):
                 raise ComponentNotLoad
 
     def _index_and_notify(self, msg: 'Message', out: 'zmq.Socket', head_name: str):
-        self._model.add(*msg.msg_content, head_name=head_name)
+        res = msg.msg_content
+        self._model.add(res[1], res[0], head_name='binary_indexer')
+        self._model.add(*res[2], head_name='sent_doc_indexer')
+        self._model.add(*res[3], head_name='doc_content_indexer')
         send_message(out, msg.copy_mod(msg_content=head_name), self.args.timeout)
         self.is_model_changed.set()
 
@@ -39,10 +42,10 @@ class IndexerService(BS):
         else:
             raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
 
-    @handler.register(Message.typ_sent_id)
-    def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self._index_and_notify(msg, out, 'sent_doc_indexer')
+    # @handler.register(Message.typ_sent_id)
+    # def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
+    #     self._index_and_notify(msg, out, 'sent_doc_indexer')
 
-    @handler.register(Message.typ_doc_id)
-    def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
-        self._index_and_notify(msg, out, 'doc_content_indexer')
+    # @handler.register(Message.typ_doc_id)
+    # def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
+    #     self._index_and_notify(msg, out, 'doc_content_indexer')
