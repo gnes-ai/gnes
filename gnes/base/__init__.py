@@ -23,7 +23,7 @@ def import_class_by_str(name: str):
         if class_name in cls2file:
             return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
 
-    r = _import('encoder', name) or _import('indexer', name)
+    r = _import('encoder', name) or _import('indexer', name) or _import('module', name)
     if r:
         return r
     else:
@@ -51,7 +51,7 @@ class TrainableType(type):
 
     @staticmethod
     def register_class(cls):
-        if not getattr(cls, '_post_meta_init', None):
+        if not getattr(cls, '_is_class_registered', None):
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
             if os.environ.get('NES_PROFILING', False):
                 for f_name in ['train', 'encode', 'add', 'query']:
@@ -61,7 +61,7 @@ class TrainableType(type):
             if getattr(cls, 'train', None):
                 setattr(cls, 'train', TrainableType._as_train_func(getattr(cls, 'train')))
 
-            setattr(cls, '_post_meta_init_', True)
+            setattr(cls, '_is_class_registered', True)
             yaml.register_class(cls)
         return cls
 
