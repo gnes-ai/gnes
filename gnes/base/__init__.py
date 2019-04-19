@@ -185,37 +185,37 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def from_yaml(cls, constructor, node):
-        try:
-            return cls._get_instance_from_yaml(constructor, node)[0]
-        except ruamel.ConstructorError as ce:
-            match = re.findall(r"'!(.*)'", ce.problem)[0]
-            yaml.register_class(import_class_by_str(match))
-            return cls.from_yaml(constructor, node)
+        return cls._get_instance_from_yaml(constructor, node)[0]
 
     @classmethod
     def _get_instance_from_yaml(cls, constructor, node):
-        data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
-            constructor, node, deep=True)
-        cls.init_from_yaml = True
+        try:
+            data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
+                constructor, node, deep=True)
+            cls.init_from_yaml = True
 
-        if cls.store_args_kwargs:
-            p = data.get('parameter', {})  # type: Dict[str, Any]
-            a = p.pop('args') if 'args' in p else ()
-            k = p.pop('kwargs') if 'kwargs' in p else {}
-            # maybe there are some hanging kwargs in "parameter"
-            tmp_a = (cls._convert_env_var(v) for v in a)
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
-            obj = cls(*tmp_a, **tmp_p)
-        else:
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
-            obj = cls(**tmp_p)
+            if cls.store_args_kwargs:
+                p = data.get('parameter', {})  # type: Dict[str, Any]
+                a = p.pop('args') if 'args' in p else ()
+                k = p.pop('kwargs') if 'kwargs' in p else {}
+                # maybe there are some hanging kwargs in "parameter"
+                tmp_a = (cls._convert_env_var(v) for v in a)
+                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
+                obj = cls(*tmp_a, **tmp_p)
+            else:
+                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+                obj = cls(**tmp_p)
 
-        for k, v in data.get('property', {}).items():
-            setattr(obj, k, v)
+            for k, v in data.get('property', {}).items():
+                setattr(obj, k, v)
 
-        cls.init_from_yaml = False
+            cls.init_from_yaml = False
 
-        return obj, data
+            return obj, data
+        except ruamel.ConstructorError as ce:
+            match = re.findall(r"'!(.*)'", ce.problem)[0]
+            yaml.register_class(import_class_by_str(match))
+            return cls._get_instance_from_yaml(constructor, node)
 
     @staticmethod
     def _convert_env_var(v):
