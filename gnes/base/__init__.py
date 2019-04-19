@@ -212,7 +212,7 @@ class TrainableBase(metaclass=TrainableType):
             cls.init_from_yaml = False
 
             return obj, data
-        except ruamel.ConstructorError as ce:
+        except ruamel.yaml.constructor.ConstructorError as ce:
             match = re.findall(r"'!(.*)'", ce.problem)[0]
             yaml.register_class(import_class_by_str(match))
             return cls._get_instance_from_yaml(constructor, node)
