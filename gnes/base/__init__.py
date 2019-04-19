@@ -1,6 +1,7 @@
 import inspect
 import os
 import pickle
+import re
 import tempfile
 from functools import wraps
 from typing import Dict, Any, Union, TextIO, TypeVar, Type
@@ -12,6 +13,21 @@ from ..helper import set_logger, profiling, yaml, parse_arg
 __all__ = ['train_required', 'TrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
+
+
+def import_class_by_str(name: str):
+    def _import(module_name, class_name):
+        import importlib
+
+        cls2file = getattr(importlib.import_module('gnes.%s' % module_name), '_cls2file_map')
+        if class_name in cls2file:
+            return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
+
+    r = _import('encoder', name) or _import('indexer', name)
+    if r:
+        return r
+    else:
+        raise ImportError('Can not locate any class with name: %s, misspelling?' % name)
 
 
 class TrainableType(type):
@@ -169,11 +185,16 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def from_yaml(cls, constructor, node):
-        return cls._get_instance_from_yaml(constructor, node)[0]
+        try:
+            return cls._get_instance_from_yaml(constructor, node)[0]
+        except ruamel.ConstructorError as ce:
+            regex = r"'\!(.*)'"
+            match = re.findall(regex, ce.problem)[0]
+            import_class_by_str(match)
+            return cls.from_yaml(constructor, node)
 
     @classmethod
     def _get_instance_from_yaml(cls, constructor, node):
-        yaml.register_class(cls)
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
         cls.init_from_yaml = True
