@@ -23,7 +23,7 @@ def import_class_by_str(name: str):
         if class_name in cls2file:
             return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
 
-    r = _import('encoder', name) or _import('indexer', name)
+    r = _import('encoder', name) or _import('indexer', name) or _import('module', name)
     if r:
         return r
     else:
@@ -39,17 +39,7 @@ class TrainableType(type):
 
     def __new__(meta, *args, **kwargs):
         cls = super().__new__(meta, *args, **kwargs)
-        cls.__init__ = meta._store_init_kwargs(cls.__init__)
-        if os.environ.get('NES_PROFILING', False):
-            for f_name in ['train', 'encode', 'add', 'query']:
-                if getattr(cls, f_name, None):
-                    setattr(cls, f_name, profiling(getattr(cls, f_name)))
-
-        if getattr(cls, 'train', None):
-            setattr(cls, 'train', meta._as_train_func(getattr(cls, 'train')))
-
-        yaml.register_class(cls)
-        return cls
+        return meta.register_class(cls)
 
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
@@ -58,6 +48,22 @@ class TrainableType(type):
             if not hasattr(obj, k):
                 setattr(obj, k, v)
         return obj
+
+    @staticmethod
+    def register_class(cls):
+        if not getattr(cls, '_is_class_registered', None):
+            cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
+            if os.environ.get('NES_PROFILING', False):
+                for f_name in ['train', 'encode', 'add', 'query']:
+                    if getattr(cls, f_name, None):
+                        setattr(cls, f_name, profiling(getattr(cls, f_name)))
+
+            if getattr(cls, 'train', None):
+                setattr(cls, 'train', TrainableType._as_train_func(getattr(cls, 'train')))
+
+            setattr(cls, '_is_class_registered', True)
+            yaml.register_class(cls)
+        return cls
 
     @staticmethod
     def _as_train_func(func):
@@ -214,7 +220,8 @@ class TrainableBase(metaclass=TrainableType):
             return obj, data
         except ruamel.yaml.constructor.ConstructorError as ce:
             match = re.findall(r"'!(.*)'", ce.problem)[0]
-            yaml.register_class(import_class_by_str(match))
+            tmp_cls = import_class_by_str(match)
+            TrainableType.register_class(tmp_cls)
             return cls._get_instance_from_yaml(constructor, node)
 
     @staticmethod
