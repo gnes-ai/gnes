@@ -188,8 +188,7 @@ class TrainableBase(metaclass=TrainableType):
         try:
             return cls._get_instance_from_yaml(constructor, node)[0]
         except ruamel.ConstructorError as ce:
-            regex = r"'\!(.*)'"
-            match = re.findall(regex, ce.problem)[0]
+            match = re.findall(r"'!(.*)'", ce.problem)[0]
             yaml.register_class(import_class_by_str(match))
             return cls.from_yaml(constructor, node)
 
