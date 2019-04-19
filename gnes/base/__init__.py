@@ -169,6 +169,7 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def from_yaml(cls, constructor, node):
+        yaml.register_class(cls)
         return cls._get_instance_from_yaml(constructor, node)[0]
 
     @classmethod
