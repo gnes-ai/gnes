@@ -51,7 +51,8 @@ class TrainableType(type):
 
     @staticmethod
     def register_class(cls):
-        if not getattr(cls, '_is_class_registered', None):
+        reg_cls_set = getattr(cls, '_registered_class', set())
+        if cls.__name__ not in reg_cls_set:
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
             if os.environ.get('NES_PROFILING', False):
                 for f_name in ['train', 'encode', 'add', 'query']:
@@ -61,7 +62,8 @@ class TrainableType(type):
             if getattr(cls, 'train', None):
                 setattr(cls, 'train', TrainableType._as_train_func(getattr(cls, 'train')))
 
-            setattr(cls, '_is_class_registered', True)
+            reg_cls_set.add(cls.__name__)
+            setattr(cls, '_registered_class', reg_cls_set)
             yaml.register_class(cls)
         return cls
 
