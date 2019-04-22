@@ -8,7 +8,6 @@ from gnes.encoder.elmo import ElmoEncoder
 from gnes.module.gnes import GNES
 
 
-
 class TestElmoEncoder(unittest.TestCase):
 
     def setUp(self):
@@ -23,7 +22,6 @@ class TestElmoEncoder(unittest.TestCase):
         self.test_data2 = MultiSentDocument.from_file(
             os.path.join(dirname, 'tangshi.txt'))
         self.test_str = [s for d in self.test_data1 for s in d.sentences]
-
 
     def test_encoding(self):
         elmo_encoder = ElmoEncoder(
@@ -52,6 +50,7 @@ class TestElmoEncoder(unittest.TestCase):
         # self.assertEqual(out, out2)
 
         nes = GNES.load_yaml(self.nes_path)
+        print('component: %s' % nes.component)
 
         self.assertRaises(RuntimeError, nes.add, self.test_data1)
         self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)

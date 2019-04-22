@@ -49,8 +49,8 @@ class TestBertServing(unittest.TestCase):
 
         bbe = PipelineEncoder.load_yaml(self.bbe_path)
         self.assertRaises(RuntimeError, bbe.encode)
-        self.assertRaises(NotImplementedError, bbe.train, self.test_str)
 
+        bbe.train(self.test_str)
         out = bbe.encode(self.test_str)
         bbe.close()
         self.assertEqual(bytes, type(out))

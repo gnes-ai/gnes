@@ -1,4 +1,3 @@
-import faiss
 import numpy as np
 
 from .base import BaseEncoder
@@ -15,6 +14,7 @@ class PQEncoder(BaseEncoder):
         self.centroids = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
+        import faiss
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         # use faiss ProductQuantizer directly

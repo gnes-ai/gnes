@@ -1,7 +1,6 @@
 import inspect
 import os
 import pickle
-import re
 import tempfile
 from functools import wraps
 from typing import Dict, Any, Union, TextIO, TypeVar, Type
@@ -51,8 +50,10 @@ class TrainableType(type):
 
     @staticmethod
     def register_class(cls):
+        # print('try to register class: %s' % cls.__name__)
         reg_cls_set = getattr(cls, '_registered_class', set())
         if cls.__name__ not in reg_cls_set:
+            # print('reg class: %s' % cls.__name__)
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
             if os.environ.get('NES_PROFILING', False):
                 for f_name in ['train', 'encode', 'add', 'query']:
@@ -186,6 +187,20 @@ class TrainableBase(metaclass=TrainableType):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    @staticmethod
+    def _get_tags_from_node(node):
+        def node_recurse_generator(n):
+            if n.tag.startswith('!'):
+                yield n.tag.lstrip('!')
+            for nn in n.value:
+                if isinstance(nn, tuple):
+                    for k in nn:
+                        yield from node_recurse_generator(k)
+                elif isinstance(nn, ruamel.yaml.nodes.Node):
+                    yield from node_recurse_generator(nn)
+
+        return list(set(list(node_recurse_generator(node))))
+
     @classmethod
     def to_yaml(cls, representer, data):
         tmp = data._dump_instance_to_yaml(data)
@@ -197,34 +212,31 @@ class TrainableBase(metaclass=TrainableType):
 
     @classmethod
     def _get_instance_from_yaml(cls, constructor, node):
-        try:
-            data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
-                constructor, node, deep=True)
-            cls.init_from_yaml = True
+        for c in cls._get_tags_from_node(node):
+            import_class_by_str(c)
 
-            if cls.store_args_kwargs:
-                p = data.get('parameter', {})  # type: Dict[str, Any]
-                a = p.pop('args') if 'args' in p else ()
-                k = p.pop('kwargs') if 'kwargs' in p else {}
-                # maybe there are some hanging kwargs in "parameter"
-                tmp_a = (cls._convert_env_var(v) for v in a)
-                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
-                obj = cls(*tmp_a, **tmp_p)
-            else:
-                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
-                obj = cls(**tmp_p)
+        data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
+            constructor, node, deep=True)
+        cls.init_from_yaml = True
 
-            for k, v in data.get('property', {}).items():
-                setattr(obj, k, v)
+        if cls.store_args_kwargs:
+            p = data.get('parameter', {})  # type: Dict[str, Any]
+            a = p.pop('args') if 'args' in p else ()
+            k = p.pop('kwargs') if 'kwargs' in p else {}
+            # maybe there are some hanging kwargs in "parameter"
+            tmp_a = (cls._convert_env_var(v) for v in a)
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
+            obj = cls(*tmp_a, **tmp_p)
+        else:
+            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+            obj = cls(**tmp_p)
 
-            cls.init_from_yaml = False
+        for k, v in data.get('property', {}).items():
+            setattr(obj, k, v)
 
-            return obj, data
-        except ruamel.yaml.constructor.ConstructorError as ce:
-            match = re.findall(r"'!(.*)'", ce.problem)[0]
-            tmp_cls = import_class_by_str(match)
-            TrainableType.register_class(tmp_cls)
-            return cls._get_instance_from_yaml(constructor, node)
+        cls.init_from_yaml = False
+
+        return obj, data
 
     @staticmethod
     def _convert_env_var(v):
