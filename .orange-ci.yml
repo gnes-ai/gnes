@@ -42,6 +42,8 @@ basic-pipeline: &bp1
     image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
   env:
     GNES_ENV_SET: orange-ci
+    PIP_DOWNLOAD_CACHE: $ORANGE_BUILD_WORKSPACE/.pip_download_cache
+  cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
     - <<: *pylint
