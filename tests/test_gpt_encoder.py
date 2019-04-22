@@ -3,9 +3,9 @@ import unittest
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.encoder import GPTEncoder
-from gnes.encoder import PipelineEncoder
-from gnes.module import GNES
+from gnes.encoder.gpt import GPTEncoder
+from gnes.encoder.base import PipelineEncoder
+from gnes.module.gnes import GNES
 
 
 class TestElmoEncoder(unittest.TestCase):

@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import List, Tuple, Any, Dict, Optional
 
 from ..base import *
-from ..encoder import CompositionalEncoder
+from ..encoder.base import CompositionalEncoder
 
 
 class BaseIndexer(TrainableBase):

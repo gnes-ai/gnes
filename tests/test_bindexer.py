@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer import BIndexer
+from gnes.indexer.bindexer import BIndexer
 
 
 class TestFIndexer(unittest.TestCase):

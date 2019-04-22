@@ -3,9 +3,9 @@ import unittest
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
-from gnes.encoder import PipelineEncoder
-from gnes.encoder import GPT2Encoder
-from gnes.module import GNES
+from gnes.encoder.base import PipelineEncoder
+from gnes.encoder.gpt import GPT2Encoder
+from gnes.module.gnes import GNES
 
 
 class TestGPT2Encoder(unittest.TestCase):

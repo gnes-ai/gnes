@@ -1,8 +1,7 @@
 from typing import List, Tuple, Dict
 
-from ..base import *
-from ..document import *
-from ..encoder import *
+from ..document import BaseDocument, DocumentMapper
+from ..encoder.base import CompositionalEncoder, train_required
 from ..helper import batching
 
 

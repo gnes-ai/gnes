@@ -1,9 +1,13 @@
-from .base import BaseIndexer
-from .bindexer import BIndexer
-from .leveldb import LVDBIndexer, AsyncLVDBIndexer
-from .numpyindexer import NumpyIndexer
-from .hnsw_indexer import HnswIndexer
-from .euclideanindexer import EuclideanIndexer
-
-__all__ = ['LVDBIndexer', 'AsyncLVDBIndexer', 'BaseIndexer',
-           'NumpyIndexer', 'BIndexer', 'HnswIndexer', 'EuclideanIndexer']
+# A key-value map for Class to the (module)file it located in
+_cls2file_map = {
+    'EuclideanIndexer': 'euclideanindexer',
+    'LVDBIndexer': 'leveldb',
+    'AsyncLVDBIndexer': 'leveldb',
+    'NumpyIndexer': 'numpyindexer',
+    'HnswIndexer': 'hnsw_indexer',
+    'BIndexer': 'bindexer',
+    'MultiheadIndexer': 'base',
+    'BaseIndexer': 'base',
+    'BaseBinaryIndexer': 'base',
+    'BaseTextIndexer': 'base',
+}

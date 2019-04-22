@@ -24,7 +24,7 @@ install-deps: &install_deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
-        script: "pip install -U -e . -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        script: "pip install -e . -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
       - name: check tensorflow works correctly
         script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
@@ -42,6 +42,8 @@ basic-pipeline: &bp1
     image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
   env:
     GNES_ENV_SET: orange-ci
+    PIP_DOWNLOAD_CACHE: $ORANGE_BUILD_WORKSPACE/.pip_download_cache
+  cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
     - <<: *pylint

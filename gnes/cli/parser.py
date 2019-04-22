@@ -1,13 +1,10 @@
 import argparse
 
-import pkg_resources
-
-from .. import __version__
-
 IDX_PORT_DELTA = 2
 
 
 def set_base_parser():
+    from .. import __version__
     # create the top-level parser
     parser = argparse.ArgumentParser(
         description='GNES v%s: Generic Neural Elastic Search '
@@ -19,6 +16,8 @@ def set_base_parser():
 
 
 def set_nes_index_parser(parser=None):
+    import pkg_resources
+
     if not parser:
         parser = set_base_parser()
     parser.add_argument('--document', type=str, required=True,
@@ -101,6 +100,7 @@ def set_client_parser(parser=None):
 def set_encoder_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
+    import pkg_resources
     from ..service.base import ServiceMode, SocketType
     set_service_parser(parser)
     parser.add_argument('--dump_path', type=str, default=None,
@@ -139,6 +139,8 @@ def set_proxy_service_parser(parser=None):
 
 def set_indexer_service_parser(parser=None):
     from ..service.base import SocketType
+    import pkg_resources
+
     if not parser:
         parser = set_base_parser()
     set_encoder_service_parser(parser)

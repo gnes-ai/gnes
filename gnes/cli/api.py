@@ -1,11 +1,11 @@
 def encode(args):
-    from ..service import EncoderService
+    from ..service.encoder import EncoderService
     with EncoderService(args) as es:
         es.join()
 
 
 def index(args):
-    from ..service import IndexerService
+    from ..service.indexer import IndexerService
     with IndexerService(args) as es:
         es.join()
 
@@ -19,7 +19,7 @@ def proxy(args):
 
 
 def client(args):
-    from ..service import ClientService
+    from ..service.client import ClientService
 
     with ClientService(args) as cs:
         data = [v for v in args.txt_file if v.strip()]

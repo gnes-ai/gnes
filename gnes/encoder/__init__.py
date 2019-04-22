@@ -1,24 +1,18 @@
-from .base import BaseEncoder, BinaryEncoder, CompositionalEncoder, PipelineEncoder
-from .bert import BertEncoder, BertEncoderServer
-from .elmo import ElmoEncoder
-from .flair import FlairEncoder
-from .gpt import GPTEncoder
-from .gpt2 import GPT2Encoder
-from .pca import PCALocalEncoder
-from .pq import PQEncoder
-from .tf_pq import TFPQEncoder
-from .w2v import Word2VecEncoder
-
-__all__ = ['BaseEncoder',
-           'BertEncoder',
-           'PCALocalEncoder',
-           'PQEncoder',
-           'TFPQEncoder',
-           'BinaryEncoder',
-           'CompositionalEncoder',
-           'PipelineEncoder',
-           'ElmoEncoder',
-           'GPTEncoder',
-           'GPT2Encoder',
-           'Word2VecEncoder',
-           'FlairEncoder']
+# A key-value map for Class to the (module)file it located in
+_cls2file_map = {
+    'BertEncoder': 'bert',
+    'BertEncoderWithServer': 'bert',
+    'BertEncoderServer': 'bert',
+    'ElmoEncoder': 'elmo',
+    'FlairEncoder': 'flair',
+    'GPTEncoder': 'gpt',
+    'GPT2Encoder': 'gpt',
+    'PCALocalEncoder': 'pca',
+    'PQEncoder': 'pq',
+    'TFPQEncoder': 'tf_pq',
+    'Word2VecEncoder': 'w2v',
+    'BaseEncoder': 'base',
+    'BinaryEncoder': 'base',
+    'CompositionalEncoder': 'base',
+    'PipelineEncoder': 'base'
+}

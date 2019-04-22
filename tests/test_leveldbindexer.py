@@ -4,7 +4,7 @@ import unittest
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument, DocumentMapper
-from gnes.indexer import LVDBIndexer
+from gnes.indexer.leveldb import LVDBIndexer
 
 
 class TestBaseLVDB(unittest.TestCase):

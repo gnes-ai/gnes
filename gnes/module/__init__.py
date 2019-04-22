@@ -1,3 +1,3 @@
-from .gnes import GNES
-
-__all__ = ['GNES']
+_cls2file_map = {
+    'GNES': 'gnes',
+}
