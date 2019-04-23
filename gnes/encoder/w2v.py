@@ -25,8 +25,7 @@ class Word2VecEncoder(BaseEncoder):
                                          header=None, skiprows=self.skiprows,
                                          index_col=0)
         self.word2vec_df = self.word2vec_df.astype(np.float32).dropna(axis=1).dropna(axis=0)
-        self.emty = np.zeros([self.word2vec_df.shape[1]], dtype=np.float32)
-        self.dictionary = set(self.word2vec_df.index)
+        self.empty = np.zeros([self.word2vec_df.shape[1]], dtype=np.float32)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -35,12 +34,11 @@ class Word2VecEncoder(BaseEncoder):
         pooled_data = []
 
         for tokens in batch_tokens:
-            tokens = [token for token in tokens if token in self.dictionary]
-            if len(tokens) == 0:
-                _pooled = self.emty
-            else:
+            try:
                 _layer_data = self.word2vec_df.loc[tokens].dropna()
                 _pooled = pooling_pd(_layer_data, self.pooling_strategy)
+            except KeyError:
+                _pooled = self.empty
             pooled_data.append(_pooled)
         return np.asarray(pooled_data, dtype=np.float32)
 
