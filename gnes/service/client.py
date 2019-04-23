@@ -37,14 +37,12 @@ class ClientService(BS):
                     else:
                         tmp[part_id] = [content]
                 merged = None
-                print(tmp)
                 for k in sorted(tmp.keys()):
                     _t = list(zip(*tmp[k]))
-                    _top_k = _t[0][0]
+                    _top_k = len(_t[0][0])
                     _t = [sorted([i for j in v for i in j],
-                                 key=lambda x: -x[1])[:len(_top_k)]
+                                 key=lambda x: -x[1])[:_top_k]
                           for v in _t]
                     merged = merged + _t if merged else _t
-                return merged
-            else:
-                return res
+                res.msg_content = merged
+            return res
