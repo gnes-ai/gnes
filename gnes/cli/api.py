@@ -20,7 +20,7 @@ def proxy(args):
 
 def client(args):
     from ..service.client import ClientService
-
+    from zmq.utils import jsonapi
     with ClientService(args) as cs:
         data = [v for v in args.txt_file if v.strip()]
         if not data:
@@ -32,6 +32,6 @@ def client(args):
                 print(result.req_id)
                 print(result.content_type)
                 print(result.msg_type)
-                for _ in result.msg_content:
+                for _ in jsonapi.loads(result.msg_content):
                     print(_)
         cs.join()
