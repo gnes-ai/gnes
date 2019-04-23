@@ -32,7 +32,8 @@ class TestMHIndexer(unittest.TestCase):
         self.query1and2 = np.array([[1, 2], [2, 1]]).astype(np.uint8)
 
     def test_load(self):
-        MultiheadIndexer.load_yaml(self.yaml_path)
+        mhi = MultiheadIndexer.load_yaml(self.yaml_path)
+        mhi.close()
 
     def test_add(self):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
@@ -62,3 +63,4 @@ class TestMHIndexer(unittest.TestCase):
         self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2, return_field=None),
                          [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.0)],
                           [(self.doc_content[1], 1.0), (self.doc_content[0], 0.0)]])
+        mhi.close()
