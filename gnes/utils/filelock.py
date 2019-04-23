@@ -7,7 +7,7 @@ class FileLock(object):
     Implements the Posix based file locking (Linux, Ubuntu, MacOS, etc.)
     """
 
-    def __init__(self, lock_file: str="LOCK"):
+    def __init__(self, lock_file: str = "LOCK"):
         self._lock_file = lock_file
         self._lock_file_fd = None
 
