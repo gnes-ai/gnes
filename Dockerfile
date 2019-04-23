@@ -14,4 +14,6 @@ ADD . ./
 
 RUN pip install .
 
+WORKDIR /
+
 ENTRYPOINT ["gnes"]
