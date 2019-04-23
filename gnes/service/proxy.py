@@ -6,6 +6,7 @@ import zmq
 from .base import BaseService as BS, MessageHandler
 from ..helper import batch_iterator
 from ..messaging import *
+from zmq.utils import jsonapi
 
 
 class ProxyService(BS):
@@ -43,11 +44,28 @@ class ReduceProxyService(ProxyService):
         self.pending_result[msg.unique_id].append(msg)
         len_result = len(self.pending_result[msg.unique_id])
         if (not self.args.num_part and len_result == msg.num_part) or (
-                self.args.num_part and len_result == self.args.num_part):
+                self.args.num_part and len_result == self.args.num_part*msg.num_part):
             if len_result > 1:
-                tmp = sorted(self.pending_result[msg.unique_id], key=lambda v: v.part_id)
+                tmp = {}
+                for _msg in self.pending_result[msg.unique_id]:
+                    if _msg.part_id in tmp:
+                        tmp[_msg.part_id].append(jsonapi.loads(_msg.msg_content))
+                    else:
+                        tmp[_msg.part_id] = [jsonapi.loads(_msg.msg_content)]
+                res = None
+                for _id in sorted(tmp.keys()):
+                    # m (shards) * n (samples) * k (top k) -> n * m * k
+                    msg_content = list(zip(*tmp[_id]))
+                    top_k = len(msg_content[0][0])
+                    msg_content = [sorted([i for j in v for i in j],
+                                          key=lambda x: -x[1])[:top_k]
+                                   for v in msg_content]
+                    if res:
+                        res += msg_content
+                    else:
+                        res = msg_content
                 send_message(out,
-                             msg.copy_mod(msg_content=[d for v in tmp for d in v.msg_content],
+                             msg.copy_mod(msg_content=res,
                                           part_id=1,
                                           num_part=1), self.args.timeout)
             else:
