@@ -40,6 +40,7 @@ class Word2VecEncoder(BaseEncoder):
             except KeyError:
                 _pooled = self.empty
             pooled_data.append(_pooled)
+        print(pooled_data)
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
