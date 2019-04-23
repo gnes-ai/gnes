@@ -22,11 +22,14 @@ class FileLock(object):
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             self._lock_file_fd = fd
+            return fd
         except (IOError, OSError):
             os.close(fd)
+        return None
 
     def release(self):
-        fd = self._lock_file_fd
-        self._lock_file_fd = None
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        os.close(fd)
+        if self.is_locked:
+            fd = self._lock_file_fd
+            self._lock_file_fd = None
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)

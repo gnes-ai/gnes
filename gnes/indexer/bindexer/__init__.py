@@ -4,6 +4,7 @@ import numpy as np
 
 from .cython import IndexCore
 from ..base import BaseBinaryIndexer
+from ..utils import FileLock
 
 
 class BIndexer(BaseBinaryIndexer):
@@ -22,6 +23,12 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer = IndexCore(num_bytes, 4, ef,
                                   insert_iterations,
                                   query_iterations)
+        self._file_lock = FileLock(data_path + ".lock")
+        if self._file_lock.acquire() is not None:
+            raise RuntimeError(
+                "the index data file: %s has already been loaded by another indexer!" %
+                self.data_path)
+
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
@@ -67,11 +74,25 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer.save(self.data_path)
         d = super().__getstate__()
         del d['bindexer']
+        del d['_file_lock']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
+
+        self._file_lock = FileLock(self.data_path + ".lock")
+        if self._file_lock.acquire() is not None:
+            raise RuntimeError(
+                "the index data file: %s has already been loaded by another indexer!" %
+                self.data_path)
+
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
         self.bindexer.load(self.data_path)
+
+
+
+    def close(self):
+        super().close()
+        self._file_lock.release()
