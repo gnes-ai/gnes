@@ -31,7 +31,7 @@ class TestFIndexer(unittest.TestCase):
             os.remove(self.dump_path)
 
     def test_nsw_search(self):
-        fd = BIndexer(self.toy_data.shape[1])
+        fd = BIndexer(self.toy_data.shape[1], data_path='./test_nsw_bindexer.bin')
         fd.add(self.toy_label, self.toy_data.tobytes())
         rs = fd.query(self.toy_query.tobytes(), 2, method='nsw')
         for i in range(len(rs)):
@@ -39,7 +39,7 @@ class TestFIndexer(unittest.TestCase):
         self.assertEqual(rs, self.toy_exp)
 
     def test_force_search(self):
-        fd = BIndexer(self.toy_data.shape[1])
+        fd = BIndexer(self.toy_data.shape[1],  data_path='./test_force_bindexer.bin')
         fd.add(self.toy_label, self.toy_data.tobytes())
         rs = fd.query(self.toy_query.tobytes(), 2, method='force')
         for i in range(len(rs)):
@@ -47,7 +47,7 @@ class TestFIndexer(unittest.TestCase):
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
-        fd = BIndexer(self.toy_data.shape[1], data_path='./BIndexer.bin')
+        fd = BIndexer(self.toy_data.shape[1],  data_path='./test_dump_bindexer.bin')
         fd.add(self.toy_label, self.toy_data.tobytes())
         fd.dump(self.dump_path)
 
