@@ -83,8 +83,9 @@ class TestService(unittest.TestCase):
              ReduceProxyService(r_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1)
-            self.assertEqual(result.msg_content, self.test_data1)
+            result = cs.query(self.test_data1).msg_content
+            msg_content = [j for i in result for j in i[1]]
+            self.assertEqual(msg_content, self.test_data1)
 
         # with muliple dummy workers
         with ProxyService(m_args), \
@@ -94,8 +95,9 @@ class TestService(unittest.TestCase):
              ProxyService(w_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1)
-            self.assertEqual(result.msg_content, self.test_data1 * 4)
+            result = cs.query(self.test_data1).msg_content
+            msg_content = [j for i in result for j in i[1]]
+            self.assertEqual(len(msg_content), len(self.test_data1)*4)
 
     def test_map_proxy_service(self):
         m_args = set_proxy_service_parser().parse_args([
@@ -130,8 +132,9 @@ class TestService(unittest.TestCase):
              ReduceProxyService(r_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1)
-            self.assertEqual(result.msg_content, self.test_data1)
+            result = cs.query(self.test_data1).msg_content
+            msg_content = [j for i in result for j in i[1]]
+            self.assertEqual(msg_content, self.test_data1)
 
         # with muliple dummy workers
         with MapProxyService(m_args), \
@@ -141,8 +144,9 @@ class TestService(unittest.TestCase):
              ProxyService(w_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1)
-            self.assertEqual(result.msg_content, self.test_data1)
+            result = cs.query(self.test_data1).msg_content
+            msg_content = [j for i in result for j in i[1]]
+            self.assertEqual(msg_content, self.test_data1)
 
     # def test_encoder_service_train(self):
     #     # test training

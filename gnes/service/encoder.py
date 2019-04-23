@@ -1,7 +1,7 @@
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..document import MultiSentDocument, DocumentMapper
+from ..document import MultiSentDocument, DocumentMapper, UniSentDocument
 from ..messaging import *
 
 
@@ -30,7 +30,10 @@ class EncoderService(BS):
 
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
+        if self.args.mode == ServiceMode.QUERY:
+            doc_mapper = DocumentMapper(UniSentDocument.from_list(msg.msg_content))
+        else:
+            doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
         sent_ids, sents = doc_mapper.sent_id_sentence
         if not sents:
             raise ServiceError('received an empty list, nothing to do')
