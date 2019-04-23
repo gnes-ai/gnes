@@ -45,8 +45,7 @@ class Word2VecEncoder(BaseEncoder):
     def __getstate__(self):
         d = super().__getstate__()
         del d['word2vec_df']
-        del d['emty']
-        del d['dictionary']
+        del d['empty']
         return d
 
     def __setstate__(self, d):
