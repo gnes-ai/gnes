@@ -29,8 +29,7 @@ class ClientService(BS):
             res = self.result.pop()
             if self.args.merge_res:
                 tmp = {}
-                for part_id, content in res:
-                    content = jsonapi.loads(content)
+                for part_id, content in jsonapi.loads(res.msg_content):
                     if part_id in tmp:
                         tmp[part_id].append(content)
                     else:
