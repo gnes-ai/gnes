@@ -5,7 +5,7 @@ from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.w2v import Word2VecEncoder
 
 
-class TestElmoEncoder(unittest.TestCase):
+class TestW2vEncoder(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
