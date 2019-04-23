@@ -4,7 +4,7 @@ import numpy as np
 
 from .cython import IndexCore
 from ..base import BaseBinaryIndexer
-from ..utils import FileLock
+from ...utils import FileLock
 
 
 class BIndexer(BaseBinaryIndexer):
