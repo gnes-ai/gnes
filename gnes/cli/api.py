@@ -32,5 +32,6 @@ def client(args):
                 print(result.req_id)
                 print(result.content_type)
                 print(result.msg_type)
-                print(type(result.msg_content))
+                for _ in result.msg_content:
+                    print(_)
         cs.join()
