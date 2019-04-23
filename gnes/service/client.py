@@ -33,7 +33,7 @@ class ClientService(BS):
                     if part_id in tmp:
                         tmp[part_id].append(content)
                     else:
-                        tmp[part_id] = content
+                        tmp[part_id] = [content]
                 merged = None
                 for k in sorted(tmp.keys()):
                     _t = list(zip(*tmp[k]))
