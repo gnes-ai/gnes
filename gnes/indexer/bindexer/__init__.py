@@ -24,7 +24,7 @@ class BIndexer(BaseBinaryIndexer):
                                   insert_iterations,
                                   query_iterations)
         self._file_lock = FileLock(data_path + ".lock")
-        if self._file_lock.acquire() is not None:
+        if self._file_lock.acquire() is None:
             raise RuntimeError(
                 "the index data file: %s has already been loaded by another indexer!" %
                 self.data_path)
@@ -81,7 +81,7 @@ class BIndexer(BaseBinaryIndexer):
         super().__setstate__(d)
 
         self._file_lock = FileLock(self.data_path + ".lock")
-        if self._file_lock.acquire() is not None:
+        if self._file_lock.acquire() is None:
             raise RuntimeError(
                 "the index data file: %s has already been loaded by another indexer!" %
                 self.data_path)
