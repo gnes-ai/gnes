@@ -60,11 +60,13 @@ class TestFIndexer(unittest.TestCase):
         fd.add(self.toy_label, self.toy_data.tobytes())
         fd.dump(self.dump_path)
         fd.close()
-        shutil.rmtree(self.data_path + "_3")
+        # shutil.rmtree(self.data_path + "_3")
 
         fd2 = BIndexer.load(self.dump_path)
         rs = fd2.query(self.toy_query.tobytes(), 2)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x:(x[1], -x[0]))
         fd2.close()
+
+        shutil.rmtree(self.data_path + "_3")
         self.assertEqual(rs, self.toy_exp)
