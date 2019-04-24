@@ -1,10 +1,12 @@
 from typing import List, Tuple, Union
 
+import os
 import numpy as np
 
 from .cython import IndexCore
 from ..base import BaseBinaryIndexer
 from ...utils import FileLock
+from ...helper import touch_dir
 
 
 class BIndexer(BaseBinaryIndexer):
@@ -12,22 +14,28 @@ class BIndexer(BaseBinaryIndexer):
                  ef: int = 20,
                  insert_iterations: int = 1000,
                  query_iterations: int = 1000,
-                 data_path: str = './bindexer.bin',
+                 data_path: str = './bindexer_data',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_bytes = num_bytes
         self.ef = ef
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
+
         self.data_path = data_path
+        touch_dir(self.data_path)
+        self.dump_path = os.path.join(self.data_path, "indexer.pkl")
+
         self.bindexer = IndexCore(num_bytes, 4, ef,
                                   insert_iterations,
                                   query_iterations)
-        self._file_lock = FileLock(data_path + ".lock")
+        self.indexer_bin_path = os.path.join(self.data_path, "indexer.bin")
+
+        self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
         if self._file_lock.acquire() is None:
             raise RuntimeError(
                 "the index data file: %s has already been loaded by another indexer!" %
-                self.data_path)
+                self.dump_path)
 
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
@@ -71,7 +79,7 @@ class BIndexer(BaseBinaryIndexer):
         return result
 
     def __getstate__(self):
-        self.bindexer.save(self.data_path)
+        self.bindexer.save(self.indexer_bin_path)
         d = super().__getstate__()
         del d['bindexer']
         del d['_file_lock']
@@ -80,7 +88,8 @@ class BIndexer(BaseBinaryIndexer):
     def __setstate__(self, d):
         super().__setstate__(d)
 
-        self._file_lock = FileLock(self.data_path + ".lock")
+        touch_dir(self.data_path)
+        self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
         if self._file_lock.acquire() is None:
             raise RuntimeError(
                 "the index data file: %s has already been loaded by another indexer!" %
@@ -89,7 +98,7 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
-        self.bindexer.load(self.data_path)
+        self.bindexer.load(self.indexer_bin_path)
 
 
 
