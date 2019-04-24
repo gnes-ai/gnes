@@ -21,13 +21,15 @@ class BIndexer(BaseBinaryIndexer):
         self.ef = ef
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
+
         self.data_path = data_path
         touch_dir(self.data_path)
-        self.dump_path = os.path.join(data_path, "_data.pkl")
+        self.dump_path = os.path.join(self.data_path, "indexer.pkl")
 
         self.bindexer = IndexCore(num_bytes, 4, ef,
                                   insert_iterations,
                                   query_iterations)
+        self.indexer_bin_path = os.path.join(self.data_path, "indexer.bin")
 
         self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
         if self._file_lock.acquire() is None:
@@ -77,7 +79,7 @@ class BIndexer(BaseBinaryIndexer):
         return result
 
     def __getstate__(self):
-        self.bindexer.save(self.dump_path)
+        self.bindexer.save(self.indexer_bin_path)
         d = super().__getstate__()
         del d['bindexer']
         del d['_file_lock']
@@ -86,6 +88,7 @@ class BIndexer(BaseBinaryIndexer):
     def __setstate__(self, d):
         super().__setstate__(d)
 
+        touch_dir(self.data_path)
         self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
         if self._file_lock.acquire() is None:
             raise RuntimeError(
@@ -95,7 +98,7 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
-        self.bindexer.load(self.dump_path)
+        self.bindexer.load(self.indexer_bin_path)
 
 
 
