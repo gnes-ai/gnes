@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ### ALL VARIABLES in this script will be automatically exported
 ### if you dont want to export a variable, start the variable name with "_"
 

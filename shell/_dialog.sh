@@ -1,7 +1,3 @@
-#!/usr/bin/env bash
-
-set -e
-
 BACK_TITLE='GNES Config'
 DLG_HEIGHT=0
 DLG_WIDTH=0
