@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+### ALL VARIABLES in this script will be automatically exported
+### if you dont want to export a variable, start the variable name with "_"
+
 ### 1. Set docker image source
 _DOCKER_IMG_URL=$(TITLE='select your docker image source from the list:';
                  TITLE_SHORT='docker image source';

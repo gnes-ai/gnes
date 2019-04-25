@@ -8,6 +8,10 @@ GNES is Generic Neural Elastic Search, a highly scalable semantic search system 
 
 ## Getting Started
 
+```bash
+bash <(curl -s https://mywebsite.com/gnes-wizard.sh)
+```
+
 ### Prerequisites
 
 ## Documentation
