@@ -1,3 +1,4 @@
+import fcntl
 import html
 import inspect
 import logging
@@ -23,7 +24,40 @@ __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
            'batch_iterator', 'batching', 'yaml', 'cn_sent_splitter',
            'profile_logger', 'doc_logger',
-           'parse_arg', 'profiling']
+           'parse_arg', 'profiling', 'FileLock']
+
+
+class FileLock(object):
+    """
+    Implements the Posix based file locking (Linux, Ubuntu, MacOS, etc.)
+    """
+
+    def __init__(self, lock_file: str = "LOCK"):
+        self._lock_file = lock_file
+        self._lock_file_fd = None
+
+    @property
+    def is_locked(self):
+        return self._lock_file_fd is not None
+
+    def acquire(self):
+        open_mode = os.O_RDWR | os.O_CREAT | os.O_TRUNC
+        fd = os.open(self._lock_file, open_mode)
+
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self._lock_file_fd = fd
+            return fd
+        except (IOError, OSError):
+            os.close(fd)
+        return None
+
+    def release(self):
+        if self.is_locked:
+            fd = self._lock_file_fd
+            self._lock_file_fd = None
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
 
 
 def get_sys_info():

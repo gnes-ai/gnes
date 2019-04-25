@@ -18,6 +18,8 @@ ok-stage: &ok_stage
 install-deps: &install_deps
   - name: install dependencies
     jobs:
+      - name: show cache folders
+        script: printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
       - name: show cpu flag
         script: cat /proc/cpuinfo | grep flags
       - name: install project deps
@@ -42,7 +44,8 @@ basic-pipeline: &bp1
     image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
   env:
     GNES_ENV_SET: orange-ci
-    PIP_DOWNLOAD_CACHE: $ORANGE_BUILD_WORKSPACE/.pip_download_cache
+    PIP_DOWNLOAD_CACHE: $ORANGE_BUILD_WORKSPACE/.cache/pip_download_cache
+    XDG_CACHE_HOME: $ORANGE_BUILD_WORKSPACE/.cache/pip
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
