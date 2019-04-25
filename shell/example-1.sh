@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # add this line to import the dialog api
-source "./dialog.sh"
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+. "$DIR/dialog.sh"
 
 aa=$(TITLE='select your docker image source from the list:';
      TITLE_SHORT='example of ui.show_options';
