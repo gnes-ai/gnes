@@ -2,12 +2,13 @@ import inspect
 import os
 import pickle
 import tempfile
+import uuid
 from functools import wraps
 from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, profiling, yaml, parse_arg
+from ..helper import set_logger, profiling, yaml, parse_arg, touch_dir, FileLock
 
 __all__ = ['train_required', 'TrainableBase']
 
@@ -33,7 +34,6 @@ class TrainableType(type):
     default_property = {
         'is_trained': False,
         'batch_size': None,
-        'dump_path': None
     }
 
     def __new__(meta, *args, **kwargs):
@@ -113,21 +113,53 @@ class TrainableType(type):
 
 class TrainableBase(metaclass=TrainableType):
     store_args_kwargs = False
+    lock_work_dir = False
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
-        self.dump_path = None
+        self._obj_id = str(uuid.uuid4()).split('-')[0]
+        self._obj_pickle_name = '%s%s.bin' % (self.__class__.__name__, self._obj_id)
+        self._obj_yaml_name = '%s%s.yml' % (self.__class__.__name__, self._obj_id)
+        self._work_dir = os.getcwd()
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
+
+    @property
+    def pickle_full_path(self):
+        return os.path.join(self.work_dir, self._obj_pickle_name)
+
+    @property
+    def yaml_full_path(self):
+        return os.path.join(self.work_dir, self._obj_yaml_name)
+
+    @property
+    def work_dir(self):
+        return self._work_dir
+
+    @work_dir.setter
+    def work_dir(self, value: str):
+        touch_dir(value)
+        if self.lock_work_dir:
+            self._file_lock = FileLock(os.path.join(value, "LOCK"))
+            if self._file_lock.acquire() is None:
+                raise RuntimeError(
+                    "this model\'s work_dir %r is used and locked by another model" %
+                    value)
+        self._work_dir = value
 
     def __getstate__(self):
         d = dict(self.__dict__)
         del d['logger']
+        if '_file_lock' in d:
+            del d['_file_lock']
         return d
 
     def __setstate__(self, d):
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__, self.verbose)
+        if self.lock_work_dir:
+            # trigger the lock again
+            self.work_dir = self._work_dir
 
     @staticmethod
     def _train_required(func):
@@ -145,22 +177,21 @@ class TrainableBase(metaclass=TrainableType):
 
     @profiling
     def dump(self, filename: str = None) -> None:
-        f = filename or self.dump_path
+        f = filename or self.pickle_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
-            self.dump_path = f
         with open(f, 'wb') as fp:
             pickle.dump(self, fp)
-        self.logger.info('model is dump to %s' % f)
+        self.logger.info('model is pickled to %s' % f)
 
     @profiling
     def dump_yaml(self, filename: str = None) -> None:
-        f = filename or self.dump_path
-        if f:
-            with open(filename, 'w') as fp:
-                yaml.dump(self, fp)
-        else:
-            raise ValueError('please specify a filename or dump_path!')
+        f = filename or self.yaml_full_path
+        if not f:
+            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
+        with open(filename, 'w') as fp:
+            yaml.dump(self, fp)
+        self.logger.info('model\'s yaml config is dump to %s' % f)
 
     @classmethod
     def load_yaml(cls: Type[T], filename: Union[str, TextIO]) -> T:
@@ -179,7 +210,8 @@ class TrainableBase(metaclass=TrainableType):
             return pickle.load(fp)
 
     def close(self):
-        pass
+        if self.lock_work_dir:
+            self._file_lock.release()
 
     def __enter__(self):
         return self
@@ -236,7 +268,10 @@ class TrainableBase(metaclass=TrainableType):
             obj = cls(**tmp_p)
 
         for k, v in data.get('property', {}).items():
+            old = getattr(obj, k, None)
             setattr(obj, k, v)
+            if old and old != v:
+                obj.logger.info('property: %r is replaced from %r to %r' % (k, old, v))
 
         cls.init_from_yaml = False
 

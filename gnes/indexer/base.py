@@ -10,9 +10,6 @@ class BaseIndexer(TrainableBase):
 
     def query(self, keys: Any, top_k: int, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass
 
-    def close(self):
-        super().close()
-
 
 class BaseBinaryIndexer(BaseIndexer):
     def __init__(self):

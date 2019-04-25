@@ -1,15 +1,15 @@
+import os
 from typing import List, Tuple, Union
 
-import os
 import numpy as np
 
 from .cython import IndexCore
 from ..base import BaseBinaryIndexer
-from ...utils import FileLock
-from ...helper import touch_dir
 
 
 class BIndexer(BaseBinaryIndexer):
+    lock_work_dir = True
+
     def __init__(self, num_bytes: int = None,
                  ef: int = 20,
                  insert_iterations: int = 1000,
@@ -22,21 +22,11 @@ class BIndexer(BaseBinaryIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
 
-        self.data_path = data_path
-        touch_dir(self.data_path)
-        self.dump_path = os.path.join(self.data_path, "indexer.pkl")
-
+        self.work_dir = data_path
         self.bindexer = IndexCore(num_bytes, 4, ef,
                                   insert_iterations,
                                   query_iterations)
-        self.indexer_bin_path = os.path.join(self.data_path, "indexer.bin")
-
-        self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
-        if self._file_lock.acquire() is None:
-            raise RuntimeError(
-                "the index data file: %s has already been loaded by another indexer!" %
-                self.dump_path)
-
+        self.indexer_bin_path = os.path.join(self.work_dir, "indexer.bin")
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
@@ -47,7 +37,8 @@ class BIndexer(BaseBinaryIndexer):
         cids = np.array(doc_ids, dtype=np.uint32).tobytes()
         self.bindexer.index_trie(vectors, num_rows, cids)
 
-    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, method: str='nsw', *args, **kwargs) -> List[List[Tuple[int, Union[float, int]]]]:
+    def query(self, keys: bytes, top_k: int = 1, normalized_score=False, method: str = 'nsw', *args, **kwargs) -> List[
+        List[Tuple[int, Union[float, int]]]]:
         if len(keys) % self.num_bytes != 0:
             raise ValueError("keys should be divided by num_bytes")
 
@@ -82,26 +73,12 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer.save(self.indexer_bin_path)
         d = super().__getstate__()
         del d['bindexer']
-        del d['_file_lock']
         return d
 
     def __setstate__(self, d):
         super().__setstate__(d)
 
-        touch_dir(self.data_path)
-        self._file_lock = FileLock(os.path.join(self.data_path, "LOCK"))
-        if self._file_lock.acquire() is None:
-            raise RuntimeError(
-                "the index data file: %s has already been loaded by another indexer!" %
-                self.data_path)
-
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
         self.bindexer.load(self.indexer_bin_path)
-
-
-
-    def close(self):
-        super().close()
-        self._file_lock.release()

@@ -45,4 +45,4 @@ component:
     parameter:
       data_path: ./test_db
 property:
-  dump_path: /ext_data/demo-model
+  work_dir: /ext_data/demo-model
