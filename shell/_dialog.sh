@@ -1,10 +1,6 @@
-#!/usr/bin/env bash
-
-set -e
-
 BACK_TITLE='GNES Config'
-DLG_HEIGHT=15
-DLG_WIDTH=50
+DLG_HEIGHT=0
+DLG_WIDTH=0
 
 if hash "dialog" 2>/dev/null; then
   DIALOG_UI="dialog"
@@ -33,7 +29,7 @@ function ui.dialog.show_options() {
         tmp_options+=($id "${each}")
         let "id++"
     done
-    dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --default-item ${DEFAULT_VALUE} --menu "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 0 "${tmp_options[@]}"
+    dialog --no-cancel --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --default-item ${DEFAULT_VALUE} --menu "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 0 "${tmp_options[@]}"
 }
 
 function ui.whiptail.show_options() {
@@ -44,7 +40,7 @@ function ui.whiptail.show_options() {
         tmp_options+=($id "${each}")
         let "id++"
     done
-    whiptail --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --default-item ${DEFAULT_VALUE} --menu "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 0 "${tmp_options[@]}" 3>&1 1>&2 2>&3
+    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --default-item ${DEFAULT_VALUE} --menu "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 0 "${tmp_options[@]}" 3>&1 1>&2 2>&3
 }
 
 function ui.shell.show_options() {
@@ -75,7 +71,7 @@ function ui.shell.show_options() {
 
 function ui.dialog.show_yesno() {
     ### Return: 0 for Yes, 1 for No
-    dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --yesno "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH};
+    dialog --no-cancel --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --yesno "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH};
     if [ "$?" = "1" ]; then
       echo 0;
     else
@@ -84,7 +80,7 @@ function ui.dialog.show_yesno() {
 }
 
 function ui.whiptail.show_yesno() {
-    whiptail --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --yesno "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 3>&1 1>&2 2>&3
+    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --yesno "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 3>&1 1>&2 2>&3
     if [ "$?" = "1" ]; then
       echo 0;
     else
@@ -120,11 +116,11 @@ function ui.shell.show_yesno() {
 
 function ui.dialog.show_input() {
     ### Return: string that user input
-    dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --inputbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} "${DEFAULT_VALUE}"
+    dialog --no-cancel --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --inputbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} "${DEFAULT_VALUE}"
 }
 
 function ui.whiptail.show_input() {
-    whiptail --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --inputbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} "${DEFAULT_VALUE}" 3>&1 1>&2 2>&3
+    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --inputbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} "${DEFAULT_VALUE}" 3>&1 1>&2 2>&3
 }
 
 function ui.shell.show_input() {
@@ -139,11 +135,11 @@ function ui.shell.show_input() {
 
 function ui.dialog.show_msgbox() {
     ### show a message box to inform user, return nothing
-    dialog --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
+    dialog --no-cancel --stdout --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
 }
 
 function ui.whiptail.show_msgbox() {
-    whiptail --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
+    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
 }
 
 function ui.shell.show_msgbox()
