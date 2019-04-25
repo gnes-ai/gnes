@@ -2,18 +2,10 @@
 # noinspection PyUnresolvedReferences
 # created 2019-03-27
 
-from cpython cimport
-
-array
-from cpython.mem cimport
-
-PyMem_Malloc, PyMem_Realloc, PyMem_Free
-from libc.stdio cimport
-
-fopen, fclose, FILE, fwrite, fread
-from libc.stdlib cimport
-
-qsort
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from cpython cimport array
+from libc.stdlib cimport qsort
+from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
 
 DEF data_size_per_time = 100000
 DEF node_size_per_time = 100000
