@@ -40,7 +40,7 @@ class EncoderService(BS):
         if self.args.mode == ServiceMode.TRAIN:
             self._model.train(sents)
             self.is_model_changed.set()
-        elif self.args.mode == ServiceMode.ADD:
+        elif self.args.mode == ServiceMode.INDEX:
             vecs = self._model.encode(sents)
             send_message(out, msg.copy_mod(msg_content=(
                     vecs, sent_ids,

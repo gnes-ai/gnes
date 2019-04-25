@@ -15,7 +15,7 @@ class IndexerService(BS):
             self._model = MultiheadIndexer.load(self.args.dump_path)
             self.logger.info('load an indexer')
         except FileNotFoundError:
-            if self.args.mode == ServiceMode.ADD:
+            if self.args.mode == ServiceMode.INDEX:
                 try:
                     self._model = MultiheadIndexer.load_yaml(self.args.yaml_path)
                     self.logger.info('load an uninitialized indexer, indexing is needed!')
@@ -34,7 +34,7 @@ class IndexerService(BS):
 
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        if self.args.mode == ServiceMode.ADD:
+        if self.args.mode == ServiceMode.INDEX:
             self._index_and_notify(msg, out, 'binary_indexer')
         elif self.args.mode == ServiceMode.QUERY:
             result = self._model.query(msg.msg_content, top_k=self.args.top_k)

@@ -3,8 +3,8 @@
 set -e
 
 BACK_TITLE='GNES Config'
-DLG_HEIGHT=20
-DLG_WIDTH=60
+DLG_HEIGHT=0
+DLG_WIDTH=0
 
 if hash "dialog" 2>/dev/null; then
   DIALOG_UI="dialog"

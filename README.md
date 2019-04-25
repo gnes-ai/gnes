@@ -2,47 +2,22 @@
 
 [![build status](http://badge.orange-ci.oa.com/ai-innersource/nes.svg)]()
 
+GNES is Generic Neural Elastic Search, a highly scalable semantic search system based on deep neural network.
 
-GNES is Generic Neural Elastic Search, a highly scalable text search system based on deep neural network.
+## Highlights
 
-## Install
+## Getting Started
 
-```bash
-pip install -e . -U
-```
+### Prerequisites
 
-## Run with Docker
+## Documentation
 
-```bash
-chmod +x docker-up.sh
-./docker-up.sh $BUILD_ID docker-compose-simple.yml
-```
+## Tutorial
 
-To maintainers, after commit your code, please do 
-```bash
-bash docker-push.sh
-```
-and then follow the guidelines in yellow. 
+## Contributing
 
-Note that `/data1/cips/data` is mounted to `/ext_data` in the container.
+## TODO
 
-## Test
+## Contact
 
-To run all unit tests:
-
-```bash
-python -m unittest tests/*.py
-```
-
-
-To enable profiling:
-
-```bash
-export NES_PROFILING=1
-```
-
-## Run Encoder Service via Docker
-
-```bash
-docker run -v $(pwd)/test.yml:/test.yml -v /data1/cips/data:/ext_data --rm -it docker.oa.com/public/aipd-gnes-encoder:e5bda44 --mode TRAIN --yaml_path /test.yml
-```
+## License 

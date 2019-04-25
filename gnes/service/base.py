@@ -47,7 +47,7 @@ class SocketType(BetterEnum):
 
 class ServiceMode(BetterEnum):
     TRAIN = 0
-    ADD = 1
+    INDEX = 1
     QUERY = 2
 
 
