@@ -70,10 +70,16 @@ INDEXER_YAML_PATH=$(TITLE='what is the YAML path for indexer?';
                     DEFAULT_VALUE='/data/madwang/indexer.yml';
                     ui.show_input)
 
-COMPOSE_YAML_PATH=$(TITLE='what is the YAML path for docker-compose.yml?';
-                    TITLE_SHORT='docker-compose.yml';
+COMPOSE_YAML_PATH=$(TITLE='what is the YAML path of your template docker-compose.yml?';
+                    TITLE_SHORT='template docker-compose.yml';
                     DEFAULT_VALUE="$(pwd)/docker-compose.yml";
                     ui.show_input)
+
+MY_YAML_PATH=$(TITLE='what is the YAML path of your modified docker-compose.yml?';
+               TITLE_SHORT='modified docker-compose.yml';
+               DEFAULT_VALUE="$(pwd)/my-docker-compose.yml";
+               ui.show_input)
+
 
 #### 6. Final service naming
 

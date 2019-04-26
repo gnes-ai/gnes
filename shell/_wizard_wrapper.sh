@@ -4,7 +4,12 @@
 
 function docker_stack_start() {
     # export .env to environment
-    env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file "$COMPOSE_YAML_PATH" "$GNES_STACK_NAME"
+    source .env
+    eval "cat <<EOF
+$(<"${COMPOSE_YAML_PATH}")
+EOF
+" 1> ${MY_YAML_PATH} 2>/dev/null
+    docker stack deploy --compose-file "$MY_YAML_PATH" "$GNES_STACK_NAME"
 }
 
 VARS="`set -o posix ; set`";
