@@ -13,17 +13,17 @@ export MIDDLEMAN_PROXY_OUT=$(call random_port)
 export OUTGOING_PROXY_IN=$(call random_port)
 
 train:
-    @envsubst < yaml/train-compose.yml > train-compose.yml
-    $(info use the following command to start train service:)
-    $(info docker stack deploy --compose-file ./train-compose.yml gnes-train)
+	@envsubst < yaml/train-compose.yml > train-compose.yml
+	$(info use the following command to start train service:)
+	$(info docker stack deploy --compose-file ./train-compose.yml gnes-train)
 
 add:
-    @envsubst < yaml/add-compose.yml > add-compose.yml
-    $(info use the following command to start add service:)
-    $(info docker stack deploy --compose-file ./add-compose.yml gnes-add)
+	@envsubst < yaml/add-compose.yml > add-compose.yml
+	$(info use the following command to start add service:)
+	$(info docker stack deploy --compose-file ./add-compose.yml gnes-add)
 
 query:
-    @envsubst < yaml/query-compose.yml > query-compose.yml
-    $(info use the following command to start query service:)
-    $(info docker stack deploy --compose-file ./query-compose.yml gnes-query)
+	@envsubst < yaml/query-compose.yml > query-compose.yml
+	$(info use the following command to start query service:)
+	$(info docker stack deploy --compose-file ./query-compose.yml gnes-query)
 all: train add query
