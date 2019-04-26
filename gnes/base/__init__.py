@@ -249,7 +249,7 @@ class TrainableBase(metaclass=TrainableType):
                 import_class_by_str(c)
         except ImportError as ex:
             if stop_on_import_error:
-                raise ex
+                raise RuntimeError('Cannot import module, pip install may required') from ex
 
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)

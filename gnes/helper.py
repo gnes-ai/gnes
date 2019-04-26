@@ -14,7 +14,6 @@ from typing import Iterator, Any, Union, List, Callable
 
 import jieba
 import numpy as np
-from joblib import Memory
 from memory_profiler import memory_usage
 from psutil import virtual_memory
 from ruamel.yaml import YAML
@@ -238,22 +237,7 @@ class Tokenizer:
         if not with_position:
             return self._jieba.lcut(text)  # resulted token list
         else:
-            return self._jieba.tokenize(
-                text
-            )  # triple data consisting of (token, start_pos, end_pos)
-
-    def _add_user_dict(self, dict_path, pos):
-        with open(dict_path, "r") as fr:
-            for line in fr.readlines():
-                word = line.decode("utf8").strip("\r\n").split("\t")[0]
-                if self._contains_chinese(word):
-                    self._jieba.add_word(word, tag=pos)
-
-    def _delete_user_dict(self, dict_path):
-        with open(dict_path, "r") as fr:
-            for line in fr.readlines():
-                word = line.decode("utf8").strip("\r\n").split("\t")[0]
-                self._jieba.del_word(word)
+            return self._jieba.tokenize(text)  # triple data consisting of (token, start_pos, end_pos)
 
 
 class SentenceSplitter:
@@ -455,44 +439,6 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
         return _batching(func)
     else:
         return _batching
-
-
-class MemoryCache:
-    def __init__(self, cache_path: str = None):
-        self._cache_path = cache_path
-        if self._cache_path:
-            self._memory = Memory(self._cache_path, verbose=0)
-        else:
-            self._memory = None
-
-    def __call__(self, func):
-        if self._memory:
-            return self._memory.cache(func)
-        else:
-            return func
-
-    def __getstate__(self):
-        d = dict(self.__dict__)
-        del d['_memory']
-        return d
-
-    def __setstate__(self, d):
-        self.__dict__.update(d)
-        if self._cache_path:
-            self._memory = Memory(self._cache_path, verbose=0)
-        else:
-            self._memory = None
-
-    def clear(self):
-        if self._memory:
-            self._memory.clear()
-
-    def disable(self):
-        self._memory = None
-
-    def enable(self):
-        if not self._memory:
-            self._memory = Memory(self._cache_path, verbose=0)
 
 
 def _get_yaml():

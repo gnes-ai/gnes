@@ -48,7 +48,7 @@ class HnswIndexer(BaseBinaryIndexer):
     @staticmethod
     @profiling
     def load(load_path: str):
-        hnsw = HnswIndex(bytes_num=0)
+        hnsw = IndexHnsw(bytes_num=0)
         hnsw._indexer.load(load_path)
         hnsw.num_bytes = hnsw._indexer.num_bytes
         return hnsw
