@@ -72,25 +72,16 @@ class Message:
     def to_bytes(self) -> bytes:
         proto_buff = message_pb2.ZMQMessage()
 
-        proto_buff.client_id = self.client_id
-        proto_buff.req_id = self.req_id
-        proto_buff.part_id = self.part_id
-        proto_buff.num_part = self.num_part
-        proto_buff.msg_type = self.msg_type
-        proto_buff.content_type = self.content_type
-        proto_buff.msg_content = self.msg_content
-        proto_buff.route = self.route
+        proto_buff.client_id = self._client_id
+        proto_buff.req_id = self._req_id
+        proto_buff.part_id = self._part_id
+        proto_buff.num_part = self._num_part
+        proto_buff.msg_type = self._msg_type
+        proto_buff.content_type = self._content_type
+        proto_buff.msg_content = self._msg_content
+        proto_buff.route = self._route
 
         return proto_buff.SerializeToString()
-
-        # return [self._client_id,
-        #         self._req_id,
-        #         self._part_id,
-        #         self._num_part,
-        #         self._msg_type,
-        #         self._msg_content,
-        #         self._content_type,
-        #         self._route]
 
     @staticmethod
     def from_bytes(bytes_data: bytes):
@@ -246,7 +237,7 @@ def send_message(sock: 'zmq.Socket', msg: 'Message', timeout: int = -1) -> None:
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send_multipart(msg.to_bytes())
+        sock.send(msg.to_bytes())
     except zmq.error.Again:
         raise TimeoutError(
             'no response from sock %s after timeout=%dms, please check the following:'
@@ -263,7 +254,7 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
             sock.setsockopt(zmq.RCVTIMEO, timeout)
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
-        response = sock.recv_multipart()
+        response = sock.recv()
         return Message.from_bytes(*response)
     except ValueError:
         raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
