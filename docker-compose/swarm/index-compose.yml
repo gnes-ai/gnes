@@ -4,7 +4,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       proxy --proxy_type MapProxyService --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT}
-      --socket_in PULL_BIND --socket_out PUSH_BIND
+      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=${BATCH_SIZE}
     networks:
       gnes-net:
         aliases:
@@ -23,7 +23,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       proxy --proxy_type=ProxyService --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT}
-      --socket_in PULL_BIND --socket_out PUB_BIND
+      --socket_in PULL_BIND --socket_out PUSH_BIND
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
@@ -36,8 +36,8 @@ services:
   outgoing-proxy:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ReduceProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
-      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REP
+      proxy --proxy_type=ProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
+      --socket_in PULL_BIND --socket_out PUB_BIND
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
@@ -55,9 +55,9 @@ services:
       encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
       --host_in income-proxy --host_out middleman-proxy
-      --mode QUERY --yaml_path /test_encoder.yml --dump_path /dump/model.bin
+      --mode ADD --yaml_path /test_encoder.yml --dump_path /dump/model.bin
     volumes:
-      - "${YAML_PATH}/encoder.yml.${ENC_NAME}:/test_encoder.yml"
+      - "${ENCODER_YAML_PATH}:/test_encoder.yml"
       - "${MODEL_DIR}:/ext_data"
       - "${ENC_DIR}/${ENC_NAME}:/dump"
     networks:
@@ -80,11 +80,11 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN}
-       --socket_in SUB_CONNECT --socket_out PUB_CONNECT
+       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
        --host_in middleman-proxy --host_out outgoing-proxy
-       --mode QUERY --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
+       --mode ADD --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
     volumes:
-      - "${YAML_PATH}/indexer.yml:/indexer.yml"
+      - "${INDEXER_YAML_PATH}:/indexer.yml"
       - index_data:/out_data
       #- type: volume
       #  source: "index_data"
@@ -93,7 +93,9 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: ${NUM_REP}
+      placement:
+        constraints: [node.role == worker]
+      replicas: 3
       restart_policy:
         condition: on-failure
         max_attempts: 3

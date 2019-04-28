@@ -1,1 +1,0 @@
-all: ; awk -f inrep.awk _wizard_wrapper.sh > gnes-wizard.sh

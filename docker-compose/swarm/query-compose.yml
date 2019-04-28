@@ -4,7 +4,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       proxy --proxy_type MapProxyService --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT}
-      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=${BATCH_SIZE}
+      --socket_in PULL_BIND --socket_out PUSH_BIND
     networks:
       gnes-net:
         aliases:
@@ -12,6 +12,8 @@ services:
     ports:
       - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
     deploy:
+      placement:
+        constraints: [node.role == worker]
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -21,18 +23,21 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       proxy --proxy_type=ProxyService --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT}
-      --socket_in PULL_BIND --socket_out PUSH_BIND
+      --socket_in PULL_BIND --socket_out PUB_BIND
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
         aliases:
           - middleman_proxy
+    deploy:
+      placement:
+        constraints: [node.role == worker]
 
   outgoing-proxy:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
-      --socket_in PULL_BIND --socket_out PUB_BIND
+      proxy --proxy_type=ReduceProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
+      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REP
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
@@ -40,6 +45,9 @@ services:
           - outgoing_proxy
     ports:
       - ${HOST_PORT_OUT}:${OUTGOING_PROXY_OUT}
+    deploy:
+      placement:
+        constraints: [node.role == worker]
 
   encoder:
     image: ${DOCKER_IMG_URL}
@@ -47,9 +55,9 @@ services:
       encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
       --host_in income-proxy --host_out middleman-proxy
-      --mode ADD --yaml_path /test_encoder.yml --dump_path /dump/model.bin
+      --mode QUERY --yaml_path /test_encoder.yml --dump_path /dump/model.bin
     volumes:
-      - "${YAML_PATH}/encoder.yml.${ENC_NAME}:/test_encoder.yml"
+      - "${ENCODER_YAML_PATH}:/test_encoder.yml"
       - "${MODEL_DIR}:/ext_data"
       - "${ENC_DIR}/${ENC_NAME}:/dump"
     networks:
@@ -57,6 +65,8 @@ services:
         aliases:
           - encoder_serviced
     deploy:
+      placement:
+        constraints: [node.role == worker]
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -70,11 +80,11 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN}
-       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
+       --socket_in SUB_CONNECT --socket_out PUB_CONNECT
        --host_in middleman-proxy --host_out outgoing-proxy
-       --mode ADD --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
+       --mode QUERY --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
     volumes:
-      - "${YAML_PATH}/indexer.yml:/indexer.yml"
+      - "${INDEXER_YAML_PATH}:/indexer.yml"
       - index_data:/out_data
       #- type: volume
       #  source: "index_data"
@@ -83,7 +93,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: 3
+      replicas: ${NUM_REP}
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -107,8 +117,14 @@ services:
 
 volumes:
   index_data:
-    external:
-      name: 'single_machine_shard_{{ .Task.Slot }}_data'
+    driver: vieux/sshfs:latest
+    driver_opts:
+      sshcmd: "ubuntu@172.17.0.8:/data/larry/save_data/shard_{{ .Task.Slot }}_data"
+      password: "!QAZ2wsx#EDC"
+      allow_other: ""
+    name: 'shard_{{ .Task.Slot }}_data'
+    #external:
+    #  name: 'index_shard_{{ .Task.Slot }}_data'
 
 networks:
   gnes-net:

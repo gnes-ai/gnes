@@ -54,9 +54,12 @@ setup(
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
-    description='Generic Neural Elastic Search is an end-to-end solution for semantic text search',
+    description='GNES is Generic Neural Elastic Search,'
+                ' a highly scalable semantic search system based on deep neural network.',
     author='GNES team',
-    url='https://github.com',
+    author_email='artex.xh@gmail.com',
+    license='Apache',
+    url='https://github.com/tencent/gnes',
     long_description=_long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
@@ -89,4 +92,19 @@ setup(
     entry_points={
         'console_scripts': ['gnes=gnes.cli:main'],
     },
+    classifiers=(
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Cython',
+        'Programming Language :: Unix Shell',
+        'Environment :: Console',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Topic :: Database :: Database Engines/Servers'
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+        'Topic :: Scientific/Engineering :: Image Recognition',
+        'Topic :: Multimedia :: Video'
+
+    ),
+    keywords='semantic search elastic neural-network encoding embedding serving',
 )
