@@ -59,7 +59,7 @@ services:
     volumes:
       - "${ENCODER_YAML_PATH}:/test_encoder.yml"
       - "${MODEL_DIR}:/ext_data"
-      - "${ENC_DIR}/${ENC_NAME}:/dump"
+      - "${OUTPUT_DIR}:/dump"
     networks:
       gnes-net:
         aliases:

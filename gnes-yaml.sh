@@ -6,7 +6,7 @@ function print_help() {
     printf "
     GNES YAML config generator for docker-stack/swarm/compose
 
-    usage: make-gnes.sh -e=./docker-compose/.env -s=./docker-compose/train-compose.yml -t=./train-compose.yml
+    usage: gnes-yaml.sh -e=./docker-compose/.env -s=./docker-compose/train-compose.yml -t=./train-compose.yml
 
     \e[0;33m-e|--env\e[0m                   path for the '.env' file
     \e[0;33m-s|--source\e[0m                path for the source yaml file

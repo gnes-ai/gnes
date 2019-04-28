@@ -10,7 +10,7 @@ services:
     volumes:
       - "${ENCODER_YAML_PATH}:/test_encoder.yml"
       - "${MODEL_DIR}:/ext_data"
-      - "${ENC_DIR}/${ENC_NAME}:/dump"
+      - "${OUTPUT_DIR}:/dump"
     ports:
       - ${INCOME_PROXY_IN}:${INCOME_PROXY_IN}
 networks:
