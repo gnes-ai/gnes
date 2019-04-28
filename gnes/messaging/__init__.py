@@ -191,7 +191,7 @@ class Message:
     def msg_content(self, value: Any):
         if isinstance(value, np.ndarray):
             self.content_type = dict(content_type='array', dtype=str(value.dtype), shape=value.shape)
-            self._msg_content = value
+            self._msg_content = value.tobytes()
         elif isinstance(value, tuple) and isinstance(value[0], bytes) and len(value) == 4:
             self.content_type = dict(content_type='map-mix', id=value[1],
                                      ex0=value[2], ex1=value[3])
@@ -255,7 +255,7 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
         response = sock.recv()
-        return Message.from_bytes(*response)
+        return Message.from_bytes(response)
     except ValueError:
         raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
     except zmq.error.Again:
