@@ -1,3 +1,6 @@
+#  Tencent is pleased to support the open source community by making GNES available.
+#
+#  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -10,19 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio, missing-license
+# pylint: disable=low-comment-ratio
 
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 
 import zmq
 
@@ -69,9 +61,9 @@ class EncoderService(BS):
         elif self.args.mode == ServiceMode.INDEX:
             vecs = self._model.encode(sents)
             send_message(out, msg.copy_mod(msg_content=(
-                    vecs, sent_ids,
-                    doc_mapper.sent_id_doc_id,
-                    doc_mapper.doc_id_document)), self.args.timeout)
+                vecs, sent_ids,
+                doc_mapper.sent_id_doc_id,
+                doc_mapper.doc_id_document)), self.args.timeout)
             # send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
             # send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type=Message.typ_sent_id),
             #              self.args.timeout)
