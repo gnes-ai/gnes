@@ -12,8 +12,6 @@ services:
     ports:
       - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
     deploy:
-      placement:
-        constraints: [node.role == worker]
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -29,9 +27,6 @@ services:
       gnes-net:
         aliases:
           - middleman_proxy
-    deploy:
-      placement:
-        constraints: [node.role == worker]
 
   outgoing-proxy:
     image: ${DOCKER_IMG_URL}
@@ -45,9 +40,6 @@ services:
           - outgoing_proxy
     ports:
       - ${HOST_PORT_OUT}:${OUTGOING_PROXY_OUT}
-    deploy:
-      placement:
-        constraints: [node.role == worker]
 
   encoder:
     image: ${DOCKER_IMG_URL}
@@ -57,16 +49,14 @@ services:
       --host_in income-proxy --host_out middleman-proxy
       --mode QUERY --yaml_path /test_encoder.yml --dump_path /dump/model.bin
     volumes:
-      - "${YAML_PATH}/encoder.yml.${ENC_NAME}:/test_encoder.yml"
+      - "${ENCODER_YAML_PATH}:/test_encoder.yml"
       - "${MODEL_DIR}:/ext_data"
-      - "${ENC_DIR}/${ENC_NAME}:/dump"
+      - "${OUTPUT_DIR}:/dump"
     networks:
       gnes-net:
         aliases:
           - encoder_serviced
     deploy:
-      placement:
-        constraints: [node.role == worker]
       replicas: 1
       restart_policy:
         condition: on-failure
@@ -84,7 +74,7 @@ services:
        --host_in middleman-proxy --host_out outgoing-proxy
        --mode QUERY --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
     volumes:
-      - "${YAML_PATH}/indexer.yml:/indexer.yml"
+      - "${INDEXER_YAML_PATH}:/indexer.yml"
       - index_data:/out_data
       #- type: volume
       #  source: "index_data"
@@ -117,14 +107,8 @@ services:
 
 volumes:
   index_data:
-    driver: vieux/sshfs:latest
-    driver_opts:
-      sshcmd: "ubuntu@172.17.0.8:/data/larry/save_data/shard_{{ .Task.Slot }}_data"
-      password: "!QAZ2wsx#EDC"
-      allow_other: ""
-    name: 'shard_{{ .Task.Slot }}_data'
-    #external:
-    #  name: 'index_shard_{{ .Task.Slot }}_data'
+    external:
+      name: 'single_machine_shard_{{ .Task.Slot }}_data'
 
 networks:
   gnes-net:
