@@ -7,7 +7,8 @@ message ZMQMessage {
   required bytes req_id = 2;
   required bytes part_id = 3;
   required bytes num_part = 4;
-  required bytes msg_type = 5;
-  required bytes msg_content = 6;
-  required bytes route = 7;
+  required bytes content_type = 5;
+  required bytes msg_type = 6;
+  required bytes msg_content = 7;
+  required bytes route = 8;
 }

@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='zmq_message',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x14protos/message.proto\x12\x0bzmq_message\"\x88\x01\n\nZMQMessage\x12\x11\n\tclient_id\x18\x01 \x02(\x0c\x12\x0e\n\x06req_id\x18\x02 \x02(\x0c\x12\x0f\n\x07part_id\x18\x03 \x02(\x0c\x12\x10\n\x08num_part\x18\x04 \x02(\x0c\x12\x10\n\x08msg_type\x18\x05 \x02(\x0c\x12\x13\n\x0bmsg_content\x18\x06 \x02(\x0c\x12\r\n\x05route\x18\x07 \x02(\x0c')
+  serialized_pb=_b('\n\x14protos/message.proto\x12\x0bzmq_message\"\x9e\x01\n\nZMQMessage\x12\x11\n\tclient_id\x18\x01 \x02(\x0c\x12\x0e\n\x06req_id\x18\x02 \x02(\x0c\x12\x0f\n\x07part_id\x18\x03 \x02(\x0c\x12\x10\n\x08num_part\x18\x04 \x02(\x0c\x12\x14\n\x0c\x63ontent_type\x18\x05 \x02(\x0c\x12\x10\n\x08msg_type\x18\x06 \x02(\x0c\x12\x13\n\x0bmsg_content\x18\x07 \x02(\x0c\x12\r\n\x05route\x18\x08 \x02(\x0c')
 )
 
 
@@ -62,22 +62,29 @@ _ZMQMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='msg_type', full_name='zmq_message.ZMQMessage.msg_type', index=4,
+      name='content_type', full_name='zmq_message.ZMQMessage.content_type', index=4,
       number=5, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='msg_content', full_name='zmq_message.ZMQMessage.msg_content', index=5,
+      name='msg_type', full_name='zmq_message.ZMQMessage.msg_type', index=5,
       number=6, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='route', full_name='zmq_message.ZMQMessage.route', index=6,
+      name='msg_content', full_name='zmq_message.ZMQMessage.msg_content', index=6,
       number=7, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='route', full_name='zmq_message.ZMQMessage.route', index=7,
+      number=8, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -95,7 +102,7 @@ _ZMQMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=38,
-  serialized_end=174,
+  serialized_end=196,
 )
 
 DESCRIPTOR.message_types_by_name['ZMQMessage'] = _ZMQMESSAGE
