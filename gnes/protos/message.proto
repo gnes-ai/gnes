@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package zmq_message;
 
-message ProtoMessage {
+message ZMQMessage {
   required bytes client_id = 1;
   required bytes req_id = 2;
   required bytes part_id = 3;

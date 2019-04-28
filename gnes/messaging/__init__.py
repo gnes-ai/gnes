@@ -21,6 +21,7 @@ from typing import Union, List, Optional, Any
 import numpy as np
 import zmq
 from zmq.utils import jsonapi
+from gnes.protos import message_pb2
 
 __all__ = ['Message', 'send_message', 'recv_message']
 
@@ -68,27 +69,43 @@ class Message:
         self.msg_content = msg_content
         self.route = route
 
-    def to_bytes(self) -> List[bytes]:
-        return [self._client_id,
-                self._req_id,
-                self._part_id,
-                self._num_part,
-                self._msg_type,
-                self._msg_content,
-                self._content_type,
-                self._route]
+    def to_bytes(self) -> bytes:
+        proto_buff = message_pb2.ZMQMessage()
+
+        proto_buff.client_id = self.client_id
+        proto_buff.req_id = self.req_id
+        proto_buff.part_id = self.part_id
+        proto_buff.num_part = self.num_part
+        proto_buff.msg_type = self.msg_type
+        proto_buff.content_type = self.content_type
+        proto_buff.msg_content = self.msg_content
+        proto_buff.route = self.route
+
+        return proto_buff.SerializeToString()
+
+        # return [self._client_id,
+        #         self._req_id,
+        #         self._part_id,
+        #         self._num_part,
+        #         self._msg_type,
+        #         self._msg_content,
+        #         self._content_type,
+        #         self._route]
 
     @staticmethod
-    def from_bytes(client_id, req_id, part_id, num_part, msg_type, msg_content, content_type, route):
+    def from_bytes(bytes_data: bytes):
+        proto_buff = message_pb2.ZMQMessage()
+        proto_buff.ParseFromString(bytes_data)
+
         x = Message()
-        x._client_id = client_id
-        x._req_id = req_id
-        x._part_id = part_id
-        x._num_part = num_part
-        x._msg_type = msg_type
-        x._msg_content = msg_content
-        x._content_type = content_type
-        x._route = route
+        x._client_id = proto_buff.client_id
+        x._req_id = proto_buff.req_id
+        x._part_id = proto_buff.part_id
+        x._num_part = proto_buff.num_part
+        x._msg_type = proto_buff.msg_type
+        x._msg_content = proto_buff.msg_content
+        x._content_type = proto_buff.content_type
+        x._route = proto_buff.route
         return x
 
     def copy_mod(self, **kwargs) -> 'Message':
