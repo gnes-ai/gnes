@@ -1,3 +1,6 @@
+#  Tencent is pleased to support the open source community by making GNES available.
+#
+#  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -10,36 +13,25 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio, missing-license
+# pylint: disable=low-comment-ratio
 
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 
+import fcntl
 import html
 import inspect
 import logging
 import os
 import re
+import sys
+import time
 from copy import copy
 from functools import wraps
+from itertools import islice
 from logging import Formatter
 from typing import Iterator, Any, Union, List, Callable
 
-import fcntl
 import jieba
 import numpy as np
-import sys
-import time
-from itertools import islice
 from memory_profiler import memory_usage
 from psutil import virtual_memory
 from ruamel.yaml import YAML

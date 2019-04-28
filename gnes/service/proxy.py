@@ -1,3 +1,6 @@
+#  Tencent is pleased to support the open source community by making GNES available.
+#
+#  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
@@ -10,19 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio, missing-license
+# pylint: disable=low-comment-ratio
 
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 
 from collections import defaultdict
 from typing import Dict
@@ -69,7 +61,7 @@ class ReduceProxyService(ProxyService):
         self.pending_result[msg.unique_id].append(msg)
         len_result = len(self.pending_result[msg.unique_id])
         if (not self.args.num_part and len_result == msg.num_part) or (
-                self.args.num_part and len_result == self.args.num_part*msg.num_part):
+                self.args.num_part and len_result == self.args.num_part * msg.num_part):
             tmp = sorted(self.pending_result[msg.unique_id], key=lambda v: v.part_id)
             res = [(v.part_id, v.msg_content) for v in tmp]
             send_message(out,
