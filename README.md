@@ -1,18 +1,15 @@
-<h1 align="center">GNES</h1>
-
-<p align="center">GNES is Generic Neural Elastic Search, a highly scalable semantic search system based on deep neural network.</p>
-
 <p align="center">
-    <img src=".github/gnes-logo-tight.png?raw=true" width="300">
+    <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES">
 </p>
 
+<p align="center">GNES is Generic Neural Elastic Search, a highly scalable semantic search system based on deep neural network.</p>
 
 <p align="center">
 <a href="#">
     <img src="http://badge.orange-ci.oa.com/ai-innersource/nes.svg" alt="building status">
 </a>
 <a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/hanxiao/bert-as-service.svg"
+    <img src="https://img.shields.io/github/license/tensorflow/tensorflow.svg"
          alt="GitHub license">
 </a>
 </p>
