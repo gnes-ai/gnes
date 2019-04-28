@@ -11,9 +11,9 @@ class TestMessage(unittest.TestCase):
         m = Message(msg_content=a, client_id='123')
         print(m.content_type)
         np.testing.assert_almost_equal(a, m.msg_content)
-        # test if use pointer
-        a[0][0] = 1
-        np.testing.assert_almost_equal(a, m.msg_content)
+        # # test if use pointer
+        # a[0][0] = 1
+        # np.testing.assert_almost_equal(a, m.msg_content)
         b = np.random.random([4, 6])
         n = m.copy_mod(msg_content=b)
         self.assertNotEqual(m.msg_content, n.msg_content)
