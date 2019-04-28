@@ -3,6 +3,11 @@
 <p align="center">GNES is Generic Neural Elastic Search, a highly scalable semantic search system based on deep neural network.</p>
 
 <p align="center">
+    <img src=".github/gnes-logo-tight.png?raw=true" width="300">
+</p>
+
+
+<p align="center">
 <a href="#">
     <img src="http://badge.orange-ci.oa.com/ai-innersource/nes.svg" alt="building status">
 </a>
@@ -22,9 +27,6 @@
   <a href="#speech_balloon-faq">FAQ</a>  
 </p>
 
-<p align="center">
-    <img src=".github/gnes-logo-tight.png?raw=true" width="300">
-</p>
 
 
 ## Highlights
