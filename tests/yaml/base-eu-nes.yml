@@ -16,9 +16,10 @@ component:
           num_locals: 8
         property:
           batch_size: 2048
-  binary_indexer: !EuclideanIndexer
-    parameter:
-      ef: 32
+  binary_indexer: !FaissIndexer
+    num_dim: 32
+    index_key: "HNSW32,Flat"
+    data_path: ./test_faiss_db
   text_indexer: !LVDBIndexer
     parameter:
       data_path: ./test_db

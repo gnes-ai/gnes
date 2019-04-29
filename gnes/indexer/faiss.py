@@ -71,13 +71,12 @@ class FaissIndexer(BaseIndexer):
 
         return ret
 
+    @property
+    def size(self):
+        return self._faiss_index.ntotal
+
     def __getstate__(self):
         d = super().__getstate__()
         faiss.write_index(self._faiss_index, self.indexer_file_path)
         del d['_faiss_index']
         return d
-
-
-class FaissHNSWIndexer(FaissIndexer):
-    def __init__(self, num_dim: int, ef: int, data_path: str, *args, **kwargs):
-        super().__init__(num_dim, 'HNSW%d,Flat' % ef, data_path, *args, **kwargs)
