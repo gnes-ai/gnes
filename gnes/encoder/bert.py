@@ -31,10 +31,13 @@ class BertEncoder(BaseEncoder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bc_encoder = BertClient(*args, **kwargs)
         self.is_trained = True
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
+        self._post_init()
+
+    def _post_init(self):
+        self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -44,10 +47,6 @@ class BertEncoder(BaseEncoder):
         d = super().__getstate__()
         del d['bc_encoder']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
     def close(self):
         self.bc_encoder.close()
@@ -70,9 +69,8 @@ class BertEncoderServer(BaseEncoder):
 
         self._bert_args = get_args_parser().parse_args(bert_args)
         self.is_trained = True
-        self._start_bert_server()
 
-    def _start_bert_server(self):
+    def _post_init(self):
         self.bert_server = BertServer(self._bert_args)
         self.bert_server.start()
         self.bert_server.is_ready.wait()
@@ -81,10 +79,6 @@ class BertEncoderServer(BaseEncoder):
         d = super().__getstate__()
         del d['bert_server']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._start_bert_server()
 
     def close(self):
         self.bert_server.close()
