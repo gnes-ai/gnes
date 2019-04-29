@@ -45,6 +45,7 @@ class ClientService(BS):
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
+            print(res)
             if self.args.merge_res:
                 tmp = {}
                 for part_id, content in jsonapi.loads(res.msg_content):
