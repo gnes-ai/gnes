@@ -23,6 +23,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
 from libc.stdlib cimport qsort
 from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
+from cpython.exc cimport PyErr_SetFromErrnoWithFilenameObject
 
 DEF data_size_per_time = 100000
 DEF node_size_per_time = 100000
@@ -746,6 +747,8 @@ cdef class IndexCore:
         cdef FILE*save_file
         cdef UIDX i
         save_file = fopen(save_path, "wb")
+        if save_file is NULL:
+            PyErr_SetFromErrnoWithFilenameObject(OSError, save_path)
         # NOTE: write cur_data_blocks, cur_node_blocks
         fwrite(&self.cur_data_blocks, sizeof(UIDX), 1, save_file)
         fwrite(&self.cur_node_blocks, sizeof(UIDX), 1, save_file)
@@ -769,6 +772,8 @@ cdef class IndexCore:
         cdef FILE*load_file
         cdef UIDX i
         load_file = fopen(load_path, "rb")
+        if load_file is NULL:
+            PyErr_SetFromErrnoWithFilenameObject(OSError, load_file)
         fread(&self.cur_data_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.cur_node_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.num_data, sizeof(UIDX), 1, load_file)
