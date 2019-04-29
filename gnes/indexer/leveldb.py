@@ -30,17 +30,15 @@ class LVDBIndexer(BaseTextIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__()
         self.data_path = data_path
-        self._db = plyvel.DB(data_path, create_if_missing=True)
         self._NOT_FOUND = {}
+
+    def _post_init(self):
+        self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
     def __getstate__(self):
         d = super().__getstate__()
         del d['_db']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
     def add(self, keys: List[int], docs: List[Any], *args, **kwargs):
         with self._db.write_batch() as wb:
@@ -65,6 +63,8 @@ class LVDBIndexer(BaseTextIndexer):
 class AsyncLVDBIndexer(LVDBIndexer):
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__(data_path, *args, **kwargs)
+
+    def _post_init(self):
         self._is_listening = Event()
         self._is_listening.set()
         self._is_idle = Event()
@@ -95,17 +95,6 @@ class AsyncLVDBIndexer(LVDBIndexer):
         del d['_is_busy']
         del d['_is_listening']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._is_listening = Event()
-        self._is_listening.set()
-        self._is_idle = Event()
-        self._is_idle.set()
-        self._thread = Thread(target=self._db_write)
-        self._thread.setDaemon(1)
-        self._thread.start()
-        self._jobs = []
 
     def close(self):
         self._jobs.clear()

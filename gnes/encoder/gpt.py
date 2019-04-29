@@ -49,8 +49,13 @@ class GPTEncoder(BaseEncoder):
             self._model.to('cuda')
 
         self.pooling_strategy = pooling_strategy
-
         self.is_trained = True
+
+    def _post_init(self):
+        # Load pre-trained model tokenizer (vocabulary)
+        self._init_model_tokenizer()
+        self._use_cuda = self._use_cuda and torch.cuda.is_available()
+        if self._use_cuda: self._model.to('cuda')
 
     def _get_token_ids(self, x):
         return self._tokenizer.convert_tokens_to_ids(self._tokenizer.tokenize(x))
@@ -116,12 +121,6 @@ class GPTEncoder(BaseEncoder):
         del d['_tokenizer']
         del d['_model']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._init_model_tokenizer()
-        self._use_cuda = self._use_cuda and torch.cuda.is_available()
-        if self._use_cuda: self._model.to('cuda')
 
 
 class GPT2Encoder(GPTEncoder):

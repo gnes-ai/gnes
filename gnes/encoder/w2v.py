@@ -36,9 +36,8 @@ class Word2VecEncoder(BaseEncoder):
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
-        self._init_word_embedding()
 
-    def _init_word_embedding(self):
+    def _post_init(self):
         self.word2vec_df = pd.read_table(self.model_dir, sep=' ', quoting=3,
                                          header=None, skiprows=self.skiprows,
                                          index_col=0)
@@ -65,7 +64,3 @@ class Word2VecEncoder(BaseEncoder):
         del d['word2vec_df']
         del d['empty']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._init_word_embedding()
