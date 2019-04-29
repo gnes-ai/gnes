@@ -731,7 +731,7 @@ cdef class IndexCore:
 
         i = self.bytes_per_vector-1
 
-        while (i >= 0):
+        while i >= 0:
             if node.parent.x != self.NULL_coordi.x:
                 node_before = node
                 node = self.id2node(node_before.parent)
@@ -748,7 +748,7 @@ cdef class IndexCore:
         cdef UIDX i
         save_file = fopen(save_path, "wb")
         if save_file is NULL:
-            PyErr_SetFromErrnoWithFilenameObject(OSError, save_path)
+            return NULL
         # NOTE: write cur_data_blocks, cur_node_blocks
         fwrite(&self.cur_data_blocks, sizeof(UIDX), 1, save_file)
         fwrite(&self.cur_node_blocks, sizeof(UIDX), 1, save_file)
@@ -773,7 +773,7 @@ cdef class IndexCore:
         cdef UIDX i
         load_file = fopen(load_path, "rb")
         if load_file is NULL:
-            PyErr_SetFromErrnoWithFilenameObject(OSError, load_file)
+            return NULL
         fread(&self.cur_data_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.cur_node_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.num_data, sizeof(UIDX), 1, load_file)
@@ -806,10 +806,12 @@ cdef class IndexCore:
         fclose(load_file)
 
     def save(self, save_path):
-        self._save(bytes(save_path, 'utf8'))
+        if not self._save(bytes(save_path, 'utf8')):
+            PyErr_SetFromErrnoWithFilenameObject(OSError, save_path)
 
     def load(self, load_path):
-        self._load(bytes(load_path, 'utf8'))
+        if not self._load(bytes(load_path, 'utf8')):
+            PyErr_SetFromErrnoWithFilenameObject(OSError, load_path)
 
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
