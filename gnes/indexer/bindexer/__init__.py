@@ -16,7 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 
-
 import os
 from typing import List, Tuple, Union
 
@@ -50,7 +49,6 @@ class BIndexer(BaseBinaryIndexer):
                                   self.query_iterations)
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
-
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:

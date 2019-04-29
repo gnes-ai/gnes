@@ -18,10 +18,10 @@
 
 # A key-value map for Class to the (module)file it located in
 _cls2file_map = {
-    'EuclideanIndexer': 'euclideanindexer',
+    'FaissIndexer': 'faiss',
     'LVDBIndexer': 'leveldb',
     'AsyncLVDBIndexer': 'leveldb',
-    'NumpyIndexer': 'numpyindexer',
+    'NumpyIndexer': 'numpy',
     'HnswIndexer': 'hnsw_indexer',
     'BIndexer': 'bindexer',
     'MultiheadIndexer': 'base',
