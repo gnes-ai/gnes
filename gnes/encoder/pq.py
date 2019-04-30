@@ -18,8 +18,7 @@
 
 import numpy as np
 
-from .base import BaseEncoder
-from ..base import *
+from .base import BaseEncoder, train_required
 from ..helper import batching
 
 
@@ -33,6 +32,7 @@ class PQEncoder(BaseEncoder):
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
         import faiss
+
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         # use faiss ProductQuantizer directly

@@ -16,8 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 
-
-
 import ctypes
 from typing import List, Tuple, Union, Any
 

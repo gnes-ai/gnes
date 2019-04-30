@@ -18,8 +18,7 @@
 
 import numpy as np
 
-from .base import BaseEncoder
-from ..base import *
+from .base import BaseEncoder, train_required
 from ..helper import get_perm, batching, get_optimal_sample_size
 
 
@@ -38,7 +37,6 @@ class PCALocalEncoder(BaseEncoder):
     @batching(batch_size=get_optimal_sample_size, num_batch=1)
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         import faiss
-
         num_samples, num_dim = vecs.shape
         assert self.output_dim <= num_samples, 'training PCA requires at least %d points, but %d was given' % (
             self.output_dim, num_samples)

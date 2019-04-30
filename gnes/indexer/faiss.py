@@ -19,7 +19,6 @@
 import os
 from typing import List, Tuple
 
-import faiss
 import numpy as np
 
 from .base import BaseIndexer
@@ -38,6 +37,7 @@ class FaissIndexer(BaseIndexer):
         self._post_init()
 
     def _post_init(self):
+        import faiss
         try:
             self._faiss_index = faiss.read_index(self.indexer_file_path)
         except RuntimeError:
@@ -77,6 +77,7 @@ class FaissIndexer(BaseIndexer):
         return self._faiss_index.ntotal
 
     def __getstate__(self):
+        import faiss
         d = super().__getstate__()
         faiss.write_index(self._faiss_index, self.indexer_file_path)
         del d['_faiss_index']

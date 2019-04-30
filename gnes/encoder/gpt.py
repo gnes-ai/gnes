@@ -14,20 +14,17 @@
 #  limitations under the License.
 
 # pylint: disable=low-comment-ratio
-
+# noinspection PyUnresolvedReferences
 
 from typing import List
 
 import numpy as np
-import torch
-from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel, GPT2Model, GPT2Tokenizer
 
 from .base import BaseEncoder
 from ..helper import batching, pooling_torch
 
 
 class GPTEncoder(BaseEncoder):
-
     def __init__(self,
                  model_dir: str,
                  batch_size: int = 64,
@@ -39,19 +36,12 @@ class GPTEncoder(BaseEncoder):
 
         self.model_dir = model_dir
         self.batch_size = batch_size
-
-        # Load pre-trained model tokenizer (vocabulary)
-        self._init_model_tokenizer()
-
-        self._use_cuda = use_cuda and torch.cuda.is_available()
-
-        if self._use_cuda:
-            self._model.to('cuda')
-
         self.pooling_strategy = pooling_strategy
+        self._use_cuda = use_cuda
         self.is_trained = True
 
     def _post_init(self):
+        import torch
         # Load pre-trained model tokenizer (vocabulary)
         self._init_model_tokenizer()
         self._use_cuda = self._use_cuda and torch.cuda.is_available()
@@ -64,12 +54,14 @@ class GPTEncoder(BaseEncoder):
         return self._model(x)
 
     def _init_model_tokenizer(self):
+        from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTModel
         self._tokenizer = OpenAIGPTTokenizer.from_pretrained(self.model_dir)
         self._model = OpenAIGPTModel.from_pretrained(self.model_dir)
         self._model.eval()
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+        import torch
         batch_size = len(text)
 
         # tokenize text
@@ -124,6 +116,7 @@ class GPTEncoder(BaseEncoder):
 
 
 class GPT2Encoder(GPTEncoder):
+
     def _get_token_ids(self, x):
         return self._tokenizer.encode(x)
 
@@ -131,6 +124,7 @@ class GPT2Encoder(GPTEncoder):
         return self._model(x)[0]
 
     def _init_model_tokenizer(self):
+        from pytorch_pretrained_bert import GPT2Model, GPT2Tokenizer
         self._tokenizer = GPT2Tokenizer.from_pretrained(self.model_dir)
         self._model = GPT2Model.from_pretrained(self.model_dir)
         self._model.eval()

@@ -16,36 +16,39 @@
 # pylint: disable=low-comment-ratio
 
 
-import os
 from typing import Dict, Any
 
-import GPUtil
 import numpy as np
-import tensorflow as tf
 
 from .pq import PQEncoder
-from ..base import *
+from ..base import train_required
 from ..helper import batching
-
-DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
-                                     maxMemory=0.1,
-                                     maxLoad=0.1,
-                                     limit=1)
-if DEVICE_ID_LIST:
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(DEVICE_ID_LIST[0])
 
 
 class TFPQEncoder(PQEncoder):
+    @classmethod
+    def _pre_init(cls):
+        import GPUtil
+        import os
+        DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
+                                             maxMemory=0.1,
+                                             maxLoad=0.1,
+                                             limit=1)
+        if DEVICE_ID_LIST:
+            os.environ['CUDA_VISIBLE_DEVICES'] = str(DEVICE_ID_LIST[0])
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch_size = 8192
 
     def _post_init(self):
+        import tensorflow as tf
         self._graph = self._get_graph()
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
 
     def _get_graph(self) -> Dict[str, Any]:
+        import tensorflow as tf
         ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
         centroids_squeezed = tf.squeeze(ph_centroids, 0)

@@ -19,8 +19,6 @@
 from typing import List
 
 import numpy as np
-from bert_serving.client import BertClient
-from bert_serving.server import BertServer, get_args_parser
 
 from .base import BaseEncoder, CompositionalEncoder
 from ..helper import batching
@@ -37,6 +35,7 @@ class BertEncoder(BaseEncoder):
         self._post_init()
 
     def _post_init(self):
+        from bert_serving.client import BertClient
         self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
     @batching
@@ -66,12 +65,13 @@ class BertEncoderServer(BaseEncoder):
         for k, v in kwargs.items():
             bert_args.append('-%s' % k)
             bert_args.append(str(v))
-
-        self._bert_args = get_args_parser().parse_args(bert_args)
+        self._bert_args = bert_args
         self.is_trained = True
 
     def _post_init(self):
-        self.bert_server = BertServer(self._bert_args)
+        from bert_serving.server import BertServer
+        from bert_serving.server import get_args_parser
+        self.bert_server = BertServer(get_args_parser().parse_args(self._bert_args))
         self.bert_server.start()
         self.bert_server.is_ready.wait()
 

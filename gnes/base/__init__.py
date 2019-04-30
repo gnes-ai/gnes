@@ -59,6 +59,9 @@ class TrainableType(type):
         return meta.register_class(cls)
 
     def __call__(cls, *args, **kwargs):
+        # do _preload_package
+        getattr(cls, '_pre_init', lambda *args: None)()
+
         obj = type.__call__(cls, *args, **kwargs)
 
         # set attribute
@@ -149,6 +152,10 @@ class TrainableBase(metaclass=TrainableType):
     def _post_init(self):
         pass
 
+    @classmethod
+    def _pre_init(cls):
+        pass
+
     @property
     def pickle_full_path(self):
         return os.path.join(self.work_dir, self._obj_pickle_name)
@@ -186,7 +193,6 @@ class TrainableBase(metaclass=TrainableType):
             # trigger the lock again
             self.work_dir = self._work_dir
         self._post_init()
-
 
     @staticmethod
     def _train_required(func):

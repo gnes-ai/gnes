@@ -20,19 +20,19 @@ import pickle
 from threading import Thread, Event
 from typing import List, Any
 
-import plyvel
-
 from .base import BaseTextIndexer
 from ..document import BaseDocument
 
 
 class LVDBIndexer(BaseTextIndexer):
+
     def __init__(self, data_path: str, *args, **kwargs):
         super().__init__()
         self.data_path = data_path
         self._NOT_FOUND = {}
 
     def _post_init(self):
+        import plyvel
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
     def __getstate__(self):
@@ -61,9 +61,6 @@ class LVDBIndexer(BaseTextIndexer):
 
 
 class AsyncLVDBIndexer(LVDBIndexer):
-    def __init__(self, data_path: str, *args, **kwargs):
-        super().__init__(data_path, *args, **kwargs)
-
     def _post_init(self):
         super()._post_init()
         self._is_listening = Event()
