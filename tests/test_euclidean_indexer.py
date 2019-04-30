@@ -1,4 +1,5 @@
 import os
+import shutil
 import unittest
 
 import numpy as np
@@ -18,7 +19,7 @@ class TestEUIndexer(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists(self.dump_path):
-            os.remove(self.dump_path)
+            shutil.rmtree(self.dump_path)
 
     def test_add(self):
         fd = FaissIndexer(20, 'HNSW32', self.dump_path)
@@ -36,11 +37,11 @@ class TestEUIndexer(unittest.TestCase):
         self.assertEqual(len(ret[0]), 5)
 
     def test_dump_load(self):
-        tmp = FaissIndexer(20, 'HNSW32', self.dump_path)
-        tmp.add(self.toy_label, self.toy_query)
-        tmp.dump(self.dump_path)
+        with FaissIndexer(20, 'HNSW32', self.dump_path) as tmp:
+            tmp.add(self.toy_label, self.toy_query)
+            tmp.dump(self.dump_path)
 
-        fd = FaissIndexer.load(self.dump_path)
-        ret = fd.query(self.sub_query, top_k=2)
-        self.assertEqual(len(ret), self.sub_query.shape[0])
-        self.assertEqual(len(ret[0]), 2)
+        with FaissIndexer.load(self.dump_path) as fd:
+            ret = fd.query(self.sub_query, top_k=2)
+            self.assertEqual(len(ret), self.sub_query.shape[0])
+            self.assertEqual(len(ret[0]), 2)
