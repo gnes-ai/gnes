@@ -26,6 +26,8 @@ from .base import BaseIndexer
 
 
 class FaissIndexer(BaseIndexer):
+    lock_work_dir = True
+
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         super().__init__()
         self.work_dir = data_path
@@ -39,8 +41,7 @@ class FaissIndexer(BaseIndexer):
         try:
             self._faiss_index = faiss.read_index(self.indexer_file_path)
         except RuntimeError as ex:
-            self.logger.error(ex)
-            self.logger.warning('init an index from scratch')
+            self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
     def add(self, doc_ids: List[int], vectors: np.ndarray, *args, **kwargs):
