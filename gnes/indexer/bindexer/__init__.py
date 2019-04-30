@@ -41,7 +41,7 @@ class BIndexer(BaseBinaryIndexer):
         self.query_iterations = query_iterations
 
         self.work_dir = data_path
-        self.indexer_bin_path = os.path.join(self.work_dir, "indexer.bin")
+        self.indexer_bin_path = os.path.join(self.work_dir, self.internal_index_path)
 
     def _post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,

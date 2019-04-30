@@ -31,7 +31,7 @@ class FaissIndexer(BaseIndexer):
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         super().__init__()
         self.work_dir = data_path
-        self.indexer_file_path = os.path.join(self.work_dir, 'indexer.bin')
+        self.indexer_file_path = os.path.join(self.work_dir, self.internal_index_path)
         self.num_dim = num_dim
         self.index_key = index_key
         self._doc_ids = None
@@ -40,7 +40,7 @@ class FaissIndexer(BaseIndexer):
     def _post_init(self):
         try:
             self._faiss_index = faiss.read_index(self.indexer_file_path)
-        except RuntimeError as ex:
+        except RuntimeError:
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
