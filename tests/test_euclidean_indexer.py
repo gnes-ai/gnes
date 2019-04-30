@@ -16,7 +16,7 @@ class TestEUIndexer(unittest.TestCase):
 
         self.sub_query = self.toy_query[:10]
         self.data_path = './test_eu_indexer'
-        self.dump_path = './test_eu_indexer/indexer.bin'
+        self.dump_path = './test_eu_indexer/indexer.pkl'
 
     def tearDown(self):
         if os.path.exists(self.data_path):
