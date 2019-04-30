@@ -61,6 +61,7 @@ class GPTEncoder(BaseEncoder):
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+        import torch
         batch_size = len(text)
 
         # tokenize text
