@@ -37,6 +37,7 @@ class GPTEncoder(BaseEncoder):
         self.model_dir = model_dir
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
+        self._use_cuda = use_cuda
         self.is_trained = True
 
     def _post_init(self):
