@@ -19,7 +19,7 @@
 from collections import defaultdict
 from typing import List, Tuple, Any, Dict, Optional
 
-from ..base import *
+from ..base import TrainableBase
 from ..encoder.base import CompositionalEncoder
 
 

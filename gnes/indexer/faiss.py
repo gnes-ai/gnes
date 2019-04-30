@@ -19,7 +19,6 @@
 import os
 from typing import List, Tuple
 
-import faiss
 import numpy as np
 
 from .base import BaseIndexer
@@ -27,6 +26,10 @@ from .base import BaseIndexer
 
 class FaissIndexer(BaseIndexer):
     lock_work_dir = True
+
+    @classmethod
+    def _pre_init(cls):
+        import faiss
 
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         super().__init__()

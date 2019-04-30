@@ -19,8 +19,7 @@
 from typing import List
 
 import numpy as np
-from flair.data import Sentence
-from flair.embeddings import FlairEmbeddings
+
 
 from .base import BaseEncoder
 from ..helper import batching, pooling_np
@@ -40,6 +39,8 @@ class FlairEncoder(BaseEncoder):
         self.is_trained = True
 
     def _post_init(self):
+        from flair.embeddings import FlairEmbeddings
+        from flair.data import Sentence
         self._flair = FlairEmbeddings(self.model_name)
 
     @batching

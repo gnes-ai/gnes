@@ -59,6 +59,9 @@ class TrainableType(type):
         return meta.register_class(cls)
 
     def __call__(cls, *args, **kwargs):
+        # do _preload_package
+        getattr(cls, 'pre_init', lambda *args: None)()
+
         obj = type.__call__(cls, *args, **kwargs)
 
         # set attribute
@@ -67,7 +70,7 @@ class TrainableType(type):
                 setattr(obj, k, v)
 
         # do _post_init()
-        getattr(obj, '_post_init', lambda *args: None)()
+        getattr(obj, 'post_init', lambda *args: None)()
         return obj
 
     @staticmethod
@@ -147,6 +150,10 @@ class TrainableBase(metaclass=TrainableType):
         self.logger = set_logger(self.__class__.__name__, self.verbose)
 
     def _post_init(self):
+        pass
+
+    @classmethod
+    def _pre_init(cls):
         pass
 
     @property

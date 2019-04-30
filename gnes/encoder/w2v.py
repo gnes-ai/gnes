@@ -19,7 +19,6 @@
 from typing import List
 
 import numpy as np
-import pandas as pd
 
 from .base import BaseEncoder
 from ..helper import batching, cn_tokenizer, pooling_pd
@@ -38,6 +37,7 @@ class Word2VecEncoder(BaseEncoder):
         self.is_trained = True
 
     def _post_init(self):
+        import pandas as pd
         self.word2vec_df = pd.read_table(self.model_dir, sep=' ', quoting=3,
                                          header=None, skiprows=self.skiprows,
                                          index_col=0)

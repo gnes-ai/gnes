@@ -18,12 +18,15 @@
 
 import numpy as np
 
-from .base import BaseEncoder
-from ..base import *
+from .base import BaseEncoder, train_required
 from ..helper import batching
 
 
 class PQEncoder(BaseEncoder):
+    @classmethod
+    def _pre_init(cls):
+        import faiss
+
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
@@ -32,7 +35,6 @@ class PQEncoder(BaseEncoder):
         self.centroids = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
-        import faiss
         dim_per_byte = self._get_dim_per_byte(vecs)
 
         # use faiss ProductQuantizer directly
