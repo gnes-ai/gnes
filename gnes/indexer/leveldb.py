@@ -65,6 +65,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         super().__init__(data_path, *args, **kwargs)
 
     def _post_init(self):
+        super()._post_init()
         self._is_listening = Event()
         self._is_listening.set()
         self._is_idle = Event()
