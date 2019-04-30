@@ -18,6 +18,8 @@ ok-stage: &ok_stage
 install-deps: &install_deps
   - name: install dependencies
     jobs:
+      - name: setup cache to local
+              script: mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
       - name: show cache folders
         script: printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
       - name: show cpu flag
