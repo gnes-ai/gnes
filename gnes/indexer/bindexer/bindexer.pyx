@@ -764,7 +764,6 @@ cdef class IndexCore:
         for i in range(self.cur_data_blocks):
             fwrite(self.all_neigh[i], sizeof(coordi), data_size_per_time*self.ef*2, save_file)
         fclose(save_file)
-        return 0
 
     cdef void _load(self, char*load_path):
         cdef FILE*load_file
@@ -800,7 +799,6 @@ cdef class IndexCore:
 
         self.root_node = &self.all_nodes[0][0]
         fclose(load_file)
-        return 0
 
     def save(self, save_path):
         self._save(bytes(save_path, 'utf8'))
