@@ -19,7 +19,6 @@
 from typing import List
 
 import numpy as np
-from elmoformanylangs import Embedder
 
 from .base import BaseEncoder
 from ..helper import batching, cn_tokenizer, pooling_np
@@ -42,6 +41,7 @@ class ElmoEncoder(BaseEncoder):
         self.is_trained = True
 
     def _post_init(self):
+        from elmoformanylangs import Embedder
         self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
 
     @batching

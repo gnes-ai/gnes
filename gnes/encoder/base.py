@@ -20,7 +20,7 @@ from typing import List, Any, Union, Dict, Callable
 
 import numpy as np
 
-from ..base import *
+from ..base import TrainableBase, train_required
 
 
 class BaseEncoder(TrainableBase):
