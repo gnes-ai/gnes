@@ -46,8 +46,8 @@ basic-pipeline: &bp1
     image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
   env:
     GNES_ENV_SET: orange-ci
-    PIP_DOWNLOAD_CACHE: $ORANGE_BUILD_WORKSPACE/.cache/pip_download_cache
-    XDG_CACHE_HOME: $ORANGE_BUILD_WORKSPACE/.cache/pip
+    PIP_DOWNLOAD_CACHE: ${pwd}.cache/pip_download_cache
+    XDG_CACHE_HOME: ${pwd}.cache/pip
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
