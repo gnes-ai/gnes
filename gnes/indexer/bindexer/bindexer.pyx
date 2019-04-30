@@ -746,6 +746,8 @@ cdef class IndexCore:
         cdef FILE*save_file
         cdef UIDX i
         save_file = fopen(save_path, "wb")
+        if save_file is NULL:
+            return -1
         # NOTE: write cur_data_blocks, cur_node_blocks
         fwrite(&self.cur_data_blocks, sizeof(UIDX), 1, save_file)
         fwrite(&self.cur_node_blocks, sizeof(UIDX), 1, save_file)
@@ -770,6 +772,8 @@ cdef class IndexCore:
         cdef FILE*load_file
         cdef UIDX i
         load_file = fopen(load_path, "rb")
+        if load_file is NULL:
+            return -1
         fread(&self.cur_data_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.cur_node_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.num_data, sizeof(UIDX), 1, load_file)
