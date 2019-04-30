@@ -60,7 +60,7 @@ class TrainableType(type):
 
     def __call__(cls, *args, **kwargs):
         # do _preload_package
-        getattr(cls, 'pre_init', lambda *args: None)()
+        getattr(cls, '_pre_init', lambda *args: None)()
 
         obj = type.__call__(cls, *args, **kwargs)
 
@@ -70,7 +70,7 @@ class TrainableType(type):
                 setattr(obj, k, v)
 
         # do _post_init()
-        getattr(obj, 'post_init', lambda *args: None)()
+        getattr(obj, '_post_init', lambda *args: None)()
         return obj
 
     @staticmethod
