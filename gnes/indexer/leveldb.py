@@ -61,9 +61,6 @@ class LVDBIndexer(BaseTextIndexer):
 
 
 class AsyncLVDBIndexer(LVDBIndexer):
-    def __init__(self, data_path: str, *args, **kwargs):
-        super().__init__(data_path, *args, **kwargs)
-
     def _post_init(self):
         super()._post_init()
         self._is_listening = Event()

@@ -16,8 +16,8 @@
 # pylint: disable=low-comment-ratio
 
 
-
 import sys
+
 from termcolor import colored
 
 from . import api

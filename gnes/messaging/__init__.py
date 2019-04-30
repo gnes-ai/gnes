@@ -16,11 +16,12 @@
 # pylint: disable=low-comment-ratio
 
 
-from typing import Union, List, Optional, Any
+from typing import Union, Optional, Any
 
 import numpy as np
 import zmq
 from zmq.utils import jsonapi
+
 from gnes.protos import message_pb2
 
 __all__ = ['Message', 'send_message', 'recv_message']

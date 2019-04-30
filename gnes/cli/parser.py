@@ -16,7 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 
-
 import argparse
 
 IDX_PORT_DELTA = 2

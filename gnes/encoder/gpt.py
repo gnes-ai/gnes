@@ -25,11 +25,6 @@ from ..helper import batching, pooling_torch
 
 
 class GPTEncoder(BaseEncoder):
-
-    @classmethod
-    def _pre_init(cls):
-        import torch
-
     def __init__(self,
                  model_dir: str,
                  batch_size: int = 64,
@@ -41,19 +36,11 @@ class GPTEncoder(BaseEncoder):
 
         self.model_dir = model_dir
         self.batch_size = batch_size
-
-        # Load pre-trained model tokenizer (vocabulary)
-        self._init_model_tokenizer()
-
-        self._use_cuda = use_cuda and torch.cuda.is_available()
-
-        if self._use_cuda:
-            self._model.to('cuda')
-
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
 
     def _post_init(self):
+        import torch
         # Load pre-trained model tokenizer (vocabulary)
         self._init_model_tokenizer()
         self._use_cuda = self._use_cuda and torch.cuda.is_available()

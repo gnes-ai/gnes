@@ -48,6 +48,7 @@ class TFPQEncoder(PQEncoder):
         self._sess.run(tf.global_variables_initializer())
 
     def _get_graph(self) -> Dict[str, Any]:
+        import tensorflow as tf
         ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
         ph_centroids = tf.placeholder(tf.float32, [1, self.num_bytes, self.num_clusters, None])
         centroids_squeezed = tf.squeeze(ph_centroids, 0)
