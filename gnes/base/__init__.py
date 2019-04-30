@@ -67,7 +67,7 @@ class TrainableType(type):
                 setattr(obj, k, v)
 
         # do _post_init()
-        getattr(obj, '_post_init', lambda x: x)()
+        getattr(obj, '_post_init', lambda *args: None)()
         return obj
 
     @staticmethod
