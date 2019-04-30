@@ -730,7 +730,7 @@ cdef class IndexCore:
 
         i = self.bytes_per_vector-1
 
-        while (i >= 0):
+        while i >= 0:
             if node.parent.x != self.NULL_coordi.x:
                 node_before = node
                 node = self.id2node(node_before.parent)

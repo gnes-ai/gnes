@@ -38,10 +38,12 @@ if DEVICE_ID_LIST:
 class TFPQEncoder(PQEncoder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.batch_size = 8192
+
+    def _post_init(self):
         self._graph = self._get_graph()
         self._sess = tf.Session()
         self._sess.run(tf.global_variables_initializer())
-        self.batch_size = 8192
 
     def _get_graph(self) -> Dict[str, Any]:
         ph_x = tf.placeholder(tf.float32, [None, self.num_bytes, None])
@@ -77,12 +79,6 @@ class TFPQEncoder(PQEncoder):
         del d['_sess']
         del d['_graph']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._graph = self._get_graph()
-        self._sess = tf.Session()
-        self._sess.run(tf.global_variables_initializer())
 
     def close(self):
         self._sess.close()

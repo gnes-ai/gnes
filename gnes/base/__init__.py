@@ -61,9 +61,13 @@ class TrainableType(type):
     def __call__(cls, *args, **kwargs):
         obj = type.__call__(cls, *args, **kwargs)
 
+        # set attribute
         for k, v in TrainableType.default_property.items():
             if not hasattr(obj, k):
                 setattr(obj, k, v)
+
+        # do _post_init()
+        getattr(obj, '_post_init', lambda *args: None)()
         return obj
 
     @staticmethod
@@ -142,6 +146,9 @@ class TrainableBase(metaclass=TrainableType):
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
 
+    def _post_init(self):
+        pass
+
     @property
     def pickle_full_path(self):
         return os.path.join(self.work_dir, self._obj_pickle_name)
@@ -178,6 +185,8 @@ class TrainableBase(metaclass=TrainableType):
         if self.lock_work_dir:
             # trigger the lock again
             self.work_dir = self._work_dir
+        self._post_init()
+
 
     @staticmethod
     def _train_required(func):

@@ -82,7 +82,6 @@ setup(
         'gputil>=1.4.0',
         'elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
         'flair>=0.4.1',
-        'pytorch-pretrained-bert>=0.6.1',
         'pandas',
         'paramiko',
         'pattern3'

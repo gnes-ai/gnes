@@ -37,9 +37,10 @@ class FlairEncoder(BaseEncoder):
 
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
-
-        self._flair = FlairEmbeddings(self.model_name)
         self.is_trained = True
+
+    def _post_init(self):
+        self._flair = FlairEmbeddings(self.model_name)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -59,7 +60,3 @@ class FlairEncoder(BaseEncoder):
         d = super().__getstate__()
         del d['_flair']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._flair = FlairEmbeddings(self.model_name)

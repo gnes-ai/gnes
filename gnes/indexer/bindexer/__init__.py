@@ -16,7 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 
-
 import os
 from typing import List, Tuple, Union
 
@@ -42,10 +41,14 @@ class BIndexer(BaseBinaryIndexer):
         self.query_iterations = query_iterations
 
         self.work_dir = data_path
-        self.bindexer = IndexCore(num_bytes, 4, ef,
-                                  insert_iterations,
-                                  query_iterations)
-        self.indexer_bin_path = os.path.join(self.work_dir, "indexer.bin")
+        self.indexer_bin_path = os.path.join(self.work_dir, self.internal_index_path)
+
+    def _post_init(self):
+        self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
+                                  self.insert_iterations,
+                                  self.query_iterations)
+        if os.path.exists(self.indexer_bin_path):
+            self.bindexer.load(self.indexer_bin_path)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
         if len(vectors) != len(doc_ids) * self.num_bytes:
@@ -93,11 +96,3 @@ class BIndexer(BaseBinaryIndexer):
         d = super().__getstate__()
         del d['bindexer']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-
-        self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
-                                  self.insert_iterations,
-                                  self.query_iterations)
-        self.bindexer.load(self.indexer_bin_path)

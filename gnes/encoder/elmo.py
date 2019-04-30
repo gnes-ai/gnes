@@ -39,9 +39,10 @@ class ElmoEncoder(BaseEncoder):
                              pooling_layer)
         self.pooling_layer = pooling_layer
         self.pooling_strategy = pooling_strategy
-
-        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
         self.is_trained = True
+
+    def _post_init(self):
+        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -68,8 +69,3 @@ class ElmoEncoder(BaseEncoder):
         d = super().__getstate__()
         del d['_elmo']
         return d
-
-    def __setstate__(self, d):
-        super().__setstate__(d)
-        self._elmo = Embedder(
-            model_dir=self.model_dir, batch_size=self.batch_size)

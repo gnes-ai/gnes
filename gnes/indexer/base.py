@@ -24,6 +24,8 @@ from ..encoder.base import CompositionalEncoder
 
 
 class BaseIndexer(TrainableBase):
+    internal_index_path = 'int.indexer.bin'  # this is used when pickle dump is not enough for storing all info
+
     def add(self, keys: Any, docs: Any, *args, **kwargs): pass
 
     def query(self, keys: Any, top_k: int, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass
