@@ -742,7 +742,7 @@ cdef class IndexCore:
                 i -= 1
         return cur_vec
 
-    cpdef int save(self, char*save_path) except -1:
+    cpdef int save(self, save_path) except -1:
         cdef FILE*save_file
         cdef UIDX i
         save_file = fopen(save_path, "wb")
@@ -768,7 +768,7 @@ cdef class IndexCore:
         fclose(save_file)
         return 0
 
-    cpdef int load(self, char*load_path) except -1:
+    cpdef int load(self, load_path) except -1:
         cdef FILE*load_file
         cdef UIDX i
         load_file = fopen(load_path, "rb")
