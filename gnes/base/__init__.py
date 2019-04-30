@@ -194,7 +194,6 @@ class TrainableBase(metaclass=TrainableType):
             self.work_dir = self._work_dir
         self._post_init()
 
-
     @staticmethod
     def _train_required(func):
         @wraps(func)

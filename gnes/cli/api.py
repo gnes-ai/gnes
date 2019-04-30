@@ -16,7 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 
-
 def encode(args):
     from ..service.encoder import EncoderService
     with EncoderService(args) as es:

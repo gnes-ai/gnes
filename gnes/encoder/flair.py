@@ -40,11 +40,11 @@ class FlairEncoder(BaseEncoder):
 
     def _post_init(self):
         from flair.embeddings import FlairEmbeddings
-        from flair.data import Sentence
         self._flair = FlairEmbeddings(self.model_name)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+        from flair.data import Sentence
         # tokenize text
         batch_tokens = [Sentence(sent) for sent in text]
 
