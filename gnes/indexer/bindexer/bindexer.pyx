@@ -742,12 +742,10 @@ cdef class IndexCore:
                 i -= 1
         return cur_vec
 
-    cdef int _save(self, char*save_path) except -1:
+    cdef void _save(self, char*save_path):
         cdef FILE*save_file
         cdef UIDX i
         save_file = fopen(save_path, "wb")
-        if save_file is NULL:
-            return -1
         # NOTE: write cur_data_blocks, cur_node_blocks
         fwrite(&self.cur_data_blocks, sizeof(UIDX), 1, save_file)
         fwrite(&self.cur_node_blocks, sizeof(UIDX), 1, save_file)
@@ -768,12 +766,10 @@ cdef class IndexCore:
         fclose(save_file)
         return 0
 
-    cdef int _load(self, char*load_path) except -1:
+    cdef void _load(self, char*load_path):
         cdef FILE*load_file
         cdef UIDX i
         load_file = fopen(load_path, "rb")
-        if load_file is NULL:
-            return -1
         fread(&self.cur_data_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.cur_node_blocks, sizeof(UIDX), 1, load_file)
         fread(&self.num_data, sizeof(UIDX), 1, load_file)
@@ -807,12 +803,10 @@ cdef class IndexCore:
         return 0
 
     def save(self, save_path):
-        if self._save(bytes(save_path, 'utf8')) < 0:
-            raise IOError('exceptions while saving to %s' % save_path)
+        self._save(bytes(save_path, 'utf8'))
 
     def load(self, load_path):
-        if self._load(bytes(load_path, 'utf8')) < 0:
-            raise IOError('exceptions while loading to %s' % load_path)
+        self._load(bytes(load_path, 'utf8'))
 
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
