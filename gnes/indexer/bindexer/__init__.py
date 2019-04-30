@@ -47,9 +47,8 @@ class BIndexer(BaseBinaryIndexer):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
-        try:
-            self.bindexer.load(self.indexer_bin_path)
-        except IOError:
+
+        if self.bindexer.load(self.indexer_bin_path) < 0:
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_bin_path)
 
     def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):

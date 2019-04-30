@@ -742,7 +742,7 @@ cdef class IndexCore:
                 i -= 1
         return cur_vec
 
-    cdef int _save(self, char*save_path) except -1:
+    cpdef int save(self, char*save_path) except -1:
         cdef FILE*save_file
         cdef UIDX i
         save_file = fopen(save_path, "wb")
@@ -768,7 +768,7 @@ cdef class IndexCore:
         fclose(save_file)
         return 0
 
-    cdef int _load(self, char*load_path) except -1:
+    cpdef int load(self, char*load_path) except -1:
         cdef FILE*load_file
         cdef UIDX i
         load_file = fopen(load_path, "rb")
@@ -805,14 +805,6 @@ cdef class IndexCore:
         self.root_node = &self.all_nodes[0][0]
         fclose(load_file)
         return 0
-
-    def save(self, save_path):
-        if self._save(bytes(save_path, 'utf8')) < 0:
-            raise IOError('exceptions while saving to %s' % save_path)
-
-    def load(self, load_path):
-        if self._load(bytes(load_path, 'utf8')) < 0:
-            raise IOError('exceptions while loading to %s' % load_path)
 
     cdef vec_distance(self, UCR*va, UCR*vb):
         cdef UST i, dist
