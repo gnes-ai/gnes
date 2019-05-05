@@ -12,3 +12,4 @@ test*.yml
 toy*
 release.sh
 shell/
+.tmp/
