@@ -24,6 +24,7 @@ from zmq.utils import jsonapi
 
 from .base import BaseService as BS, MessageHandler
 from ..messaging import *
+from gnes.proto import gnes_pb2
 
 
 class ClientService(BS):
@@ -38,6 +39,20 @@ class ClientService(BS):
 
     def query(self, texts: List[str]) -> Optional['Message']:
         req_id = str(uuid.uuid4())
+        request_msg = gnes_pb2.Request()
+        request_msg.mode = gnes_pb2.Mode.QUERY
+
+        query = gnes_pb2.Request.Query()
+        query.is_parsed = True
+        query.parsed_texts = texts
+
+        request_msg.query = query
+
+        send_message(self.out_sock, request_msg, )
+
+
+
+
         send_message(self.out_sock, Message(client_id=self.args.identity,
                                             req_id=req_id,
                                             msg_content=texts,
