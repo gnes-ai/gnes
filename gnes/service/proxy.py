@@ -24,21 +24,22 @@ import zmq
 from .base import BaseService as BS, MessageHandler
 from ..helper import batch_iterator
 from ..messaging import *
+from gnes.proto import gnes_pb2
 
 
 class ProxyService(BS):
     handler = MessageHandler(BS.handler)
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
 
 
 class MapProxyService(ProxyService):
     handler = MessageHandler(BS.handler)
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         if not self.args.batch_size or self.args.batch_size <= 0:
             send_message(out, msg, self.args.timeout)
         else:

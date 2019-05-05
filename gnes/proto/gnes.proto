@@ -49,6 +49,13 @@ message Document {
 
   // The resulted encodes of the document
   repeated Array _encodes = 10;
+
+  enum DocType {
+    TEXT_DOC = 0;
+    IMAGE_DOC = 1;
+    VIDEO_DOC = 2;
+  }
+  required DocType doc_type = 11 [default = TEXT_DOC];
 }
 
 message Query {
@@ -63,15 +70,15 @@ message Query {
 }
 
 message SearchRequest {
-  required Query query = 1;
-  optional uint32 time_out = 2;
-  optional string _search_id = 3;
+  required string _request_id = 1;
+  required Query query = 2;
+  optional uint32 time_out = 3;
 }
 
 message IndexRequest {
-  repeated Document docs = 1;
-  optional uint32 time_out = 2;
-  optional string _search_id = 3;
+  required string _request_id = 1;
+  repeated Document docs = 2;
+  optional uint32 time_out = 3;
   // required bool update_model = 4 [default = False];
 }
 
@@ -85,21 +92,20 @@ message SearchResponse {
 }
 
 message Message {
-  optional string client_id = 1;
-  optional string req_id = 2;
-  required string msg_type = 3;
-  required string route = 4;
-  required uint32 part_id = 5 [default = 0];
-  required uint32 num_part = 6 [default = 1];
+  optional string msg_id = 1;
+  required string msg_type = 2;
+  required string route = 3;
+  required uint32 part_id = 4 [default = 0];
+  required uint32 num_part = 5 [default = 1];
   enum Mode {
     QUERY = 0;
     INDEX = 1;
     TRAIN = 2;
   }
-  required Mode mode = 7 [default = QUERY];
-  repeated Document docs = 8;
-  optional Query query = 9;
-  // repeated string logs = 10;
+  required Mode mode = 6 [default = QUERY];
+  repeated Document docs = 7;
+  optional Query query = 8;
+  // repeated string logs = 9;
 }
 
 

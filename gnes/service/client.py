@@ -34,29 +34,32 @@ class ClientService(BS):
         self.result = []
 
     @handler.register(MessageType.DEFAULT.name)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
 
     def query(self, texts: List[str]) -> Optional['Message']:
         req_id = str(uuid.uuid4())
-        request_msg = gnes_pb2.Request()
-        request_msg.mode = gnes_pb2.Mode.QUERY
 
-        query = gnes_pb2.Request.Query()
-        query.is_parsed = True
-        query.parsed_texts = texts
+        idx_req = gnes_pb2.SearchRequest()
+        idx_req._request_id = self.args.identity + req_id
+        idx_req.time_out = self.args.timeout
 
-        request_msg.query = query
+        idx_req.query = gnes_pb2.Query()
+        idx_req.query.is_parsed = True
+        idx_req.query.parsed_texts = texts
 
-        send_message(self.out_sock, request_msg, )
+        search_message = gnes_pb2.Message()
+        search_message.msg_id = idx_req._request_id
+        search_message.mode = gnes_pb2.Message.Mode.QUERY
+        search_message.query = query
+        search_message.route = self.__class__.__name__
 
+        send_message(self.out_sock, search_message, timeout=self.args.timeout)
 
-
-
-        send_message(self.out_sock, Message(client_id=self.args.identity,
-                                            req_id=req_id,
-                                            msg_content=texts,
-                                            route=self.__class__.__name__), timeout=self.args.timeout)
+        # send_message(self.out_sock, Message(client_id=self.args.identity,
+        #                                     req_id=req_id,
+        #                                     msg_content=texts,
+        #                                     route=self.__class__.__name__), timeout=self.args.timeout)
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
