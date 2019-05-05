@@ -30,8 +30,8 @@ class BIndexer(BaseBinaryIndexer):
 
     def __init__(self, num_bytes: int = None,
                  ef: int = 20,
-                 insert_iterations: int = 1000,
-                 query_iterations: int = 1000,
+                 insert_iterations: int = 200,
+                 query_iterations: int = 500,
                  data_path: str = './bindexer_data',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
