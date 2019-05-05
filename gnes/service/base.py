@@ -184,15 +184,17 @@ class BaseService(threading.Thread):
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
     def message_handler(self, msg: Message):
-        try:
-            fn = self.handler.serve(msg)
-            if fn:
-                msg.route = ' -> '.join([msg.route, self.__class__.__name__])
-                self.logger.info('handling a message of type: %s with route: %s' % (msg.msg_type, msg.route))
-                fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
-                self.logger.info('handler is done')
-        except ServiceError as e:
-            self.logger.error(e)
+    try:
+        fn = self.handler.serve(msg)
+        if fn:
+            msg.route = ' -> '.join([msg.route, self.__class__.__name__])
+            self.logger.info('handling a message of type: %s with route: %s' %
+                             (msg.msg_type, msg.route))
+            fn(self, msg, self.ctrl_sock if MessageType.is_control_message(
+                msg.msg_type) else self.out_sock)
+            self.logger.info('handler is done')
+    except ServiceError as e:
+        self.logger.error(e)
 
     @zmqd.context()
     def _run(self, ctx):
@@ -251,15 +253,15 @@ class BaseService(threading.Thread):
     def _post_init(self):
         pass
 
-    @handler.register(Message.typ_default)
+    @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: Message, out: 'zmq.Socket'):
         pass
 
-    @handler.register(Message.typ_status)
+    @handler.register(MessageType.CTRL_STATUS.name)
     def _handler_status(self, msg: Message, out: 'zmq.Socket'):
         pass
 
-    @handler.register(Message.typ_terminate)
+    @handler.register(MessageType.CTRL_TERMINATE.name)
     def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
         self.is_event_loop.clear()
@@ -271,15 +273,17 @@ class BaseService(threading.Thread):
             self._model.close()
         if self.is_event_loop.is_set():
             send_terminate_message(self.ctrl_addr, timeout=self.args.timeout)
+@property
+def status(self):
+    ctr_msg = Message()
+    ctr_msg.msg_type = MessageType.CTRL_STATUS.name
+    return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
 
-    @property
-    def status(self):
-        return send_ctrl_message(self.ctrl_addr, Message(msg_type=Message.typ_status), self.args.time_out)
 
-    def __enter__(self):
-        self.start()
-        self.is_ready.wait()
-        return self
+def __enter__(self):
+    self.start()
+    self.is_ready.wait()
+    return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
@@ -297,4 +301,6 @@ def send_ctrl_message(address: str, msg: Message, timeout: int):
 
 
 def send_terminate_message(*args, **kwargs):
-    return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
+    term_msg = Message()
+    term_msg.msg_type = MessageType.CTRL_TERMINATE.name
+    return send_ctrl_message(msg=term_msg, *args, **kwargs)
