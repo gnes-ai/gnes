@@ -32,7 +32,7 @@ class ClientService(BS):
     def _post_init(self):
         self.result = []
 
-    @handler.register(Message.typ_default)
+    @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         self.result.append(msg)
 

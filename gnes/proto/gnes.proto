@@ -88,8 +88,8 @@ message SearchResponse {
 }
 
 message Message {
-  optional uint64 client_id = 1;
-  optional uint64 req_id = 2;
+  optional string client_id = 1;
+  optional string req_id = 2;
   required string msg_type = 3;
   required string route = 4;
   required uint32 part_id = 5 [default = 0];
