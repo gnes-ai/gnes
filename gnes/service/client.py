@@ -36,7 +36,7 @@ class ClientService(BS):
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         self.result.append(msg)
         self.logger.info('num of part finished %.2f%%' %
-                         (len(self.result)/msg.num_part)*100)
+                         (len(self.result)/msg.num_part*100))
 
     def query(self, texts: List[str]) -> Optional['Message']:
         req_id = str(uuid.uuid4())
