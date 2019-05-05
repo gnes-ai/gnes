@@ -34,6 +34,7 @@ class ClientService(BS):
 
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+        self.logger.info('num of part finished %d' % msg.part_id)
         self.result.append(msg)
 
     def query(self, texts: List[str]) -> Optional['Message']:
