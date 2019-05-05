@@ -45,12 +45,10 @@ class ClientService(BS):
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
-            print(res)
             if self.args.merge_res:
                 tmp = {}
                 for part_id, content in jsonapi.loads(res.msg_content):
                     content = jsonapi.loads(content)
-                    print(content)
                     if part_id in tmp:
                         tmp[part_id].append(content)
                     else:
