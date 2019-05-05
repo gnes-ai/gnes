@@ -76,6 +76,6 @@ class ClientService(BS):
             res = self.result.pop()
             num_part = res.num_part
             count_part += 1
-            print('%.2f%% percent has been done' % (count_part / num_part))
+            self.logger.info('%.2f%% percent has been done' % (count_part / num_part))
 
         return 1
