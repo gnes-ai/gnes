@@ -6,9 +6,9 @@ services:
       gnes-net:
         aliases:
           - encoder_serviced
-    command: encode --port_in ${INCOME_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_IN}  --socket_in PULL_BIND --socket_out PUSH_CONNECT --mode TRAIN --yaml_path /test_encoder.yml --dump_path /dump/model.bin
+    command: encode --port_in ${INCOME_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_IN}  --socket_in PULL_BIND --socket_out PUSH_CONNECT --mode TRAIN --yaml_path /encoder.yml --dump_path /dump/model.bin
     volumes:
-      - "${ENCODER_YAML_PATH}:/test_encoder.yml"
+      - "${ENCODER_YAML_PATH}:/encoder.yml"
       - "${MODEL_DIR}:/ext_data"
       - "${OUTPUT_DIR}:/dump"
     ports:

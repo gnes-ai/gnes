@@ -1,24 +1,20 @@
 #!/usr/bin/env bash
 
-@include _dialog.sh
+source _dialog.sh
 
 function docker_stack_start() {
-    # export .env to environment
-    source .env
-    eval "cat <<EOF
-$(<"${COMPOSE_YAML_PATH}")
-EOF
-" 1> ${MY_YAML_PATH} 2>/dev/null
-    docker stack deploy --compose-file "$MY_YAML_PATH" "$GNES_STACK_NAME"
+    TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+    (. .env && eval "echo \"$(cat ${COMPOSE_YAML_PATH})\"") > "${TIMESTAMP}-compose.yml"
+    docker stack deploy --compose-file "${TIMESTAMP}-compose.yml" "$GNES_STACK_NAME"
 }
 
 VARS="`set -o posix ; set`";
 
 
 ### 0. Check if there is a .env pre-existed.
-if [ -f ".env" ]; then
+if [[ -f ".env" ]]; then
    _USE_PREV_ENV=$(TITLE='find an existing .env file, probably contains all configs already. Do you want to use it?';
-                    TITLE_SHORT='example of ui.show_yesno';
+                    TITLE_SHORT='found an .env';
                     DEFAULT_VALUE='y';
                     ui.show_yesno)
    case "$_USE_PREV_ENV" in
@@ -35,7 +31,7 @@ fi
 # import from a separate file
 #####
 
-@include _wizard_content.sh
+source _wizard_content.sh
 
 ######
 # Config wizard ends here!

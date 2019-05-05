@@ -32,7 +32,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       proxy --proxy_type=ReduceProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
-      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REP
+      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REPLICAS
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
@@ -47,9 +47,9 @@ services:
       encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
       --host_in income-proxy --host_out middleman-proxy
-      --mode QUERY --yaml_path /test_encoder.yml --dump_path /dump/model.bin
+      --mode QUERY --yaml_path /encoder.yml --dump_path /dump/model.bin
     volumes:
-      - "${ENCODER_YAML_PATH}:/test_encoder.yml"
+      - "${ENCODER_YAML_PATH}:/encoder.yml"
       - "${MODEL_DIR}:/ext_data"
       - "${OUTPUT_DIR}:/dump"
     networks:
@@ -72,7 +72,7 @@ services:
       index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN}
        --socket_in SUB_CONNECT --socket_out PUB_CONNECT
        --host_in middleman-proxy --host_out outgoing-proxy
-       --mode QUERY --yaml_path /indexer.yml --dump_path /out_data/test_index.bin
+       --mode QUERY --yaml_path /indexer.yml --dump_path /out_data/index.bin
     volumes:
       - "${INDEXER_YAML_PATH}:/indexer.yml"
       - index_data:/out_data
@@ -83,7 +83,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: ${NUM_REP}
+      replicas: ${NUM_REPLICAS}
       restart_policy:
         condition: on-failure
         max_attempts: 3

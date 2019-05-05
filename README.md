@@ -41,15 +41,25 @@
 
 The easiest and the recommended way to use GNES is via Docker, which uses containers to create virtual environments that isolate a GNES installation from the rest of the system. You don't need to worry about dependencies, they are self-contained in the GNES docker image. Moreover, GNES relies on the Docker Swarm for managing, scaling and conducting orchestration tasks over multiple micro-services. 
 
-#### Prerequisites
+#### 1. Prerequisites
 
 - [Docker Engine>=1.13](https://docs.docker.com/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [Docker Machine](https://docs.docker.com/machine/install-machine/)
 
+
+#### 2. Start GNES with the wizard
+
+If you are new to GNES, it is recommended to use the wizard to config and start GNES.
+
+```bash
+bash <(curl -s https://mywebsite.com/gnes-wizard.sh)
+```
+
 <h2 align="center">:book: Documentation</h2>
 
-The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on new releases. 
+The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
+
 
 ### Building the documentation from scratch
 

@@ -1,4 +1,6 @@
-BACK_TITLE='GNES Config'
+#!/usr/bin/env bash
+
+BACK_TITLE="GNES Config (wizard version: ${WIZARD_VERSION} build: ${WIZARD_BUILD})"
 DLG_HEIGHT=0
 DLG_WIDTH=0
 
