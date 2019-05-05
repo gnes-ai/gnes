@@ -46,35 +46,23 @@ class ClientService(BS):
                                             route=self.__class__.__name__), timeout=self.args.timeout)
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
-            res = self.result.pop()
+            if self.args.query:
+                res = self.result.pop()
 
-            tmp = {}
-            for part_id, content in jsonapi.loads(res.msg_content):
-                content = jsonapi.loads(content)
-                if part_id in tmp:
-                    tmp[part_id].append(content)
-                else:
-                    tmp[part_id] = [content]
-            merged = None
-            for k in sorted(tmp.keys()):
-                _t = list(zip(*tmp[k]))
-                _top_k = len(_t[0][0])
-                _t = [sorted([i for j in v for i in j],
-                             key=lambda x: -x[1])[:_top_k]
-                      for v in _t]
-                merged = merged + _t if merged else _t
-            res.msg_content = merged
-            return res
-
-    def index(self, texts: List[str]) -> int:
-        req_id = str(uuid.uuid4())
-        send_message(self.out_sock, Message(client_id=self.args.identity,
-                                            req_id=req_id,
-                                            msg_content=texts,
-                                            route=self.__class__.__name__), timeout=self.args.timeout)
-
-        if self.args.wait_reply:
-            self.is_handler_done.wait(self.args.timeout)
-            res = self.result.pop()
-
-        return 1
+                tmp = {}
+                for part_id, content in jsonapi.loads(res.msg_content):
+                    content = jsonapi.loads(content)
+                    if part_id in tmp:
+                        tmp[part_id].append(content)
+                    else:
+                        tmp[part_id] = [content]
+                merged = None
+                for k in sorted(tmp.keys()):
+                    _t = list(zip(*tmp[k]))
+                    _top_k = len(_t[0][0])
+                    _t = [sorted([i for j in v for i in j],
+                                 key=lambda x: -x[1])[:_top_k]
+                          for v in _t]
+                    merged = merged + _t if merged else _t
+                res.msg_content = merged
+                return res
