@@ -44,7 +44,7 @@ def client(args):
         if not data:
             raise ValueError('input text file is empty, nothing to do')
         else:
-            if args.merge_res:
+            if args.query:
                 result = cs.query(data)
                 if result:
                     print(result.client_id)

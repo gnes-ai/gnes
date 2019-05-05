@@ -34,8 +34,9 @@ class ClientService(BS):
 
     @handler.register(Message.typ_default)
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        self.logger.info('num of part finished %d' % msg.part_id)
         self.result.append(msg)
+        self.logger.info('num of part finished %.2f%%' %
+                         (len(self.result)/msg.num_part)*100)
 
     def query(self, texts: List[str]) -> Optional['Message']:
         req_id = str(uuid.uuid4())
@@ -71,12 +72,9 @@ class ClientService(BS):
                                             req_id=req_id,
                                             msg_content=texts,
                                             route=self.__class__.__name__), timeout=self.args.timeout)
-        count_part = 0
+
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
-            num_part = res.num_part
-            count_part += 1
-            self.logger.info('%.2f%% percent has been done' % (count_part / num_part))
 
         return 1
