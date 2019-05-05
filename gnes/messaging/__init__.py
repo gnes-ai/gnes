@@ -16,13 +16,11 @@
 # pylint: disable=low-comment-ratio
 
 
-from typing import Union, Optional, Any
+from typing import Union, List, Optional, Any
 
 import numpy as np
 import zmq
 from zmq.utils import jsonapi
-
-from gnes.protos import message_pb2
 
 __all__ = ['Message', 'send_message', 'recv_message']
 
@@ -70,34 +68,27 @@ class Message:
         self.msg_content = msg_content
         self.route = route
 
-    def to_bytes(self) -> bytes:
-        proto_buff = message_pb2.ZMQMessage()
-
-        proto_buff.client_id = self._client_id
-        proto_buff.req_id = self._req_id
-        proto_buff.part_id = self._part_id
-        proto_buff.num_part = self._num_part
-        proto_buff.msg_type = self._msg_type
-        proto_buff.content_type = self._content_type
-        proto_buff.msg_content = self._msg_content
-        proto_buff.route = self._route
-
-        return proto_buff.SerializeToString()
+    def to_bytes(self) -> List[bytes]:
+        return [self._client_id,
+                self._req_id,
+                self._part_id,
+                self._num_part,
+                self._msg_type,
+                self._msg_content,
+                self._content_type,
+                self._route]
 
     @staticmethod
-    def from_bytes(bytes_data: bytes):
-        proto_buff = message_pb2.ZMQMessage()
-        proto_buff.ParseFromString(bytes_data)
-
+    def from_bytes(client_id, req_id, part_id, num_part, msg_type, msg_content, content_type, route):
         x = Message()
-        x._client_id = proto_buff.client_id
-        x._req_id = proto_buff.req_id
-        x._part_id = proto_buff.part_id
-        x._num_part = proto_buff.num_part
-        x._msg_type = proto_buff.msg_type
-        x._msg_content = proto_buff.msg_content
-        x._content_type = proto_buff.content_type
-        x._route = proto_buff.route
+        x._client_id = client_id
+        x._req_id = req_id
+        x._part_id = part_id
+        x._num_part = num_part
+        x._msg_type = msg_type
+        x._msg_content = msg_content
+        x._content_type = content_type
+        x._route = route
         return x
 
     def copy_mod(self, **kwargs) -> 'Message':
@@ -192,7 +183,7 @@ class Message:
     def msg_content(self, value: Any):
         if isinstance(value, np.ndarray):
             self.content_type = dict(content_type='array', dtype=str(value.dtype), shape=value.shape)
-            self._msg_content = value.tobytes()
+            self._msg_content = value
         elif isinstance(value, tuple) and isinstance(value[0], bytes) and len(value) == 4:
             self.content_type = dict(content_type='map-mix', id=value[1],
                                      ex0=value[2], ex1=value[3])
@@ -238,7 +229,7 @@ def send_message(sock: 'zmq.Socket', msg: 'Message', timeout: int = -1) -> None:
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send(msg.to_bytes())
+        sock.send_multipart(msg.to_bytes())
     except zmq.error.Again:
         raise TimeoutError(
             'no response from sock %s after timeout=%dms, please check the following:'
@@ -255,8 +246,8 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
             sock.setsockopt(zmq.RCVTIMEO, timeout)
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
-        response = sock.recv()
-        return Message.from_bytes(response)
+        response = sock.recv_multipart()
+        return Message.from_bytes(*response)
     except ValueError:
         raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
     except zmq.error.Again:

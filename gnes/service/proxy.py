@@ -60,7 +60,6 @@ class ReduceProxyService(ProxyService):
     def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
         self.pending_result[msg.unique_id].append(msg)
         len_result = len(self.pending_result[msg.unique_id])
-        print(msg, len_result)
         if (not self.args.num_part and len_result == msg.num_part) or (
                 self.args.num_part and len_result == self.args.num_part * msg.num_part):
             tmp = sorted(self.pending_result[msg.unique_id], key=lambda v: v.part_id)

@@ -34,14 +34,14 @@ class TestMessage(unittest.TestCase):
         m = Message(msg_content=a)
         self.assertEqual(a, m.msg_content)
 
-    def test_proto(self):
-        a = np.random.random([5, 3])
-        m = Message(msg_content=a, client_id='123')
-        np.testing.assert_almost_equal(a, m.msg_content)
+    # def test_proto(self):
+    #     a = np.random.random([5, 3])
+    #     m = Message(msg_content=a, client_id='123')
+    #     np.testing.assert_almost_equal(a, m.msg_content)
 
-        byte_data = m.to_bytes()
-        m2 = Message.from_bytes(byte_data)
-        self.assertEqual(m.content_type, m2.content_type)
-        np.testing.assert_almost_equal(m.msg_content, m2.msg_content)
+    #     byte_data = m.to_bytes()
+    #     m2 = Message.from_bytes(byte_data)
+    #     self.assertEqual(m.content_type, m2.content_type)
+    #     np.testing.assert_almost_equal(m.msg_content, m2.msg_content)
 
 
