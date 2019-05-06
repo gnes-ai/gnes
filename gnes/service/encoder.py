@@ -51,7 +51,7 @@ class EncoderService(BS):
         if self.args.mode == ServiceMode.QUERY:
             doc_mapper = DocumentMapper(UniSentDocument.from_list(msg.msg_content))
         else:
-            doc_mapper = DocumentMapper(UniSentDocument.from_list(msg.msg_content))
+            doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
         sent_ids, sents = doc_mapper.sent_id_sentence
         if not sents:
             raise ServiceError('received an empty list, nothing to do')
