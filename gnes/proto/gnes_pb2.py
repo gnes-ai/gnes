@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='gnes',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x10proto/gnes.proto\x12\x04gnes\">\n\x05\x41rray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x02(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\x14\n\x05\x64type\x18\x03 \x02(\t:\x05\x66loat\"(\n\tArrayList\x12\x1b\n\x06\x61rrays\x18\x01 \x03(\x0b\x32\x0b.gnes.Array\"\xd2\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x02(\t\x12\x0e\n\x06offset\x18\x02 \x02(\r\x12\x19\n\nis_encoded\x18\x03 \x02(\x08:\x05\x66\x61lse\x12\x0c\n\x04text\x18\x04 \x01(\t\x12\x19\n\x04\x62lob\x18\x05 \x01(\x0b\x32\x0b.gnes.Array\x12\x1b\n\x06\x65ncode\x18\x06 \x01(\x0b\x32\x0b.gnes.Array\x12+\n\x0b\x63oordinates\x18\x07 \x03(\x0b\x32\x16.gnes.Chunk.Coordinate\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\"\x84\x01\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x19\n\x04\x62lob\x18\x04 \x01(\x0b\x32\x0b.gnes.Array\x12\x18\n\tis_parsed\x18\x05 \x02(\x08:\x05\x66\x61lse\x12\x1b\n\x06\x63hunks\x18\x06 \x03(\x0b\x32\x0b.gnes.Chunk\"z\n\x05Query\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x19\n\x04\x62lob\x18\x02 \x01(\x0b\x32\x0b.gnes.Array\x12\x18\n\tis_parsed\x18\x03 \x02(\x08:\x05\x66\x61lse\x12\x1b\n\x06\x63hunks\x18\x04 \x03(\x0b\x32\x0b.gnes.Chunk\x12\x11\n\x05top_k\x18\x05 \x01(\r:\x02\x31\x30\"R\n\rSearchRequest\x12\x13\n\x0b_request_id\x18\x01 \x02(\t\x12\x1a\n\x05query\x18\x02 \x02(\x0b\x32\x0b.gnes.Query\x12\x10\n\x08time_out\x18\x03 \x01(\r\"p\n\x0cIndexRequest\x12\x13\n\x0b_request_id\x18\x01 \x02(\t\x12\x1c\n\x04\x64ocs\x18\x02 \x03(\x0b\x32\x0e.gnes.Document\x12\x10\n\x08time_out\x18\x03 \x01(\r\x12\x1b\n\x0cupdate_model\x18\x04 \x02(\x08:\x05\x66\x61lse\"u\n\x0eSearchResponse\x12,\n\x07results\x18\x01 \x03(\x0b\x32\x1b.gnes.SearchResponse.Result\x12\x0c\n\x04size\x18\x02 \x02(\r\x1a\'\n\x06Result\x12\x0e\n\x06\x64oc_id\x18\x01 \x02(\t\x12\r\n\x05score\x18\x02 \x02(\x02\"\xd2\x01\n\x07Message\x12\x0e\n\x06msg_id\x18\x01 \x01(\t\x12\x10\n\x08msg_type\x18\x02 \x02(\t\x12\r\n\x05route\x18\x03 \x02(\t\x12\x12\n\x07part_id\x18\x04 \x02(\r:\x01\x30\x12\x13\n\x08num_part\x18\x05 \x02(\r:\x01\x31\x12\'\n\x04mode\x18\x06 \x02(\x0e\x32\x12.gnes.Message.Mode:\x05QUERY\x12\x1b\n\x06\x63hunks\x18\x07 \x03(\x0b\x32\x0b.gnes.Chunk\"\'\n\x04Mode\x12\t\n\x05QUERY\x10\x00\x12\t\n\x05INDEX\x10\x01\x12\t\n\x05TRAIN\x10\x02')
+  serialized_pb=_b('\n\x10proto/gnes.proto\x12\x04gnes\">\n\x05\x41rray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x02(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\x14\n\x05\x64type\x18\x03 \x02(\t:\x05\x66loat\"(\n\tArrayList\x12\x1b\n\x06\x61rrays\x18\x01 \x03(\x0b\x32\x0b.gnes.Array\"\xd2\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x02(\t\x12\x0e\n\x06offset\x18\x02 \x02(\r\x12\x19\n\nis_encoded\x18\x03 \x02(\x08:\x05\x66\x61lse\x12\x0c\n\x04text\x18\x04 \x01(\t\x12\x19\n\x04\x62lob\x18\x05 \x01(\x0b\x32\x0b.gnes.Array\x12\x1b\n\x06\x65ncode\x18\x06 \x01(\x0b\x32\x0b.gnes.Array\x12+\n\x0b\x63oordinates\x18\x07 \x03(\x0b\x32\x16.gnes.Chunk.Coordinate\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\"\x84\x01\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x19\n\x04\x62lob\x18\x04 \x01(\x0b\x32\x0b.gnes.Array\x12\x18\n\tis_parsed\x18\x05 \x02(\x08:\x05\x66\x61lse\x12\x1b\n\x06\x63hunks\x18\x06 \x03(\x0b\x32\x0b.gnes.Chunk\"C\n\x05Query\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x19\n\x04\x62lob\x18\x02 \x01(\x0b\x32\x0b.gnes.Array\x12\x11\n\x05top_k\x18\x03 \x01(\r:\x02\x31\x30\"R\n\rSearchRequest\x12\x13\n\x0b_request_id\x18\x01 \x02(\t\x12\x1a\n\x05query\x18\x02 \x02(\x0b\x32\x0b.gnes.Query\x12\x10\n\x08time_out\x18\x03 \x01(\r\"p\n\x0cIndexRequest\x12\x13\n\x0b_request_id\x18\x01 \x02(\t\x12\x1c\n\x04\x64ocs\x18\x02 \x03(\x0b\x32\x0e.gnes.Document\x12\x10\n\x08time_out\x18\x03 \x01(\r\x12\x1b\n\x0cupdate_model\x18\x04 \x02(\x08:\x05\x66\x61lse\"u\n\x0eSearchResponse\x12,\n\x07results\x18\x01 \x03(\x0b\x32\x1b.gnes.SearchResponse.Result\x12\x0c\n\x04size\x18\x02 \x02(\r\x1a\'\n\x06Result\x12\x0e\n\x06\x64oc_id\x18\x01 \x02(\t\x12\r\n\x05score\x18\x02 \x02(\x02\"\xa4\x02\n\x07Message\x12\x0e\n\x06msg_id\x18\x01 \x01(\t\x12\x10\n\x08msg_type\x18\x02 \x02(\t\x12\r\n\x05route\x18\x03 \x02(\t\x12\x12\n\x07part_id\x18\x04 \x02(\r:\x01\x31\x12\x13\n\x08num_part\x18\x05 \x02(\r:\x01\x31\x12\'\n\x04mode\x18\x06 \x02(\x0e\x32\x12.gnes.Message.Mode:\x05QUERY\x12\x18\n\tis_parsed\x18\x07 \x02(\x08:\x05\x66\x61lse\x12\x19\n\nis_encoded\x18\x08 \x02(\x08:\x05\x66\x61lse\x12\x1c\n\x04\x64ocs\x18\t \x03(\x0b\x32\x0e.gnes.Document\x12\x1a\n\x05query\x18\n \x01(\x0b\x32\x0b.gnes.Query\"\'\n\x04Mode\x12\t\n\x05QUERY\x10\x00\x12\t\n\x05INDEX\x10\x01\x12\t\n\x05TRAIN\x10\x02')
 )
 
 
@@ -46,8 +46,8 @@ _MESSAGE_MODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1093,
-  serialized_end=1132,
+  serialized_start=1120,
+  serialized_end=1159,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGE_MODE)
 
@@ -319,22 +319,8 @@ _QUERY = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='is_parsed', full_name='gnes.Query.is_parsed', index=2,
-      number=3, type=8, cpp_type=7, label=2,
-      has_default_value=True, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='chunks', full_name='gnes.Query.chunks', index=3,
-      number=4, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='top_k', full_name='gnes.Query.top_k', index=4,
-      number=5, type=13, cpp_type=3, label=1,
+      name='top_k', full_name='gnes.Query.top_k', index=2,
+      number=3, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=10,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -352,7 +338,7 @@ _QUERY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=480,
-  serialized_end=602,
+  serialized_end=547,
 )
 
 
@@ -396,8 +382,8 @@ _SEARCHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=604,
-  serialized_end=686,
+  serialized_start=549,
+  serialized_end=631,
 )
 
 
@@ -448,8 +434,8 @@ _INDEXREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=688,
-  serialized_end=800,
+  serialized_start=633,
+  serialized_end=745,
 )
 
 
@@ -486,8 +472,8 @@ _SEARCHRESPONSE_RESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=880,
-  serialized_end=919,
+  serialized_start=825,
+  serialized_end=864,
 )
 
 _SEARCHRESPONSE = _descriptor.Descriptor(
@@ -523,8 +509,8 @@ _SEARCHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=802,
-  serialized_end=919,
+  serialized_start=747,
+  serialized_end=864,
 )
 
 
@@ -559,7 +545,7 @@ _MESSAGE = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='part_id', full_name='gnes.Message.part_id', index=3,
       number=4, type=13, cpp_type=3, label=2,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -578,9 +564,30 @@ _MESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='chunks', full_name='gnes.Message.chunks', index=6,
-      number=7, type=11, cpp_type=10, label=3,
+      name='is_parsed', full_name='gnes.Message.is_parsed', index=6,
+      number=7, type=8, cpp_type=7, label=2,
+      has_default_value=True, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='is_encoded', full_name='gnes.Message.is_encoded', index=7,
+      number=8, type=8, cpp_type=7, label=2,
+      has_default_value=True, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='docs', full_name='gnes.Message.docs', index=8,
+      number=9, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='query', full_name='gnes.Message.query', index=9,
+      number=10, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -597,8 +604,8 @@ _MESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=922,
-  serialized_end=1132,
+  serialized_start=867,
+  serialized_end=1159,
 )
 
 _ARRAYLIST.fields_by_name['arrays'].message_type = _ARRAY
@@ -609,13 +616,13 @@ _CHUNK.fields_by_name['coordinates'].message_type = _CHUNK_COORDINATE
 _DOCUMENT.fields_by_name['blob'].message_type = _ARRAY
 _DOCUMENT.fields_by_name['chunks'].message_type = _CHUNK
 _QUERY.fields_by_name['blob'].message_type = _ARRAY
-_QUERY.fields_by_name['chunks'].message_type = _CHUNK
 _SEARCHREQUEST.fields_by_name['query'].message_type = _QUERY
 _INDEXREQUEST.fields_by_name['docs'].message_type = _DOCUMENT
 _SEARCHRESPONSE_RESULT.containing_type = _SEARCHRESPONSE
 _SEARCHRESPONSE.fields_by_name['results'].message_type = _SEARCHRESPONSE_RESULT
 _MESSAGE.fields_by_name['mode'].enum_type = _MESSAGE_MODE
-_MESSAGE.fields_by_name['chunks'].message_type = _CHUNK
+_MESSAGE.fields_by_name['docs'].message_type = _DOCUMENT
+_MESSAGE.fields_by_name['query'].message_type = _QUERY
 _MESSAGE_MODE.containing_type = _MESSAGE
 DESCRIPTOR.message_types_by_name['Array'] = _ARRAY
 DESCRIPTOR.message_types_by_name['ArrayList'] = _ARRAYLIST
