@@ -5,8 +5,9 @@ source _dialog.sh
 function docker_stack_start() {
     TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
     (. .env && eval "echo \"$(cat ${COMPOSE_YAML_PATH})\"") > "${TIMESTAMP}-compose.yml"
-    docker stack deploy --compose-file "${TIMESTAMP}-compose.yml" "$GNES_STACK_NAME"
-}
+    printf "compose yaml is written to \e[0;32m${TIMESTAMP}-compose.yml\e[0m\n" >&2
+    docker stack deploy --compose-file "${TIMESTAMP}-compose.yml" "$GNES_STACK_NAME" >&2
+} >&2
 
 VARS="`set -o posix ; set`";
 

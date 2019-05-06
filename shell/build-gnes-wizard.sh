@@ -16,7 +16,7 @@ WIZARD_SH="./gnes-wizard.sh"
 
 printf "#!/usr/bin/env bash
 
-set -e
+set -ex
 
 WIZARD_BUILD=$(git rev-parse --short HEAD)
 WIZARD_VERSION=$(<".version")

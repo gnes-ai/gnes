@@ -27,26 +27,10 @@ esac
 
 ### 2. Set docker image build version
 
-BUILD_ID=$(TITLE="what is the build version of your image";
+BUILD_ID=$(TITLE="what is the version number of your image";
            TITLE_SHORT="build version";
            DEFAULT_VALUE="master";
            ui.show_input)
-
-### 3. Set all ports
-HOST_PORT_IN=$(TITLE="please specify an incoming port of your service, client will send data to this port";
-               TITLE_SHORT="set port in";
-               DEFAULT_VALUE="8598";
-               ui.show_input)
-HOST_PORT_OUT=$(TITLE="please specify an outgoing port of your service, client will receive data from this port";
-               TITLE_SHORT="set port out";
-               DEFAULT_VALUE="8599";
-               ui.show_input)
-
-# these random port need no UI config
-INCOME_PROXY_OUT=$RANDOM
-MIDDLEMAN_PROXY_IN=$RANDOM
-MIDDLEMAN_PROXY_OUT=$RANDOM
-OUTGOING_PROXY_IN=$RANDOM
 
 ### 4. Set all dirs
 
@@ -58,7 +42,7 @@ case "$_DOWNLOAD_PRETRAINED_GNES" in
 0)
     _PRETRAINED_GNES_URL=$(TITLE="what is the URL of the pretrained GNES?";
                             TITLE_SHORT="URL of pretrained GNES";
-                            DEFAULT_VALUE="https://transfer.sh/ojW1e/";
+                            DEFAULT_VALUE="";
                             ui.show_input)
     curl -s ${_PRETRAINED_GNES_URL} -o temp.zip; unzip temp.zip; rm temp.zip
     ;;
@@ -82,8 +66,8 @@ function check_file_dialog() {
     _YAML_PATH="${MODEL_DIR}/$1.yml"  # default path
     while true; do
         if [[ ! -f "$_YAML_PATH" ]]; then
-            _YAML_PATH=$(TITLE="can't found $1's YAML config at $_YAML_PATH, where is it?";
-                   TITLE_SHORT="$1's YAML";
+            _YAML_PATH=$(TITLE="can't found $1 YAML config at $_YAML_PATH, where is it?";
+                   TITLE_SHORT="$1 YAML config";
                    DEFAULT_VALUE="${MODEL_DIR}/$1.yml";
                    ui.show_input)
         else
@@ -95,24 +79,57 @@ function check_file_dialog() {
 
 ENCODER_YAML_PATH=$(check_file_dialog "encoder")
 INDEXER_YAML_PATH=$(check_file_dialog "indexer")
-TRANSFORMER_YAML_PATH=$(check_file_dialog "transformer")
+PREPROCESSOR_YAML_PATH=$(check_file_dialog "preprocessor")
 
-tmp_options=()
-if [[ ! -f "${MODEL_DIR}/index-compose.yml" ]]; then
-    tmp_options+=("INDEX mode: enabling GNES to index new documents")
+_ENABLED_MODE=()
+if [[ -f "${MODEL_DIR}/index-compose.yml" ]]; then
+    _ENABLED_MODE+=('INDEX mode: enabling GNES to index new documents')
 fi
-if [[ ! -f "${MODEL_DIR}/query-compose.yml" ]]; then
-    tmp_options+=("QUERY mode: enabling GNES to search for a given query")
+if [[ -f "${MODEL_DIR}/query-compose.yml" ]]; then
+    _ENABLED_MODE+=('QUERY mode: enabling GNES to search for a given query')
 fi
-if [[ ! -f "${MODEL_DIR}/train-compose.yml" ]]; then
-    tmp_options+=("TRAIN mode (advanced): enabling GNES to train/fine-tune the encoder")
+if [[ -f "${MODEL_DIR}/train-compose.yml" ]]; then
+    _ENABLED_MODE+=('TRAIN mode (advanced): enabling GNES to train/fine-tune the encoder')
 fi
 
 _COMPOSE_YAML_PATH=$(TITLE="which mode do you want to run GNES in";
                      TITLE_SHORT="select the mode";
-                     OPTIONS=${tmp_options}
+                     OPTIONS=(
+                     "INDEX mode: enabling GNES to index new documents"
+                     "QUERY mode: enabling GNES to search for a given query"
+                     "TRAIN mode: enabling GNES to train/fine-tune the encoder")
                      DEFAULT_VALUE=0;
                      ui.show_options)
+
+COMPOSE_YAML_PATH=""
+case "$_COMPOSE_YAML_PATH" in
+    0)
+        COMPOSE_YAML_PATH=$(check_file_dialog "index-compose");;
+    1)
+        COMPOSE_YAML_PATH=$(check_file_dialog "query-compose");;
+    2)
+        COMPOSE_YAML_PATH=$(check_file_dialog "train-compose");;
+esac
+
+
+### 3. Set all ports
+HOST_PORT_IN=$(TITLE="specify an incoming port of your service, client will send data to this port on the host";
+               TITLE_SHORT="host port in";
+               DEFAULT_VALUE="8598";
+               ui.show_input)
+HOST_PORT_OUT=$(TITLE="specify an outgoing port of your service, client will receive data from this port on the host";
+               TITLE_SHORT="host port out";
+               DEFAULT_VALUE="8599";
+               ui.show_input)
+
+INCOME_PROXY_IN=$HOST_PORT_IN
+OUTGOING_PROXY_OUT=$HOST_PORT_OUT
+# these random port need no UI config
+INCOME_PROXY_OUT=$RANDOM
+MIDDLEMAN_PROXY_IN=$RANDOM
+MIDDLEMAN_PROXY_OUT=$RANDOM
+OUTGOING_PROXY_IN=$RANDOM
+
 #### 6. Final service naming
 
 GNES_STACK_NAME=$(TITLE="please name this service";

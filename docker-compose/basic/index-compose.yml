@@ -107,8 +107,7 @@ services:
 
 volumes:
   index_data:
-    external:
-      name: 'single_machine_shard_{{ .Task.Slot }}_data'
+    name: "${GNES_STACK_NAME}_shard_{{ .Task.Slot }}_data"
 
 networks:
   gnes-net:

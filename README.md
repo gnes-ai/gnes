@@ -56,6 +56,11 @@ If you are new to GNES, it is recommended to use the wizard to config and start 
 bash <(curl -s https://transfer.sh/yVeBa/gnes-wizard.sh)
 ```
 
+To stop a running GNES service, you can first use `docker stack ls` to find the name of the running services, say `gnes-swarm-0531`, then do: 
+```bash
+docker stack rm gnes-swarm-0531
+```
+
 <h2 align="center">:book: Documentation</h2>
 
 The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
