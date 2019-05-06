@@ -46,7 +46,7 @@ class ClientService(BS):
                                             route=self.__class__.__name__), timeout=self.args.timeout)
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
-            if self.args.query:
+            if not self.args.index:
                 res = self.result.pop()
 
                 tmp = {}

@@ -107,7 +107,7 @@ def set_client_parser(parser=None):
     parser.add_argument('--txt_file', type=argparse.FileType('r'),
                         default=sys.stdin,
                         help='text file to be used, each line is a doc/query')
-    parser.add_argument('--query', action='store_true', default=False,
+    parser.add_argument('--index', action='store_true', default=False,
                         help='merge result from multiple indexer')
     parser.set_defaults(
         port_in=parser.get_default('port_out') + IDX_PORT_DELTA,

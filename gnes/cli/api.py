@@ -45,7 +45,7 @@ def client(args):
             raise ValueError('input text file is empty, nothing to do')
         else:
             result = cs.query(data)
-            if args.query:
+            if not args.index:
                 print(result.client_id)
                 print(result.req_id)
                 print(result.content_type)
