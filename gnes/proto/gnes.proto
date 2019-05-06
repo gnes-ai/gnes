@@ -104,7 +104,6 @@ message Message {
   required bool is_encoded = 8 [default = false];
 
   repeated Document docs = 9;
-
   optional Query query = 10;
   // optional Query query = 8;
   // repeated string logs = 8;
