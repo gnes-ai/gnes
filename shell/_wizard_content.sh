@@ -78,40 +78,45 @@ OUTPUT_DIR=$(TITLE="where is the folder path for storing the output from the ser
             ui.show_input)
 
 #### 5. Set all yamls
+function check_file_dialog() {
+    _YAML_PATH="${MODEL_DIR}/$1.yml"  # default path
+    while true; do
+        if [[ ! -f "$_YAML_PATH" ]]; then
+            _YAML_PATH=$(TITLE="can't found $1's YAML config at $_YAML_PATH, where is it?";
+                   TITLE_SHORT="$1's YAML";
+                   DEFAULT_VALUE="${MODEL_DIR}/$1.yml";
+                   ui.show_input)
+        else
+            echo "$_YAML_PATH"
+            break;
+        fi
+    done
+}
 
-ENCODER_YAML_PATH=$(TITLE="what is the YAML path for the encoder?";
-                    TITLE_SHORT="encoder yaml";
-                    DEFAULT_VALUE="${MODEL_DIR}/encoder.yml";
-                    ui.show_input)
+ENCODER_YAML_PATH=$(check_file_dialog "encoder")
+INDEXER_YAML_PATH=$(check_file_dialog "indexer")
+TRANSFORMER_YAML_PATH=$(check_file_dialog "transformer")
 
-INDEXER_YAML_PATH=$(TITLE="what is the YAML path for the indexer?";
-                    TITLE_SHORT="indexer yaml";
-                    DEFAULT_VALUE="${MODEL_DIR}/indexer.yml";
-                    ui.show_input)
-
+tmp_options=()
+if [[ ! -f "${MODEL_DIR}/index-compose.yml" ]]; then
+    tmp_options+=("INDEX mode: enabling GNES to index new documents")
+fi
+if [[ ! -f "${MODEL_DIR}/query-compose.yml" ]]; then
+    tmp_options+=("QUERY mode: enabling GNES to search for a given query")
+fi
+if [[ ! -f "${MODEL_DIR}/train-compose.yml" ]]; then
+    tmp_options+=("TRAIN mode (advanced): enabling GNES to train/fine-tune the encoder")
+fi
 
 _COMPOSE_YAML_PATH=$(TITLE="which mode do you want to run GNES in";
-                 TITLE_SHORT="select the mode";
-                 OPTIONS=("indexing mode: enabling GNES to index new documents"
-                          "querying mode: enabling GNES to search for a given query"
-                          "training mode (advanced): enabling GNES to train/fine-tune the encoder")
-                 DEFAULT_VALUE=0;
-                 ui.show_options)
-
-COMPOSE_YAML_PATH=""
-case "$_COMPOSE_YAML_PATH" in
-    0)
-        COMPOSE_YAML_PATH="${MODEL_DIR}/train-compose.yml";;
-    1)
-        COMPOSE_YAML_PATH="${MODEL_DIR}/index-compose.yml";;
-    2)
-        COMPOSE_YAML_PATH="${MODEL_DIR}/query-compose.yml";;
-esac
-
+                     TITLE_SHORT="select the mode";
+                     OPTIONS=${tmp_options}
+                     DEFAULT_VALUE=0;
+                     ui.show_options)
 #### 6. Final service naming
 
 GNES_STACK_NAME=$(TITLE="please name this service";
-                  TITLE_SHORT="naming gnes service";
+                  TITLE_SHORT="naming service";
                   DEFAULT_VALUE="gnes-swarm-${RANDOM}";
                   ui.show_input)
 

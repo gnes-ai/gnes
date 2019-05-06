@@ -18,7 +18,7 @@ printf "#!/usr/bin/env bash
 
 set -e
 
-WIZARD_BUILD=$(git tag -l |tail -n1)
+WIZARD_BUILD=$(git rev-parse --short HEAD)
 WIZARD_VERSION=$(<".version")
 
 " > ${WIZARD_SH}
@@ -27,7 +27,7 @@ awk -f inrep.awk _wizard_wrapper.sh >> ${WIZARD_SH}
 
 fp=$(transfer ${WIZARD_SH})
 
-printf "script is available at \e[0;32m$fp\e[0m\n"
+printf "script is uploaded to \e[0;32m$fp\e[0m\n"
 
 printf "bumping version from $(<".version") to "
 NEW_VERSION=$(echo $(<".version") | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{$NF=sprintf("%0*d", length($NF), ($NF+1)); print}')

@@ -53,7 +53,7 @@ The easiest and the recommended way to use GNES is via Docker, which uses contai
 If you are new to GNES, it is recommended to use the wizard to config and start GNES.
 
 ```bash
-bash <(curl -s https://mywebsite.com/gnes-wizard.sh)
+bash <(curl -s https://transfer.sh/yVeBa/gnes-wizard.sh)
 ```
 
 <h2 align="center">:book: Documentation</h2>

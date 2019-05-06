@@ -39,10 +39,11 @@ source _wizard_content.sh
 
 SCRIPT_VARS="`grep -vFe "$VARS" <<<"$(set -o posix ; set)" | grep "^[^_]" | grep -v "RANDOM" | grep -v ^VARS=`"; unset VARS;
 
-printf "%s\n" "${SCRIPT_VARS[@]}" > $(pwd)/.env
-$(TITLE="config is saved at $(pwd)/.env, everything is ready! press enter to start the server";
- TITLE_SHORT='config saved';
- BLOCK_INPUT=0;
- ui.show_msgbox)
+printf "%s\n" "${SCRIPT_VARS[@]}" > .env
+
+_=$(TITLE="config is saved at $(pwd)/.env, everything is ready! press enter to start the server";
+    TITLE_SHORT="config saved";
+    BLOCK_INPUT=0;
+    ui.show_msgbox)
 
 docker_stack_start
