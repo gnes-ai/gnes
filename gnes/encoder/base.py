@@ -103,7 +103,7 @@ class CompositionalEncoder(BaseEncoder):
 
 
 class PipelineEncoder(CompositionalEncoder):
-    @train_required
+
     def encode(self, data: Any, *args, **kwargs) -> Any:
         if not self.component:
             raise NotImplementedError
