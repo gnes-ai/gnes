@@ -44,7 +44,7 @@ message Document {
   // Optional, the doc could also hold binary data, e.g., image
   optional Array blob = 4;
 
-  // If true the document has been parsed into several chunks
+  // If true the document has been divided into several chunks
   required bool is_parsed = 5 [default = false];
 
   repeated Chunk chunks = 6;
@@ -61,9 +61,9 @@ message Document {
 message Query {
   optional string text = 1;
   optional Array blob = 2;
-  required bool is_parsed = 3 [default = false];
-  repeated Chunk chunks = 4;
-  optional uint32 top_k = 5 [default = 10];
+  // required bool is_parsed = 3 [default = false];
+  // repeated Chunk chunks = 4;
+  optional uint32 top_k = 3 [default = 10];
 }
 
 message SearchRequest {
@@ -92,7 +92,7 @@ message Message {
   optional string msg_id = 1;
   required string msg_type = 2;
   required string route = 3;
-  required uint32 part_id = 4 [default = 0];
+  required uint32 part_id = 4 [default = 1];
   required uint32 num_part = 5 [default = 1];
   enum Mode {
     QUERY = 0;
@@ -100,8 +100,13 @@ message Message {
     TRAIN = 2;
   }
   required Mode mode = 6 [default = QUERY];
-  repeated Chunk chunks = 7;
+  required bool is_parsed = 7 [default = false];
+  required bool is_encoded = 8 [default = false];
 
+  repeated Document docs = 9;
+
+  optional Query query = 10;
+  // optional Query query = 8;
   // repeated string logs = 8;
 }
 
