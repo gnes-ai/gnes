@@ -37,7 +37,7 @@ class ClientService(BS):
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
 
-    def query(self, texts: List[str]) -> Optional['Message']:
+    def query(self, texts: List[str], top_k: int = 10) -> Optional['Message']:
         req_id = str(uuid.uuid4())
 
         idx_req = gnes_pb2.SearchRequest()
@@ -46,21 +46,24 @@ class ClientService(BS):
 
         doc = gnes_pb2.Document()
         for i, text in enumerate(texts):
-            chunk = gnes_pb2.Chunk()
+            chunk = doc.chunks.add()
             chunk.doc_id = req_id
             chunk.offset = i
             chunk.text = text
             # chunk.is_encodes = False
-            doc.chunks.append(chunk)
+            # doc.chunks.append(chunk)
         doc.is_parsed = True
 
-        idx_req.query = gnes_pb2.Query()
+        query = gnes_pb2.Query()
+        query.top_k = top_k
+
+        idx_req.query.CopyFrom(query)
 
         search_message = gnes_pb2.Message()
         search_message.msg_id = idx_req._request_id
-        search_message.mode = gnes_pb2.Message.Mode.QUERY
-        search_message.docs = [doc]
-        search_message.query = query
+        search_message.mode = gnes_pb2.Message.QUERY
+        search_message.docs.extend([doc])
+        search_message.query.CopyFrom(query)
         search_message.route = self.__class__.__name__
         search_message.is_parsed = True
 

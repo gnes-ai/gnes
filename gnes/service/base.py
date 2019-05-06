@@ -27,6 +27,7 @@ from termcolor import colored
 
 from ..helper import set_logger
 from ..messaging import *
+from gnes.proto import gnes_pb2
 
 
 class BetterEnum(Enum):
@@ -122,8 +123,8 @@ class MessageHandler:
 
         return decorator
 
-    def serve(self, msg: Message):
-        if not isinstance(msg, Message):
+    def serve(self, msg: 'gnes_pb2.Message'):
+        if not isinstance(msg, gnes_pb2.Message):
             raise ServiceError('dont know how to handle message: %s' % msg)
 
         if not msg.msg_type in self.routes:
@@ -183,18 +184,18 @@ class BaseService(threading.Thread):
         else:
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
-    def message_handler(self, msg: Message):
-    try:
-        fn = self.handler.serve(msg)
-        if fn:
-            msg.route = ' -> '.join([msg.route, self.__class__.__name__])
-            self.logger.info('handling a message of type: %s with route: %s' %
-                             (msg.msg_type, msg.route))
-            fn(self, msg, self.ctrl_sock if MessageType.is_control_message(
-                msg.msg_type) else self.out_sock)
-            self.logger.info('handler is done')
-    except ServiceError as e:
-        self.logger.error(e)
+    def message_handler(self, msg: 'gnes_pb2.Message'):
+        try:
+            fn = self.handler.serve(msg)
+            if fn:
+                msg.route = ' -> '.join([msg.route, self.__class__.__name__])
+                self.logger.info('handling a message of type: %s with route: %s' %
+                                 (msg.msg_type, msg.route))
+                fn(self, msg, self.ctrl_sock if MessageType.is_control_message(
+                    msg.msg_type) else self.out_sock)
+                self.logger.info('handler is done')
+        except ServiceError as e:
+            self.logger.error(e)
 
     @zmqd.context()
     def _run(self, ctx):
@@ -254,15 +255,15 @@ class BaseService(threading.Thread):
         pass
 
     @handler.register(MessageType.DEFAULT.name)
-    def _handler_default(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         pass
 
     @handler.register(MessageType.CTRL_STATUS.name)
-    def _handler_status(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_status(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         pass
 
     @handler.register(MessageType.CTRL_TERMINATE.name)
-    def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
+    def _handler_terminate(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
         self.is_event_loop.clear()
         raise StopIteration
@@ -273,23 +274,24 @@ class BaseService(threading.Thread):
             self._model.close()
         if self.is_event_loop.is_set():
             send_terminate_message(self.ctrl_addr, timeout=self.args.timeout)
-@property
-def status(self):
-    ctr_msg = Message()
-    ctr_msg.msg_type = MessageType.CTRL_STATUS.name
-    return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
+
+    @property
+    def status(self):
+        ctr_msg = gnes_pb2.Message()
+        ctr_msg.msg_type = MessageType.CTRL_STATUS.name
+        return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
 
 
-def __enter__(self):
-    self.start()
-    self.is_ready.wait()
-    return self
+    def __enter__(self):
+        self.start()
+        self.is_ready.wait()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
 
-def send_ctrl_message(address: str, msg: Message, timeout: int):
+def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
     # control message is short, set a timeout and ask for quick response
     with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)
@@ -301,6 +303,6 @@ def send_ctrl_message(address: str, msg: Message, timeout: int):
 
 
 def send_terminate_message(*args, **kwargs):
-    term_msg = Message()
+    term_msg = gnes_pb2.Message()
     term_msg.msg_type = MessageType.CTRL_TERMINATE.name
     return send_ctrl_message(msg=term_msg, *args, **kwargs)

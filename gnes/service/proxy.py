@@ -50,7 +50,7 @@ class MapProxyService(ProxyService):
                 p_msg.msg_id = msg.msg_id
                 p_msg.msg_type = msg.msg_type
                 p_msg.route = msg.route
-                p_msg.docs = b
+                p_msg.docs.extend(b)
                 p_msg.part_id = p_idx
                 p_msg.num_part = num_part
                 send_message(out, p_msg, self.args.timeout)
