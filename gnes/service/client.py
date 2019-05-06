@@ -44,21 +44,25 @@ class ClientService(BS):
         idx_req._request_id = self.args.identity + req_id
         idx_req.time_out = self.args.timeout
 
-        idx_req.query = gnes_pb2.Query()
-        idx_req.query.chunks = []
+        doc = gnes_pb2.Document()
         for i, text in enumerate(texts):
             chunk = gnes_pb2.Chunk()
             chunk.doc_id = req_id
             chunk.offset = i
             chunk.text = text
             # chunk.is_encodes = False
-            idx_req.query.chunks.append(chunk)
+            doc.chunks.append(chunk)
+        doc.is_parsed = True
+
+        idx_req.query = gnes_pb2.Query()
 
         search_message = gnes_pb2.Message()
         search_message.msg_id = idx_req._request_id
         search_message.mode = gnes_pb2.Message.Mode.QUERY
-        search_message.chunks = idx_req.query.chunks
+        search_message.docs = [doc]
+        search_message.query = query
         search_message.route = self.__class__.__name__
+        search_message.is_parsed = True
 
         send_message(self.out_sock, search_message, timeout=self.args.timeout)
 
