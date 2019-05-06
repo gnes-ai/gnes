@@ -32,6 +32,9 @@ BUILD_ID=$(TITLE="what is the version number of your image";
            DEFAULT_VALUE="master";
            ui.show_input)
 
+# concat build id with img url to get real image url
+DOCKER_IMG_URL="$DOCKER_IMG_URL:$BUILD_ID"
+
 ### 4. Set all dirs
 
 _DOWNLOAD_PRETRAINED_GNES=$(TITLE="do you have a pretrained GNES model downloaded?";
@@ -58,8 +61,10 @@ MODEL_DIR=$(TITLE="where is the folder path for pretrained models?";
 
 OUTPUT_DIR=$(TITLE="where is the folder path for storing the output from the service (e.g. index files, model dumps)?";
             TITLE_SHORT="output folder";
-            DEFAULT_VALUE="${MODEL_DIR}/output_data";
+            DEFAULT_VALUE="${MODEL_DIR}/gnes-output";
             ui.show_input)
+
+mkdir -p "$OUTPUT_DIR"
 
 #### 5. Set all yamls
 function check_file_dialog() {

@@ -6,7 +6,7 @@ function docker_stack_start() {
     TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
     (. .env && eval "echo \"$(cat ${COMPOSE_YAML_PATH})\"") > "${TIMESTAMP}-compose.yml"
     printf "compose yaml is written to \e[0;32m${TIMESTAMP}-compose.yml\e[0m\n" >&2
-    docker stack deploy --compose-file "${TIMESTAMP}-compose.yml" "$GNES_STACK_NAME" >&2
+    docker stack deploy --compose-file "${TIMESTAMP}-compose.yml" "$GNES_STACK_NAME" --with-registry-auth >&2
 }
 
 VARS="`set -o posix ; set`";
@@ -42,7 +42,7 @@ SCRIPT_VARS="`grep -vFe "$VARS" <<<"$(set -o posix ; set)" | grep "^[^_]" | grep
 
 printf "%s\n" "${SCRIPT_VARS[@]}" > .env
 
-_=$(TITLE="config is saved at $(pwd)/.env, everything is ready! \n press enter to start the server \n you can later terminate the service by \"docker stack rm $GNES_STACK_NAME\"";
+_=$(TITLE="config is saved at $(pwd)/.env, everything is ready! \npress enter to start the server \nyou can later terminate the service by \"docker stack rm $GNES_STACK_NAME\"";
     TITLE_SHORT="config saved";
     BLOCK_INPUT=0;
     ui.show_msgbox)

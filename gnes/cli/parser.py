@@ -148,9 +148,9 @@ def set_proxy_service_parser(parser=None):
     parser.add_argument('--proxy_type', type=str, default='ProxyService',
                         choices=[x for x in dir(my_proxy) if isclass(getattr(my_proxy, x))],
                         help='type of proxy')
-    parser.add_argument('--batch_size', type=int,
+    parser.add_argument('--batch_size', type=int, default=None,
                         help='the size of the request to split')
-    parser.add_argument('--num_part', type=int,
+    parser.add_argument('--num_part', type=int, default=None,
                         help='the number of partial result to collect')
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
                         socket_out=SocketType.PUB_BIND)
