@@ -115,11 +115,11 @@ esac
 ### 3. Set all ports
 HOST_PORT_IN=$(TITLE="specify an incoming port of your service, client will send data to this port on the host";
                TITLE_SHORT="host port in";
-               DEFAULT_VALUE="8598";
+               DEFAULT_VALUE="$RANDOM";
                ui.show_input)
 HOST_PORT_OUT=$(TITLE="specify an outgoing port of your service, client will receive data from this port on the host";
                TITLE_SHORT="host port out";
-               DEFAULT_VALUE="8599";
+               DEFAULT_VALUE=$(expr $HOST_PORT_IN + 1);
                ui.show_input)
 
 INCOME_PROXY_IN=$HOST_PORT_IN
