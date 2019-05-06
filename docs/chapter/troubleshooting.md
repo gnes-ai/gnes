@@ -1,4 +1,4 @@
-# GNES Troubleshooting
+# Troubleshooting
 
 
 ## Check if docker swarm/stack runs successfully
