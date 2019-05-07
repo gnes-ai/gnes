@@ -4,9 +4,6 @@ component:
     parameter:
       num_bytes: 2
       data_path: ./idx.binary
-  sent_doc_indexer: !LVDBIndexer
-    parameter:
-      data_path: ./idx.sent_doc
-  doc_content_indexer: !LVDBIndexer
+  doc_indexer: !LVDBIndexer
     parameter:
       data_path: ./idx.doc_content

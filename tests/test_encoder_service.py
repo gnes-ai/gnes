@@ -9,7 +9,7 @@ from gnes.service.encoder import EncoderService
 from gnes.service.proxy import MapProxyService, ReduceProxyService, ProxyService
 
 
-class TestService(unittest.TestCase):
+class TestEncoderService(unittest.TestCase):
     dirname = os.path.dirname(__file__)
     dump_path = os.path.join(dirname, 'encoder.bin')
     data_path = os.path.join(dirname, 'tangshi.txt')

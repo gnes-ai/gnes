@@ -22,6 +22,7 @@ from typing import List, Any
 
 from .base import BaseTextIndexer
 from ..document import BaseDocument
+from gnes.proto import gnes_pb2
 
 
 class LVDBIndexer(BaseTextIndexer):
@@ -40,19 +41,21 @@ class LVDBIndexer(BaseTextIndexer):
         del d['_db']
         return d
 
-    def add(self, keys: List[int], docs: List[Any], *args, **kwargs):
+    def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         with self._db.write_batch() as wb:
             for k, d in zip(keys, docs):
                 doc_id = pickle.dumps(k)
-                doc = pickle.dumps(d)
+                doc = d.SerializeToString()
                 wb.put(doc_id, doc)
 
-    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Any]:
+    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List['gnes_pb2.Document']:
         res = []
         for k in keys:
             doc_id = pickle.dumps(k)
             v = self._db.get(doc_id)
-            res.append(pickle.loads(v) if v else self._NOT_FOUND)
+            doc = gnes_pb2.Document()
+            res.append(doc.ParseFromString(v) if v else self._NOT_FOUND)
+            # res.append(pickle.loads(v) if v else self._NOT_FOUND)
         return res
 
     def close(self):

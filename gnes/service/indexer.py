@@ -20,6 +20,7 @@ import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..messaging import *
+from gnes.proto import gnes_pb2
 
 
 class IndexerService(BS):
@@ -42,19 +43,32 @@ class IndexerService(BS):
             else:
                 raise ComponentNotLoad
 
-    def _index_and_notify(self, msg: 'Message', out: 'zmq.Socket', head_name: str):
-        res = msg.msg_content
-        self._model.add(res[1], res[0], head_name='binary_indexer')
-        self._model.add(*res[2], head_name='sent_doc_indexer')
-        self._model.add(*res[3], head_name='doc_content_indexer')
-        send_message(out, msg.copy_mod(msg_content=head_name), self.args.timeout)
+    def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket', head_name: str):
+        if not msg.is_encodes:
+            raise RuntimeError("the documents which are to be indexed have not been encoded!")
+
+        doc_ids = []
+        doc_keys = []
+        for doc in msg.docs:
+            doc_ids.append(doc.id)
+
+            vecs = []
+            chunk_size = len(doc.chunks)
+            for i, chunk in enumerate(doc.chunks):
+                doc_keys.append((doc.id, i))
+                vecs.append(blob2array(chunk.encode))
+
+            self._model.add(doc_keys, vecs, head_name='binary_indexer')
+            self._model.add([doc.id], [doc], head_name='doc_indexer')
+
+        send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        if self.args.mode == ServiceMode.INDEX:
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        if msg.mode == gnes_pb2.Message.INDEX:
             self._index_and_notify(msg, out, 'binary_indexer')
-        elif self.args.mode == ServiceMode.QUERY:
+        elif msg.mode == gnes_pb2.Message.QUERY:
             result = self._model.query(msg.msg_content, top_k=self.args.top_k)
             send_message(out, msg.copy_mod(msg_content=result), self.args.timeout)
         else:

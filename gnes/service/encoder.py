@@ -72,6 +72,7 @@ class EncoderService(BS):
             for doc in msg.docs:
                 for chunk in doc.chunks:
                     chunk.encode.CopyFrom(array2blob(vecs[i]))
+            msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %

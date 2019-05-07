@@ -25,7 +25,7 @@ import zmq
 from gnes.proto import gnes_pb2
 from zmq.utils import jsonapi
 
-__all__ = ['Message', 'MessageType', 'send_message', 'recv_message']
+__all__ = ['MessageType', 'send_message', 'recv_message']
 
 
 class MessageType(Enum):

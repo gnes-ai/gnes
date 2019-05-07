@@ -17,6 +17,8 @@
 
 
 import uuid
+import ctypes
+import numpy as np
 from typing import List, Optional
 
 import zmq
@@ -39,7 +41,7 @@ class ClientService(BS):
         self.logger.info('num of part finished %.2f%%' %
                          (len(self.result)/msg.num_part*100))
 
-    def train(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
+    def index(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
 
         idx_req = gnes_pb2.IndexRequest()
@@ -51,14 +53,21 @@ class ClientService(BS):
         search_message.mode = gnes_pb2.Message.TRAIN
         for text in texts:
             doc = search_message.docs.add()
+            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
             doc.text = text
             chunk = doc.chunks.add()
             chunk.text = text
-            # doc.is_parsed = True
+            doc.is_parsed = True
+
         search_message.route = self.__class__.__name__
         search_message.is_parsed = True
 
         send_message(self.out_sock, search_message, timeout=self.args.timeout)
+
+        if self.args.wait_reply:
+            self.is_handler_done.wait(self.args.timeout)
+            res = self.result.pop()
+            return res
 
 
     def query(self, texts: List[str], top_k: int = 10) -> Optional['gnes_pb2.Message']:
@@ -96,22 +105,5 @@ class ClientService(BS):
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
-            # if self.args.merge_res:
-            #     tmp = {}
-            #     for part_id, content in jsonapi.loads(res.msg_content):
-            #         content = jsonapi.loads(content)
-            #         if part_id in tmp:
-            #             tmp[part_id].append(content)
-            #         else:
-            #             tmp[part_id] = [content]
-            #     merged = None
-            #     for k in sorted(tmp.keys()):
-            #         _t = list(zip(*tmp[k]))
-            #         _top_k = len(_t[0][0])
-            #         _t = [sorted([i for j in v for i in j],
-            #                      key=lambda x: -x[1])[:_top_k]
-            #               for v in _t]
-            #         merged = merged + _t if merged else _t
-            #     res.msg_content = merged
             return res
 
