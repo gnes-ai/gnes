@@ -51,11 +51,15 @@ class EncoderService(BS):
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
 
-        chunks = [
-            chunk.text if chunk.HasField("text") else chunk.blob
-            for chunk in doc.chunks
-            for doc in msg.docs
-        ]
+        chunks = []
+        for doc in msg.docs:
+            for chunk in doc.chunks:
+                if chunk.HasField("text"):
+                    chunks.append(chunk.text)
+                elif chunk.HasField("blob"):
+                    chunks.append(chunk.blob)
+                else:
+                    raise ValueError("the chunk has empty content")
 
         if msg.mode == gnes_pb2.Message.TRAIN:
             self._model.train(chunks)

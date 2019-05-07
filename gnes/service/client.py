@@ -37,7 +37,29 @@ class ClientService(BS):
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
 
-    def query(self, texts: List[str], top_k: int = 10) -> Optional['Message']:
+    def train(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
+        req_id = str(uuid.uuid4())
+
+        idx_req = gnes_pb2.IndexRequest()
+        idx_req._request_id = self.args.identity + req_id
+        idx_req.time_out = self.args.timeout
+
+        search_message = gnes_pb2.Message()
+        search_message.msg_id = idx_req._request_id
+        search_message.mode = gnes_pb2.Message.TRAIN
+        for text in texts:
+            doc = search_message.docs.add()
+            doc.text = text
+            chunk = doc.chunks.add()
+            chunk.text = text
+            # doc.is_parsed = True
+        search_message.route = self.__class__.__name__
+        search_message.is_parsed = True
+
+        send_message(self.out_sock, search_message, timeout=self.args.timeout)
+
+
+    def query(self, texts: List[str], top_k: int = 10) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
 
         idx_req = gnes_pb2.SearchRequest()
@@ -69,10 +91,6 @@ class ClientService(BS):
 
         send_message(self.out_sock, search_message, timeout=self.args.timeout)
 
-        # send_message(self.out_sock, Message(client_id=self.args.identity,
-        #                                     req_id=req_id,
-        #                                     msg_content=texts,
-        #                                     route=self.__class__.__name__), timeout=self.args.timeout)
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
