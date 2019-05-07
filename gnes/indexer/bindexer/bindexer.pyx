@@ -43,6 +43,7 @@ cdef struct coordi:
     UST x
     UIDX y
 
+
 cdef struct Node:
     coordi left
     coordi right
@@ -53,6 +54,7 @@ cdef struct Node:
 
 cdef struct Data:
     UIDX doc_id
+    UST offset
     coordi _next
     coordi _neighbor
     coordi parent
@@ -71,6 +73,12 @@ cdef UIDX bytes_to_label(UCR*all_ids, UST bytes_per_label):
     for _ in range(bytes_per_label):
         label += (256**_) * all_ids[_]
     return label
+
+cdef UST bytes_to_offset(UCR*all_ids):
+    cdef UST offset
+    offset = all_ids[0] + all_ids[1]*256
+    return offset
+
 
 cdef int cmpfunc(const void*a, const void*b) nogil:
     cdef DataDist*av = <DataDist*>a
@@ -161,11 +169,12 @@ cdef class IndexCore:
 
         self.initialized = 0
 
-    cpdef void index_trie(self, UCR*data, const UIDX num_total, UCR*all_ids):
+    cpdef void index_trie(self, UCR*data, const UIDX num_total, UCR*all_ids, UCR*all_offsets):
         cdef Node*node
         cdef UIDX _0
         cdef UST _1
         cdef UIDX _id
+        cdef UST _offset
         cdef coordi parent_coordi
 
         if not self.initialized:
@@ -225,9 +234,11 @@ cdef class IndexCore:
                         node = self.id2node(node.right)
 
             _id = bytes_to_label(all_ids, self.bytes_per_label)
-            self._index_value(node, parent_coordi, _id, self.cur_vec)
+            _offset = bytes_to_offset(all_offsets)
+            self._index_value(node, parent_coordi, _id, _offset, self.cur_vec)
             data += self.bytes_per_vector
             all_ids += self.bytes_per_label
+            all_offsets += 2
 
     cdef coordi new_node(self, coordi parent_coordi):
         cdef Node*block_nodes
@@ -263,7 +274,7 @@ cdef class IndexCore:
         self.num_nodes += 1
         return cur_coordi
 
-    cdef void _index_value(self, Node*node, coordi parent_coordi, UIDX _id, UCR*cur_vec):
+    cdef void _index_value(self, Node*node, coordi parent_coordi, UIDX _id, UST _offset, UCR*cur_vec):
         cdef Data*data_block
         cdef Data*cur_node
         cdef coordi*neigh_block
@@ -302,6 +313,7 @@ cdef class IndexCore:
         cur_coordi.x = n_block
         cur_coordi.y = n_position
         cur_node.doc_id = _id
+        cur_node.offset = _offset
         cur_node._next.x = self.NULL_coordi.x
         cur_node._neighbor.x = n_block
         cur_node._neighbor.y = n_position * self.ef * 2
@@ -581,6 +593,7 @@ cdef class IndexCore:
 
     cpdef find_batch_trie(self, unsigned char*query, const UIDX num_query):
         cdef array.array final_result = array.array('L')
+        cdef array.array final_offset = array.array('L')
         cdef array.array final_idx = array.array('L')
         cdef Node*node
         cdef Data*dnode
@@ -622,18 +635,21 @@ cdef class IndexCore:
             if is_match == 1 and (node._next.x != self.NULL_coordi.x):
                 dnode = self.id2data(node._next)
                 final_result.append(dnode.doc_id)
+                final_offset.append(dnode.offset)
                 final_idx.append(_0)
                 while dnode._next.x != self.NULL_coordi.x:
                     dnode = self.id2data(dnode._next)
                     final_result.append(dnode.doc_id)
+                    final_offset.append(dnode.offset)
                     final_idx.append(_0)
 
             q_pt += self.bytes_per_vector
-        return final_idx, final_result
+        return final_idx, final_result, final_offset
 
     cpdef nsw_search(self, unsigned char*query, const UIDX num_query, const UIDX top_k):
         cdef array.array res_dist = array.array('L')
         cdef array.array res_docs = array.array('L')
+        cdef array.array res_offset = array.array('L')
         cdef array.array res_idx = array.array('L')
 
         cdef coordi*res
@@ -650,11 +666,12 @@ cdef class IndexCore:
                 if res[_1].x != self.NULL_coordi.x:
                     res_idx.append(_0)
                     res_docs.append(self.id2data(res[_1]).doc_id)
+                    res_offset.append(self.id2data(res[_1]).offset)
                     res_dist.append(self.vec_distance(self.cur_vec, self.id2vec(res[_1])))
                 else:
                     break
 
-        return res_docs, res_dist, res_idx
+        return res_docs, res_offset, res_dist, res_idx
 
     cpdef force_search(self, unsigned char*query, const UIDX num_query, UIDX top_k):
         cdef array.array res_dist = array.array('L')
@@ -704,6 +721,7 @@ cdef class IndexCore:
             for _1 in range(top_k):
                 res_idx.append(_0)
                 res_docs.append(Q[_1].data.doc_id)
+                res_docs.append(Q[_1].data.offset)
                 res_dist.append(Q[_1].dist)
             PyMem_Free(Q)
 
