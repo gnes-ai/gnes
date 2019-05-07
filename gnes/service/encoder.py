@@ -15,12 +15,12 @@
 
 # pylint: disable=low-comment-ratio
 
-
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..document import MultiSentDocument, DocumentMapper, UniSentDocument
 from ..messaging import *
+from ..proto import gnes_pb2, array2blob, blob2array
 
 
 class EncoderService(BS):
@@ -36,8 +36,10 @@ class EncoderService(BS):
         except FileNotFoundError:
             if self.args.mode == ServiceMode.TRAIN:
                 try:
-                    self._model = PipelineEncoder.load_yaml(self.args.yaml_path)
-                    self.logger.info('load an uninitialized encoder, training is needed!')
+                    self._model = PipelineEncoder.load_yaml(
+                        self.args.yaml_path)
+                    self.logger.info(
+                        'load an uninitialized encoder, training is needed!')
                 except FileNotFoundError:
                     raise ComponentNotLoad
             else:
@@ -46,31 +48,27 @@ class EncoderService(BS):
     def _raise_empty_model_error(self):
         raise ValueError('no model config available, exit!')
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        if self.args.mode == ServiceMode.QUERY:
-            doc_mapper = DocumentMapper(UniSentDocument.from_list(msg.msg_content))
-        else:
-            doc_mapper = DocumentMapper(MultiSentDocument.from_list(msg.msg_content))
-        sent_ids, sents = doc_mapper.sent_id_sentence
-        if not sents:
-            raise ServiceError('received an empty list, nothing to do')
-        if self.args.mode == ServiceMode.TRAIN:
-            self._model.train(sents)
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+
+        chunks = [
+            chunk.text if chunk.HasField("text") else chunk.blob
+            for chunk in doc.chunks
+            for doc in msg.docs
+        ]
+
+        if msg.mode == gnes_pb2.Message.TRAIN:
+            self._model.train(chunks)
             self.is_model_changed.set()
-        elif self.args.mode == ServiceMode.INDEX:
-            vecs = self._model.encode(sents)
-            send_message(out, msg.copy_mod(msg_content=(
-                vecs, sent_ids,
-                doc_mapper.sent_id_doc_id,
-                doc_mapper.doc_id_document)), self.args.timeout)
-            # send_message(out, msg.copy_mod(msg_content=(sent_ids, vecs)), self.args.timeout)
-            # send_message(out, msg.copy_mod(msg_content=doc_mapper.sent_id_doc_id, msg_type=Message.typ_sent_id),
-            #              self.args.timeout)
-            # send_message(out, msg.copy_mod(msg_content=doc_mapper.doc_id_document, msg_type=Message.typ_doc_id),
-            #              self.args.timeout)
-        elif self.args.mode == ServiceMode.QUERY:
-            vecs = self._model.encode(sents)
-            send_message(out, msg.copy_mod(msg_content=vecs), self.args.timeout)
+        elif (msg.mode == gnes_pb2.Message.INDEX) or (
+                msg.mode == gnes_pb2.Message.QUERY):
+            vecs = self._model.encode(chunks)
+            assert len(vecs) == len(chunks)
+            i = 0
+            for doc in msg.docs:
+                for chunk in doc.chunks:
+                    chunk.encode.CopyFrom(array2blob(vecs[i]))
+            send_message(out, msg, self.args.timeout)
         else:
-            raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
+            raise ServiceError('service %s runs in unknown mode %s' %
+                               (self.__class__.__name__, self.args.mode))
