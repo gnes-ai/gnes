@@ -36,6 +36,8 @@ class ClientService(BS):
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
+        self.logger.info('num of part finished %.2f%%' %
+                         (len(self.result)/msg.num_part*100))
 
     def train(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
@@ -112,3 +114,4 @@ class ClientService(BS):
             #         merged = merged + _t if merged else _t
             #     res.msg_content = merged
             return res
+

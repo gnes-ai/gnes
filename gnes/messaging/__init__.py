@@ -21,8 +21,9 @@ from typing import Union, List, Optional, Any
 
 import numpy as np
 import zmq
-# from zmq.utils import jsonapi
+
 from gnes.proto import gnes_pb2
+from zmq.utils import jsonapi
 
 __all__ = ['Message', 'MessageType', 'send_message', 'recv_message']
 
@@ -258,8 +259,6 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Me
         msg.ParseFromString(res_data)
         return msg
 
-        # response = sock.recv_multipart()
-        # return Message.from_bytes(*response)
     except ValueError:
         raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
     except zmq.error.Again:
