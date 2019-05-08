@@ -18,29 +18,60 @@
 
 from typing import List, Tuple, Dict
 
-from ..document import BaseDocument, DocumentMapper
+# from ..document import BaseDocument, DocumentMapper
 from ..encoder.base import CompositionalEncoder, train_required
 from ..helper import batching
+from ..proto import gnes_pb2
 
 
 class GNES(CompositionalEncoder):
-    def train(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
-        sents = DocumentMapper(lst_doc).sent_id_sentence[1]
-        self.component['encoder'].train(sents, *args, **kwargs)
+    def train(self, lst_doc: List['gnes_pb2.Document'], *args, **kwargs) -> None:
+        # sents = DocumentMapper(lst_doc).sent_id_sentence[1]
+        chunks = []
+        for doc in lst_doc:
+            for chunk in doc.chunks:
+                if chunk.HasField("text"):
+                    chunks.append(chunk.text)
+                elif chunk.HasField("blob"):
+                    chunks.append(chunk.blob)
+                else:
+                    raise ValueError("the chunk has empty content")
+
+        self.component['encoder'].train(chunks, *args, **kwargs)
 
     @train_required
     @batching
-    def add(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
-        doc_mapper = DocumentMapper(lst_doc)
-        ids, sents = doc_mapper.sent_id_sentence
-        bin_vectors = self.component['encoder'].encode(sents, *args, **kwargs)
-        self.component['binary_indexer'].add(ids, bin_vectors)
-        self.component['text_indexer'].add(*doc_mapper.doc_id_document)
+    def add(self, lst_doc: List['gnes_pb2.Document'], *args, **kwargs) -> None:
+        chunks = []
+        doc_keys = []
+        doc_ids = []
+        for doc in lst_doc:
+            doc_ids.add(doc.id)
+            for i, chunk in enumerate(doc.chunks):
+                if chunk.HasField("text"):
+                    chunks.append(chunk.text)
+                elif chunk.HasField("blob"):
+                    chunks.append(chunk.blob)
+                else:
+                    raise ValueError("the chunk has empty content")
+                doc_keys.append((doc.id, i))
+
+        bin_vectors = self.component['encoder'].encode(chunks, *args, **kwargs)
+        i = 0
+        for doc in lst_doc:
+            for chunk in doc.chunks:
+                chunk.encode = bin_vectors[i]
+                i += 1
+
+        self.component['binary_indexer'].add(doc_keys, bin_vectors)
+        self.component['doc_indexer'].add(doc_ids, lst_doc)
 
     @train_required
     def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.component['encoder'].encode(keys, *args, **kwargs)
+
         result_score = self.component['binary_indexer'].query(bin_queries, top_k)
+
         all_ids = list(set(d[0] for id_score in result_score for d in id_score if d[0] >= 0))
         result_doc = self.component['text_indexer'].query(all_ids)
         id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}

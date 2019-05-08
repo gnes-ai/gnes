@@ -50,36 +50,42 @@ class EncoderService(BS):
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-
         chunks = []
+        chunks_num = []
         for doc in msg.docs:
-            for chunk in doc.chunks:
-                if chunk.HasField("text"):
-                    chunks.append(chunk.text)
-                elif chunk.HasField("blob"):
-                    chunks.append(chunk.blob)
-                else:
-                    raise ValueError("the chunk has empty content")
+            if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
+                chunks_num.append(len(doc.text_chunks))
+                chunks.extend(doc.text_chunks)
+            elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
+                chunks_num.append(len(doc.blob_chunks))
+                chunks.extend(doc.blob_chunks)
+            else:
+                raise NotImplemented()
 
         if msg.mode == gnes_pb2.Message.TRAIN:
             self._model.train(chunks)
             self.is_model_changed.set()
+
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
             assert len(vecs) == len(chunks)
+
             i = 0
-            for doc in msg.docs:
-                for chunk in doc.chunks:
+            for num, doc in zip(chunks_num, msg.docs):
+                for _ in range(num):
                     encode = array2blob(vecs[i])
-                    chunk.encode.CopyFrom(encode)
+                    doc.encodes.add().CopyFrom(array2blob(encode))
                     i += 1
+
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
+
         elif msg.mode == gnes_pb2.Message.QUERY:
             vecs = self._model.encode(chunks)
             assert len(vecs) == len(chunks)
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
+
             for i, query in enumerate(range(num_querys), msg.querys):
                 encode = array2blob(vecs[i])
                 query.encode.CopyFrom(encode)

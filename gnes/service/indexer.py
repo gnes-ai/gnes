@@ -54,13 +54,12 @@ class IndexerService(BS):
         doc_keys = []
         for doc in msg.docs:
             doc_ids.append(doc.id)
-
             vecs = []
-            chunk_size = len(doc.chunks)
-            for i, chunk in enumerate(doc.chunks):
+            chunk_size = len(doc.text_chunks) or len(doc.blob_chunks)
+            assert chunk_size == len(doc.encodes)
+            for i in range(chunk_size):
                 doc_keys.append((doc.id, i))
-                vecs.append(blob2array(chunk.encode))
-
+                vecs.append(blob2array(doc.encodes[i]))
             vecs = np.concatenate(vecs, axis=0)
 
             self._model.add(doc_keys, vecs, head_name='binary_indexer')
@@ -88,7 +87,14 @@ class IndexerService(BS):
                     r.doc_size = item['doc_size']
                     r.offset = item['offset']
                     r.score = item['score']
-                    r.chunk.CopyFrom(item['chunk'])
+                    r.chunk.offset = item['offset']
+                    r.chunk.doc_id = item['doc_id']
+                    if msg.doc_type == gnes.Document.TEXT_DOC:
+                        r.chunk.text = item['chunk']
+                    elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
+                        r.chunk.blob = item['chunk']
+                    else:
+                        raise NotImplemented()
 
             send_message(out, msg, self.args.timeout)
         else:

@@ -58,9 +58,7 @@ class ClientService(BS):
             doc = message.docs.add()
             doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
             doc.text = ' '.join(text)
-            for sent in text:
-                chunk = doc.chunks.add()
-                chunk.text = sent
+            doc.text_chunks.extend(text)
             doc.is_parsed = True
 
         message.route = self.__class__.__name__
@@ -85,17 +83,12 @@ class ClientService(BS):
 
         doc = gnes_pb2.Document()
         doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-        for i, text in enumerate(texts):
-            chunk = doc.chunks.add()
-            # chunk.doc_id = req_id
-            # chunk.offset = i
-            chunk.text = text
-            # chunk.is_encodes = False
-            # doc.chunks.append(chunk)
+        doc.text = ' '.join(texts)
+        doc.text_chunks.extend(texts)
         doc.is_parsed = True
+
         search_req.doc.CopyFrom(doc)
 
-        # parse search_request to query-message
 
         query = gnes_pb2.Query()
         query.top_k = top_k
@@ -103,7 +96,9 @@ class ClientService(BS):
         search_message = gnes_pb2.Message()
         search_message.msg_id = search_req._request_id
         search_message.mode = gnes_pb2.Message.QUERY
-        for i, chunk in enumerate(doc.chunks):
+        search_message.docs.extend([doc])
+
+        for i, chunk in enumerate(doc.text_chunks):
             q = search_message.querys.add()
             q.id = i
             q.text = chunk.text

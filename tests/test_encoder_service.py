@@ -35,6 +35,8 @@ class TestEncoderService(unittest.TestCase):
                     sents.clear()
                     title = ''
 
+
+
     @classmethod
     def tearDownClass(cls):
         if os.path.exists(cls.dump_path):
