@@ -64,14 +64,26 @@ class EncoderService(BS):
         if msg.mode == gnes_pb2.Message.TRAIN:
             self._model.train(chunks)
             self.is_model_changed.set()
-        elif (msg.mode == gnes_pb2.Message.INDEX) or (
-                msg.mode == gnes_pb2.Message.QUERY):
+        elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
             assert len(vecs) == len(chunks)
             i = 0
             for doc in msg.docs:
                 for chunk in doc.chunks:
-                    chunk.encode.CopyFrom(array2blob(vecs[i]))
+                    encode = array2blob(vecs[i])
+                    chunk.encode.CopyFrom(encode)
+                    i += 1
+            msg.is_encoded = True
+            send_message(out, msg, self.args.timeout)
+        elif msg.mode == gnes_pb2.Message.QUERY:
+            vecs = self._model.encode(chunks)
+            assert len(vecs) == len(chunks)
+            num_querys = len(msg.querys)
+            assert num_querys == len(vecs)
+            for i, query in enumerate(range(num_querys), msg.querys):
+                encode = array2blob(vecs[i])
+                query.encode.CopyFrom(encode)
+
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
         else:

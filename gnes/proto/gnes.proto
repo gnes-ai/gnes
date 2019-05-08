@@ -60,18 +60,28 @@ message Document {
   // optional DocType doc_type = 7 [default = DocType.TEXT_DOC];
 }
 
+message SearchResult {
+  optional uint64 doc_id = 1;
+  optional uint32 doc_size = 2;
+  optional uint32 offset = 3;
+  optional float score = 4;
+  optional Chunk chunk = 5;
+}
+
 message Query {
-  optional string text = 1;
-  optional Array blob = 2;
-  // optional bool is_parsed = 3 [default = false];
-  // repeated Chunk chunks = 4;
-  optional uint32 top_k = 3 [default = 10];
+  optional uint32 id = 1;
+  optional string text = 2;
+  optional Array blob = 3;
+  optional Array encode = 4;
+  repeated SearchResult results = 5;
+  optional uint32 top_k = 6 [default = 10];
 }
 
 message SearchRequest {
   optional string _request_id = 1;
-  optional Query query = 2;
-  optional uint32 time_out = 3;
+  optional Document doc = 2;
+  optional uint32 top_k = 3 [default = 10];
+  optional uint32 time_out = 4;
 }
 
 message IndexRequest {
@@ -82,11 +92,7 @@ message IndexRequest {
 }
 
 message SearchResponse {
-  message Result {
-    optional string doc_id = 1;
-    optional float score = 2;
-  }
-  repeated Result results = 1;
+  repeated SearchResult data = 1;
   optional uint32 size = 2;
 }
 
@@ -101,14 +107,13 @@ message Message {
     INDEX = 1;
     TRAIN = 2;
   }
-  optional Mode mode = 6 [default = QUERY];
+  optional Mode mode = 6;
   optional bool is_parsed = 7 [default = false];
   optional bool is_encoded = 8 [default = false];
 
   repeated Document docs = 9;
-  optional Query query = 10;
-  // optional Query query = 8;
-  // repeated string logs = 8;
+  repeated Query querys = 10;
+  // repeated string logs = 12;
 }
 
 

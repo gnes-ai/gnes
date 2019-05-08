@@ -15,7 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-
 import uuid
 import ctypes
 import numpy as np
@@ -39,7 +38,7 @@ class ClientService(BS):
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
         self.logger.info('num of part finished %.2f%%' %
-                         (len(self.result)/msg.num_part*100))
+                         (len(self.result) / msg.num_part * 100))
 
     def index(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
@@ -57,6 +56,7 @@ class ClientService(BS):
             doc.text = text
             chunk = doc.chunks.add()
             chunk.text = text
+            # chunk.offset = 0
             doc.is_parsed = True
 
         search_message.route = self.__class__.__name__
@@ -69,34 +69,42 @@ class ClientService(BS):
             res = self.result.pop()
             return res
 
-
-    def query(self, texts: List[str], top_k: int = 10) -> Optional['gnes_pb2.Message']:
+    def query(self, texts: List[str],
+              top_k: int = 10) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
 
-        idx_req = gnes_pb2.SearchRequest()
-        idx_req._request_id = self.args.identity + req_id
-        idx_req.time_out = self.args.timeout
+        # build search_request
+        search_req = gnes_pb2.SearchRequest()
+        search_req._request_id = self.args.identity + req_id
+        search_req.time_out = self.args.timeout
+        search_req.top_k = top_k
 
         doc = gnes_pb2.Document()
+        doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
         for i, text in enumerate(texts):
             chunk = doc.chunks.add()
-            chunk.doc_id = req_id
-            chunk.offset = i
+            # chunk.doc_id = req_id
+            # chunk.offset = i
             chunk.text = text
             # chunk.is_encodes = False
             # doc.chunks.append(chunk)
         doc.is_parsed = True
+        search_req.doc.CopyFrom(doc)
+
+        # parse search_request to query-message
 
         query = gnes_pb2.Query()
         query.top_k = top_k
 
-        idx_req.query.CopyFrom(query)
-
         search_message = gnes_pb2.Message()
         search_message.msg_id = idx_req._request_id
         search_message.mode = gnes_pb2.Message.QUERY
-        search_message.docs.extend([doc])
-        search_message.query.CopyFrom(query)
+        for i, chunk in enumerate(doc.chunks):
+            q = search_message.querys.add()
+            q.id = i
+            q.text = chunk.text
+            q.top_k = search_req.top_k
+
         search_message.route = self.__class__.__name__
         search_message.is_parsed = True
 
@@ -106,4 +114,3 @@ class ClientService(BS):
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
             return res
-

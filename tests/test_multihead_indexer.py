@@ -13,8 +13,8 @@ class TestMHIndexer(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'indexer.bin')
         self.yaml_path = os.path.join(dirname, 'yaml', 'base-indexer.yml')
-        self.n_bytes = 20
-        self.query_num = 2
+        self.n_bytes = 2
+        self.query_num = 3
 
         self.querys = []
         self.docs = []
@@ -26,10 +26,11 @@ class TestMHIndexer(unittest.TestCase):
             doc_id = 0
             for line in f:
                 line = line.strip()
-                if not line and not title:
+
+                if line and not title:
                     title = line
                     sents.append(line)
-                elif not line:
+                elif not line and title:
                     doc = gnes_pb2.Document()
                     doc.id = doc_id
                     doc.text = ' '.join(sents)
@@ -51,10 +52,11 @@ class TestMHIndexer(unittest.TestCase):
                     title = ''
                     self.docs.append(doc)
         self.chunk_bins = np.concatenate(self.chunk_bins, axis=0)
+        self.querys = np.concatenate(self.querys, axis=0)
 
-    def test_load(self):
-        mhi = MultiheadIndexer.load_yaml(self.yaml_path)
-        mhi.close()
+    # def test_load(self):
+    #     mhi = MultiheadIndexer.load_yaml(self.yaml_path)
+    #     mhi.close()
 
     def test_add(self):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
@@ -63,6 +65,8 @@ class TestMHIndexer(unittest.TestCase):
             self.chunk_keys,
             self.chunk_bins.tobytes(),
             head_name='binary_indexer')
+
+        mhi.query(self.querys.tobytes(), top_k=1)
 
         # self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1, return_field=('id',)),
         #                  [[({'id': self.doc_content[0]['id']}, 1.0)]])

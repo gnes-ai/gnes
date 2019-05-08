@@ -15,7 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-
 from collections import defaultdict
 from typing import List, Tuple, Any, Dict, Optional
 
@@ -24,61 +23,71 @@ from ..encoder.base import CompositionalEncoder
 
 
 class BaseIndexer(TrainableBase):
-    internal_index_path = 'int.indexer.bin'  # this is used when pickle dump is not enough for storing all info
+    internal_index_path = 'int.indexer.bin'    # this is used when pickle dump is not enough for storing all info
 
-    def add(self, keys: Any, docs: Any, *args, **kwargs): pass
+    def add(self, keys: Any, docs: Any, *args, **kwargs):
+        pass
 
-    def query(self, keys: Any, top_k: int, *args, **kwargs) -> List[List[Tuple[Any, float]]]: pass
+    def query(self, keys: Any, top_k: int, *args,
+              **kwargs) -> List[List[Tuple[Any, float]]]:
+        pass
 
 
 class BaseBinaryIndexer(BaseIndexer):
+
     def __init__(self):
         super().__init__()
 
     def add(self, keys: bytes, docs: bytes, *args, **kwargs):
         pass
 
-    def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: bytes, top_k: int, *args,
+              **kwargs) -> List[List[Tuple[int, float]]]:
         pass
 
 
 class BaseTextIndexer(BaseIndexer):
-    def add(self, keys: List[int], docs: Any, *args, **kwargs): pass
 
-    def query(self, keys: List[int], top_k: int, *args, **kwargs) -> List[Any]: pass
+    def add(self, keys: List[int], docs: Any, *args, **kwargs):
+        pass
+
+    def query(self, keys: List[int], top_k: int, *args, **kwargs) -> List[Any]:
+        pass
 
 
 class MultiheadIndexer(CompositionalEncoder):
-    def add(self, keys: Any, docs: Any, head_name: str, *args, **kwargs) -> None:
+
+    def add(self, keys: Any, docs: Any, head_name: str, *args,
+            **kwargs) -> None:
         if not self.is_pipeline and head_name in self.component:
             self.component[head_name].add(keys, docs)
 
-    def query(self, keys: bytes, top_k: int,
+    def query(self,
+              keys: bytes,
+              top_k: int,
               sent_recall_factor: int = 10,
-              return_field: Optional[Tuple] = ('id', 'content'), *args, **kwargs) -> List[
-        List[Tuple[Dict, float]]]:
-        sent_id_topk = self.component['binary_indexer'].query(keys, top_k * sent_recall_factor, normalized_score=True)
+              return_field: Optional[Tuple] = ('id', 'content'),
+              *args,
+              **kwargs) -> List[List[Tuple[Dict, float]]]:
+        topk_results = self.component['binary_indexer'].query(
+            keys, top_k * sent_recall_factor, normalized_score=True)
 
-        # get unique sentence_id and query the corresponding doc_id
-        sent_ids = list(set(s_id for id_score in sent_id_topk for s_id, score in id_score if s_id >= 0))
-        doc_ids = self.component['sent_doc_indexer'].query(sent_ids)
-        sent_id2doc_id = {s_id: d_id for s_id, d_id in zip(sent_ids, doc_ids)}
-
-        # get unique doc_id and query the corresponding doc_content
-        doc_ids = list(set(doc_ids))
-        doc_contents = self.component['doc_content_indexer'].query(doc_ids)
-        doc_id2content = {d_id: d_content for d_id, d_content in zip(doc_ids, doc_contents)}
-
-        final_result = []
-        for id_score in sent_id_topk:
-            result = defaultdict(int)
-            for s_id, score in id_score:
-                normalizer = len(doc_id2content[sent_id2doc_id[s_id]]['sentences'])
-                result[sent_id2doc_id[s_id]] += score / normalizer
-            sorted_d = sorted(result.items(), key=lambda kv: kv[1], reverse=True)
-            sorted_d = [({k: doc_id2content[d_id][k] for k in return_field} if return_field else doc_id2content[d_id],
-                         score) for d_id, score in
-                        sorted_d][:top_k]
-            final_result.append(sorted_d)
-
-        return final_result
+        doc_caches = dict()
+        results = []
+        for topk in topk_results:
+            result = []
+            for key, score in topk:
+                doc_id, offset = key
+                doc = doc_caches.get(doc_id, None)
+                if doc is None:
+                    doc = self.component['doc_indexer'].query([doc_id])[0]
+                    doc_caches[doc_id] = doc
+                chunk = doc.chunks[offset]
+                result.append(({
+                    "doc_id": doc_id,
+                    "doc_size": len(doc.chunks),
+                    "offset": offset,
+                    "chunk": chunk
+                }, score))
+            results.append(result)
+        return results

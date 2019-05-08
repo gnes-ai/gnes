@@ -51,8 +51,13 @@ class MapProxyService(ProxyService):
                 p_msg.msg_type = msg.msg_type
                 p_msg.route = msg.route
                 p_msg.docs.extend(b)
+                if msg.HasField("querys"):
+                    p_msg.querys.extend(msg.querys)
                 p_msg.part_id = p_idx
                 p_msg.num_part = num_part
+                p_msg.is_parsed = msg.is_parsed
+                p_msg.is_encoded = msg.is_encoded
+                p_msg.mode = msg.mode
                 send_message(out, p_msg, self.args.timeout)
 
                 # send_message(out, msg.copy_mod(msg_content=b,
@@ -75,17 +80,14 @@ class ReduceProxyService(ProxyService):
 
             tmp = sorted(self.pending_result[msg.msg_id], key=lambda v: v.part_id)
             reduced_msg = tmp[0]
+
             for i in range(1, len(tmp)):
-                reduced_msg.docs.extend(tmp[i].docs)
+                tmp_msg = tmp[i]
+                reduced_msg.docs.extend(tmp_msg.docs)
+                if reduced_msg.HasField("querys"):
+                    reduced_msg.querys.extend(tmp_msg.querys)
+
             reduced_msg.part_id = 1
             reduced_msg.num_part = 1
             send_message(out, reduced_msg, self.args.timeout)
-
-            # tmp = sorted(self.pending_result[msg.msg_id], key=lambda v: v.part_id)
-            # res = [(v.part_id, v.msg_content) for v in tmp]
-
-            # send_message(out,
-            #              msg.copy_mod(msg_content=res,
-            #                           part_id=1,
-            #                           num_part=1), self.args.timeout)
             self.pending_result.pop(msg.msg_id)
