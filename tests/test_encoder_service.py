@@ -16,8 +16,24 @@ class TestEncoderService(unittest.TestCase):
     encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
 
     def setUp(self):
-        with open(self.data_path, encoding='utf8') as fp:
-            self.test_data1 = [v for v in fp if v.strip()]
+        self.test_querys = []
+        self.test_docs = []
+        with open(self.data_path) as f:
+            title = ''
+            sents = []
+            for line in f:
+                line = line.strip()
+
+                if line and not title:
+                    title = line
+                    sents.append(line)
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
+                    self.test_docs.append(sents)
+
+                    sents.clear()
+                    title = ''
 
     @classmethod
     def tearDownClass(cls):
@@ -54,4 +70,4 @@ class TestEncoderService(unittest.TestCase):
         with ProxyService(m_args), \
              EncoderService(e_args), \
              ClientService(c_args) as cs:
-            cs.train(self.test_data1)
+            cs.index(self.test_docs, is_train=True)
