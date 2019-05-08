@@ -21,7 +21,6 @@ message ArrayList {
 message Chunk {
   optional uint64 doc_id = 1;
   optional uint32 offset = 2;
-  // optional bool is_encoded = 3 [default = false];
   optional string text = 3;
   optional Array blob = 4;
   optional Array encode = 5;
@@ -49,15 +48,19 @@ message Document {
 
   optional bool is_encoded = 6 [default = false];
 
-  repeated Chunk chunks = 7;
+  repeated string text_chunks = 7;
 
-  // enum DocType {
-  //   TEXT_DOC = 0;
-  //   IMAGE_DOC = 1;
-  //   VIDEO_DOC = 2;
-  //   MIX_DOC = 3;
-  // }
-  // optional DocType doc_type = 7 [default = DocType.TEXT_DOC];
+  repeated Array blob_chunks = 8;
+
+  repeated Array encodes = 9;
+
+  enum DocType {
+    TEXT_DOC = 0;
+    IMAGE_DOC = 1;
+    VIDEO_DOC = 2;
+    MIX_DOC = 3;
+  }
+  optional DocType doc_type = 10 [default = TEXT_DOC];
 }
 
 message SearchResult {
@@ -69,7 +72,7 @@ message SearchResult {
 }
 
 message Query {
-  optional uint32 id = 1;
+  optional uint64 id = 1;
   optional string text = 2;
   optional Array blob = 3;
   optional Array encode = 4;
@@ -113,6 +116,7 @@ message Message {
 
   repeated Document docs = 9;
   repeated Query querys = 10;
+  optional Document.DocType doc_type = 11;
   // repeated string logs = 12;
 }
 
