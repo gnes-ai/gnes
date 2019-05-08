@@ -90,7 +90,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
     def __getstate__(self):
         d = super().__getstate__()
         del d['_thread']
-        del d['_is_busy']
+        del d['_is_idle']
         del d['_is_listening']
         return d
 

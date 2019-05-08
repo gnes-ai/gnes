@@ -151,11 +151,14 @@ def time_profile(func):
     def arg_wrapper(*args, **kwargs):
         if os.environ.get('NES_PROFILING', False):
             start_t = time.perf_counter()
-            start_mem = memory_usage()[0]
+            start_mem = memory_usage()[0] if os.environ.get('MEM_PROFILING', False) else -1
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
-            elapsed_mem = memory_usage()[0]
-            level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            elapsed_mem = memory_usage()[0] if os.environ.get('MEM_PROFILING', False) else -1
+            if os.environ.get('NES_LEVEL_PROFILING', False):
+                level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            else:
+                level_prefix = ''
             profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (
                 level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
         else:
