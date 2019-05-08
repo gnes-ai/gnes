@@ -65,7 +65,7 @@ class MultiheadIndexer(CompositionalEncoder):
     def query(self,
               keys: bytes,
               top_k: int,
-              sent_recall_factor: int = 10,
+              sent_recall_factor: int = 1,
               return_field: Optional[Tuple] = ('id', 'content'),
               *args,
               **kwargs) -> List[List[Tuple[Dict, float]]]:

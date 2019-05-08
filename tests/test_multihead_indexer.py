@@ -30,7 +30,9 @@ class TestMHIndexer(unittest.TestCase):
                 if line and not title:
                     title = line
                     sents.append(line)
-                elif not line and title:
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
                     doc = gnes_pb2.Document()
                     doc.id = doc_id
                     doc.text = ' '.join(sents)
@@ -66,7 +68,13 @@ class TestMHIndexer(unittest.TestCase):
             self.chunk_bins.tobytes(),
             head_name='binary_indexer')
 
-        mhi.query(self.querys.tobytes(), top_k=1)
+        results = mhi.query(self.querys.tobytes(), top_k=1)
+        self.assertEqual(len(results), len(self.querys))
+        for topk in results:
+            d, s = topk[0]
+            self.assertEqual(1.0, s)
+
+
 
         # self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1, return_field=('id',)),
         #                  [[({'id': self.doc_content[0]['id']}, 1.0)]])
