@@ -40,29 +40,33 @@ class ClientService(BS):
         self.logger.info('num of part finished %.2f%%' %
                          (len(self.result) / msg.num_part * 100))
 
-    def index(self, texts: List[str]) -> Optional['gnes_pb2.Message']:
+    def index(self, texts: List[List[str]], is_train: bool =False) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
 
         idx_req = gnes_pb2.IndexRequest()
         idx_req._request_id = self.args.identity + req_id
         idx_req.time_out = self.args.timeout
 
-        search_message = gnes_pb2.Message()
-        search_message.msg_id = idx_req._request_id
-        search_message.mode = gnes_pb2.Message.TRAIN
+        message = gnes_pb2.Message()
+        message.msg_id = idx_req._request_id
+        if is_train:
+            message.mode = gnes_pb2.Message.TRAIN
+        else:
+            message.mode = gnes_pb2.Message.INDEX
+
         for text in texts:
-            doc = search_message.docs.add()
+            doc = message.docs.add()
             doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-            doc.text = text
-            chunk = doc.chunks.add()
-            chunk.text = text
-            # chunk.offset = 0
+            doc.text = ' '.join(text)
+            for sent in text:
+                chunk = doc.chunks.add()
+                chunk.text = sent
             doc.is_parsed = True
 
-        search_message.route = self.__class__.__name__
-        search_message.is_parsed = True
+        message.route = self.__class__.__name__
+        message.is_parsed = True
 
-        send_message(self.out_sock, search_message, timeout=self.args.timeout)
+        send_message(self.out_sock, message, timeout=self.args.timeout)
 
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
@@ -97,7 +101,7 @@ class ClientService(BS):
         query.top_k = top_k
 
         search_message = gnes_pb2.Message()
-        search_message.msg_id = idx_req._request_id
+        search_message.msg_id = search_req._request_id
         search_message.mode = gnes_pb2.Message.QUERY
         for i, chunk in enumerate(doc.chunks):
             q = search_message.querys.add()

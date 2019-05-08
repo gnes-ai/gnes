@@ -51,7 +51,7 @@ class MapProxyService(ProxyService):
                 p_msg.msg_type = msg.msg_type
                 p_msg.route = msg.route
                 p_msg.docs.extend(b)
-                if msg.HasField("querys"):
+                if len(msg.querys) > 0:
                     p_msg.querys.extend(msg.querys)
                 p_msg.part_id = p_idx
                 p_msg.num_part = num_part
@@ -60,10 +60,6 @@ class MapProxyService(ProxyService):
                 p_msg.mode = msg.mode
                 send_message(out, p_msg, self.args.timeout)
 
-                # send_message(out, msg.copy_mod(msg_content=b,
-                #                                part_id=p_idx,
-                #                                num_part=num_part), self.args.timeout)
-
 
 class ReduceProxyService(ProxyService):
     handler = MessageHandler(BS.handler)
@@ -71,8 +67,8 @@ class ReduceProxyService(ProxyService):
     def _post_init(self):
         self.pending_result = defaultdict(list)  # type: Dict[str, list]
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.pending_result[msg.msg_id].append(msg)
         len_result = len(self.pending_result[msg.msg_id])
         if (not self.args.num_part and len_result == msg.num_part) or (
@@ -84,7 +80,7 @@ class ReduceProxyService(ProxyService):
             for i in range(1, len(tmp)):
                 tmp_msg = tmp[i]
                 reduced_msg.docs.extend(tmp_msg.docs)
-                if reduced_msg.HasField("querys"):
+                if len(reduced_msg.querys) > 0:
                     reduced_msg.querys.extend(tmp_msg.querys)
 
             reduced_msg.part_id = 1
