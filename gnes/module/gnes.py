@@ -45,7 +45,7 @@ class GNES(CompositionalEncoder):
         doc_keys = []
         doc_ids = []
         for doc in lst_doc:
-            doc_ids.add(doc.id)
+            doc_ids.append(doc.id)
             doc_chunks = doc.text_chunks if len(
                 doc.text_chunks) > 0 else doc.blob_chunks
             for i, chunk in enumerate(doc_chunks):
