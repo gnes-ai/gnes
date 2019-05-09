@@ -58,5 +58,5 @@ class NumpyIndexer(BaseIndexer):
         for ids in dist:
             rk = sorted(enumerate(ids), key=lambda x: x[1])
             ret.append(
-                [(self._doc_ids[rk[i][0]], rk[i][1]) for i in range(top_k)])
+                [(self._doc_ids[rk[i][0]], 1- rk[i][1]) for i in range(top_k)])
         return ret

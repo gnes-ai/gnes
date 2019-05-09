@@ -46,24 +46,18 @@ class IndexerService(BS):
 
     def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket',
                           head_name: str):
-        if not msg.is_encodes:
-            raise RuntimeError(
-                "the documents which are to be indexed have not been encoded!")
+        if not msg.is_encoded:
+            raise RuntimeError("the documents should be encoded at first!")
 
-        doc_ids = []
         doc_keys = []
         for doc in msg.docs:
-            doc_ids.append(doc.id)
-            vecs = []
-            chunk_size = len(doc.text_chunks) or len(doc.blob_chunks)
-            assert chunk_size == len(doc.encodes)
-            for i in range(chunk_size):
-                doc_keys.append((doc.id, i))
-                vecs.append(blob2array(doc.encodes[i]))
-            vecs = np.concatenate(vecs, axis=0)
+            doc_id = doc.id
+            assert doc.doc_size == len(doc.encodes)
+            vecs = blob2array(doc.encodes)
+            doc_keys = [(doc_id, i) for i in range(doc.doc_size)]
 
             self._model.add(doc_keys, vecs, head_name='binary_indexer')
-            self._model.add([doc.id], [doc], head_name='doc_indexer')
+            self._model.add([doc_id], [doc], head_name='doc_indexer')
 
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
@@ -77,7 +71,7 @@ class IndexerService(BS):
             for i, query in enumerate(msg.querys):
                 vecs.append(blob2array(query.encode))
             vecs = np.concatenate(vecs, axis=0)
-            results = self._model.query(vecs.tobytes(), top_k=query.top_k)
+            results = self._model.query(vecs, top_k=query.top_k)
 
             # convert to protobuf result
             for query, top_k in zip(msg.querys, results):

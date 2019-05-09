@@ -53,11 +53,10 @@ class EncoderService(BS):
         chunks = []
         chunks_num = []
         for doc in msg.docs:
+            chunks_num.append(doc.doc_size)
             if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
-                chunks_num.append(len(doc.text_chunks))
                 chunks.extend(doc.text_chunks)
             elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
-                chunks_num.append(len(doc.blob_chunks))
                 chunks.extend(doc.blob_chunks)
             else:
                 raise NotImplemented()
@@ -69,13 +68,7 @@ class EncoderService(BS):
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
             assert len(vecs) == len(chunks)
-
-            i = 0
-            for num, doc in zip(chunks_num, msg.docs):
-                for _ in range(num):
-                    encode = array2blob(vecs[i])
-                    doc.encodes.add().CopyFrom(array2blob(encode))
-                    i += 1
+            doc.encodes.CopyFrom(array2blob(vecs))
 
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
