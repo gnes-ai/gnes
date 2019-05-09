@@ -59,6 +59,7 @@ class ClientService(BS):
             doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
             doc.text = ' '.join(text)
             doc.text_chunks.extend(text)
+            doc.doc_size = len(text)
             doc.is_parsed = True
 
         message.route = self.__class__.__name__
@@ -85,6 +86,7 @@ class ClientService(BS):
         doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
         doc.text = ' '.join(texts)
         doc.text_chunks.extend(texts)
+        doc.doc_size = len(texts)
         doc.is_parsed = True
 
         search_req.doc.CopyFrom(doc)

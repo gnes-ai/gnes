@@ -61,7 +61,7 @@ class TestService(unittest.TestCase):
         with ProxyService(p_args), ClientService(c_args) as cs:
             result = cs.index(self.test_docs)
             self.assertEqual(len(result.docs), len(self.test_docs))
-            self.assertEqual(len(result.docs[0].chunks), len(self.test_docs[0]))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
     def test_map_proxy_pub_sub_service(self):
         m_args = set_proxy_service_parser().parse_args([
@@ -117,7 +117,7 @@ class TestService(unittest.TestCase):
              ClientService(c_args) as cs:
             result = cs.index(self.test_docs)
             self.assertEqual(len(result.docs), len(self.test_docs))
-            self.assertEqual(len(result.docs[0].chunks), len(self.test_docs[0]))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
         # with muliple dummy workers
         with ProxyService(m_args), \
@@ -174,7 +174,7 @@ class TestService(unittest.TestCase):
              ClientService(c_args) as cs:
             result = cs.index(self.test_docs)
             self.assertEqual(len(result.docs), len(self.test_docs))
-            self.assertEqual(len(result.docs[0].chunks), len(self.test_docs[0]))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
         # with muliple dummy workers
         with MapProxyService(m_args), \
@@ -186,7 +186,7 @@ class TestService(unittest.TestCase):
              ClientService(c_args) as cs:
             result = cs.index(self.test_docs)
             self.assertEqual(len(result.docs), len(self.test_docs))
-            self.assertEqual(len(result.docs[0].chunks), len(self.test_docs[0]))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
     # def test_encoder_service_train(self):
     #     # test training

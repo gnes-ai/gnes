@@ -86,7 +86,7 @@ class MultiheadIndexer(CompositionalEncoder):
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
                 result.append(({
                     "doc_id": doc_id,
-                    "doc_size": len(doc.chunks),
+                    "doc_size": doc.doc_size,
                     "offset": offset,
                     "chunk": chunk
                 }, score))

@@ -36,6 +36,7 @@ class TestMHIndexer(unittest.TestCase):
                     doc.id = doc_id
                     doc.text = ' '.join(sents)
                     doc.text_chunks.extend(sents)
+                    doc.doc_size = len(sents)
                     x = np.random.randint(
                             0, 255, [len(sents), self.n_bytes]).astype(np.uint8)
                     doc.encodes.CopyFrom(array2blob(x))
@@ -58,7 +59,7 @@ class TestMHIndexer(unittest.TestCase):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
         mhi.add(range(len(self.docs)), self.docs, head_name='doc_indexer')
         for doc in self.docs:
-            mhi.add([(doc.id, i) for i in range(len(doc.text_chunks))], blob2array(doc.encodes).tobytes(), head_name='binary_indexer')
+            mhi.add([(doc.id, i) for i in range(doc.doc_size)], blob2array(doc.encodes).tobytes(), head_name='binary_indexer')
 
         results = mhi.query(self.querys.tobytes(), top_k=1)
         self.assertEqual(len(results), len(self.querys))
