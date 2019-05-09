@@ -59,9 +59,9 @@ class TestMHIndexer(unittest.TestCase):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
         mhi.add(range(len(self.docs)), self.docs, head_name='doc_indexer')
         for doc in self.docs:
-            mhi.add([(doc.id, i) for i in range(doc.doc_size)], blob2array(doc.encodes).tobytes(), head_name='binary_indexer')
+            mhi.add([(doc.id, i) for i in range(doc.doc_size)], blob2array(doc.encodes), head_name='binary_indexer')
 
-        results = mhi.query(self.querys.tobytes(), top_k=1)
+        results = mhi.query(self.querys, top_k=1)
         self.assertEqual(len(results), len(self.querys))
         for topk in results:
             d, s = topk[0]

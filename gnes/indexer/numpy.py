@@ -15,7 +15,7 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -50,6 +50,7 @@ class NumpyIndexer(BaseIndexer):
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs
              ) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
+        keys = np.expand_dims(keys, axis=1)
         dist = keys - np.expand_dims(self._vectors, axis=0)
         dist = np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
 
