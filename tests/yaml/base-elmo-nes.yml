@@ -20,7 +20,6 @@ component:
         parameter:
           cluster_per_byte: 8
           num_bytes: 8
-      - !BinaryEncoder {}
   binary_indexer: !NumpyIndexer
     parameter:
       num_bytes: 8
