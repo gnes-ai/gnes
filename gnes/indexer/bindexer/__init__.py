@@ -21,10 +21,10 @@ from typing import List, Tuple, Union
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseBinaryIndexer
+from ..base import BaseIndexer
 
 
-class BIndexer(BaseBinaryIndexer):
+class BIndexer(BaseIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -52,10 +52,14 @@ class BIndexer(BaseBinaryIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
 
-    def add(self, doc_ids: List[Tuple[int, int]], vectors: bytes, *args,
+    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
             **kwargs):
-        if len(vectors) != len(doc_ids) * self.num_bytes:
-            raise ValueError("vectors should equal to num_bytes*len(doc_ids)")
+        if len(vectors) != len(doc_ids):
+            raise ValueError("vectors length should be equal to doc_ids")
+
+        if vectors.dtype != np.uint8:
+            raise ValueError("vectors should be ndarray of uint8")
+
 
         num_rows = len(doc_ids)
         cids = []
@@ -66,20 +70,23 @@ class BIndexer(BaseBinaryIndexer):
 
         cids = np.array(cids, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.bindexer.index_trie(vectors, num_rows, cids, offsets)
+        self.bindexer.index_trie(vectors.tobytes(), num_rows, cids, offsets)
 
     def query(
             self,
-            keys: bytes,
+            keys: np.ndarray,
             top_k: int = 1,
             normalized_score=False,
             method: str = 'nsw',
             *args,
             **kwargs) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
-        if len(keys) % self.num_bytes != 0:
-            raise ValueError("keys should be divided by num_bytes")
 
-        num_rows = int(len(keys) / self.num_bytes)
+        if keys.dtype != np.uint8:
+            raise ValueError("vectors should be ndarray of uint8")
+
+        # num_rows = int(len(keys) / self.num_bytes)
+        num_rows = keys.shape[0]
+        keys = keys.tobytes()
 
         result = [[] for _ in range(num_rows)]
 
