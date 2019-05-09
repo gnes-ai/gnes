@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from gnes.indexer.base import MultiheadIndexer
-from gnes.proto import gnes_pb2, array2blob
+from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class TestMHIndexer(unittest.TestCase):
@@ -16,10 +16,9 @@ class TestMHIndexer(unittest.TestCase):
         self.n_bytes = 2
         self.query_num = 3
 
-        self.querys = []
+        self.querys = None
         self.docs = []
         self.chunk_keys = []
-        self.chunk_bins = []
         with open(os.path.join(dirname, 'tangshi.txt')) as f:
             title = ''
             sents = []
@@ -36,12 +35,12 @@ class TestMHIndexer(unittest.TestCase):
                     doc = gnes_pb2.Document()
                     doc.id = doc_id
                     doc.text = ' '.join(sents)
-                    doc.text_chunks = sents
+                    doc.text_chunks.extend(sents)
                     x = np.random.randint(
                             0, 255, [len(sents), self.n_bytes]).astype(np.uint8)
                     doc.encodes.CopyFrom(array2blob(x))
 
-                    if not self.querys:
+                    if self.querys is None:
                         self.querys = x[:self.query_num]
 
                     doc.is_parsed = True
@@ -50,8 +49,6 @@ class TestMHIndexer(unittest.TestCase):
                     sents.clear()
                     title = ''
                     self.docs.append(doc)
-        self.chunk_bins = np.concatenate(self.chunk_bins, axis=0)
-        self.querys = np.concatenate(self.querys, axis=0)
 
     # def test_load(self):
     #     mhi = MultiheadIndexer.load_yaml(self.yaml_path)

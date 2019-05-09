@@ -52,7 +52,7 @@ message Document {
 
   repeated Array blob_chunks = 8;
 
-  repeated Array encodes = 9;
+  optional Array encodes = 9;
 
   enum DocType {
     TEXT_DOC = 0;
