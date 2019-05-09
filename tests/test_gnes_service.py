@@ -1,10 +1,11 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_encoder_service_parser, set_proxy_service_parser, set_client_parser
+from gnes.cli.parser import set_encoder_service_parser, set_proxy_service_parser, set_client_parser, set_indexer_service_parser
 from gnes.service.base import BaseService
 from gnes.service.client import ClientService
 from gnes.service.encoder import EncoderService
+from gnes.service.indexer import IndexerService
 
 from gnes.service.proxy import MapProxyService, ReduceProxyService, ProxyService
 
@@ -62,9 +63,15 @@ class TestEncoderService(unittest.TestCase):
             '--yaml_path', self.elmo_encoder_yaml
             ])
 
+        i_args = set_indexer_service_parser().parse_args([
+            '--port_in', str(e_args.port_out),
+            '--port_out', '1114',
+            '--socket_in', 'PULL_CONNECT',
+            '--socket_out', 'PUSH_BIND',
+            ])
 
         c_args = set_client_parser().parse_args([
-            '--port_in', str(e_args.port_out),
+            '--port_in', str(i_args.port_out),
             '--port_out', str(m_args.port_in),
             '--socket_out', 'PUSH_CONNECT',
             '--socket_in', 'PULL_CONNECT',
@@ -73,9 +80,11 @@ class TestEncoderService(unittest.TestCase):
 
         with ProxyService(m_args), \
              EncoderService(e_args), \
+             IndexerService(i_args), \
              ClientService(c_args) as cs:
             cs.index(self.test_docs, is_train=True)
             print('train is done! ..............')
-            cs.index(self.test_docs)
+            result = cs.index(self.test_docs)
+            print(result)
 
 
