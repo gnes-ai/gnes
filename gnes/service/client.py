@@ -67,7 +67,7 @@ class ClientService(BS):
 
         send_message(self.out_sock, message, timeout=self.args.timeout)
 
-        if self.args.wait_reply:
+        if self.args.wait_reply and not is_train:
             self.is_handler_done.wait(self.args.timeout)
             res = self.result.pop()
             return res

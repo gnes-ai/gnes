@@ -67,7 +67,8 @@ class TestEncoderService(unittest.TestCase):
             '--port_in', str(e_args.port_out),
             '--port_out', str(m_args.port_in),
             '--socket_out', 'PUSH_CONNECT',
-            '--socket_in', 'PULL_CONNECT'
+            '--socket_in', 'PULL_CONNECT',
+            '--wait_reply'
         ])
 
         with ProxyService(m_args), \
