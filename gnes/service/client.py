@@ -90,8 +90,8 @@ class ClientService(BS):
         search_req.doc.CopyFrom(doc)
 
 
-        query = gnes_pb2.Query()
-        query.top_k = top_k
+        # query = gnes_pb2.Query()
+        # query.top_k = top_k
 
         search_message = gnes_pb2.Message()
         search_message.msg_id = search_req._request_id

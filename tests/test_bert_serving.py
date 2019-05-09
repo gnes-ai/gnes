@@ -9,6 +9,7 @@ from bert_serving.server.helper import get_args_parser
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.base import PipelineEncoder
 from gnes.module.gnes import GNES
+from gnes.proto import gnes_pb2
 
 
 class TestBertServing(unittest.TestCase):
@@ -20,9 +21,9 @@ class TestBertServing(unittest.TestCase):
         self.nes_path = os.path.join(dirname, 'yaml', 'base-nes.yml')
         self.db_path = './test_leveldb'
 
-        self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
-        self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
-        self.test_str = [s for d in self.test_data1 for s in d.sentences]
+        # self.test_data1 = UniSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        # self.test_data2 = MultiSentDocument.from_file(os.path.join(dirname, 'tangshi.txt'))
+        # self.test_str = [s for d in self.test_data1 for s in d.sentences]
         self.port = os.environ.get('BERT_CI_PORT', '7125')
         self.port_out = os.environ.get('BERT_CI_PORT_OUT', '7126')
 
@@ -36,6 +37,35 @@ class TestBertServing(unittest.TestCase):
         self.server = BertServer(args)
         self.server.start()
         self.server.is_ready.wait()
+
+        self.test_querys = []
+        self.test_docs = []
+
+        with open(os.path.join(dirname, 'tangshi.txt')) as f:
+            title = ''
+            sents = []
+            doc_id = 0
+            for line in f:
+                line = line.strip()
+
+                if line and not title:
+                    title = line
+                    sents.append(line)
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
+                    doc = gnes_pb2.Document()
+                    doc.id = doc_id
+                    doc.text = ' '.join(sents)
+                    doc.text_chunks = sents
+
+                    doc.is_parsed = True
+                    doc.is_encoded = False
+                    doc_id += 1
+                    sents.clear()
+                    title = ''
+                    self.test_docs.append(doc)
+
 
     def test_bert_client(self):
         bc = BertClient(port=int(self.port),

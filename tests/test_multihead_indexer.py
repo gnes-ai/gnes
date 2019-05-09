@@ -36,16 +36,13 @@ class TestMHIndexer(unittest.TestCase):
                     doc = gnes_pb2.Document()
                     doc.id = doc_id
                     doc.text = ' '.join(sents)
-                    for i, sent in enumerate(sents):
-                        chunk = doc.chunks.add()
-                        x = np.random.randint(
-                            0, 255, [1, self.n_bytes]).astype(np.uint8)
-                        self.chunk_bins.append(x)
-                        self.chunk_keys.append((doc_id, i))
-                        if len(self.querys) < self.query_num:
-                            self.querys.append(x)
-                        chunk.text = sent
-                        chunk.blob.CopyFrom(array2blob(x))
+                    doc.text_chunks = sents
+                    x = np.random.randint(
+                            0, 255, [len(sents), self.n_bytes]).astype(np.uint8)
+                    doc.encodes.CopyFrom(array2blob(x))
+
+                    if not self.querys:
+                        self.querys = x[:self.query_num]
 
                     doc.is_parsed = True
                     doc.is_encoded = True
@@ -63,10 +60,8 @@ class TestMHIndexer(unittest.TestCase):
     def test_add(self):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
         mhi.add(range(len(self.docs)), self.docs, head_name='doc_indexer')
-        mhi.add(
-            self.chunk_keys,
-            self.chunk_bins.tobytes(),
-            head_name='binary_indexer')
+        for doc in self.docs:
+            mhi.add([(doc.id, i) for i in range(len(doc.text_chunks))], blob2array(doc.encodes).tobytes(), head_name='binary_indexer')
 
         results = mhi.query(self.querys.tobytes(), top_k=1)
         self.assertEqual(len(results), len(self.querys))

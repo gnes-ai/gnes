@@ -24,6 +24,6 @@ component:
   binary_indexer: !NumpyIndexer
     parameter:
       num_bytes: 8
-  text_indexer: !LVDBIndexer
+  doc_indexer: !LVDBIndexer
     parameter:
       data_path: ./test_db
