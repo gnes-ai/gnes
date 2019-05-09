@@ -52,7 +52,7 @@ class IndexerService(BS):
         doc_keys = []
         for doc in msg.docs:
             doc_id = doc.id
-            assert doc.doc_size == len(doc.encodes)
+            assert doc.doc_size == doc.encodes.shape[0]
             vecs = blob2array(doc.encodes)
             doc_keys = [(doc_id, i) for i in range(doc.doc_size)]
 

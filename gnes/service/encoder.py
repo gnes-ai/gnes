@@ -68,7 +68,12 @@ class EncoderService(BS):
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
             assert len(vecs) == len(chunks)
-            doc.encodes.CopyFrom(array2blob(vecs))
+            start = 0
+            for i, doc in enumerate(msg.docs):
+                x = vecs[start:chunks_num[i]]
+                doc.encodes.CopyFrom(array2blob(x))
+                doc.is_encoded = True
+                start += chunks_num[i]
 
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
