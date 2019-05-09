@@ -54,9 +54,9 @@ class TestEncoderService(unittest.TestCase):
 
         e_args = set_encoder_service_parser().parse_args([
             '--port_in', str(m_args.port_out),
-            #'--port_out', '1114',
+            '--port_out', '1113',
             '--socket_in', 'PULL_CONNECT',
-            #'--socket_out', 'PUSH_BIND',
+            '--socket_out', 'PUSH_BIND',
             '--mode', 'TRAIN',
             '--dump_path', self.dump_path,
             '--yaml_path', self.elmo_encoder_yaml
@@ -64,13 +64,17 @@ class TestEncoderService(unittest.TestCase):
 
 
         c_args = set_client_parser().parse_args([
-            #'--port_in', str(e_args.port_out),
+            '--port_in', str(e_args.port_out),
             '--port_out', str(m_args.port_in),
             '--socket_out', 'PUSH_CONNECT',
-            #'--socket_in', 'PULL_CONNECT'
+            '--socket_in', 'PULL_CONNECT'
         ])
 
         with ProxyService(m_args), \
              EncoderService(e_args), \
              ClientService(c_args) as cs:
             cs.index(self.test_docs, is_train=True)
+            print('train is done! ..............')
+            cs.index(self.test_docs)
+
+
