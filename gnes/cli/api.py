@@ -51,5 +51,5 @@ def client(args):
             else:
                 for line in data:
                     result = cs.query(line)
-                    self.logger.info(result)
+                    print(result)
         cs.join()
