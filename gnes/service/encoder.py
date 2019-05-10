@@ -67,6 +67,9 @@ class EncoderService(BS):
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
+            print(vecs)
+            self.logger.info('vecs shape {}'.format(vecs.shape))
+            self.logger.info('chunks size {}'.format(len(chunks)))
             assert len(vecs) == len(chunks)
             start = 0
             for i, doc in enumerate(msg.docs):

@@ -44,11 +44,12 @@ def client(args):
         if not data:
             raise ValueError('input text file is empty, nothing to do')
         else:
-            data = [doc.split('。') for doc in data]
+            data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
+
             if args.index:
                 result = cs.index(data, args.train)
             else:
-                result = cs.query(data)
-            print(result)
-
+                for line in data:
+                    result = cs.query(data)
+                    print(result)
         cs.join()
