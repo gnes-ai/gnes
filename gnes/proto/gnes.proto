@@ -104,23 +104,24 @@ message SearchResponse {
 }
 
 message Message {
-  optional string msg_id = 1;
-  optional string msg_type = 2;
-  optional string route = 3;
-  optional uint32 part_id = 4 [default = 1];
-  optional uint32 num_part = 5 [default = 1];
+  optional string client_id = 1;
+  optional string msg_id = 2;
+  optional string msg_type = 3;
+  optional string route = 4;
+  optional uint32 part_id = 5 [default = 1];
+  optional uint32 num_part = 6 [default = 1];
   enum Mode {
     QUERY = 0;
     INDEX = 1;
     TRAIN = 2;
   }
-  optional Mode mode = 6;
-  optional bool is_parsed = 7 [default = false];
-  optional bool is_encoded = 8 [default = false];
+  optional Mode mode = 7;
+  optional bool is_parsed = 8 [default = false];
+  optional bool is_encoded = 9 [default = false];
 
-  repeated Document docs = 9;
-  repeated Query querys = 10;
-  optional Document.DocType doc_type = 11;
+  repeated Document docs = 10;
+  repeated Query querys = 11;
+  optional Document.DocType doc_type = 12;
   // repeated string logs = 12;
 }
 
