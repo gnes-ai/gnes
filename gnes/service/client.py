@@ -40,7 +40,8 @@ class ClientService(BS):
         self.logger.info('num of part finished %.2f%%' %
                          (len(self.result) / msg.num_part * 100))
 
-    def index(self, texts: List[List[str]], is_train: bool =False) -> Optional['gnes_pb2.Message']:
+    def index(self, texts: List[List[str]],
+              is_train: bool = False) -> Optional['gnes_pb2.Message']:
         req_id = str(uuid.uuid4())
 
         idx_req = gnes_pb2.IndexRequest()
@@ -90,7 +91,6 @@ class ClientService(BS):
         doc.is_parsed = True
 
         search_req.doc.CopyFrom(doc)
-
 
         # query = gnes_pb2.Query()
         # query.top_k = top_k
