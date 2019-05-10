@@ -34,7 +34,6 @@ class BaseEncoder(TrainableBase):
 
 class BinaryEncoder(BaseEncoder):
     def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:
-        raise RuntimeError('wrongly use BinaryEncoder')
         if data.dtype != np.uint8:
             raise ValueError('data must be np.uint8 but received %s' % data.dtype)
         return data.tobytes()
