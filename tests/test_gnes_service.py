@@ -43,8 +43,10 @@ class TestEncoderService(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        if os.path.exists(cls.dump_path):
-            os.remove(cls.dump_path)
+        if os.path.exists(cls.encoder_dump_path):
+            os.remove(cls.encoder_dump_path)
+        if os.path.exists(cls.idx_dump_path):
+            os.remove(cls.idx_dump_path)
 
     def test_encoder_service_train(self):
         # test training
@@ -108,9 +110,8 @@ class TestEncoderService(unittest.TestCase):
             print('train is done! ..............')
             result = cs.index(self.test_docs)
             print(result)
-            # print('index is done! ...............')
-            # result = cs.query(self.test_docs[0], top_k=2)
-            # print(result)
-        print('finished!')
+            print('index is done! ...............')
+            result = cs.query(self.test_docs[0], top_k=2)
+            print(result)
 
 
