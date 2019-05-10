@@ -43,8 +43,8 @@ class TestEncoderService(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        if os.path.exists(cls.encoder_dump_path):
-            os.remove(cls.encoder_dump_path)
+        if os.path.exists(cls.encode_dump_path):
+            os.remove(cls.encode_dump_path)
         if os.path.exists(cls.idx_dump_path):
             os.remove(cls.idx_dump_path)
 
