@@ -62,14 +62,12 @@ class EncoderService(BS):
                 raise NotImplemented()
 
         if msg.mode == gnes_pb2.Message.TRAIN:
-            self.logger.info('the length of chunks is {}'.format(len(chunks)))
-            self.logger.info('\n'.join(chunks))
             self._model.train(chunks)
             self.is_model_changed.set()
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
-            self.logger.info('vecs shape {}'.format(vecs.shape))
+            self.logger.info('vecs shape {}'.format(len(vecs)))
             self.logger.info('chunks size {}'.format(len(chunks)))
             assert len(vecs) == len(chunks)
             start = 0
