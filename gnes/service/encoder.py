@@ -62,6 +62,8 @@ class EncoderService(BS):
                 raise NotImplemented()
 
         if msg.mode == gnes_pb2.Message.TRAIN:
+            self.logger.info('the length of chunks is {}'.format(len(chunks)))
+            self.logger.info('\n'.join(chunks))
             self._model.train(chunks)
             self.is_model_changed.set()
 
