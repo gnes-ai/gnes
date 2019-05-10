@@ -87,5 +87,6 @@ class ReduceProxyService(ProxyService):
 
             reduced_msg.part_id = 1
             reduced_msg.num_part = 1
+            self.logger.info(reduced_msg)
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)
