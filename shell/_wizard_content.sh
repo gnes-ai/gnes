@@ -47,7 +47,7 @@ case "$_DOWNLOAD_PRETRAINED_GNES" in
                             TITLE_SHORT="URL of pretrained GNES";
                             DEFAULT_VALUE="";
                             ui.show_input)
-    curl -s ${_PRETRAINED_GNES_URL} -o temp.zip; unzip temp.zip; rm temp.zip
+    curl -s --progress-bar "$_PRETRAINED_GNES_URL" -o temp.zip 1>&2; unzip temp.zip; rm temp.zip
     ;;
 1)
     ;;
@@ -59,18 +59,13 @@ MODEL_DIR=$(TITLE="where is the folder path for pretrained models?";
             DEFAULT_VALUE="$(pwd)";
             ui.show_input)
 
-OUTPUT_DIR=$(TITLE="where is the folder path for storing the output from the service (e.g. index files, model dumps)?";
-            TITLE_SHORT="output folder";
-            DEFAULT_VALUE="${MODEL_DIR}/gnes-output";
-            ui.show_input)
-
-mkdir -p "$OUTPUT_DIR"
-
 #### 5. Set all yamls
 function check_file_dialog() {
     _YAML_PATH="${MODEL_DIR}/$1.yml"  # default path
     while true; do
-        if [[ ! -f "$_YAML_PATH" ]]; then
+        if [[ -z "$_YAML_PATH" ]]; then
+            exit
+        elif [[ ! -f "$_YAML_PATH" ]]; then
             _YAML_PATH=$(TITLE="can't found $1 YAML config at $_YAML_PATH, where is it?";
                    TITLE_SHORT="$1 YAML config";
                    DEFAULT_VALUE="${MODEL_DIR}/$1.yml";
@@ -85,6 +80,13 @@ function check_file_dialog() {
 ENCODER_YAML_PATH=$(check_file_dialog "encoder")
 INDEXER_YAML_PATH=$(check_file_dialog "indexer")
 PREPROCESSOR_YAML_PATH=$(check_file_dialog "preprocessor")
+
+OUTPUT_DIR=$(TITLE="where is the folder path for storing the output from the service (e.g. index files, model dumps)?";
+            TITLE_SHORT="output folder";
+            DEFAULT_VALUE="${MODEL_DIR}/gnes-output";
+            ui.show_input)
+
+mkdir -p "$OUTPUT_DIR"
 
 _ENABLED_MODE=()
 if [[ -f "${MODEL_DIR}/index-compose.yml" ]]; then
