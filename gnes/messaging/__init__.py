@@ -236,7 +236,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send_multipart([msg.client_id, msg.SerializeToString()])
+        sock.send_multipart([msg.client_id.encode(), msg.SerializeToString()])
     except zmq.error.Again:
         raise TimeoutError(
             'no response from sock %s after timeout=%dms, please check the following:'
