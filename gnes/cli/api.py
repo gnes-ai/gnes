@@ -49,7 +49,7 @@ def client(args):
             if args.index:
                 result = cs.index(data, args.train)
             else:
-                result = cs.query(data)
-            print(result)
-
+                for line in data:
+                    result = cs.query(data)
+                    print(result)
         cs.join()
