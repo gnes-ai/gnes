@@ -51,5 +51,6 @@ def client(args):
             else:
                 for line in data:
                     result = cs.query(line)
-                    print(result)
+                    for _ in range(result.querys):
+                        print(result.querys[0].results[0].chunk.text)
         cs.join()
