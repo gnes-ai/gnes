@@ -14,7 +14,8 @@ class TestEncoderService(unittest.TestCase):
     dirname = os.path.dirname(__file__)
     dump_path = os.path.join(dirname, 'encoder.bin')
     data_path = os.path.join(dirname, 'tangshi.txt')
-    encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
+    # encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
+    encoder_yaml_path = os.path.join(dirname, 'yaml', 'elmo-binary-encoder.yml')
 
     def setUp(self):
         self.test_querys = []
