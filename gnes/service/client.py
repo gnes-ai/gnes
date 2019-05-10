@@ -49,6 +49,7 @@ class ClientService(BS):
         idx_req.time_out = self.args.timeout
 
         message = gnes_pb2.Message()
+        message.client_id = self.args.identity
         message.msg_id = idx_req._request_id
         if is_train:
             message.mode = gnes_pb2.Message.TRAIN
@@ -96,6 +97,7 @@ class ClientService(BS):
         # query.top_k = top_k
 
         search_message = gnes_pb2.Message()
+        search_message.client_id = self.args.identity
         search_message.msg_id = search_req._request_id
         search_message.mode = gnes_pb2.Message.QUERY
         search_message.docs.extend([doc])
