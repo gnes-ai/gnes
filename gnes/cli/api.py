@@ -52,8 +52,8 @@ def client(args):
                 for line in data:
                     result = cs.query(line)
                     try:
-                        for _ in range(len(result.querys[0])):
+                        for _ in range(len(result.querys[0].results)):
                             print(result.querys[0].results[_].chunk.text)
                     except:
-                        print(line)
+                        print('error', line, result)
         cs.join()
