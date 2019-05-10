@@ -509,6 +509,20 @@ def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
     sys.stdout.flush()
 
 
+def train_required(func):
+    @wraps(func)
+    def arg_wrapper(self, *args, **kwargs):
+        if hasattr(self, 'is_trained'):
+            if self.is_trained:
+                return func(self, *args, **kwargs)
+            else:
+                raise RuntimeError('training is required before calling "%s"' % func.__name__)
+        else:
+            raise AttributeError('%r has no attribute "is_trained"' % self)
+
+    return arg_wrapper
+
+
 cn_sent_splitter = SentenceSplitter(max_len=5)
 cn_tokenizer = Tokenizer()
 profile_logger = set_logger('PROFILE')

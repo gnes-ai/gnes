@@ -1,10 +1,11 @@
 import unittest
 
 from gnes.encoder.base import BaseEncoder as BE, PipelineEncoder
+from gnes.helper import train_required
 
 
 class _DummyTrainEncoder(BE):
-    @BE._train_required
+    @train_required
     def encode(self, *args, **kwargs):
         pass
 

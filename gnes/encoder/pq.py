@@ -18,8 +18,8 @@
 
 import numpy as np
 
-from .base import BaseEncoder, train_required
-from ..helper import batching
+from .base import BaseEncoder
+from ..helper import batching, train_required
 
 
 class PQEncoder(BaseEncoder):

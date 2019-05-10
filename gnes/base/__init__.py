@@ -28,7 +28,7 @@ import ruamel.yaml.constructor
 
 from ..helper import set_logger, profiling, yaml, parse_arg, touch_dir, FileLock
 
-__all__ = ['train_required', 'TrainableBase']
+__all__ = ['TrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
 
@@ -194,17 +194,6 @@ class TrainableBase(metaclass=TrainableType):
             self.work_dir = self._work_dir
         self._post_init()
 
-    @staticmethod
-    def _train_required(func):
-        @wraps(func)
-        def arg_wrapper(self, *args, **kwargs):
-            if self.is_trained:
-                return func(self, *args, **kwargs)
-            else:
-                raise RuntimeError('training is required before calling "%s"' % func.__name__)
-
-        return arg_wrapper
-
     def train(self, *args, **kwargs):
         pass
 
@@ -328,6 +317,3 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['property'] = p
         return r
-
-
-train_required = TrainableBase._train_required
