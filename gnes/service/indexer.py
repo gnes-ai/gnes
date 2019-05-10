@@ -85,7 +85,7 @@ class IndexerService(BS):
                     r.score = item['score']
                     r.chunk.offset = item['offset']
                     r.chunk.doc_id = item['doc_id']
-                    if msg.doc_type == gnes.Document.TEXT_DOC:
+                    if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
                         r.chunk.text = item['chunk']
                     elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
                         r.chunk.blob = item['chunk']

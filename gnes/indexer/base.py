@@ -88,6 +88,7 @@ class MultiheadIndexer(CompositionalEncoder):
                     "doc_id": doc_id,
                     "doc_size": doc.doc_size,
                     "offset": offset,
+                    "score": score,
                     "chunk": chunk
                 }, score))
             results.append(result)
