@@ -50,6 +50,6 @@ def client(args):
                 result = cs.index(data, args.train)
             else:
                 for line in data:
-                    result = cs.query(data)
+                    result = cs.query(line)
                     print(result)
         cs.join()
