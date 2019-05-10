@@ -149,18 +149,20 @@ def get_perm(L, m):
 def time_profile(func):
     @wraps(func)
     def arg_wrapper(*args, **kwargs):
-        if os.environ.get('NES_PROFILING', False):
+        if os.environ.get('GNES_PROFILING', False):
             start_t = time.perf_counter()
-            start_mem = memory_usage()[0] if os.environ.get('MEM_PROFILING', False) else -1
+            if os.environ.get('GNES_PROFILING_MEM', False):
+                start_mem = memory_usage()[0]
             r = func(*args, **kwargs)
             elapsed = time.perf_counter() - start_t
-            elapsed_mem = memory_usage()[0] if os.environ.get('MEM_PROFILING', False) else -1
-            if os.environ.get('NES_LEVEL_PROFILING', False):
-                level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            if os.environ.get('GNES_PROFILING_MEM', False):
+                end_mem = memory_usage()[0]
+            level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            if os.environ.get('GNES_PROFILING_MEM', False):
+                mem_status = 'memory: %4.2fM -> %4.2fM' % (start_mem, end_mem)
             else:
-                level_prefix = ''
-            profile_logger.info('%s%s: %3.3fs. memory: %4.2fM -> %4.2fM' % (
-                level_prefix, func.__qualname__, elapsed, start_mem, elapsed_mem))
+                mem_status = ''
+            profile_logger.info('%s%s: %3.3fs. %s' % (level_prefix, func.__qualname__, elapsed, mem_status))
         else:
             r = func(*args, **kwargs)
         return r
@@ -507,6 +509,20 @@ def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
         time.sleep(1)
     sys.stdout.write('\n')
     sys.stdout.flush()
+
+
+def train_required(func):
+    @wraps(func)
+    def arg_wrapper(self, *args, **kwargs):
+        if hasattr(self, 'is_trained'):
+            if self.is_trained:
+                return func(self, *args, **kwargs)
+            else:
+                raise RuntimeError('training is required before calling "%s"' % func.__name__)
+        else:
+            raise AttributeError('%r has no attribute "is_trained"' % self)
+
+    return arg_wrapper
 
 
 cn_sent_splitter = SentenceSplitter(max_len=5)

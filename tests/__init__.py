@@ -11,7 +11,7 @@ env_dict = {
         'GPT2_CI_MODEL': '/openai_gpt2',
         'XL_CI_MODEL': '/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/sgns.wiki.bigram-char.sample',
-        'NES_PROFILING': 1
+        'GNES_PROFILING': 1
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -23,7 +23,7 @@ env_dict = {
         'GPT2_CI_MODEL': '/ext_data/openai_gpt2',
         'XL_CI_MODEL': '/ext_data/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/ext_data/sgns.wiki.bigram-char.sample',
-        'NES_PROFILING': 1
+        'GNES_PROFILING': 1
     }
 
 }

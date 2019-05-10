@@ -28,7 +28,7 @@ import ruamel.yaml.constructor
 
 from ..helper import set_logger, profiling, yaml, parse_arg, touch_dir, FileLock
 
-__all__ = ['train_required', 'TrainableBase']
+__all__ = ['TrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
 
@@ -60,7 +60,7 @@ class TrainableType(type):
 
     def __call__(cls, *args, **kwargs):
         # do _preload_package
-        getattr(cls, '_pre_init', lambda *args: None)()
+        getattr(cls, '_pre_init', lambda *x: None)()
 
         obj = type.__call__(cls, *args, **kwargs)
 
@@ -70,7 +70,7 @@ class TrainableType(type):
                 setattr(obj, k, v)
 
         # do _post_init()
-        getattr(obj, '_post_init', lambda *args: None)()
+        getattr(obj, '_post_init', lambda *x: None)()
         return obj
 
     @staticmethod
@@ -80,7 +80,7 @@ class TrainableType(type):
         if cls.__name__ not in reg_cls_set:
             # print('reg class: %s' % cls.__name__)
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
-            if os.environ.get('NES_PROFILING', False):
+            if os.environ.get('GNES_PROFILING', False):
                 for f_name in ['train', 'encode', 'add', 'query']:
                     if getattr(cls, f_name, None):
                         setattr(cls, f_name, profiling(getattr(cls, f_name)))
@@ -193,17 +193,6 @@ class TrainableBase(metaclass=TrainableType):
             # trigger the lock again
             self.work_dir = self._work_dir
         self._post_init()
-
-    @staticmethod
-    def _train_required(func):
-        @wraps(func)
-        def arg_wrapper(self, *args, **kwargs):
-            if self.is_trained:
-                return func(self, *args, **kwargs)
-            else:
-                raise RuntimeError('training is required before calling "%s"' % func.__name__)
-
-        return arg_wrapper
 
     def train(self, *args, **kwargs):
         pass
@@ -328,6 +317,3 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['property'] = p
         return r
-
-
-train_required = TrainableBase._train_required
