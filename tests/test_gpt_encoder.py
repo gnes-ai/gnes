@@ -37,7 +37,7 @@ class TestElmoEncoder(unittest.TestCase):
         num_bytes = 8
 
         gpt = PipelineEncoder.load_yaml(self.gpt_path)
-        self.assertRaises(RuntimeError, gpt.encode)
+        self.assertRaises(RuntimeError, gpt.encode, self.test_str)
 
         gpt.train(self.test_str)
         out = gpt.encode(self.test_str)

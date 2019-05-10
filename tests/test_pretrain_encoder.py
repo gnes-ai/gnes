@@ -32,6 +32,7 @@ class _PQEncoder(BE):
 
 
 class _PCAEncoder(BE):
+    @train_required
     def encode(self, data, *args, **kwargs):
         print('pca-encode!')
         return data + 3
