@@ -63,7 +63,7 @@ class MultiheadIndexer(CompositionalEncoder):
             self.component[head_name].add(keys, docs)
 
     def query(self,
-              keys: bytes,
+              keys: Any,
               top_k: int,
               sent_recall_factor: int = 1,
               return_field: Optional[Tuple] = ('id', 'content'),

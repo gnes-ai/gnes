@@ -79,9 +79,11 @@ class ReduceProxyService(ProxyService):
 
             for i in range(1, len(tmp)):
                 tmp_msg = tmp[i]
-                reduced_msg.docs.extend(tmp_msg.docs)
+
                 if len(reduced_msg.querys) > 0:
                     reduced_msg.querys.extend(tmp_msg.querys)
+                else:
+                    reduced_msg.docs.extend(tmp_msg.docs)
 
             reduced_msg.part_id = 1
             reduced_msg.num_part = 1

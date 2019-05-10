@@ -70,7 +70,7 @@ class EncoderService(BS):
             assert len(vecs) == len(chunks)
             start = 0
             for i, doc in enumerate(msg.docs):
-                x = vecs[start:chunks_num[i]]
+                x = vecs[start:start+chunks_num[i]]
                 doc.encodes.CopyFrom(array2blob(x))
                 doc.is_encoded = True
                 start += chunks_num[i]
@@ -83,10 +83,8 @@ class EncoderService(BS):
             assert len(vecs) == len(chunks)
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
-
-            for i, query in enumerate(range(num_querys), msg.querys):
-                encode = array2blob(vecs[i])
-                query.encode.CopyFrom(encode)
+            msg.docs[0].encodes.CopyFrom(array2blob(vecs))
+            doc.is_encoded = True
 
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)

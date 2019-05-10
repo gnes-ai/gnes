@@ -103,7 +103,7 @@ class ClientService(BS):
         for i, chunk in enumerate(doc.text_chunks):
             q = search_message.querys.add()
             q.id = i
-            q.text = chunk.text
+            q.text = chunk
             q.top_k = search_req.top_k
 
         search_message.route = self.__class__.__name__

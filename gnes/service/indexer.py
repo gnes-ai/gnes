@@ -19,7 +19,7 @@ import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..messaging import *
-from gnes.proto import gnes_pb2
+from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class IndexerService(BS):
@@ -67,11 +67,13 @@ class IndexerService(BS):
         if msg.mode == gnes_pb2.Message.INDEX:
             self._index_and_notify(msg, out, 'binary_indexer')
         elif msg.mode == gnes_pb2.Message.QUERY:
-            vecs = []
-            for i, query in enumerate(msg.querys):
-                vecs.append(blob2array(query.encode))
-            vecs = np.concatenate(vecs, axis=0)
-            results = self._model.query(vecs, top_k=query.top_k)
+            if not msg.is_encoded:
+                raise RuntimeError("the documents should be encoded at first!")
+
+            vecs = blob2array(msg.docs[0].encodes)
+            assert len(vecs) == len(msg.querys)
+
+            results = self._model.query(vecs, top_k=msg.querys[0].top_k)
 
             # convert to protobuf result
             for query, top_k in zip(msg.querys, results):
@@ -89,7 +91,6 @@ class IndexerService(BS):
                         r.chunk.blob = item['chunk']
                     else:
                         raise NotImplemented()
-
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %

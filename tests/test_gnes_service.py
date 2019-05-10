@@ -52,26 +52,41 @@ class TestEncoderService(unittest.TestCase):
             '--socket_out', 'PUSH_BIND',
         ])
 
+        m2_args = set_proxy_service_parser().parse_args([
+            '--port_in', '1113',
+            '--port_out', '1114',
+            '--socket_in', 'PULL_BIND',
+            '--socket_out', 'PUSH_BIND',
+            '--batch_size', '1',
+        ])
+
+        r_args = set_proxy_service_parser().parse_args([
+            '--port_in', '1115',
+            '--port_out', '1116',
+            '--socket_in', 'PULL_BIND',
+            '--socket_out', 'PUSH_BIND',
+        ])
+
         e_args = set_encoder_service_parser().parse_args([
             '--port_in', str(m_args.port_out),
-            '--port_out', '1113',
+            '--port_out', str(m2_args.port_in),
             '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_BIND',
+            '--socket_out', 'PUSH_CONNECT',
             '--mode', 'TRAIN',
             '--dump_path', self.dump_path,
             '--yaml_path', self.encoder_yaml_path
-            ])
+        ])
 
         i_args = set_indexer_service_parser().parse_args([
-            '--port_in', str(e_args.port_out),
-            '--port_out', '1114',
+            '--port_in', str(m2_args.port_out),
+            '--port_out', str(r_args.port_in),
             '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_BIND',
+            '--socket_out', 'PUSH_CONNECT',
             '--mode', 'INDEX'
-            ])
+        ])
 
         c_args = set_client_parser().parse_args([
-            '--port_in', str(i_args.port_out),
+            '--port_in', str(r_args.port_out),
             '--port_out', str(m_args.port_in),
             '--socket_out', 'PUSH_CONNECT',
             '--socket_in', 'PULL_CONNECT',
@@ -79,6 +94,8 @@ class TestEncoderService(unittest.TestCase):
         ])
 
         with ProxyService(m_args), \
+             MapProxyService(m2_args), \
+             ReduceProxyService(r_args), \
              EncoderService(e_args), \
              IndexerService(i_args), \
              ClientService(c_args) as cs:
