@@ -12,10 +12,12 @@ from gnes.service.proxy import MapProxyService, ReduceProxyService, ProxyService
 
 class TestEncoderService(unittest.TestCase):
     dirname = os.path.dirname(__file__)
-    dump_path = os.path.join(dirname, 'encoder.bin')
+    encode_dump_path = os.path.join(dirname, 'encoder.bin')
+    idx_dump_path = os.path.join(dirname, 'test_idx.bin')
     data_path = os.path.join(dirname, 'tangshi.txt')
-    # encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
-    encoder_yaml_path = os.path.join(dirname, 'yaml', 'elmo-binary-encoder.yml')
+    encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
+    indexer_yaml_path = os.path.join(dirname, 'yaml', 'base-indexer.yml')
+    #encoder_yaml_path = os.path.join(dirname, 'yaml', 'elmo-binary-encoder.yml')
 
     def setUp(self):
         self.test_querys = []
@@ -74,7 +76,7 @@ class TestEncoderService(unittest.TestCase):
             '--socket_in', 'PULL_CONNECT',
             '--socket_out', 'PUSH_CONNECT',
             '--mode', 'TRAIN',
-            '--dump_path', self.dump_path,
+            '--dump_path', self.encode_dump_path,
             '--yaml_path', self.encoder_yaml_path
         ])
 
@@ -83,7 +85,9 @@ class TestEncoderService(unittest.TestCase):
             '--port_out', str(r_args.port_in),
             '--socket_in', 'PULL_CONNECT',
             '--socket_out', 'PUSH_CONNECT',
-            '--mode', 'INDEX'
+            '--mode', 'INDEX',
+            '--dump_path', self.idx_dump_path,
+            '--yaml_path', self.indexer_yaml_path
         ])
 
         c_args = set_client_parser().parse_args([
@@ -103,8 +107,10 @@ class TestEncoderService(unittest.TestCase):
             cs.index(self.test_docs, is_train=True)
             print('train is done! ..............')
             result = cs.index(self.test_docs)
-            print('index is done! ...............')
-            result = cs.query(self.test_docs[0], top_k=2)
             print(result)
+            # print('index is done! ...............')
+            # result = cs.query(self.test_docs[0], top_k=2)
+            # print(result)
+        print('finished!')
 
 
