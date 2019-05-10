@@ -124,3 +124,6 @@ data/
 .nes_cache
 toy*.py
 toy*.yml
+.tmp
+
+shell/gnes-wizard.sh

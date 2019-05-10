@@ -34,10 +34,11 @@ class EncoderService(BS):
             self._model = PipelineEncoder.load(self.args.dump_path)
             self.logger.info('load a trained encoder')
         except FileNotFoundError:
+            self.logger.warning('fail to load the model from %s' % self.args.dump_path)
             if self.args.mode == ServiceMode.TRAIN:
                 try:
                     self._model = PipelineEncoder.load_yaml(self.args.yaml_path)
-                    self.logger.info('load an uninitialized encoder, training is needed!')
+                    self.logger.warning('load an uninitialized encoder, training is required!')
                 except FileNotFoundError:
                     raise ComponentNotLoad
             else:
