@@ -80,7 +80,7 @@ class TrainableType(type):
         if cls.__name__ not in reg_cls_set:
             # print('reg class: %s' % cls.__name__)
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
-            if os.environ.get('NES_PROFILING', False):
+            if os.environ.get('GNES_PROFILING', False):
                 for f_name in ['train', 'encode', 'add', 'query']:
                     if getattr(cls, f_name, None):
                         setattr(cls, f_name, profiling(getattr(cls, f_name)))
