@@ -94,4 +94,4 @@ class IndexerService(BS):
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, self.args.mode))
+                               (self.__class__.__name__, msg.mode))
