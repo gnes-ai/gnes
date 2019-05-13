@@ -3,7 +3,6 @@ import unittest
 import numpy as np
 from shutil import rmtree
 
-from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.base import PipelineEncoder
 from gnes.encoder.flair import FlairEncoder
 from gnes.module.gnes import GNES

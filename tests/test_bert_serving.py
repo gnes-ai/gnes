@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+from numpy.testing import assert_array_equal
 from shutil import rmtree
 
 from bert_serving.client import BertClient
@@ -96,7 +97,7 @@ class TestBertServing(unittest.TestCase):
         self.assertTrue(os.path.exists(self.dump_path))
         bbe2 = bbe.load(self.dump_path)
         out2 = bbe2.encode(self.test_sents)
-        self.assertEqual(out, out2)
+        assert_array_equal(out, out2)
 
         nes = GNES.load_yaml(self.nes_path)
 
