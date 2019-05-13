@@ -91,7 +91,7 @@ class ReduceProxyService(ProxyService):
                         SearchResult += tmp[i*self.args.num_part+n].querys[m].results
                     SearchResult = sorted(SearchResult, key=lambda x: x.score)[:top_k]
                     m_query = gnes_pb2.Query()
-                    m_query.SearchResult.extend(SearchResult)
+                    m_query.results.extend(SearchResult)
                     reduced_msg.querys.extend([m_query])
 
             reduced_msg.part_id = 1
