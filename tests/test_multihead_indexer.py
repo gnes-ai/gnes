@@ -64,6 +64,7 @@ class TestMHIndexer(unittest.TestCase):
         results = mhi.query(self.querys, top_k=1)
         self.assertEqual(len(results), len(self.querys))
         for topk in results:
+            print(topk)
             d, s = topk[0]
             self.assertEqual(1.0, s)
 
