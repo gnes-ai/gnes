@@ -51,7 +51,6 @@ def client(args):
             else:
                 for line in data:
                     result = cs.query(line)
-                    print(line, result)
                     try:
                         for _1 in range(len(result.querys)):
                             for _ in range(len(result.querys[_1].results)):

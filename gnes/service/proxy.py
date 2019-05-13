@@ -89,9 +89,8 @@ class ReduceProxyService(ProxyService):
                 for m in range(len(tmp[i*self.args.num_part].querys)):
                     SearchResult = []
                     for n in range(self.args.num_part):
-                        print('step 2', i, m, n,  tmp[i*self.args.num_part+n].querys[m])
                         SearchResult += tmp[i*self.args.num_part+n].querys[m].results
-                    SearchResult = sorted(SearchResult, key=lambda x: x.score)[:top_k]
+                    SearchResult = sorted(SearchResult, key=lambda x: -x.score)[:top_k]
                     m_query = gnes_pb2.Query()
                     m_query.results.extend(SearchResult)
                     reduced_msg.querys.extend([m_query])
