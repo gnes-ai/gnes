@@ -17,9 +17,9 @@
 
 import zmq
 
+from gnes.proto import gnes_pb2, blob2array
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..messaging import *
-from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class IndexerService(BS):

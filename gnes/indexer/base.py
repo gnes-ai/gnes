@@ -15,7 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-from collections import defaultdict
 from typing import List, Tuple, Any, Dict, Optional
 
 from ..base import TrainableBase
@@ -23,7 +22,7 @@ from ..encoder.base import CompositionalEncoder
 
 
 class BaseIndexer(TrainableBase):
-    internal_index_path = 'int.indexer.bin'    # this is used when pickle dump is not enough for storing all info
+    internal_index_path = 'int.indexer.bin'  # this is used when pickle dump is not enough for storing all info
 
     def add(self, keys: Any, docs: Any, *args, **kwargs):
         pass
@@ -85,11 +84,11 @@ class MultiheadIndexer(CompositionalEncoder):
 
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
                 result.append(({
-                    "doc_id": doc_id,
-                    "doc_size": doc.doc_size,
-                    "offset": offset,
-                    "score": score,
-                    "chunk": chunk
-                }, score))
+                                   "doc_id": doc_id,
+                                   "doc_size": doc.doc_size,
+                                   "offset": offset,
+                                   "score": score,
+                                   "chunk": chunk
+                               }, score))
             results.append(result)
         return results

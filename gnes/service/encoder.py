@@ -18,9 +18,8 @@
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..document import MultiSentDocument, DocumentMapper, UniSentDocument
 from ..messaging import *
-from ..proto import gnes_pb2, array2blob, blob2array
+from ..proto import gnes_pb2, array2blob
 
 
 class EncoderService(BS):

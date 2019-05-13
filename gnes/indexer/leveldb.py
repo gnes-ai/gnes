@@ -20,9 +20,8 @@ import pickle
 from threading import Thread, Event
 from typing import List, Any
 
-from .base import BaseTextIndexer
-from ..document import BaseDocument
 from gnes.proto import gnes_pb2
+from .base import BaseTextIndexer
 
 
 class LVDBIndexer(BaseTextIndexer):
@@ -77,7 +76,7 @@ class AsyncLVDBIndexer(LVDBIndexer):
         self._thread.setDaemon(1)
         self._thread.start()
 
-    def add(self, keys: List[int], docs: List[BaseDocument], *args, **kwargs):
+    def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         self._jobs.append((keys, docs))
 
     def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Any]:
