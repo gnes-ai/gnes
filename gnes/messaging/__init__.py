@@ -236,6 +236,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
+        print(msg.client_id, msg, 'larry - debug')
         sock.send_multipart([msg.client_id.encode(), msg.SerializeToString()])
     except zmq.error.Again:
         raise TimeoutError(
@@ -254,6 +255,7 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Me
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
         _, msg_data = sock.recv_multipart()
+        print(_, msg_data, 'larry-debug-receiv')
         msg = gnes_pb2.Message()
         msg.ParseFromString(msg_data)
         return msg
