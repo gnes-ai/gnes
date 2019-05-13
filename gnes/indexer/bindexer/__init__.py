@@ -113,7 +113,7 @@ class BIndexer(BaseIndexer):
         elif method == 'force':
             doc_ids, offsets, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
-            for (i, o, d, q) in zip(doc_ids, dists, q_idx):
+            for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
                 result[q].append(
                     ((i, o),
                      (1. - d / self.num_bytes) if normalized_score else d))

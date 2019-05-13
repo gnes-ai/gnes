@@ -1,11 +1,13 @@
 import os
 import unittest
+import numpy as np
 from shutil import rmtree
 
 from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.base import PipelineEncoder
 from gnes.encoder.flair import FlairEncoder
 from gnes.module.gnes import GNES
+from gnes.proto import gnes_pb2
 
 
 class TestElmoEncoder(unittest.TestCase):
@@ -17,11 +19,35 @@ class TestElmoEncoder(unittest.TestCase):
         self.nes_path = os.path.join(dirname, 'yaml', 'base-flair-nes.yml')
         self.db_path = './test_leveldb'
 
-        self.test_data1 = UniSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
-        self.test_data2 = MultiSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
-        self.test_str = [s for d in self.test_data1 for s in d.sentences]
+        self.test_docs = []
+        self.test_str = []
+        with open(os.path.join(dirname, 'tangshi.txt')) as f:
+            title = ''
+            sents = []
+            doc_id = 0
+            for line in f:
+                line = line.strip()
+
+                if line and not title:
+                    title = line
+                    sents.append(line)
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
+                    self.test_str.extend(sents)
+                    doc = gnes_pb2.Document()
+                    doc.id = doc_id
+                    doc.text = ' '.join(sents)
+                    doc.text_chunks.extend(sents)
+                    doc.doc_size = len(sents)
+
+                    doc.is_parsed = True
+                    doc.is_encoded = True
+                    doc_id += 1
+                    sents.clear()
+                    title = ''
+                    self.test_docs.append(doc)
+
 
     def test_encoding(self):
         flair_encoder = FlairEncoder(
@@ -39,8 +65,9 @@ class TestElmoEncoder(unittest.TestCase):
         ebe.train(self.test_str)
         out = ebe.encode(self.test_str)
         ebe.close()
-        self.assertEqual(bytes, type(out))
-        self.assertEqual(len(self.test_str) * num_bytes, len(out))
+        self.assertEqual(np.ndarray, type(out))
+        self.assertEqual(num_bytes, out.shape[1])
+        self.assertEqual(len(self.test_str), len(out))
 
         ebe.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))
@@ -51,12 +78,12 @@ class TestElmoEncoder(unittest.TestCase):
 
         nes = GNES.load_yaml(self.nes_path)
 
-        self.assertRaises(RuntimeError, nes.add, self.test_data1)
-        self.assertRaises(RuntimeError, nes.query, self.test_data1, 1)
+        self.assertRaises(RuntimeError, nes.add, self.test_docs)
+        self.assertRaises(RuntimeError, nes.query, self.test_str, 1)
 
-        nes.train(self.test_data1)
-        nes.add(self.test_data1)
-        query = [s for d in self.test_data1 for s in d.sentences]
+        nes.train(self.test_docs)
+        nes.add(self.test_docs)
+        query = self.test_docs[0].text_chunks
         result = nes.query(query, top_k=2)
         self.assertEqual(len(query), len(result))
         self.assertEqual(len(result[0]), 2)

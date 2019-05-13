@@ -676,6 +676,7 @@ cdef class IndexCore:
     cpdef force_search(self, unsigned char*query, const UIDX num_query, UIDX top_k):
         cdef array.array res_dist = array.array('L')
         cdef array.array res_docs = array.array('L')
+        cdef array.array res_offset = array.array('L')
         cdef array.array res_idx = array.array('L')
         cdef DataDist w_far
         top_k = min(top_k, self.num_data)
@@ -721,11 +722,11 @@ cdef class IndexCore:
             for _1 in range(top_k):
                 res_idx.append(_0)
                 res_docs.append(Q[_1].data.doc_id)
-                res_docs.append(Q[_1].data.offset)
+                res_offset.append(Q[_1].data.offset)
                 res_dist.append(Q[_1].dist)
             PyMem_Free(Q)
 
-        return res_docs, res_dist, res_idx
+        return res_docs, res_offset, res_dist, res_idx
 
     def __dealloc__(self):
         self.free_trie()

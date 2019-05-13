@@ -16,5 +16,4 @@ component:
     parameter:
       cluster_per_byte: 8
       num_bytes: 8
-  - !BinaryEncoder {}
 

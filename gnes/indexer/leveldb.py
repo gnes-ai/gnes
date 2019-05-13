@@ -54,7 +54,8 @@ class LVDBIndexer(BaseTextIndexer):
             doc_id = pickle.dumps(k)
             v = self._db.get(doc_id)
             doc = gnes_pb2.Document()
-            doc.ParseFromString(v)
+            if v is not None:
+                doc.ParseFromString(v)
             res.append(doc if v else self._NOT_FOUND)
             # res.append(pickle.loads(v) if v else self._NOT_FOUND)
         return res
