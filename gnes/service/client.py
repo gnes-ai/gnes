@@ -117,5 +117,5 @@ class ClientService(BS):
             self.is_handler_done.wait(self.args.timeout)
             if self.result:
                 res = self.result.pop()
-                self.is_handler_done.set()
+                self.is_handler_done.clear()
                 return res
