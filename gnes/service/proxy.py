@@ -80,8 +80,19 @@ class ReduceProxyService(ProxyService):
                 self.pending_result[msg.msg_id], key=lambda v: v.part_id)
             reduced_msg = tmp[0]
 
-            for i in range(1, len(tmp)):
-                tmp_msg = tmp[i]
+            for i in range(msg.num_part):
+                tmp_msg = tmp[i*self.args.num_part]
+                querys = []
+                for m in range(tmp[i*self.args.num_part].querys):
+                    for n in range(self.args.num_part):
+                        querys += tmp[i*self.args.num_part+n].querys[m].results
+                querys = sorted(querys, key=lambda x: x.score)
+                if i == 0:
+                    reduced_msg.querys = querys
+                else:
+                    reduced_msg.querys.extend(querys)
+
+
 
                 if len(reduced_msg.querys) > 0:
                     reduced_msg.querys.extend(tmp_msg.querys)
