@@ -89,7 +89,8 @@ class TestBertServing(unittest.TestCase):
         out = bbe.encode(self.test_sents)
         bbe.close()
         self.assertEqual(np.ndarray, type(out))
-        self.assertEqual(len(self.test_sents) * num_bytes, len(out))
+        self.assertEqual(num_bytes, out.shape[1])
+        self.assertEqual(len(self.test_sents), len(out))
 
         bbe.dump(self.dump_path)
         self.assertTrue(os.path.exists(self.dump_path))

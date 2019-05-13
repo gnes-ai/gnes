@@ -21,19 +21,16 @@ class TestElmoEncoder(unittest.TestCase):
 
         self.test_docs = []
         self.test_str = []
-        with open(os.path.join(dirname, 'tangshi.txt')) as f:
-            title = ''
+        with open(os.path.join(dirname, 'sonnets.txt')) as f:
             sents = []
             doc_id = 0
             for line in f:
                 line = line.strip()
 
-                if line and not title:
-                    title = line
+                if line:
                     sents.append(line)
-                elif line and title:
-                    sents.append(line)
-                elif not line and title and len(sents) > 1:
+
+                elif not line and len(sents) > 1:
                     self.test_str.extend(sents)
                     doc = gnes_pb2.Document()
                     doc.id = doc_id
@@ -45,9 +42,7 @@ class TestElmoEncoder(unittest.TestCase):
                     doc.is_encoded = True
                     doc_id += 1
                     sents.clear()
-                    title = ''
                     self.test_docs.append(doc)
-
 
     def test_encoding(self):
         flair_encoder = FlairEncoder(
