@@ -81,12 +81,14 @@ class ReduceProxyService(ProxyService):
             reduced_msg = tmp[0]
             top_k = len(tmp[0].querys[0].results)
             #reduced_msg.ClearField("querys")
+            print('step 1', reduced_msg.querys)
             del reduced_msg.querys[:]
 
             for i in range(msg.num_part):
                 querys = []
                 for m in range(len(tmp[i*self.args.num_part].querys)):
                     for n in range(self.args.num_part):
+                        print('step 2', i, m, n,  tmp[i*self.args.num_part+n].querys[m])
                         querys += tmp[i*self.args.num_part+n].querys[m].results
                 querys = sorted(querys, key=lambda x: x.score)[:top_k]
                 print(querys)
