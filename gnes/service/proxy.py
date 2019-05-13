@@ -80,6 +80,8 @@ class ReduceProxyService(ProxyService):
                 self.pending_result[msg.msg_id], key=lambda v: v.part_id)
             reduced_msg = gnes_pb2.Message()
             reduced_msg.msg_id = tmp[0].msg_id
+            reduced_msg.client_id = tmp[0].client_id
+
             top_k = len(tmp[0].querys[0].results)
 
             for i in range(msg.num_part):
@@ -96,6 +98,6 @@ class ReduceProxyService(ProxyService):
 
             reduced_msg.part_id = 1
             reduced_msg.num_part = 1
-            print(reduced_msg)
+ 
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)
