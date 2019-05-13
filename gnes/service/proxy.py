@@ -78,11 +78,9 @@ class ReduceProxyService(ProxyService):
 
             tmp = sorted(
                 self.pending_result[msg.msg_id], key=lambda v: v.part_id)
-            reduced_msg = tmp[0]
+            reduced_msg = gnes_pb2.Message()
+            reduced_msg.msg_id = tmp[0].msg_id
             top_k = len(tmp[0].querys[0].results)
-            #reduced_msg.ClearField("querys")
-            print('step 1', reduced_msg.querys)
-            del reduced_msg.querys[:]
 
             for i in range(msg.num_part):
                 querys = []
