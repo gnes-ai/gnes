@@ -18,9 +18,8 @@
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..document import MultiSentDocument, DocumentMapper, UniSentDocument
 from ..messaging import *
-from ..proto import gnes_pb2, array2blob, blob2array
+from ..proto import gnes_pb2, array2blob
 
 
 class EncoderService(BS):
@@ -68,7 +67,6 @@ class EncoderService(BS):
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
-            print(vecs)
             self.logger.info('vecs shape {}'.format(vecs.shape))
             self.logger.info('chunks size {}'.format(len(chunks)))
             assert len(vecs) == len(chunks)
@@ -88,10 +86,8 @@ class EncoderService(BS):
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
             msg.docs[0].encodes.CopyFrom(array2blob(vecs))
-            doc.is_encoded = True
-
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, self.args.mode))
+                               (self.__class__.__name__, msg.mode))

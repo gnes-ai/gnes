@@ -62,7 +62,7 @@ def set_nes_search_parser(parser=None):
 
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService
-    from ..messaging import Message
+    from ..messaging import MessageType
     if not parser:
         parser = set_base_parser()
     parser.add_argument('--port_in', type=int, default=5310,
@@ -81,7 +81,7 @@ def set_service_parser(parser=None):
                         help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int, default=None,
                         help='port for control the service')
-    parser.add_argument('--unk_msg_route', type=str, default=Message.typ_default,
+    parser.add_argument('--unk_msg_route', type=str, default=MessageType.DEFAULT.name,
                         help='handler route for unknown message type')
     parser.add_argument('--timeout', type=int, default=5000,
                         help='timeout (ms) of all communication')

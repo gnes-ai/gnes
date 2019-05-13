@@ -17,9 +17,9 @@
 
 import zmq
 
+from gnes.proto import gnes_pb2, blob2array
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..messaging import *
-from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class IndexerService(BS):
@@ -94,4 +94,4 @@ class IndexerService(BS):
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, self.args.mode))
+                               (self.__class__.__name__, msg.mode))

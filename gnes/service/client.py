@@ -15,18 +15,17 @@
 
 # pylint: disable=low-comment-ratio
 
-import uuid
 import ctypes
-import numpy as np
+import uuid
 from typing import List, Optional
 
+import numpy as np
 import zmq
-from zmq.utils import jsonapi
 
+from gnes.proto import gnes_pb2
 from .base import BaseService as BS, MessageHandler
 from ..messaging import *
-from gnes.proto import gnes_pb2
-import time
+
 
 class ClientService(BS):
     handler = MessageHandler(BS.handler)

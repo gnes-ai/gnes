@@ -1,9 +1,9 @@
 import os
 import unittest
-import numpy as np
 from shutil import rmtree
 
-from gnes.document import UniSentDocument, MultiSentDocument
+import numpy as np
+
 from gnes.encoder.base import PipelineEncoder
 from gnes.encoder.elmo import ElmoEncoder
 from gnes.module.gnes import GNES
@@ -53,7 +53,6 @@ class TestElmoEncoder(unittest.TestCase):
                     title = ''
                     self.test_docs.append(doc)
 
-
     def test_encoding(self):
         elmo_encoder = ElmoEncoder(
             model_dir=os.environ.get('ELMO_CI_MODEL', '/zhs.model'),
@@ -65,7 +64,7 @@ class TestElmoEncoder(unittest.TestCase):
         num_bytes = 8
 
         ebe = PipelineEncoder.load_yaml(self.ebe_path)
-        self.assertRaises(RuntimeError, ebe.encode,  self.test_str)
+        self.assertRaises(RuntimeError, ebe.encode, self.test_str)
 
         ebe.train(self.test_str)
         out = ebe.encode(self.test_str)

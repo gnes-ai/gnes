@@ -20,10 +20,10 @@ from typing import Dict
 
 import zmq
 
+from gnes.proto import gnes_pb2
 from .base import BaseService as BS, MessageHandler
 from ..helper import batch_iterator
 from ..messaging import *
-from gnes.proto import gnes_pb2
 
 
 class ProxyService(BS):
@@ -66,7 +66,7 @@ class ReduceProxyService(ProxyService):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        self.pending_result = defaultdict(list)    # type: Dict[str, list]
+        self.pending_result = defaultdict(list)  # type: Dict[str, list]
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
