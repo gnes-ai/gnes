@@ -81,7 +81,7 @@ class ReduceProxyService(ProxyService):
             reduced_msg = tmp[0]
             top_k = len(tmp[0].querys[0].results)
             #reduced_msg.ClearField("querys")
-            del reduced_msg["querys"]
+            del reduced_msg.querys[:]
 
             for i in range(msg.num_part):
                 querys = []
