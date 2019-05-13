@@ -18,7 +18,9 @@ Welcome to GNES documentation!
    :maxdepth: 1
 
    gnes
+   chapter/yaml-config.md
    chapter/troubleshooting.md
+
 
 Indices and tables
 ==================
