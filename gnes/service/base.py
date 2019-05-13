@@ -106,6 +106,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
 
     if socket_type in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
+        #sock.setsockopt(zmq.SUBSCRIBE, b'')
 
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 

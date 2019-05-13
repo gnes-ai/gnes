@@ -26,7 +26,7 @@ from zmq.utils import jsonapi
 from .base import BaseService as BS, MessageHandler
 from ..messaging import *
 from gnes.proto import gnes_pb2
-
+import time
 
 class ClientService(BS):
     handler = MessageHandler(BS.handler)
@@ -115,5 +115,7 @@ class ClientService(BS):
 
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
-            res = self.result.pop()
-            return res
+            if self.result:
+                res = self.result.pop()
+                self.is_handler_done.clear()
+                return res

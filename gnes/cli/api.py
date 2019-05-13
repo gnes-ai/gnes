@@ -50,6 +50,10 @@ def client(args):
                 result = cs.index(data, args.train)
             else:
                 for line in data:
-                    result = cs.query(data)
-                    print(result)
+                    result = cs.query(line)
+                    try:
+                        for _ in range(len(result.querys[0].results)):
+                            print(result.querys[0].results[_].chunk.text)
+                    except:
+                        print('error', line, result)
         cs.join()
