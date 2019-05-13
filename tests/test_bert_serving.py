@@ -1,5 +1,6 @@
 import os
 import unittest
+import numpy as np
 from shutil import rmtree
 
 from bert_serving.client import BertClient
@@ -82,12 +83,12 @@ class TestBertServing(unittest.TestCase):
         num_bytes = 8
 
         bbe = PipelineEncoder.load_yaml(self.bbe_path)
-        self.assertRaises(RuntimeError, bbe.encode, self.test_str)
+        self.assertRaises(RuntimeError, bbe.encode, self.test_sents)
 
         bbe.train(self.test_sents)
         out = bbe.encode(self.test_sents)
         bbe.close()
-        self.assertEqual(bytes, type(out))
+        self.assertEqual(np.ndarray, type(out))
         self.assertEqual(len(self.test_sents) * num_bytes, len(out))
 
         bbe.dump(self.dump_path)

@@ -20,7 +20,7 @@ from typing import List, Tuple, Dict, Any
 from ..document import BaseDocument, DocumentMapper
 from ..encoder.base import CompositionalEncoder
 from ..helper import batching, train_required
-from ..proto import gnes_pb2
+from ..proto import gnes_pb2, array2blob, blob2array
 
 
 class GNES(CompositionalEncoder):
