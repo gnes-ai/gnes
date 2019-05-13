@@ -115,7 +115,6 @@ class ClientService(BS):
 
         if self.args.wait_reply:
             self.is_handler_done.wait(self.args.timeout)
-            while not self.result():
-                time.sleep(1)
-            res = self.result.pop()
-            return res
+            if self.result:
+                res = self.result.pop()
+                return res
