@@ -1,4 +1,6 @@
-BACK_TITLE='GNES Config'
+#!/usr/bin/env bash
+
+BACK_TITLE="GNES Config Wizard [wizard version: ${WIZARD_VERSION} GNES build: ${WIZARD_BUILD}]"
 DLG_HEIGHT=0
 DLG_WIDTH=0
 
@@ -139,7 +141,7 @@ function ui.dialog.show_msgbox() {
 }
 
 function ui.whiptail.show_msgbox() {
-    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH}
+    whiptail --nocancel --backtitle "${BACK_TITLE}" --title "${TITLE_SHORT}" --msgbox "${TITLE}" ${DLG_HEIGHT} ${DLG_WIDTH} 3>&1 1>&2 2>&3
 }
 
 function ui.shell.show_msgbox()

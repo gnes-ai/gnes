@@ -21,8 +21,7 @@ from typing import Dict, Any
 import numpy as np
 
 from .pq import PQEncoder
-from ..base import train_required
-from ..helper import batching
+from ..helper import batching, train_required
 
 
 class TFPQEncoder(PQEncoder):

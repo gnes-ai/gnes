@@ -60,7 +60,7 @@ class TestElmoEncoder(unittest.TestCase):
         num_bytes = 8
 
         ebe = PipelineEncoder.load_yaml(self.ebe_path)
-        self.assertRaises(RuntimeError, ebe.encode)
+        self.assertRaises(RuntimeError, ebe.encode, self.test_str)
 
         ebe.train(self.test_str)
         out = ebe.encode(self.test_str)

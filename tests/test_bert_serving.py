@@ -82,7 +82,7 @@ class TestBertServing(unittest.TestCase):
         num_bytes = 8
 
         bbe = PipelineEncoder.load_yaml(self.bbe_path)
-        self.assertRaises(RuntimeError, bbe.encode)
+        self.assertRaises(RuntimeError, bbe.encode, self.test_str)
 
         bbe.train(self.test_sents)
         out = bbe.encode(self.test_sents)

@@ -17,9 +17,9 @@
 
 from typing import List, Tuple, Dict, Any
 
-from ..encoder.base import CompositionalEncoder, train_required
-from ..helper import batching
-from ..proto import gnes_pb2, array2blob
+from ..document import BaseDocument, DocumentMapper
+from ..encoder.base import CompositionalEncoder
+from ..helper import batching, train_required
 
 
 class GNES(CompositionalEncoder):

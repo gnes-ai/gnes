@@ -18,8 +18,8 @@
 
 import numpy as np
 
-from .base import BaseEncoder, train_required
-from ..helper import get_perm, batching, get_optimal_sample_size
+from .base import BaseEncoder
+from ..helper import get_perm, batching, get_optimal_sample_size, train_required
 
 
 class PCALocalEncoder(BaseEncoder):
