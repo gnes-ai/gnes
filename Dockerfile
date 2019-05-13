@@ -12,8 +12,8 @@ FROM dependency as base
 
 ADD . ./
 
-RUN pip install -e .
+RUN pip install .
 
-#WORKDIR /
+WORKDIR /
 
 ENTRYPOINT ["gnes"]
