@@ -1,7 +1,6 @@
 import os
 import unittest
 
-from gnes.document import UniSentDocument, MultiSentDocument
 from gnes.encoder.w2v import Word2VecEncoder
 
 
@@ -10,12 +9,14 @@ class TestW2vEncoder(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'w2v_encoder.bin')
+        self.test_str = []
+        with open(os.path.join(dirname, 'tangshi.txt')) as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    self.test_str.append(line)
 
-        self.test_data1 = UniSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
-        self.test_data2 = MultiSentDocument.from_file(
-            os.path.join(dirname, 'tangshi.txt'))
-        self.test_str = [s for d in self.test_data1 for s in d.sentences]
+
 
     def test_encoding(self):
         w2v_encoder = Word2VecEncoder(

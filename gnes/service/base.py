@@ -27,6 +27,7 @@ from termcolor import colored
 
 from ..helper import set_logger
 from ..messaging import *
+from gnes.proto import gnes_pb2
 
 
 class BetterEnum(Enum):
@@ -105,6 +106,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
 
     if socket_type in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
+        #sock.setsockopt(zmq.SUBSCRIBE, b'')
 
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 
@@ -122,8 +124,8 @@ class MessageHandler:
 
         return decorator
 
-    def serve(self, msg: Message):
-        if not isinstance(msg, Message):
+    def serve(self, msg: 'gnes_pb2.Message'):
+        if not isinstance(msg, gnes_pb2.Message):
             raise ServiceError('dont know how to handle message: %s' % msg)
 
         if not msg.msg_type in self.routes:
@@ -183,13 +185,15 @@ class BaseService(threading.Thread):
         else:
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
-    def message_handler(self, msg: Message):
+    def message_handler(self, msg: 'gnes_pb2.Message'):
         try:
             fn = self.handler.serve(msg)
             if fn:
                 msg.route = ' -> '.join([msg.route, self.__class__.__name__])
-                self.logger.info('handling a message of type: %s with route: %s' % (msg.msg_type, msg.route))
-                fn(self, msg, self.ctrl_sock if msg.is_control_message else self.out_sock)
+                self.logger.info('handling a message of type: %s with route: %s' %
+                                 (msg.msg_type, msg.route))
+                fn(self, msg, self.ctrl_sock if MessageType.is_control_message(
+                    msg.msg_type) else self.out_sock)
                 self.logger.info('handler is done')
         except ServiceError as e:
             self.logger.error(e)
@@ -251,16 +255,16 @@ class BaseService(threading.Thread):
     def _post_init(self):
         pass
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: Message, out: 'zmq.Socket'):
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         pass
 
-    @handler.register(Message.typ_status)
-    def _handler_status(self, msg: Message, out: 'zmq.Socket'):
+    @handler.register(MessageType.CTRL_STATUS.name)
+    def _handler_status(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         pass
 
-    @handler.register(Message.typ_terminate)
-    def _handler_terminate(self, msg: Message, out: 'zmq.Socket'):
+    @handler.register(MessageType.CTRL_TERMINATE.name)
+    def _handler_terminate(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
         self.is_event_loop.clear()
         raise StopIteration
@@ -274,7 +278,10 @@ class BaseService(threading.Thread):
 
     @property
     def status(self):
-        return send_ctrl_message(self.ctrl_addr, Message(msg_type=Message.typ_status), self.args.time_out)
+        ctr_msg = gnes_pb2.Message()
+        ctr_msg.msg_type = MessageType.CTRL_STATUS.name
+        return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
+
 
     def __enter__(self):
         self.start()
@@ -285,7 +292,7 @@ class BaseService(threading.Thread):
         self.close()
 
 
-def send_ctrl_message(address: str, msg: Message, timeout: int):
+def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
     # control message is short, set a timeout and ask for quick response
     with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)
@@ -297,4 +304,6 @@ def send_ctrl_message(address: str, msg: Message, timeout: int):
 
 
 def send_terminate_message(*args, **kwargs):
-    return send_ctrl_message(msg=Message(msg_type=Message.typ_terminate), *args, **kwargs)
+    term_msg = gnes_pb2.Message()
+    term_msg.msg_type = MessageType.CTRL_TERMINATE.name
+    return send_ctrl_message(msg=term_msg, *args, **kwargs)

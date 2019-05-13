@@ -15,50 +15,48 @@
 
 # pylint: disable=low-comment-ratio
 
-
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 
-from .base import BaseBinaryIndexer
+from .base import BaseIndexer
 
 
-class NumpyIndexer(BaseBinaryIndexer):
+class NumpyIndexer(BaseIndexer):
+
     def __init__(self, num_bytes: int = None, *args, **kwargs):
         super().__init__()
         self.num_bytes = num_bytes
-        self._vectors = None  # type: np.ndarray
-        self._doc_ids = None  # type: np.ndarray
+        self._vectors = None    # type: np.ndarray
+        self._doc_ids = []
 
-    def add(self, doc_ids: List[int], vectors: bytes, *args, **kwargs):
+    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
+            **kwargs):
         if len(vectors) % len(doc_ids) != 0:
             raise ValueError("vectors bytes should be divided by doc_ids")
 
         if not self.num_bytes:
-            self.num_bytes = int(len(vectors) / len(doc_ids))
-        elif self.num_bytes != int(len(vectors) / len(doc_ids)):
-            raise ValueError("vectors bytes should be divided by doc_ids")
+            self.num_bytes = vectors.shape[1]
+        elif self.num_bytes != vectors.shape[1]:
+            raise ValueError(
+                "vectors' shape [%d, %d] does not match with indexer's dim: " %
+                (vectors.shape[0], vectors.shape[1], self.num_bytes))
 
-        vectors = np.frombuffer(vectors, dtype=np.uint8).reshape(
-            len(doc_ids), self.num_bytes)
-
-        doc_ids = np.array(doc_ids)
         if self._vectors is not None:
             self._vectors = np.concatenate([self._vectors, vectors], axis=0)
-            self._doc_ids = np.concatenate([self._doc_ids, doc_ids], axis=0)
         else:
             self._vectors = vectors
-            self._doc_ids = doc_ids
+        self._doc_ids.extend(doc_ids)
 
-    def query(self, keys: bytes, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
-        keys = np.frombuffer(keys, dtype=np.uint8).reshape([-1, 1, self.num_bytes])
-
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs
+             ) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
+        keys = np.expand_dims(keys, axis=1)
         dist = keys - np.expand_dims(self._vectors, axis=0)
         dist = np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
 
         ret = []
         for ids in dist:
             rk = sorted(enumerate(ids), key=lambda x: x[1])
-            ret.append([(self._doc_ids[rk[i][0]].tolist(), rk[i][1]) for i in range(top_k)])
-
+            ret.append(
+                [(self._doc_ids[rk[i][0]], 1- rk[i][1]) for i in range(top_k)])
         return ret

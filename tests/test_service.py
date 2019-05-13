@@ -15,8 +15,25 @@ class TestService(unittest.TestCase):
     encoder_yaml_path = os.path.join(dirname, 'yaml', 'base-encoder.yml')
 
     def setUp(self):
-        with open(self.data_path, encoding='utf8') as fp:
-            self.test_data1 = [v for v in fp if v.strip()]
+        self.test_querys = []
+        self.test_docs = []
+        with open(self.data_path) as f:
+            title = ''
+            sents = []
+            for line in f:
+                line = line.strip()
+
+                if line and not title:
+                    title = line
+                    sents.append(line)
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
+                    self.test_docs.append(sents)
+
+                    sents.clear()
+                    title = ''
+
 
     @classmethod
     def tearDownClass(cls):
@@ -30,52 +47,67 @@ class TestService(unittest.TestCase):
 
     def test_proxy_service(self):
         p_args = set_proxy_service_parser().parse_args([
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUSH_BIND',
+            '--socket_in',
+            'PULL_BIND',
+            '--socket_out',
+            'PUSH_BIND',
         ])
         c_args = set_client_parser().parse_args([
-            '--port_in', str(p_args.port_out),
-            '--port_out', str(p_args.port_in),
-            '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_CONNECT',
-            '--wait_reply'
+            '--port_in',
+            str(p_args.port_out), '--port_out',
+            str(p_args.port_in), '--socket_in', 'PULL_CONNECT', '--socket_out',
+            'PUSH_CONNECT', '--wait_reply'
         ])
         with ProxyService(p_args), ClientService(c_args) as cs:
-            result = cs.query(self.test_data1)
-            self.assertEqual(result.msg_content, self.test_data1)
+            result = cs.index(self.test_docs)
+            self.assertEqual(len(result.docs), len(self.test_docs))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
     def test_map_proxy_pub_sub_service(self):
         m_args = set_proxy_service_parser().parse_args([
-            '--port_in', '1111',
-            '--port_out', '1112',
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUB_BIND',
+            '--port_in',
+            '1111',
+            '--port_out',
+            '1112',
+            '--socket_in',
+            'PULL_BIND',
+            '--socket_out',
+            'PUB_BIND',
         ])
         r_args = set_proxy_service_parser().parse_args([
-            '--port_in', '1113',
-            '--port_out', '1114',
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUSH_BIND',
+            '--port_in',
+            '1113',
+            '--port_out',
+            '1114',
+            '--socket_in',
+            'PULL_BIND',
+            '--socket_out',
+            'PUSH_BIND',
         ])
         r1_args = set_proxy_service_parser().parse_args([
-            '--port_in', '1113',
-            '--port_out', '1114',
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUSH_BIND',
-            '--num_part', '4'
+            '--port_in', '1113', '--port_out', '1114', '--socket_in',
+            'PULL_BIND', '--socket_out', 'PUSH_BIND', '--num_part', '4'
         ])
         # dummy work for simple forwarding
         w_args = set_proxy_service_parser().parse_args([
-            '--port_in', str(m_args.port_out),
-            '--port_out', str(r_args.port_in),
-            '--socket_in', 'SUB_CONNECT',
-            '--socket_out', 'PUSH_CONNECT',
+            '--port_in',
+            str(m_args.port_out),
+            '--port_out',
+            str(r_args.port_in),
+            '--socket_in',
+            'SUB_CONNECT',
+            '--socket_out',
+            'PUSH_CONNECT',
         ])
         c_args = set_client_parser().parse_args([
-            '--port_in', str(r_args.port_out),  # receive from reducer-proxy
-            '--port_out', str(m_args.port_in),  # send to mapper-proxy
-            '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_CONNECT',
+            '--port_in',
+            str(r_args.port_out),    # receive from reducer-proxy
+            '--port_out',
+            str(m_args.port_in),    # send to mapper-proxy
+            '--socket_in',
+            'PULL_CONNECT',
+            '--socket_out',
+            'PUSH_CONNECT',
             '--wait_reply'
         ])
 
@@ -83,9 +115,9 @@ class TestService(unittest.TestCase):
              ReduceProxyService(r_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1).msg_content
-            msg_content = [j for i in result for j in i[1]]
-            self.assertEqual(msg_content, self.test_data1)
+            result = cs.index(self.test_docs)
+            self.assertEqual(len(result.docs), len(self.test_docs))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
         # with muliple dummy workers
         with ProxyService(m_args), \
@@ -95,46 +127,54 @@ class TestService(unittest.TestCase):
              ProxyService(w_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1).msg_content
-            msg_content = [j for i in result for j in i[1]]
-            self.assertEqual(len(msg_content), len(self.test_data1)*4)
+            result = cs.index(self.test_docs)
+            self.assertEqual(len(result.docs), 4 * len(self.test_docs))
 
     def test_map_proxy_service(self):
         m_args = set_proxy_service_parser().parse_args([
-            '--port_in', '1111',
-            '--port_out', '1112',
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUSH_BIND',
-            '--batch_size', '10'
+            '--port_in', '1111', '--port_out', '1112', '--socket_in',
+            'PULL_BIND', '--socket_out', 'PUSH_BIND', '--batch_size', '10'
         ])
         r_args = set_proxy_service_parser().parse_args([
-            '--port_in', '1113',
-            '--port_out', '1114',
-            '--socket_in', 'PULL_BIND',
-            '--socket_out', 'PUSH_BIND',
+            '--port_in',
+            '1113',
+            '--port_out',
+            '1114',
+            '--socket_in',
+            'PULL_BIND',
+            '--socket_out',
+            'PUSH_BIND',
         ])
         # dummy work for simple forwarding
         w_args = set_proxy_service_parser().parse_args([
-            '--port_in', str(m_args.port_out),
-            '--port_out', str(r_args.port_in),
-            '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_CONNECT',
+            '--port_in',
+            str(m_args.port_out),
+            '--port_out',
+            str(r_args.port_in),
+            '--socket_in',
+            'PULL_CONNECT',
+            '--socket_out',
+            'PUSH_CONNECT',
         ])
 
         c_args = set_client_parser().parse_args([
-            '--port_in', str(r_args.port_out),  # receive from reducer-proxy
-            '--port_out', str(m_args.port_in),  # send to mapper-proxy
-            '--socket_in', 'PULL_CONNECT',
-            '--socket_out', 'PUSH_CONNECT',
+            '--port_in',
+            str(r_args.port_out),    # receive from reducer-proxy
+            '--port_out',
+            str(m_args.port_in),    # send to mapper-proxy
+            '--socket_in',
+            'PULL_CONNECT',
+            '--socket_out',
+            'PUSH_CONNECT',
             '--wait_reply'
         ])
         with MapProxyService(m_args), \
              ReduceProxyService(r_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1).msg_content
-            msg_content = [j for i in result for j in i[1]]
-            self.assertEqual(msg_content, self.test_data1)
+            result = cs.index(self.test_docs)
+            self.assertEqual(len(result.docs), len(self.test_docs))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
         # with muliple dummy workers
         with MapProxyService(m_args), \
@@ -144,9 +184,9 @@ class TestService(unittest.TestCase):
              ProxyService(w_args), \
              ProxyService(w_args), \
              ClientService(c_args) as cs:
-            result = cs.query(self.test_data1).msg_content
-            msg_content = [j for i in result for j in i[1]]
-            self.assertEqual(msg_content, self.test_data1)
+            result = cs.index(self.test_docs)
+            self.assertEqual(len(result.docs), len(self.test_docs))
+            self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
 
     # def test_encoder_service_train(self):
     #     # test training

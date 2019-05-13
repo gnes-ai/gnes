@@ -44,13 +44,16 @@ def client(args):
         if not data:
             raise ValueError('input text file is empty, nothing to do')
         else:
-            result = cs.query(data)
-            if not args.index:
-                print(result.client_id)
-                print(result.req_id)
-                print(result.content_type)
-                print(result.msg_type)
-                for _ in jsonapi.loads(result.msg_content):
-                    print(_)
+            data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
 
+            if args.index:
+                result = cs.index(data, args.train)
+            else:
+                for line in data:
+                    result = cs.query(line)
+                    try:
+                        for _ in range(len(result.querys[0].results)):
+                            print(result.querys[0].results[_].chunk.text)
+                    except:
+                        print('error', line, result)
         cs.join()

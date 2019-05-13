@@ -109,6 +109,8 @@ def set_client_parser(parser=None):
                         help='text file to be used, each line is a doc/query')
     parser.add_argument('--index', action='store_true', default=False,
                         help='merge result from multiple indexer')
+    parser.add_argument('--train', action='store_true', default=False,
+                        help='training in index')
     parser.set_defaults(
         port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
         port_out=parser.get_default('port_in'),

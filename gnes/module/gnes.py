@@ -15,33 +15,77 @@
 
 # pylint: disable=low-comment-ratio
 
-
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 
 from ..document import BaseDocument, DocumentMapper
 from ..encoder.base import CompositionalEncoder
 from ..helper import batching, train_required
+from ..proto import gnes_pb2, array2blob, blob2array
 
 
 class GNES(CompositionalEncoder):
-    def train(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
-        sents = DocumentMapper(lst_doc).sent_id_sentence[1]
-        self.component['encoder'].train(sents, *args, **kwargs)
+
+    def train(self, lst_doc: List['gnes_pb2.Document'], *args,
+              **kwargs) -> None:
+        # sents = DocumentMapper(lst_doc).sent_id_sentence[1]
+        chunks = []
+        for doc in lst_doc:
+            if doc.doc_type == gnes_pb2.Document.TEXT_DOC:
+                chunks.extend(doc.text_chunks)
+            elif doc.doc_type == gnes_pb2.Document.IMAGE_DOC:
+                chunks.extend(doc.blob_chunks)
+            else:
+                raise NotImplemented()
+
+        self.component['encoder'].train(chunks, *args, **kwargs)
 
     @train_required
     @batching
-    def add(self, lst_doc: List[BaseDocument], *args, **kwargs) -> None:
-        doc_mapper = DocumentMapper(lst_doc)
-        ids, sents = doc_mapper.sent_id_sentence
-        bin_vectors = self.component['encoder'].encode(sents, *args, **kwargs)
-        self.component['binary_indexer'].add(ids, bin_vectors)
-        self.component['text_indexer'].add(*doc_mapper.doc_id_document)
+    def add(self, lst_doc: List['gnes_pb2.Document'], *args, **kwargs) -> None:
+        chunks = []
+        doc_keys = []
+        doc_ids = []
+        for doc in lst_doc:
+            doc_ids.append(doc.id)
+            doc_chunks = doc.text_chunks if len(
+                doc.text_chunks) > 0 else doc.blob_chunks
+            for i, chunk in enumerate(doc_chunks):
+                chunks.append(chunk)
+                doc_keys.append((doc.id, i))
+
+        bin_vectors = self.component['encoder'].encode(chunks, *args, **kwargs)
+        doc.encodes.CopyFrom(array2blob(bin_vectors))
+
+        self.component['binary_indexer'].add(doc_keys, bin_vectors)
+        self.component['doc_indexer'].add(doc_ids, lst_doc)
 
     @train_required
-    def query(self, keys: List[str], top_k: int, *args, **kwargs) -> List[List[Tuple[Dict, float]]]:
+    def query(self, keys: List[Any], top_k: int, *args,
+              **kwargs) -> List[List[Tuple[Dict, float]]]:
         bin_queries = self.component['encoder'].encode(keys, *args, **kwargs)
-        result_score = self.component['binary_indexer'].query(bin_queries, top_k)
-        all_ids = list(set(d[0] for id_score in result_score for d in id_score if d[0] >= 0))
-        result_doc = self.component['text_indexer'].query(all_ids)
-        id2doc = {d_id: d_content for d_id, d_content in zip(all_ids, result_doc)}
-        return [[(id2doc[d_id], d_score) for d_id, d_score in id_score] for id_score in result_score]
+
+        topk_results = self.component['binary_indexer'].query(
+            bin_queries, top_k)
+
+        doc_caches = dict()
+        results = []
+        for topk in topk_results:
+            result = []
+            for key, score in topk:
+                doc_id, offset = key
+                doc = doc_caches.get(doc_id, None)
+                if doc is None:
+                    doc = self.component['doc_indexer'].query([doc_id])[0]
+                    doc_caches[doc_id] = doc
+
+                chunk = doc.text_chunks[
+                    offset] if doc.text_chunks else doc.blob_chunks[offset]
+                result.append(({
+                    "doc_id": doc_id,
+                    "doc_size": doc.doc_size,
+                    "offset": offset,
+                    "chunk": chunk
+                }, score))
+            results.append(result)
+
+        return results

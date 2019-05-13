@@ -15,11 +15,11 @@
 
 # pylint: disable=low-comment-ratio
 
-
 import zmq
 
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
 from ..messaging import *
+from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class IndexerService(BS):
@@ -35,35 +35,63 @@ class IndexerService(BS):
         except FileNotFoundError:
             if self.args.mode == ServiceMode.INDEX:
                 try:
-                    self._model = MultiheadIndexer.load_yaml(self.args.yaml_path)
-                    self.logger.info('load an uninitialized indexer, indexing is needed!')
+                    self._model = MultiheadIndexer.load_yaml(
+                        self.args.yaml_path)
+                    self.logger.info(
+                        'load an uninitialized indexer, indexing is needed!')
                 except FileNotFoundError:
                     raise ComponentNotLoad
             else:
                 raise ComponentNotLoad
 
-    def _index_and_notify(self, msg: 'Message', out: 'zmq.Socket', head_name: str):
-        res = msg.msg_content
-        self._model.add(res[1], res[0], head_name='binary_indexer')
-        self._model.add(*res[2], head_name='sent_doc_indexer')
-        self._model.add(*res[3], head_name='doc_content_indexer')
-        send_message(out, msg.copy_mod(msg_content=head_name), self.args.timeout)
+    def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket',
+                          head_name: str):
+        if not msg.is_encoded:
+            raise RuntimeError("the documents should be encoded at first!")
+
+        doc_keys = []
+        for doc in msg.docs:
+            doc_id = doc.id
+            assert doc.doc_size == doc.encodes.shape[0]
+            vecs = blob2array(doc.encodes)
+            doc_keys = [(doc_id, i) for i in range(doc.doc_size)]
+
+            self._model.add(doc_keys, vecs, head_name='binary_indexer')
+            self._model.add([doc_id], [doc], head_name='doc_indexer')
+
+        send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
-    @handler.register(Message.typ_default)
-    def _handler_default(self, msg: 'Message', out: 'zmq.Socket'):
-        if self.args.mode == ServiceMode.INDEX:
+    @handler.register(MessageType.DEFAULT.name)
+    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        if msg.mode == gnes_pb2.Message.INDEX:
             self._index_and_notify(msg, out, 'binary_indexer')
-        elif self.args.mode == ServiceMode.QUERY:
-            result = self._model.query(msg.msg_content, top_k=self.args.top_k)
-            send_message(out, msg.copy_mod(msg_content=result), self.args.timeout)
+        elif msg.mode == gnes_pb2.Message.QUERY:
+            if not msg.is_encoded:
+                raise RuntimeError("the documents should be encoded at first!")
+
+            vecs = blob2array(msg.docs[0].encodes)
+            assert len(vecs) == len(msg.querys)
+
+            results = self._model.query(vecs, top_k=msg.querys[0].top_k)
+
+            # convert to protobuf result
+            for query, top_k in zip(msg.querys, results):
+                for item, score in top_k:
+                    r = query.results.add()
+                    r.doc_id = item['doc_id']
+                    r.doc_size = item['doc_size']
+                    r.offset = item['offset']
+                    r.score = item['score']
+                    r.chunk.offset = item['offset']
+                    r.chunk.doc_id = item['doc_id']
+                    if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
+                        r.chunk.text = item['chunk']
+                    elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
+                        r.chunk.blob = item['chunk']
+                    else:
+                        raise NotImplemented()
+            send_message(out, msg, self.args.timeout)
         else:
-            raise ServiceError('service %s runs in unknown mode %s' % (self.__class__.__name__, self.args.mode))
-
-    # @handler.register(Message.typ_sent_id)
-    # def _handler_sent_id(self, msg: 'Message', out: 'zmq.Socket'):
-    #     self._index_and_notify(msg, out, 'sent_doc_indexer')
-
-    # @handler.register(Message.typ_doc_id)
-    # def _handler_doc_id(self, msg: 'Message', out: 'zmq.Socket'):
-    #     self._index_and_notify(msg, out, 'doc_content_indexer')
+            raise ServiceError('service %s runs in unknown mode %s' %
+                               (self.__class__.__name__, self.args.mode))

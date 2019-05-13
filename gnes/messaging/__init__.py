@@ -16,22 +16,30 @@
 # pylint: disable=low-comment-ratio
 
 
+from enum import Enum
 from typing import Union, List, Optional, Any
 
 import numpy as np
 import zmq
+
+from gnes.proto import gnes_pb2
 from zmq.utils import jsonapi
 
-__all__ = ['Message', 'send_message', 'recv_message']
+__all__ = ['MessageType', 'send_message', 'recv_message']
 
 
-def _int2bytes(x: int) -> bytes:
-    return x.to_bytes((x.bit_length() + 7) // 8, 'big')
+class MessageType(Enum):
+    def __str__(self):
+        return self.name
 
+    CTRL_TERMINATE = 1
+    CTRL_STATUS = 2
+    DEFAULT = 3
+    TRAIN = 4
 
-def _bytes2int(xbytes: bytes) -> int:
-    return int.from_bytes(xbytes, 'big')
-
+    @classmethod
+    def is_control_message(cls, typ_name) -> bool:
+        return typ_name.startswith('CTRL_')
 
 class Message:
     prefix_ctrl = 'CTRL_'
@@ -221,15 +229,14 @@ class Message:
             value = value.encode()
         self._route = value
 
-
-def send_message(sock: 'zmq.Socket', msg: 'Message', timeout: int = -1) -> None:
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
     try:
         if timeout > 0:
             sock.setsockopt(zmq.SNDTIMEO, timeout)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send_multipart(msg.to_bytes())
+        sock.send_multipart([msg.client_id.encode(), msg.SerializeToString()])
     except zmq.error.Again:
         raise TimeoutError(
             'no response from sock %s after timeout=%dms, please check the following:'
@@ -239,15 +246,18 @@ def send_message(sock: 'zmq.Socket', msg: 'Message', timeout: int = -1) -> None:
         sock.setsockopt(zmq.SNDTIMEO, -1)
 
 
-def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['Message']:
+def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Message']:
     response = []
     try:
         if timeout > 0:
             sock.setsockopt(zmq.RCVTIMEO, timeout)
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
-        response = sock.recv_multipart()
-        return Message.from_bytes(*response)
+        _, msg_data = sock.recv_multipart()
+        msg = gnes_pb2.Message()
+        msg.ParseFromString(msg_data)
+        return msg
+
     except ValueError:
         raise ValueError('received a wrongly-formatted request (expected 4 frames, got %d)' % len(response))
     except zmq.error.Again:

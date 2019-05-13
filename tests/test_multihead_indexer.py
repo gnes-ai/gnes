@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 
 from gnes.indexer.base import MultiheadIndexer
+from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class TestMHIndexer(unittest.TestCase):
@@ -12,55 +13,83 @@ class TestMHIndexer(unittest.TestCase):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'indexer.bin')
         self.yaml_path = os.path.join(dirname, 'yaml', 'base-indexer.yml')
-        self.sent_keys = [1, 2, 3, 4, 5, 6]
-        self.sent_bin = np.array([[1, 2],
-                                  [1, 2],
-                                  [1, 2],
-                                  [2, 1],
-                                  [2, 1],
-                                  [2, 1]]).astype(np.uint8)
-        self.doc_keys = [1, 1, 1, 2, 2, 2]
-        self.doc_keys_uniq = [1, 2]
-        self.doc_content = [dict(id=1, content='d1',
-                                 sentences=['d11', 'd12', 'd13'],
-                                 sentence_ids=[1, 2, 3]),
-                            dict(id=2, content='d2',
-                                 sentences=['d21', 'd22', 'd23'],
-                                 sentence_ids=[4, 5, 6])]
-        self.query1 = np.array([1, 2]).astype(np.uint8)
-        self.query2 = np.array([2, 1]).astype(np.uint8)
-        self.query1and2 = np.array([[1, 2], [2, 1]]).astype(np.uint8)
+        self.n_bytes = 2
+        self.query_num = 3
 
-    def test_load(self):
-        mhi = MultiheadIndexer.load_yaml(self.yaml_path)
-        mhi.close()
+        self.querys = None
+        self.docs = []
+        self.chunk_keys = []
+        with open(os.path.join(dirname, 'tangshi.txt')) as f:
+            title = ''
+            sents = []
+            doc_id = 0
+            for line in f:
+                line = line.strip()
+
+                if line and not title:
+                    title = line
+                    sents.append(line)
+                elif line and title:
+                    sents.append(line)
+                elif not line and title and len(sents) > 1:
+                    doc = gnes_pb2.Document()
+                    doc.id = doc_id
+                    doc.text = ' '.join(sents)
+                    doc.text_chunks.extend(sents)
+                    doc.doc_size = len(sents)
+                    x = np.random.randint(
+                            0, 255, [len(sents), self.n_bytes]).astype(np.uint8)
+                    doc.encodes.CopyFrom(array2blob(x))
+
+                    if self.querys is None:
+                        self.querys = x[:self.query_num]
+
+                    doc.is_parsed = True
+                    doc.is_encoded = True
+                    doc_id += 1
+                    sents.clear()
+                    title = ''
+                    self.docs.append(doc)
+
+    # def test_load(self):
+    #     mhi = MultiheadIndexer.load_yaml(self.yaml_path)
+    #     mhi.close()
 
     def test_add(self):
         mhi = MultiheadIndexer.load_yaml(self.yaml_path)
-        mhi.add(self.sent_keys, self.doc_keys, head_name='sent_doc_indexer')
-        mhi.add(self.doc_keys_uniq, self.doc_content, head_name='doc_content_indexer')
-        mhi.add(self.sent_keys, self.sent_bin.tobytes(), head_name='binary_indexer')
+        mhi.add(range(len(self.docs)), self.docs, head_name='doc_indexer')
+        for doc in self.docs:
+            mhi.add([(doc.id, i) for i in range(doc.doc_size)], blob2array(doc.encodes), head_name='binary_indexer')
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1, return_field=('id',)),
-                         [[({'id': self.doc_content[0]['id']}, 1.0)]])
-        self.assertEqual(
-            mhi.query(self.query1.tobytes(), top_k=1,
-                      return_field=('id', 'content', 'sentences', 'sentence_ids')),
-            [[(self.doc_content[0], 1.0)]])
-        self.assertEqual(
-            mhi.query(self.query1.tobytes(), top_k=1,
-                      return_field=None),
-            [[(self.doc_content[0], 1.0)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1, return_field=None), [[(self.doc_content[1], 1.0)]])
+        results = mhi.query(self.querys, top_k=1)
+        self.assertEqual(len(results), len(self.querys))
+        for topk in results:
+            print(topk)
+            d, s = topk[0]
+            self.assertEqual(1.0, s)
 
-        self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2, return_field=None),
-                         [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.)]])
-        self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2, return_field=None),
-                         [[(self.doc_content[1], 1.0), (self.doc_content[0], 0.)]])
 
-        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1, return_field=None),
-                         [[(self.doc_content[0], 1.0)], [(self.doc_content[1], 1.0)]])
-        self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2, return_field=None),
-                         [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.0)],
-                          [(self.doc_content[1], 1.0), (self.doc_content[0], 0.0)]])
+
+        # self.assertEqual(mhi.query(self.query1.tobytes(), top_k=1, return_field=('id',)),
+        #                  [[({'id': self.doc_content[0]['id']}, 1.0)]])
+        # self.assertEqual(
+        #     mhi.query(self.query1.tobytes(), top_k=1,
+        #               return_field=('id', 'content', 'sentences', 'sentence_ids')),
+        #     [[(self.doc_content[0], 1.0)]])
+        # self.assertEqual(
+        #     mhi.query(self.query1.tobytes(), top_k=1,
+        #               return_field=None),
+        #     [[(self.doc_content[0], 1.0)]])
+        # self.assertEqual(mhi.query(self.query2.tobytes(), top_k=1, return_field=None), [[(self.doc_content[1], 1.0)]])
+
+        # self.assertEqual(mhi.query(self.query1.tobytes(), top_k=2, return_field=None),
+        #                  [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.)]])
+        # self.assertEqual(mhi.query(self.query2.tobytes(), top_k=2, return_field=None),
+        #                  [[(self.doc_content[1], 1.0), (self.doc_content[0], 0.)]])
+
+        # self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=1, return_field=None),
+        #                  [[(self.doc_content[0], 1.0)], [(self.doc_content[1], 1.0)]])
+        # self.assertEqual(mhi.query(self.query1and2.tobytes(), top_k=2, return_field=None),
+        #                  [[(self.doc_content[0], 1.0), (self.doc_content[1], 0.0)],
+        #                   [(self.doc_content[1], 1.0), (self.doc_content[0], 0.0)]])
         mhi.close()
