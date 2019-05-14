@@ -31,7 +31,7 @@ class ProxyService(BS):
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        print('send out', msg.client_id, msg)
+        print('send out', msg.client_id, msg.msg_id)
         send_message(out, msg, self.args.timeout)
 
 

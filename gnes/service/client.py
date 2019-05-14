@@ -37,6 +37,7 @@ class ClientService(BS):
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.result.append(msg)
+        print('received', msg.client_id, msg.msg_id)
         self.logger.info('num of part finished %.2f%%' %
                          (len(self.result) / msg.num_part * 100))
 
