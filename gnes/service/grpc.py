@@ -39,13 +39,74 @@ _ONE_DAY = datetime.timedelta(days=1)
 _PROCESS_COUNT = multiprocessing.cpu_count()
 _THREAD_CONCURRENCY = 5
 
+class ZmqContext(object):
+    """The zmq context class."""
+
+    def __init__(self, args):
+        """Database connection context.
+
+        Args:
+            servers: a list of config dicts for connecting to database
+            dbapi_name: the name of database engine
+        """
+        self.args = args
+
+        self.tlocal = threading.local()
+        self.tlocal.client = None
+
+    def __enter__(self):
+        """Enter the context."""
+        client = ZmqClient(self.args)
+        self.tlocal.client = client
+        return client
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Exit the context."""
+        self.tlocal.client.close()
+        self.tlocal.client = None
+
+        if exc_type is not None:
+            raise
+
+
+class ZmqClient:
+    def __init__(self, args):
+        self.host_in = args.host_in
+        self.host_out = args.host_out
+        self.port_in = args.port_in
+        self.port_out = args.port_out
+        # identity: str =None,
+        self.context = zmq.Context()
+        self.sender = self.context.socket(zmq.PUSH)
+        self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
+
+        self.identity = str(uuid.uuid4()).encode('ascii')
+        self.receiver = self.context.socket(zmq.SUB)
+        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
+        self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
+
+
+    def close(self):
+        self.sender.close()
+        self.receiver.close()
+        self.context.term()
+
+
+    def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
+        send_message(self.sender, message, timeout=timeout)
+
+    def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
+        msg = recv_message(self.receiver, timeout=timeout)
+        return msg
+
+
 
 class GNESService(gnes_pb2_grpc.GnesServicer):
 
     def __init__(self, args):
-        self._lock = threading.RLock()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+        self.zmq_context = ZmqContext(args)
 
     def Index(self, request, context):
         req_id = str(uuid.uuid4())
@@ -62,22 +123,27 @@ class GNESService(gnes_pb2_grpc.GnesServicer):
         message.route = self.__class__.__name__
         message.is_parsed = True
 
-        ctx = zmq.Context()
+        with self.zmq_context as zmq_client:
+            zmq_client.send_message(message, self.args.timeout)
+            result = zmq_client.recv_message()
 
-        push_sock = ctx.socket(zmq.PUSH)
-        push_sock.connect(
-            'tcp://%s:%d' % (self.args.host_out, self.args.port_out))
-        send_message(push_sock, message, timeout=self.args.timeout)
-        push_sock.close()
 
-        pull_sock = ctx.socket(zmq.SUB)
-        push_sock.connect(
-            'tcp://%s:%d' % (self.args.host_in, self.args.port_in))
-        pull_sock.setsockopt(zmq.SUBSCRIBE, message.client_id)
-        msg = recv_message(pull_sock)
-        pull_sock.close()
+        # ctx = zmq.Context()
 
-        ctx.term()
+        # push_sock = ctx.socket(zmq.PUSH)
+        # push_sock.connect(
+        #     'tcp://%s:%d' % (self.args.host_out, self.args.port_out))
+        # send_message(push_sock, message, timeout=self.args.timeout)
+        # push_sock.close()
+
+        # pull_sock = ctx.socket(zmq.SUB)
+        # push_sock.connect(
+        #     'tcp://%s:%d' % (self.args.host_in, self.args.port_in))
+        # pull_sock.setsockopt(zmq.SUBSCRIBE, message.client_id)
+        # msg = recv_message(pull_sock)
+        # pull_sock.close()
+
+        # ctx.term()
 
     def Search(self, request, context):
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
