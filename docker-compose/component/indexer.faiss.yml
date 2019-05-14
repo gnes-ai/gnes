@@ -5,9 +5,6 @@ component:
       num_dim: 300
       index_key: HNSW32
       data_path: /out_data/idx.faiss
-  sent_doc_indexer: !LVDBIndexer
-    parameter:
-      data_path: /out_data/idx.sent_doc
-  doc_content_indexer: !LVDBIndexer
+  doc_indexer: !LVDBIndexer
     parameter:
       data_path: /out_data/idx.doc_content
