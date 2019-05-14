@@ -128,6 +128,8 @@ message Message {
 
 
 service Gnes {
+  // option (rpc_core.method_no_deadline) = true;
+  // option (rpc_core.service_default_deadline_ms) = 5000;
   rpc Index (IndexRequest) returns (IndexResponse) {}
   rpc Search (SearchRequest) returns (SearchResponse) {}
 }

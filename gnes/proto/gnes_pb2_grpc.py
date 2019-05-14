@@ -31,8 +31,9 @@ class GnesServicer(object):
   pass
 
   def Index(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """option (rpc_core.method_no_deadline) = true;
+    option (rpc_core.service_default_deadline_ms) = 5000;
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
