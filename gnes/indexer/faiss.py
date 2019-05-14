@@ -68,7 +68,7 @@ class FaissIndexer(BaseIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                print(_id_i, _score_i)
+                print(_id_i, _score_i, self._doc_ids[_id_i])
                 ret_i.append((int(self._doc_ids[_id_i]), _score_i))
             ret.append(ret_i)
 
