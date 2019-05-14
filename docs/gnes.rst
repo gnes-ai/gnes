@@ -13,12 +13,11 @@ Subpackages
 
     gnes.base
     gnes.cli
-    gnes.document
     gnes.encoder
     gnes.indexer
     gnes.messaging
     gnes.module
-    gnes.protos
+    gnes.proto
     gnes.service
 
 Submodules
