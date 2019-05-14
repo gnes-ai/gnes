@@ -31,7 +31,6 @@ class ProxyService(BS):
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        print('send out', msg.client_id)
         send_message(out, msg, self.args.timeout)
 
 
@@ -52,6 +51,7 @@ class MapProxyService(ProxyService):
                 p_msg.msg_id = msg.msg_id
                 p_msg.msg_type = msg.msg_type
                 p_msg.route = msg.route
+                p_msg.client_id = msg.client_id
                 p_msg.docs.extend(b)
                 if len(msg.querys) > 0:
                     p_msg.querys.extend(msg.querys)

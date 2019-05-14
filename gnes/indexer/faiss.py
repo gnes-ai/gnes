@@ -63,10 +63,12 @@ class FaissIndexer(BaseIndexer):
             raise ValueError("vectors should be ndarray of float32")
 
         score, ids = self._faiss_index.search(keys, top_k)
+        print(score, ids)
         ret = []
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
+                print(_id_i, _score_i)
                 ret_i.append((int(self._doc_ids[_id_i]), _score_i))
             ret.append(ret_i)
 

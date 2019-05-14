@@ -235,7 +235,6 @@ class BaseService(threading.Thread):
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
                 msg = recv_message(pull_sock)
-                print('larry-debug', msg.client_id)
                 self.is_handler_done.clear()
                 self.message_handler(msg)
                 self.is_handler_done.set()
