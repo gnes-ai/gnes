@@ -58,7 +58,7 @@ class IndexerService(BS):
 
             self._model.add(doc_keys, vecs, head_name='binary_indexer')
             self._model.add([doc_id], [doc], head_name='doc_indexer')
-
+        print('larry debug', msg.client_id)
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
