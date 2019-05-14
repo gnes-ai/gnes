@@ -101,6 +101,10 @@ message SearchResponse {
   uint32 size = 2;
 }
 
+message IndexResponse {
+  string message = 1;
+}
+
 message Message {
   string client_id = 1;
   string msg_id = 2;
@@ -121,5 +125,12 @@ message Message {
   repeated Query querys = 11;
   Document.DocType doc_type = 12;
 }
+
+
+service Gnes {
+  rpc Index (IndexRequest) returns (IndexResponse) {}
+  rpc Search (SearchRequest) returns (SearchResponse) {}
+}
+
 
 
