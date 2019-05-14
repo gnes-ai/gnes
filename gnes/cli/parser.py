@@ -178,6 +178,27 @@ def set_indexer_service_parser(parser=None):
                         socket_out=SocketType.PUB_BIND)
     return parser
 
+def set_grpc_parser(parser=None):
+    from ..service.base import SocketType
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    parser.add_argument('--num_procs',
+                        type=int,
+                        default=1,
+                        help="the number of process to use for serving")
+    parser.add_argument("--grpc_host",
+                        type=str,
+                        default="0.0.0.0",
+                        help="host address for grpc service")
+    parser.add_argument("--grpc_port",
+                        type=str,
+                        default="5555",
+                        help="host port for grpc service")
+
+    return parser
+
+
 
 def get_main_parser():
     # create the top-level parser
@@ -187,6 +208,7 @@ def get_main_parser():
                                help='Description', dest='cli')
 
     set_client_parser(sp.add_parser('client', help='start a client'))
+    set_grpc_parser(sp..add_parser('grpc', help="start a grpc service"))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))

@@ -35,6 +35,10 @@ def proxy(args):
     with getattr(my_proxy, args.proxy_type)(args) as es:
         es.join()
 
+def grpc(args):
+    from ..service import grpc
+    grpc.start_serve(args)
+
 
 def client(args):
     from ..service.client import ClientService

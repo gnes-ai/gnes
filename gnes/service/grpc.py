@@ -37,7 +37,7 @@ from ..helper import set_logger
 
 _ONE_DAY = datetime.timedelta(days=1)
 _PROCESS_COUNT = multiprocessing.cpu_count()
-_THREAD_CONCURRENCY = _PROCESS_COUNT
+_THREAD_CONCURRENCY = 5
 
 
 class GNESService(gnes_pb2_grpc.GnesServicer):
@@ -119,7 +119,7 @@ def _get_random_tcp_port():
     tcp_socket.close()
 
 
-def _run_server(bind_address):
+def _run_server(bind_address, args):
     """Start a server in a subprocess."""
     options = (('grpc.so_reuseport', 1),)
 
@@ -132,21 +132,22 @@ def _run_server(bind_address):
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY,),
         options=options)
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(), server)
+    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(args), server)
     server.add_insecure_port(bind_address)
     server.start()
     _wait_forever(server)
 
 
-def main():
-    bind_address = '[::]:' + "5555"
+def start_serve(args):
+    bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
+    process_count = _PROCESS_COUNT if not args.num_procs else args.num_procs
     workers = []
-    for _ in range(_PROCESS_COUNT):
+    for _ in range(process_count):
         # NOTE: It is imperative that the worker subprocesses be forked before
         # any gRPC servers start up. See
         # https://github.com/grpc/grpc/issues/16001 for more details.
         worker = multiprocessing.Process(
-            target=_run_server, args=(bind_address,))
+            target=_run_server, args=(bind_address, args, ))
         worker.start()
         workers.append(worker)
 
@@ -154,15 +155,17 @@ def main():
         worker.join()
 
 
-def serve():
+def serve(args):
     # Initialize GRPC Server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
 
     # Initialize Services
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(), server)
+    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(args), server)
 
     # Start GRPC Server
-    server.add_insecure_port('[::]:' + "5555")
+    bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
+    # server.add_insecure_port('[::]:' + "5555")
+    server.add_insecure_port(bind_address)
     server.start()
 
     # Keep application alive
