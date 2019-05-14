@@ -39,6 +39,7 @@ _ONE_DAY = datetime.timedelta(days=1)
 _PROCESS_COUNT = multiprocessing.cpu_count()
 _THREAD_CONCURRENCY = 5
 
+
 class ZmqContext(object):
     """The zmq context class."""
 
@@ -70,6 +71,7 @@ class ZmqContext(object):
 
 
 class ZmqClient:
+
     def __init__(self, args):
         self.host_in = args.host_in
         self.host_out = args.host_out
@@ -85,12 +87,10 @@ class ZmqClient:
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
         self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
 
-
     def close(self):
         self.sender.close()
         self.receiver.close()
         self.context.term()
-
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
         send_message(self.sender, message, timeout=timeout)
@@ -98,7 +98,6 @@ class ZmqClient:
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
         msg = recv_message(self.receiver, timeout=timeout)
         return msg
-
 
 
 class GNESService(gnes_pb2_grpc.GnesServicer):
@@ -127,6 +126,7 @@ class GNESService(gnes_pb2_grpc.GnesServicer):
             zmq_client.send_message(message, self.args.timeout)
             result = zmq_client.recv_message()
 
+        # process result message and build response proto
 
         # ctx = zmq.Context()
 
@@ -213,7 +213,10 @@ def start_serve(args):
         # any gRPC servers start up. See
         # https://github.com/grpc/grpc/issues/16001 for more details.
         worker = multiprocessing.Process(
-            target=_run_server, args=(bind_address, args, ))
+            target=_run_server, args=(
+                bind_address,
+                args,
+            ))
         worker.start()
         workers.append(worker)
 
