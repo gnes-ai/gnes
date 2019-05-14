@@ -173,18 +173,6 @@ def _reserve_port():
         sock.close()
 
 
-@contextlib.contextmanager
-def _get_random_tcp_port():
-    if socket.has_ipv6:
-        tcp_socket = socket.socket(socket.AF_INET6)
-    else:
-        tcp_socket = socket.socket(socket.AF_INET)
-    tcp_socket.bind(('', 0))
-    address_tuple = tcp_socket.getsockname()
-    yield "localhost:%s" % (address_tuple[1])
-    tcp_socket.close()
-
-
 def _run_server(bind_address, args):
     """Start a server in a subprocess."""
     options = (('grpc.so_reuseport', 1),)
