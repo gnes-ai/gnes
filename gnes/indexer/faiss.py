@@ -51,9 +51,9 @@ class FaissIndexer(BaseIndexer):
         if vectors.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
-        doc_ids = np.array(doc_ids)
+        # doc_ids = np.array(doc_ids)
         if self._doc_ids is not None:
-            self._doc_ids = np.concatenate([self._doc_ids, doc_ids], axis=0)
+            self._doc_ids += doc_ids
         else:
             self._doc_ids = doc_ids
         self._faiss_index.add(vectors)
