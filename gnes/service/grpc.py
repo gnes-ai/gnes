@@ -102,7 +102,7 @@ class ZmqClient:
         return msg
 
 
-class GRPCServicer(gnes_pb2_grpc.GnesServicer):
+class GNESServicer(gnes_pb2_grpc.GnesServicer):
 
     def __init__(self, args):
         self.args = args
@@ -126,9 +126,8 @@ class GRPCServicer(gnes_pb2_grpc.GnesServicer):
 
         with self.zmq_context as zmq_client:
             zmq_client.send_message(message, self.args.timeout)
-            result = zmq_client.recv_message()
-        # return result
-        print(result)
+            # result = zmq_client.recv_message()
+            # print(result)
         return gnes_pb2.IndexResponse()
 
         # process result message and build response proto
@@ -209,7 +208,7 @@ def serve(args):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
 
     # Initialize Services
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(args), server)
+    gnes_pb2_grpc.add_GnesServicer_to_server(GNESServicer(args), server)
 
     # Start GRPC Server
     bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
