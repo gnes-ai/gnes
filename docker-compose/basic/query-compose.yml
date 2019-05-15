@@ -109,7 +109,7 @@ services:
     command: >
       grpc --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
        --host_in outgoing-proxy --host_out income-proxy
-       --grpc_port ${GRPC_HOST}
+       --grpc_port ${GRPC_PORT}
 
     networks:
       gnes-net:
@@ -119,6 +119,9 @@ services:
     depends_on:
       - income-proxy
       - outgoing-proxy
+
+    ports:
+      - ${GRPC_PORT}:${GRPC_PORT}
 
 volumes:
   index_data:
