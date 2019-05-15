@@ -15,11 +15,12 @@ Welcome to GNES documentation!
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   gnes
+   chapter/overview.md
    chapter/yaml-config.md
    chapter/troubleshooting.md
+   gnes
 
 
 Indices and tables
