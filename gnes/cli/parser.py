@@ -178,7 +178,7 @@ def set_indexer_service_parser(parser=None):
                         socket_out=SocketType.PUB_BIND)
     return parser
 
-def set_grpc_parser(parser=None):
+def set_grpc_service_parser(parser=None):
     from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
