@@ -82,7 +82,6 @@ class MultiheadIndexer(CompositionalEncoder):
                 if doc is None:
                     doc = self.component['doc_indexer'].query([doc_id])[0]
                     doc_caches[doc_id] = doc
-                print('larry debug', doc_id, offset, doc)
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
                 result.append(({
                     "doc_id": doc_id,
