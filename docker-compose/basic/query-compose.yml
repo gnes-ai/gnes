@@ -11,11 +11,6 @@ services:
           - income_proxy
     ports:
       - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
 
   middleman-proxy:
     image: ${DOCKER_IMG_URL}
