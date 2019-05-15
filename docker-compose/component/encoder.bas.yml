@@ -27,10 +27,10 @@ component:
   - !PCALocalEncoder
     parameter:
       output_dim: 300
-      num_locals: 10
+      num_locals: 30
     property:
       batch_size: 2048
   - !PQEncoder
     parameter:
-      cluster_per_byte: 20
-      num_bytes: 10
+      cluster_per_byte: 100
+      num_bytes: 30

@@ -2,7 +2,7 @@
 component:
   binary_indexer: !BIndexer
     parameter:
-      num_bytes: 10
+      num_bytes: 30
       data_path: /out_data/idx.binary
   doc_indexer: !LVDBIndexer
     parameter:

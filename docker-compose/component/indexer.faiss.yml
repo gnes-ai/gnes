@@ -1,6 +1,6 @@
 !MultiheadIndexer
 component:
-  num_indexer: !FaissIndexer
+  binary_indexer: !FaissIndexer
     parameter:
       num_dim: 300
       index_key: HNSW32

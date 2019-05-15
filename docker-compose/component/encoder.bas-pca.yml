@@ -27,6 +27,6 @@ component:
   - !PCALocalEncoder
     parameter:
       output_dim: 300
-      num_locals: 10
+      num_locals: 30
     property:
       batch_size: 2048
