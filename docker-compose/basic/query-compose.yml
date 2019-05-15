@@ -104,6 +104,21 @@ services:
     configs:
       - indexer_config
 
+  grpc:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      grpc --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+       --host_in outgoing-proxy --host_out income-proxy
+       --grpc_port ${GRPC_HOST}
+
+    networks:
+      gnes-net:
+        aliases:
+          - grpc_serviced
+
+    depends_on:
+      - income-proxy
+      - outgoing-proxy
 
 volumes:
   index_data:
