@@ -37,7 +37,9 @@ from ..helper import set_logger
 
 _ONE_DAY = datetime.timedelta(days=1)
 _PROCESS_COUNT = multiprocessing.cpu_count()
-_THREAD_CONCURRENCY = 5
+_THREAD_CONCURRENCY = _PROCESS_COUNT
+
+LOGGER = set_logger(__name__)
 
 
 class ZmqContext(object):
@@ -100,7 +102,7 @@ class ZmqClient:
         return msg
 
 
-class GNESService(gnes_pb2_grpc.GnesServicer):
+class GRPCServicer(gnes_pb2_grpc.GnesServicer):
 
     def __init__(self, args):
         self.args = args
@@ -125,25 +127,12 @@ class GNESService(gnes_pb2_grpc.GnesServicer):
         with self.zmq_context as zmq_client:
             zmq_client.send_message(message, self.args.timeout)
             result = zmq_client.recv_message()
+        # return result
+        print(result)
+        return gnes_pb2.IndexResponse()
 
         # process result message and build response proto
 
-        # ctx = zmq.Context()
-
-        # push_sock = ctx.socket(zmq.PUSH)
-        # push_sock.connect(
-        #     'tcp://%s:%d' % (self.args.host_out, self.args.port_out))
-        # send_message(push_sock, message, timeout=self.args.timeout)
-        # push_sock.close()
-
-        # pull_sock = ctx.socket(zmq.SUB)
-        # push_sock.connect(
-        #     'tcp://%s:%d' % (self.args.host_in, self.args.port_in))
-        # pull_sock.setsockopt(zmq.SUBSCRIBE, message.client_id)
-        # msg = recv_message(pull_sock)
-        # pull_sock.close()
-
-        # ctx.term()
 
     def Search(self, request, context):
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -186,7 +175,7 @@ def _run_server(bind_address, args):
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY,),
         options=options)
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(args), server)
+    gnes_pb2_grpc.add_GnesServicer_to_server(GRPCServicer(args), server)
     server.add_insecure_port(bind_address)
     server.start()
     _wait_forever(server)
@@ -194,6 +183,7 @@ def _run_server(bind_address, args):
 
 def start_serve(args):
     bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
+    LOGGER.info('start grpc service at: %s' % bind_address)
     process_count = _PROCESS_COUNT if not args.num_procs else args.num_procs
     workers = []
     for _ in range(process_count):
@@ -207,6 +197,7 @@ def start_serve(args):
             ))
         worker.start()
         workers.append(worker)
+        LOGGER.info('[%d] grpc service started' % _)
 
     for worker in workers:
         worker.join()
@@ -214,7 +205,8 @@ def start_serve(args):
 
 def serve(args):
     # Initialize GRPC Server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    LOGGER.info("start grpc server with %d workers ..." % _THREAD_CONCURRENCY)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
 
     # Initialize Services
     gnes_pb2_grpc.add_GnesServicer_to_server(GNESService(args), server)
@@ -224,6 +216,7 @@ def serve(args):
     # server.add_insecure_port('[::]:' + "5555")
     server.add_insecure_port(bind_address)
     server.start()
+    LOGGER.info("grpc service is listening at: %s" % bind_address)
 
     # Keep application alive
     _wait_forever(server)

@@ -208,7 +208,7 @@ def get_main_parser():
                                help='Description', dest='cli')
 
     set_client_parser(sp.add_parser('client', help='start a client'))
-    set_grpc_parser(sp..add_parser('grpc', help="start a grpc service"))
+    set_grpc_parser(sp.add_parser('grpc', help="start a grpc service"))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))

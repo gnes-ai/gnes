@@ -37,7 +37,7 @@ def proxy(args):
 
 def grpc(args):
     from ..service import grpc
-    grpc.start_serve(args)
+    grpc.serve(args)
 
 
 def client(args):
