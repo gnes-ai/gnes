@@ -27,4 +27,5 @@ _cls2file_map = {
     'BaseIndexer': 'base',
     'BaseBinaryIndexer': 'base',
     'BaseTextIndexer': 'base',
+    'AnnoyIndexer': 'annoy'
 }
