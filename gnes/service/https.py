@@ -15,51 +15,77 @@
 
 # pylint: disable=low-comment-ratio
 
-from .client import ClientService
 from gnes.proto import gnes_pb2
 import asyncio
 from aiohttp import web
 from concurrent.futures import ThreadPoolExecutor
+from ..messaging import send_message, recv_message
+import zmq
+import ctypes
+import numpy as np
+import uuid
+import threading
 
 
-class ClientServer:
-    def __init__(self, args):
-        self.client = ClientService(args)
+class Message_handler:
+    def __init__(self, args=None):
+        self.args = args
+        self.timeout = args.timeout if args else 5000
+        self.port_in = args.port_in if args else 8599
+        self.port_out = args.port_out if args else 8598
+        self.host_out = args.host_out if args else "localhost"
+        self.host_in = args.host_in if args else "localhost"
 
-        loop = asyncio.get_event_loop()
-        executor = ThreadPoolExecutor(max_workers=10)
+        self.context = zmq.Context()
+        self.sender = self.context.socket(zmq.PUSH)
+        self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
 
-        async def post_handler(request):
-            keys = []
-            try:
-                data = await asyncio.wait_for(request.json(), 10)
-                keys = await loop.run_in_executor(executor,
-                                                  self.client.query, data['texts'])
-                ok = True
+        self.identity = str(uuid.uuid4()).encode('ascii')
+        self.receiver = self.context.socket(zmq.SUB)
+        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
+        self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
 
-            except TimeoutError:
-                keys = []
-                ok = False
-                seq = 'null'
-                searchid = 'null'
+        self._auto_recv = threading.Thread(target=self._recv_msg)
 
-            ret_body =json.dumps({"data":keys, "meta":{}, "seq": seq,
-                                 "searchid": searchid, "ok":ok}, ensure_ascii=False)
-            return web.Response(body=ret_body)
+        self.result = {}
 
-        @asyncio.coroutine
-        def init(loop):
-            # persistant connection or non-persistant connection
-            handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
-            app = web.Application(loop=loop,
-                                  client_max_size=1024**4,
-                                  handler_args=handler_args)
-            app.router.add_route('post', '/query', post_handler)
-            srv = yield from loop.create_server(app.make_handler(), 'localhost', 8081)
-            self.logger.info('Server started at localhost:8081...')
-            return srv
+    def _recv_msg(self):
+        while True:
+            msg = recv_message(self.receiver)
+            if msg.id in self.result:
+                self.result[msg.id].append(msg)
+            else:
+                self.result[msg.id] = [msg]
 
-        loop.run_until_complete(init(loop))
-        loop.run_forever()
+    def mes_gen(self, texts, index=False):
+        message = gnes_pb2.Message()
+        message.client_id = self.identity
+        message.msg_id = str(uuid.uuid4()).encode('ascii')
+        if index:
+            message.mode = gnes_pb2.Message.INDEX
+        else:
+            message.mode = gnes_pb2.Message.QUERY
 
+        for text in texts:
+            doc = message.docs.add()
+            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
+            doc.text = ' '.join(text)
+            doc.text_chunks.extend(text)
+            doc.doc_size = len(text)
+            doc.is_parsed = True
 
+        return message
+
+    def index(self, texts):
+        message = self.mes_gen(texts, True)
+        send_message(self.sender, message, timeout=self.timeout)
+
+    def query(self, texts):
+        message = self.mes_gen(texts)
+        send_message(self.sender, message, timeout=self.timeout)
+        while True:
+            if message.id in self.result:
+                res = self.result[message.id]
+                del self.result[message.id]
+                break
+        return res
