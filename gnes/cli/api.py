@@ -48,7 +48,7 @@ def client(args):
             data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
 
             if args.index:
-                if not args.train and (len(data) < args.index_batch):
+                if not args.train and (len(data) > args.index_batch):
                     batches = [b for b in batch_iterator(data, args.index_batch)]
                     for p_idx, b in enumerate(batches):
                         result = cs.index(b, args.train)
