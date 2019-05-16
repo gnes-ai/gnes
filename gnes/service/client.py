@@ -28,6 +28,7 @@ from ..messaging import *
 from gnes.proto import gnes_pb2
 import time
 
+
 class ClientService(BS):
     handler = MessageHandler(BS.handler)
 

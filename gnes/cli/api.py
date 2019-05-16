@@ -64,3 +64,9 @@ def client(args):
                     except:
                         print('error', line, result)
         cs.join()
+
+
+def client_server(args):
+    from ..service.client import ClientServer
+    with ClientServer(args) as cs:
+        cs.join()
