@@ -94,28 +94,25 @@ def set_service_parser(parser=None):
 
 
 def set_client_parser(parser=None):
-    from ..service.base import SocketType
+    import sys
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
-    import sys
-    import uuid
-    parser.add_argument('--identity', type=str, default=str(uuid.uuid4()),
-                        help='unique id string of this client')
-    parser.add_argument('--wait_reply', action='store_true', default=False,
-                        help='mode of this client')
+
+    parser.add_argument('--grpc_host', type=str, default='127.0.0.1',
+                        help='the grpc host name')
+    parser.add_argument('--grpc_port', type=str, default="8800",
+                        help='the grpc port')
     parser.add_argument('--txt_file', type=argparse.FileType('r'),
                         default=sys.stdin,
                         help='text file to be used, each line is a doc/query')
+    parser.add_argument('--query', action='store_true', default=False,
+                        help='merge result from multiple indexer')
     parser.add_argument('--index', action='store_true', default=False,
                         help='merge result from multiple indexer')
     parser.add_argument('--train', action='store_true', default=False,
                         help='training in index')
-    parser.set_defaults(
-        port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
-        port_out=parser.get_default('port_in'),
-        socket_in=SocketType.SUB_CONNECT,
-        socket_out=SocketType.PUSH_CONNECT)
+
     return parser
 
 
@@ -179,7 +176,6 @@ def set_indexer_service_parser(parser=None):
     return parser
 
 def set_grpc_service_parser(parser=None):
-    from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
@@ -208,7 +204,7 @@ def get_main_parser():
                                help='Description', dest='cli')
 
     set_client_parser(sp.add_parser('client', help='start a client'))
-    set_grpc_parser(sp.add_parser('grpc', help="start a grpc service"))
+    set_grpc_service_parser(sp.add_parser('grpc', help="start a grpc service"))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))

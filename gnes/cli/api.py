@@ -39,25 +39,69 @@ def grpc(args):
     from ..service import grpc
     grpc.serve(args)
 
-
 def client(args):
-    from ..service.client import ClientService
-    from zmq.utils import jsonapi
-    with ClientService(args) as cs:
-        data = [v for v in args.txt_file if v.strip()]
-        if not data:
-            raise ValueError('input text file is empty, nothing to do')
-        else:
-            data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
+    import grpc
+    import uuid
 
-            if args.index:
-                result = cs.index(data, args.train)
-            else:
-                for line in data:
-                    result = cs.query(line)
-                    try:
-                        for _ in range(len(result.querys[0].results)):
-                            print(result.querys[0].results[_].chunk.text)
-                    except:
-                        print('error', line, result)
-        cs.join()
+    from ..proto import gnes_pb2, gnes_pb2_grpc
+
+    test_docs = []
+    with open(args.txt_file) as f:
+        title = ''
+        sents = []
+        doc_id = 0
+        for line in f:
+            line = line.strip()
+
+            if line and not title:
+                title = line
+                sents.append(line)
+            elif line and title:
+                sents.append(line)
+            elif not line and title and len(sents) > 1:
+                doc = gnes_pb2.Document()
+                doc.id = doc_id
+                doc.text = ' '.join(sents)
+                doc.text_chunks.extend(sents)
+                doc.doc_size = len(sents)
+                doc.is_parsed = True
+                doc.is_encoded = False
+                doc_id += 1
+                sents.clear()
+                title = ''
+                test_docs.append(doc)
+
+    with grpc.insecure_channel('%s:%s' % (args.grpc_host, args.grpc_port)) as channel:
+        stub = gnes_pb2_grpc.GreeterStub(channel)
+
+        req_id = str(uuid.uuid4())
+        request = gnes_pb2.IndexRequest()
+
+        request._request_id = req_id
+        request.docs.extend(test_docs)
+
+        response = stub.Index(request)
+        print("gnes client received: " + str(response))
+
+
+# def client(args):
+#     from ..service.client import ClientService
+#     from zmq.utils import jsonapi
+#     with ClientService(args) as cs:
+#         data = [v for v in args.txt_file if v.strip()]
+#         if not data:
+#             raise ValueError('input text file is empty, nothing to do')
+#         else:
+#             data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
+
+#             if args.index:
+#                 result = cs.index(data, args.train)
+#             else:
+#                 for line in data:
+#                     result = cs.query(line)
+#                     try:
+#                         for _ in range(len(result.querys[0].results)):
+#                             print(result.querys[0].results[_].chunk.text)
+#                     except:
+#                         print('error', line, result)
+#         cs.join()
