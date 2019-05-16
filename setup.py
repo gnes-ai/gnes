@@ -84,7 +84,9 @@ setup(
         'flair>=0.4.1',
         'pandas',
         'paramiko',
-        'pattern3'
+        'pattern3',
+        'asyncio',
+        'aiohttp'
     ],
     extras_require={
         'test': ['pylint'],
