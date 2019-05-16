@@ -43,21 +43,21 @@ class FaissIndexer(BaseIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
-    def add(self, doc_ids: List[int], vectors: np.ndarray, *args, **kwargs):
+    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
         if len(vectors) != len(doc_ids):
             raise ValueError("vectors length should be equal to doc_ids")
 
         if vectors.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
-        doc_ids = np.array(doc_ids)
+        # doc_ids = np.array(doc_ids)
         if self._doc_ids is not None:
-            self._doc_ids = np.concatenate([self._doc_ids, doc_ids], axis=0)
+            self._doc_ids += doc_ids
         else:
             self._doc_ids = doc_ids
         self._faiss_index.add(vectors)
 
-    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         if keys.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
@@ -66,7 +66,7 @@ class FaissIndexer(BaseIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                ret_i.append((int(self._doc_ids[_id_i]), _score_i))
+                ret_i.append((self._doc_ids[_id_i], -1.0 * _score_i))
             ret.append(ret_i)
 
         return ret

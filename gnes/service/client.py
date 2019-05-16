@@ -70,8 +70,10 @@ class ClientService(BS):
 
         if self.args.wait_reply and not is_train:
             self.is_handler_done.wait(self.args.timeout)
-            res = self.result.pop()
-            return res
+            if self.result:
+                res = self.result.pop()
+                self.is_handler_done.clear()
+                return res
 
     def query(self, texts: List[str],
               top_k: int = 10) -> Optional['gnes_pb2.Message']:
