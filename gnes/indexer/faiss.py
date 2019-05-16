@@ -44,7 +44,7 @@ class FaissIndexer(BaseIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
-    def add(self, doc_ids: List, vectors: np.ndarray, *args, **kwargs):
+    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
         if len(vectors) != len(doc_ids):
             raise ValueError("vectors length should be equal to doc_ids")
 
