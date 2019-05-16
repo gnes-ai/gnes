@@ -85,6 +85,7 @@ setup(
         'pandas',
         'paramiko',
         'pattern3'
+        'annoy==1.15.2'
     ],
     extras_require={
         'test': ['pylint'],
