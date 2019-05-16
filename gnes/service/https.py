@@ -52,10 +52,10 @@ class Message_handler:
     def _recv_msg(self):
         while True:
             msg = recv_message(self.receiver)
-            if msg.id in self.result:
-                self.result[msg.id].append(msg)
+            if msg.msg_id in self.result:
+                self.result[msg.msg_id].append(msg)
             else:
-                self.result[msg.id] = [msg]
+                self.result[msg.msg_id] = [msg]
 
     def mes_gen(self, texts, index=False):
         message = gnes_pb2.Message()
@@ -84,8 +84,8 @@ class Message_handler:
         message = self.mes_gen(texts)
         send_message(self.sender, message, timeout=self.timeout)
         while True:
-            if message.id in self.result:
-                res = self.result[message.id]
-                del self.result[message.id]
+            if message.msg_id in self.result:
+                res = self.result[message.msg_id]
+                del self.result[message.msg_id]
                 break
         return res
