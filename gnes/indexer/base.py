@@ -75,7 +75,7 @@ class MultiheadIndexer(CompositionalEncoder):
         results = []
         for topk in topk_results:
             result = []
-            for doc_id, offset, score in topk:
+            for (doc_id, offset), score in topk:
                 doc = doc_caches.get(doc_id, self.component['doc_indexer'].query([doc_id])[0])
                 doc_caches[doc_id] = doc
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
