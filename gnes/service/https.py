@@ -61,18 +61,24 @@ class Message_handler:
         message = gnes_pb2.Message()
         message.client_id = self.identity
         message.msg_id = str(uuid.uuid4()).encode('ascii')
+
+        doc = gnes_pb2.Document()
+        doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
+        doc.text = ' '.join(texts)
+        doc.text_chunks.extend(texts)
+        doc.doc_size = len(texts)
+
         if index:
             message.mode = gnes_pb2.Message.INDEX
         else:
             message.mode = gnes_pb2.Message.QUERY
 
-        for text in texts:
-            doc = message.docs.add()
-            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-            doc.text = ' '.join(text)
-            doc.text_chunks.extend(text)
-            doc.doc_size = len(text)
-            doc.is_parsed = True
+        message.docs.extend([doc])
+
+        for i, chunk in enumerate(doc.text_chunks):
+            q = message.querys.add()
+            q.id = i
+            q.text = chunk
 
         return message
 
@@ -88,4 +94,5 @@ class Message_handler:
                 res = self.result[message.msg_id]
                 del self.result[message.msg_id]
                 break
+        print(res)
         return res
