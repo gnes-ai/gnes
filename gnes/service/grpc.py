@@ -75,6 +75,7 @@ class ZmqContext(object):
 class ZmqClient:
 
     def __init__(self, args):
+        self.args = args
         self.host_in = args.host_in
         self.host_out = args.host_out
         self.port_in = args.port_in
@@ -85,6 +86,7 @@ class ZmqClient:
         self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
 
         self.identity = str(uuid.uuid4()).encode('ascii')
+        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
         self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
@@ -95,6 +97,8 @@ class ZmqClient:
         self.context.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
+        message.client_id = self.identity
+        self.logger.info('send message: %s' % message.client_id)
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
@@ -110,13 +114,20 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
         self.zmq_context = ZmqContext(args)
 
     def Index(self, request, context):
-        req_id = str(uuid.uuid4())
-
+        #req_id = str(uuid.uuid4())
+        req_id = request._request_id if request._request_id else str(
+            uuid.uuid4())
+        self.logger.info('index request: %s received' % req_id)
         message = gnes_pb2.Message()
         message.client_id = req_id
         message.msg_id = req_id
+        message.num_part = 1
+        message.part_id = 1
         if request.update_model:
             message.mode = gnes_pb2.Message.TRAIN
+            if not request.send_more:
+                message.command = gnes_pb2.Message.TRAIN_ENCODER
+                # self.logger.info("cmd message received: %s" % str(message))
         else:
             message.mode = gnes_pb2.Message.INDEX
         message.docs.extend(request.docs)
@@ -132,11 +143,50 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
 
         # process result message and build response proto
 
-
     def Search(self, request, context):
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
+        # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        # context.set_details('Method not implemented!')
+        # raise NotImplementedError('Method not implemented!')
+
+        req_id = request._request_id if request._request_id else str(
+            uuid.uuid4())
+        self.logger.info('index request: %s received' % req_id)
+        message = gnes_pb2.Message()
+        message.client_id = req_id
+        message.msg_id = req_id
+        message.num_part = 1
+        message.part_id = 1
+        message.mode = gnes_pb2.Message.QUERY
+        message.docs.extend([request.doc])
+
+        chunks = request.doc.text_chunks if len(
+            request.doc.text_chunks) > 0 else request.doc.blob_chunks
+
+        for i, chunk in enumerate(chunks):
+            q = message.querys.add()
+            q.id = i
+            q.text = chunk
+            q.top_k = request.top_k
+
+        message.route = self.__class__.__name__
+        message.is_parsed = True
+
+        with self.zmq_context as zmq_client:
+            # message.client_id = zmq_client.identity
+            zmq_client.send_message(message, self.args.timeout)
+            #print('send request message: ' + str(message))
+            result = zmq_client.recv_message()
+
+            response = gnes_pb2.SearchResponse()
+            response.querys.extend(result.querys)
+
+            try:
+                for _ in range(len(result.querys[0].results)):
+                    print(result.querys[0].results[_].chunk.text)
+            except:
+                print('error', line, result)
+
+            return response
 
 
 def _wait_forever(server):
@@ -205,7 +255,8 @@ def start_serve(args):
 def serve(args):
     # Initialize GRPC Server
     LOGGER.info("start grpc server with %d workers ..." % _THREAD_CONCURRENCY)
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
 
     # Initialize Services
     gnes_pb2_grpc.add_GnesServicer_to_server(GNESServicer(args), server)
@@ -219,7 +270,3 @@ def serve(args):
 
     # Keep application alive
     _wait_forever(server)
-
-
-if __name__ == '__main__':
-    serve()

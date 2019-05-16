@@ -9,8 +9,8 @@ services:
       gnes-net:
         aliases:
           - income_proxy
-    # ports:
-    #   - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
+    ports:
+      - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
 
   middleman-proxy:
     image: ${DOCKER_IMG_URL}
@@ -33,8 +33,8 @@ services:
       gnes-net:
         aliases:
           - outgoing_proxy
-    # ports:
-    #   - ${HOST_PORT_OUT}:${OUTGOING_PROXY_OUT}
+    ports:
+      - ${HOST_PORT_OUT}:${OUTGOING_PROXY_OUT}
 
   encoder:
     image: ${DOCKER_IMG_URL}
@@ -79,7 +79,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: 3
+      replicas: $NUM_REPLICAS
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -104,10 +104,10 @@ services:
     configs:
       - indexer_config
 
-  grpc:
+  grpc_serve:
     image: ${DOCKER_IMG_URL}
     command: >
-      grpc --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+      grpc_serve --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
        --host_in outgoing-proxy --host_out income-proxy
        --grpc_port ${GRPC_PORT}
 

@@ -42,6 +42,8 @@ class EncoderService(BS):
             except FileNotFoundError:
                 raise ComponentNotLoad
 
+        self.train_data = []
+
             # if self.args.mode == ServiceMode.TRAIN:
             #     try:
             #         self._model = PipelineEncoder.load_yaml(
@@ -70,8 +72,13 @@ class EncoderService(BS):
                 raise NotImplemented()
 
         if msg.mode == gnes_pb2.Message.TRAIN:
-            self._model.train(chunks)
-            self.is_model_changed.set()
+            if len(chunks) > 0:
+                self.train_data.extend(chunks)
+
+            if msg.command == gnes_pb2.Message.TRAIN_ENCODER:
+                self._model.train(self.train_data)
+                self.is_model_changed.set()
+                self.train_data.clear()
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)

@@ -94,10 +94,12 @@ message IndexRequest {
   repeated Document docs = 2;
   uint32 time_out = 3;
   bool update_model = 4;
+  bool send_more = 5;
 }
 
 message SearchResponse {
-  repeated SearchResult data = 1;
+  // repeated SearchResult data = 1;
+  repeated Query querys = 1;
   uint32 size = 2;
 }
 
@@ -124,6 +126,12 @@ message Message {
   repeated Document docs = 10;
   repeated Query querys = 11;
   Document.DocType doc_type = 12;
+
+  enum Command {
+    ECHO = 0;
+    TRAIN_ENCODER = 1;
+  }
+  Command command = 13;
 }
 
 

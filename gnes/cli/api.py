@@ -31,86 +31,111 @@ def index(args):
 def proxy(args):
     from ..service import proxy as my_proxy
     if not args.proxy_type:
-        raise ValueError('--proxy_type is required when starting a proxy from CLI')
+        raise ValueError(
+            '--proxy_type is required when starting a proxy from CLI')
     with getattr(my_proxy, args.proxy_type)(args) as es:
         es.join()
 
-def grpc(args):
+
+def grpc_serve(args):
     from ..service import grpc
     grpc.serve(args)
 
-def client(args):
+
+def grpc_client(args):
     import grpc
     import uuid
 
+    from ..helper import batch_iterator
     from ..proto import gnes_pb2, gnes_pb2_grpc
 
-    test_docs = []
-    with open(args.txt_file) as f:
-        title = ''
-        sents = []
-        doc_id = 0
-        for line in f:
-            line = line.strip()
+    data = [v for v in args.txt_file if v.strip() if len(v) > 0]
 
-            if line and not title:
-                title = line
-                sents.append(line)
-            elif line and title:
-                sents.append(line)
-            elif not line and title and len(sents) > 1:
-                doc = gnes_pb2.Document()
-                doc.id = doc_id
-                doc.text = ' '.join(sents)
-                doc.text_chunks.extend(sents)
-                doc.doc_size = len(sents)
-                doc.is_parsed = True
-                doc.is_encoded = False
-                doc_id += 1
-                sents.clear()
-                title = ''
-                test_docs.append(doc)
+    docs = []
+    for i, line in enumerate(data):
+        doc = gnes_pb2.Document()
+        doc.id = i
+        doc.text = line
+        sents = [s.strip() for s in line.split('。') if len(s.strip()) > 0]
+        doc.text_chunks.extend(sents)
+        doc.doc_size = len(sents)
+        doc.is_parsed = True
+        docs.append(doc)
 
-    with grpc.insecure_channel('%s:%s' % (args.grpc_host, args.grpc_port)) as channel:
-        stub = gnes_pb2_grpc.GreeterStub(channel)
+    with grpc.insecure_channel(
+            '%s:%s' % (args.grpc_host, args.grpc_port),
+            options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
+                     ('grpc.max_receive_message_length',
+                      50 * 1024 * 1024)]) as channel:
+        stub = gnes_pb2_grpc.GnesStub(channel)
 
-        if not args.query:
+        batch_size = args.batch_size if args.batch_size else 100
+
+        if args.train:
+            for p in batch_iterator(docs, batch_size):
+                req_id = str(uuid.uuid4())
+                request = gnes_pb2.IndexRequest()
+
+                request._request_id = req_id
+                request.docs.extend(p)
+                request.send_more = True
+                request.update_model = True
+
+                print(request._request_id)
+                response = stub.Index(request)
+
             req_id = str(uuid.uuid4())
             request = gnes_pb2.IndexRequest()
 
             request._request_id = req_id
-            request.docs.extend(test_docs)
-
-            if args.train:
-                request.update_model = True
-
+            request.update_model = True
+            print(request._request_id)
             response = stub.Index(request)
+
             print("gnes client received: " + str(response))
+        elif args.index:
+            for p in batch_iterator(docs, batch_size):
+                req_id = str(uuid.uuid4())
+                request = gnes_pb2.IndexRequest()
+
+                request._request_id = req_id
+                request.docs.extend(p)
+                print(request._request_id)
+                response = stub.Index(request)
+                print("gnes client received: " + str(response))
         else:
-            pass
+            for doc in docs[:5]:
+                req_id = str(uuid.uuid4())
+
+                # build search_request
+                request = gnes_pb2.SearchRequest()
+                request._request_id = req_id
+                request.top_k = 5
+
+                request.doc.CopyFrom(doc)
+                print(request._request_id)
+                response = stub.Search(request)
+                print("gnes client received: " + str(response))
 
 
+def client(args):
+    from ..service.client import ClientService
+    from zmq.utils import jsonapi
+    with ClientService(args) as cs:
+        data = [v for v in args.txt_file if v.strip()]
+        if not data:
+            raise ValueError('input text file is empty, nothing to do')
+        else:
+            data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
 
-
-# def client(args):
-#     from ..service.client import ClientService
-#     from zmq.utils import jsonapi
-#     with ClientService(args) as cs:
-#         data = [v for v in args.txt_file if v.strip()]
-#         if not data:
-#             raise ValueError('input text file is empty, nothing to do')
-#         else:
-#             data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
-
-#             if args.index:
-#                 result = cs.index(data, args.train)
-#             else:
-#                 for line in data:
-#                     result = cs.query(line)
-#                     try:
-#                         for _ in range(len(result.querys[0].results)):
-#                             print(result.querys[0].results[_].chunk.text)
-#                     except:
-#                         print('error', line, result)
-#         cs.join()
-
+            if args.index:
+                result = cs.index(data, args.train)
+            else:
+                for line in data:
+                    result = cs.query(line)
+                    try:
+                        for _ in range(len(result.querys[0].results)):
+                            print(result.querys[0].results[_].chunk.text)
+                    except:
+                        print('error', line, result)
+        cs.join()

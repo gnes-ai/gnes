@@ -33,6 +33,7 @@ class GnesServicer(object):
   def Index(self, request, context):
     """option (rpc_core.method_no_deadline) = true;
     option (rpc_core.service_default_deadline_ms) = 5000;
+    rpc Train(IndexRequest) returns (IndexResponse) {}
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
