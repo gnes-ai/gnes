@@ -68,7 +68,6 @@ class EncoderService(BS):
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
-            print(vecs)
             self.logger.info('vecs shape {}'.format(vecs.shape))
             self.logger.info('chunks size {}'.format(len(chunks)))
             assert len(vecs) == len(chunks)
@@ -83,8 +82,8 @@ class EncoderService(BS):
             send_message(out, msg, self.args.timeout)
 
         elif msg.mode == gnes_pb2.Message.QUERY:
-            print(len(vecs),len(chunks), vecs)
             vecs = self._model.encode(chunks)
+            print(len(vecs),len(chunks), vecs)
             assert len(vecs) == len(chunks)
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
