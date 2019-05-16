@@ -25,6 +25,7 @@ import ctypes
 import numpy as np
 import uuid
 import threading
+import json
 
 
 class Message_handler:
@@ -46,8 +47,43 @@ class Message_handler:
         self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
 
         self._auto_recv = threading.Thread(target=self._recv_msg)
+        self._auto_recv.setDaemon(1)
+        self._auto_recv.start()
 
         self.result = {}
+
+        loop = asyncio.get_event_loop()
+        executor = ThreadPoolExecutor(max_workers=10)
+
+        async def post_handler(request):
+            try:
+                data = await asyncio.wait_for(request.json(), 10)
+                res = await loop.run_in_executor(executor,
+                                                 self.query,
+                                                 data['texts'])
+                ok = 1
+
+            except TimeoutError:
+                res = ''
+                ok = 0
+
+            ret_body = json.dumps({"result": res, "meta": {}, "ok": str(ok)})
+            return web.Response(body=ret_body)
+
+        @asyncio.coroutine
+        def init(loop):
+            # persistant connection or non-persistant connection
+            handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
+            app = web.Application(loop=loop,
+                                  client_max_size=1024**4,
+                                  handler_args=handler_args)
+            app.router.add_route('post', '/query', post_handler)
+            srv = yield from loop.create_server(app.make_handler(), 'localhost', 8081)
+            print('Server started at localhost:8081...')
+            return srv
+
+        loop.run_until_complete(init(loop))
+        loop.run_forever()
 
     def _recv_msg(self):
         while True:
@@ -94,5 +130,6 @@ class Message_handler:
                 res = self.result[message.msg_id]
                 del self.result[message.msg_id]
                 break
-        print(res)
+            else:
+                continue
         return res
