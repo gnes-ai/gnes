@@ -51,6 +51,7 @@ class MapProxyService(ProxyService):
                 p_msg.msg_id = msg.msg_id
                 p_msg.msg_type = msg.msg_type
                 p_msg.route = msg.route
+                p_msg.client_id = msg.client_id
                 p_msg.docs.extend(b)
                 if len(msg.querys) > 0:
                     p_msg.querys.extend(msg.querys)
@@ -78,17 +79,28 @@ class ReduceProxyService(ProxyService):
 
             tmp = sorted(
                 self.pending_result[msg.msg_id], key=lambda v: v.part_id)
-            reduced_msg = tmp[0]
 
-            for i in range(1, len(tmp)):
-                tmp_msg = tmp[i]
+            if self.args.num_part < 2:
+                return tmp
+            reduced_msg = gnes_pb2.Message()
+            reduced_msg.msg_id = tmp[0].msg_id
+            reduced_msg.client_id = tmp[0].client_id
 
-                if len(reduced_msg.querys) > 0:
-                    reduced_msg.querys.extend(tmp_msg.querys)
-                else:
-                    reduced_msg.docs.extend(tmp_msg.docs)
+            top_k = len(tmp[0].querys[0].results)
+
+            for i in range(msg.num_part):
+                # m-th query
+                for m in range(len(tmp[i*self.args.num_part].querys)):
+                    SearchResult = []
+                    for n in range(self.args.num_part):
+                        SearchResult += tmp[i*self.args.num_part+n].querys[m].results
+                    SearchResult = sorted(SearchResult, key=lambda x: -x.score)[:top_k]
+                    m_query = gnes_pb2.Query()
+                    m_query.results.extend(SearchResult)
+                    reduced_msg.querys.extend([m_query])
 
             reduced_msg.part_id = 1
             reduced_msg.num_part = 1
+
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)

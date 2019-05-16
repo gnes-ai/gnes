@@ -152,7 +152,7 @@ def set_proxy_service_parser(parser=None):
                         help='type of proxy')
     parser.add_argument('--batch_size', type=int, default=None,
                         help='the size of the request to split')
-    parser.add_argument('--num_part', type=int, default=None,
+    parser.add_argument('--num_part', type=int, default=1,
                         help='the number of partial result to collect')
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
                         socket_out=SocketType.PUB_BIND)
