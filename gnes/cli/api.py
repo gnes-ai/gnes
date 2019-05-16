@@ -74,14 +74,22 @@ def client(args):
     with grpc.insecure_channel('%s:%s' % (args.grpc_host, args.grpc_port)) as channel:
         stub = gnes_pb2_grpc.GreeterStub(channel)
 
-        req_id = str(uuid.uuid4())
-        request = gnes_pb2.IndexRequest()
+        if not args.query:
+            req_id = str(uuid.uuid4())
+            request = gnes_pb2.IndexRequest()
 
-        request._request_id = req_id
-        request.docs.extend(test_docs)
+            request._request_id = req_id
+            request.docs.extend(test_docs)
 
-        response = stub.Index(request)
-        print("gnes client received: " + str(response))
+            if args.train:
+                request.update_model = True
+
+            response = stub.Index(request)
+            print("gnes client received: " + str(response))
+        else:
+            pass
+
+
 
 
 # def client(args):
