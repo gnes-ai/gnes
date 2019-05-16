@@ -32,7 +32,6 @@ class BertEncoder(BaseEncoder):
         self.is_trained = True
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
-        self._post_init()
 
     def _post_init(self):
         from bert_serving.client import BertClient

@@ -84,7 +84,8 @@ setup(
         'flair>=0.4.1',
         'pandas',
         'paramiko',
-        'pattern3'
+        'pattern3',
+        'annoy==1.15.2'
     ],
     extras_require={
         'test': ['pylint'],

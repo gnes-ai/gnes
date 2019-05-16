@@ -34,7 +34,6 @@ class FaissIndexer(BaseIndexer):
         self.num_dim = num_dim
         self.index_key = index_key
         self._doc_ids = None
-        self._post_init()
 
     def _post_init(self):
         import faiss
