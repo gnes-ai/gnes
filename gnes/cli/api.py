@@ -39,6 +39,7 @@ def proxy(args):
 def client(args):
     from ..service.client import ClientService
     from zmq.utils import jsonapi
+    from ..helper import batch_iterator
     with ClientService(args) as cs:
         data = [v for v in args.txt_file if v.strip()]
         if not data:
@@ -47,7 +48,12 @@ def client(args):
             data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
 
             if args.index:
-                result = cs.index(data, args.train)
+                if not args.train and (len(data) < args.index_batch):
+                    batches = [b for b in batch_iterator(data, args.index_batch)]
+                    for p_idx, b in enumerate(batches):
+                        result = cs.index(b, args.train)
+                else:
+                    result = cs.index(data, args.train)
             else:
                 for line in data:
                     result = cs.query(line)

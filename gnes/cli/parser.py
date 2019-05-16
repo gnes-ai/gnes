@@ -109,6 +109,8 @@ def set_client_parser(parser=None):
                         help='text file to be used, each line is a doc/query')
     parser.add_argument('--index', action='store_true', default=False,
                         help='merge result from multiple indexer')
+    parser.add_argument('--index_batch', type=int, default=500000,
+                        help='merge result from multiple indexer')
     parser.add_argument('--train', action='store_true', default=False,
                         help='training in index')
     parser.set_defaults(
