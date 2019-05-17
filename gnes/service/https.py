@@ -20,6 +20,7 @@ import asyncio
 from aiohttp import web
 from concurrent.futures import ThreadPoolExecutor
 from ..messaging import send_message, recv_message
+from typing import List
 import zmq
 import ctypes
 import numpy as np
@@ -51,6 +52,7 @@ class Message_handler:
         self._auto_recv.start()
 
         self.result = {}
+        self.index_suc_msg = 'suc'
 
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=100)
@@ -58,18 +60,26 @@ class Message_handler:
         async def post_handler(request):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
+                mode = data["mode"] if "mode" in data else "query"
                 print('receiver request', request, data)
-                result = await loop.run_in_executor(executor,
-                                                    self.query,
-                                                    data['texts'])
-                ok = 1
-                res_f = []
-                for _1 in range(len(result.querys)):
-                    res_ = []
-                    for _ in range(len(result.querys[_1].results)):
-                        res_.append(result.querys[_1].results[_].chunk.text)
-                    res_f.append(res_)
+                if mode == 'query':
+                    result = await loop.run_in_executor(executor,
+                                                        self.query,
+                                                        data['texts'])
+                    res_f = []
+                    for _1 in range(len(result.querys)):
+                        res_ = []
+                        for _ in range(len(result.querys[_1].results)):
+                            res_.append(result.querys[_1].results[_].chunk.text)
+                        res_f.append(res_)
 
+                else:
+                    result = await loop.run_in_executor(executor,
+                                                        self.index,
+                                                        data['texts'])
+                    res_f = self.index_suc_msg
+
+                ok = 1
             except TimeoutError:
                 res_f = ''
                 ok = 0
@@ -91,15 +101,32 @@ class Message_handler:
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
-    def _recv_msg(self):
-        while True:
-            msg = recv_message(self.receiver)
-            if msg.msg_id in self.result:
-                self.result[msg.msg_id].append(msg)
-            else:
-                self.result[msg.msg_id] = [msg]
+    def index(self, texts: List[List[str]]):
+        req_id = str(uuid.uuid4())
 
-    def mes_gen(self, texts, index=False):
+        idx_req = gnes_pb2.IndexRequest()
+        idx_req._request_id = self.args.identity + req_id
+        idx_req.time_out = self.args.timeout
+
+        message = gnes_pb2.Message()
+        message.client_id = self.args.identity
+        message.msg_id = idx_req._request_id
+        message.mode = gnes_pb2.Message.INDEX
+
+        for text in texts:
+            doc = message.docs.add()
+            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
+            doc.text = ' '.join(text)
+            doc.text_chunks.extend(text)
+            doc.doc_size = len(text)
+            doc.is_parsed = True
+
+        message.route = self.__class__.__name__
+        message.is_parsed = True
+
+        return self._send_recv_msg(message)
+
+    def query(self, texts: List[str]):
         message = gnes_pb2.Message()
         message.client_id = self.identity
         message.msg_id = str(uuid.uuid4()).encode('ascii')
@@ -110,11 +137,7 @@ class Message_handler:
         doc.text_chunks.extend(texts)
         doc.doc_size = len(texts)
 
-        if index:
-            message.mode = gnes_pb2.Message.INDEX
-        else:
-            message.mode = gnes_pb2.Message.QUERY
-
+        message.mode = gnes_pb2.Message.QUERY
         message.docs.extend([doc])
 
         for i, chunk in enumerate(doc.text_chunks):
@@ -122,14 +145,9 @@ class Message_handler:
             q.id = i
             q.text = chunk
 
-        return message
+        return self._send_recv_msg(message)
 
-    def index(self, texts):
-        message = self.mes_gen(texts, True)
-        send_message(self.sender, message, timeout=self.timeout)
-
-    def query(self, texts):
-        message = self.mes_gen(texts)
+    def _send_recv_msg(self, message):
         send_message(self.sender, message, timeout=self.timeout)
         while True:
             if message.msg_id in self.result:
@@ -138,4 +156,9 @@ class Message_handler:
                 break
             else:
                 continue
-        return res[0]
+        return res
+
+    def _recv_msg(self):
+        while True:
+            msg = recv_message(self.receiver)
+            self.result[msg.msg_id] = msg
