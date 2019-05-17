@@ -211,7 +211,7 @@ def set_grpc_client_parser(parser=None):
     parser.add_argument('--txt_file', type=argparse.FileType('r'),
                         default=sys.stdin,
                         help='text file to be used, each line is a doc/query')
-    parser.add_argument('--batch_size', type=int, default=None,
+    parser.add_argument('--batch_size', type=int, default=100,
                         help='the size of the request to split')
     parser.add_argument('--query', action='store_true', default=False,
                         help='merge result from multiple indexer')
