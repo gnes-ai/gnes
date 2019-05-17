@@ -50,6 +50,8 @@ class ClientService(BS):
         message = gnes_pb2.Message()
         message.client_id = self.args.identity
         message.msg_id = idx_req._request_id
+        message.num_part = 1
+        message.part_id = 1
         if is_train:
             message.mode = gnes_pb2.Message.TRAIN
         else:
@@ -100,6 +102,8 @@ class ClientService(BS):
         search_message = gnes_pb2.Message()
         search_message.client_id = self.args.identity
         search_message.msg_id = search_req._request_id
+        search_message.num_part = 1
+        search_message.part_id = 1
         search_message.mode = gnes_pb2.Message.QUERY
         search_message.docs.extend([doc])
 

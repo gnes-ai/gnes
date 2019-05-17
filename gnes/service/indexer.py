@@ -50,14 +50,17 @@ class IndexerService(BS):
             raise RuntimeError("the documents should be encoded at first!")
 
         doc_keys = []
+        doc_ids = []
         for doc in msg.docs:
             doc_id = doc.id
             assert doc.doc_size == doc.encodes.shape[0]
             vecs = blob2array(doc.encodes)
             doc_keys = [(doc_id, i) for i in range(doc.doc_size)]
+            doc_ids.append(doc_id)
 
             self._model.add(doc_keys, vecs, head_name='binary_indexer')
-            self._model.add([doc_id], [doc], head_name='doc_indexer')
+        self._model.add(doc_ids, msg.docs, head_name='doc_indexer')
+
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
