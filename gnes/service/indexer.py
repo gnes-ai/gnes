@@ -49,7 +49,6 @@ class IndexerService(BS):
         if not msg.is_encoded:
             raise RuntimeError("the documents should be encoded at first!")
 
-        doc_ids = []
         offsets = []
         all_vecs = []
         doc_ids = []
@@ -62,7 +61,7 @@ class IndexerService(BS):
         self._model.add(zip(doc_ids, offsets),
                         np.concatenate(all_vecs, 0), head_name='binary_indexer')
         self._model.add([d.id for d in msg.docs],
-                        [d for d in msg.docs], head_name='doc_indexer')
+                        msg.docs, head_name='doc_indexer')
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
