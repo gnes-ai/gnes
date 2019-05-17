@@ -52,6 +52,7 @@ class IndexerService(BS):
         doc_ids = []
         offsets = []
         all_vecs = []
+        doc_ids = []
         for doc in msg.docs:
             assert doc.doc_size == doc.encodes.shape[0]
             all_vecs.append(blob2array(doc.encodes))

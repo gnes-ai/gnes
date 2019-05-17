@@ -79,7 +79,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: 3
+      replicas: $NUM_REPLICAS
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -103,6 +103,25 @@ services:
 
     configs:
       - indexer_config
+
+  grpc_serve:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      grpc_serve --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+       --host_in outgoing-proxy --host_out income-proxy
+       --grpc_port ${GRPC_PORT}
+
+    networks:
+      gnes-net:
+        aliases:
+          - grpc_serviced
+
+    depends_on:
+      - income-proxy
+      - outgoing-proxy
+
+    ports:
+      - ${GRPC_PORT}:${GRPC_PORT}
 
 volumes:
   index_data:

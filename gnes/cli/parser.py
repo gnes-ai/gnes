@@ -178,6 +178,51 @@ def set_indexer_service_parser(parser=None):
                         socket_out=SocketType.PUB_BIND)
     return parser
 
+def set_grpc_service_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    parser.add_argument('--num_procs',
+                        type=int,
+                        default=1,
+                        help="the number of process to use for serving")
+    parser.add_argument("--grpc_host",
+                        type=str,
+                        default="0.0.0.0",
+                        help="host address for grpc service")
+    parser.add_argument("--grpc_port",
+                        type=str,
+                        default="5555",
+                        help="host port for grpc service")
+
+    return parser
+
+
+def set_grpc_client_parser(parser=None):
+    import sys
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+
+    parser.add_argument('--grpc_host', type=str, default='127.0.0.1',
+                        help='the grpc host name')
+    parser.add_argument('--grpc_port', type=str, default="8800",
+                        help='the grpc port')
+    parser.add_argument('--txt_file', type=argparse.FileType('r'),
+                        default=sys.stdin,
+                        help='text file to be used, each line is a doc/query')
+    parser.add_argument('--batch_size', type=int, default=None,
+                        help='the size of the request to split')
+    parser.add_argument('--query', action='store_true', default=False,
+                        help='merge result from multiple indexer')
+    parser.add_argument('--index', action='store_true', default=False,
+                        help='merge result from multiple indexer')
+    parser.add_argument('--train', action='store_true', default=False,
+                        help='training in index')
+
+    return parser
+
+
 
 def get_main_parser():
     # create the top-level parser
@@ -187,6 +232,8 @@ def get_main_parser():
                                help='Description', dest='cli')
 
     set_client_parser(sp.add_parser('client', help='start a client'))
+    set_grpc_client_parser(sp.add_parser('grpc_client', help="start a grpc client"))
+    set_grpc_service_parser(sp.add_parser('grpc_serve', help="start a grpc service"))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))
