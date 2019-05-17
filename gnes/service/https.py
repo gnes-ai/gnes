@@ -94,23 +94,18 @@ class Message_handler:
                                   client_max_size=1024**4,
                                   handler_args=handler_args)
             app.router.add_route('post', '/query', post_handler)
-            srv = yield from loop.create_server(app.make_handler(), 'localhost', 8081)
-            print('Server started at localhost:8081...')
+            srv = yield from loop.create_server(app.make_handler(), 'localhost', 80)
+            print('Server started at localhost:80...')
             return srv
 
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
     def index(self, texts: List[List[str]]):
-        req_id = str(uuid.uuid4())
-
-        idx_req = gnes_pb2.IndexRequest()
-        idx_req._request_id = self.args.identity + req_id
-        idx_req.time_out = self.args.timeout
 
         message = gnes_pb2.Message()
-        message.client_id = self.args.identity
-        message.msg_id = idx_req._request_id
+        message.client_id = self.identity
+        message.msg_id = str(uuid.uuid4()).encode('ascii')
         message.mode = gnes_pb2.Message.INDEX
 
         for text in texts:
