@@ -139,4 +139,4 @@ class Message_handler:
                 break
             else:
                 continue
-        return res
+        return res[0]
