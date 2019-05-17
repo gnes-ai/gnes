@@ -16,6 +16,7 @@
 # pylint: disable=low-comment-ratio
 
 import zmq
+import numpy as np
 
 from gnes.proto import gnes_pb2, blob2array
 from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
@@ -44,30 +45,30 @@ class IndexerService(BS):
             else:
                 raise ComponentNotLoad
 
-    def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket',
-                          head_name: str):
+    def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         if not msg.is_encoded:
             raise RuntimeError("the documents should be encoded at first!")
 
-        doc_keys = []
+        offsets = []
+        all_vecs = []
         doc_ids = []
         for doc in msg.docs:
-            doc_id = doc.id
             assert doc.doc_size == doc.encodes.shape[0]
-            vecs = blob2array(doc.encodes)
-            doc_keys = [(doc_id, i) for i in range(doc.doc_size)]
-            doc_ids.append(doc_id)
+            all_vecs.append(blob2array(doc.encodes))
+            doc_ids += [doc.id] * doc.doc_size
+            offsets += list(range(doc.doc_size))
 
-            self._model.add(doc_keys, vecs, head_name='binary_indexer')
-        self._model.add(doc_ids, msg.docs, head_name='doc_indexer')
-
+        self._model.add(zip(doc_ids, offsets),
+                        np.concatenate(all_vecs, 0), head_name='binary_indexer')
+        self._model.add([d.id for d in msg.docs],
+                        msg.docs, head_name='doc_indexer')
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         if msg.mode == gnes_pb2.Message.INDEX:
-            self._index_and_notify(msg, out, 'binary_indexer')
+            self._index_and_notify(msg, out)
         elif msg.mode == gnes_pb2.Message.QUERY:
             if not msg.is_encoded:
                 raise RuntimeError("the documents should be encoded at first!")

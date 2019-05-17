@@ -59,7 +59,7 @@ class MultiheadIndexer(CompositionalEncoder):
     def add(self, keys: Any, docs: Any, head_name: str, *args,
             **kwargs) -> None:
         if not self.is_pipeline and head_name in self.component:
-            self.component[head_name].add(keys, docs)
+            self.component[head_name].add(keys, docs, *args, **kwargs)
 
     def query(self,
               keys: Any,
@@ -75,19 +75,16 @@ class MultiheadIndexer(CompositionalEncoder):
         results = []
         for topk in topk_results:
             result = []
-            for key, score in topk:
-                doc_id, offset = key
-                doc = doc_caches.get(doc_id, None)
-                if doc is None:
-                    doc = self.component['doc_indexer'].query([doc_id])[0]
-                    doc_caches[doc_id] = doc
+            for (doc_id, offset), score in topk:
+                doc = doc_caches.get(doc_id, self.component['doc_indexer'].query([doc_id])[0])
+                doc_caches[doc_id] = doc
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
                 result.append(({
-                                   "doc_id": doc_id,
-                                   "doc_size": doc.doc_size,
-                                   "offset": offset,
-                                   "score": score,
-                                   "chunk": chunk
+                                   'doc_id': doc_id,
+                                   'doc_size': doc.doc_size,
+                                   'offset': offset,
+                                   'score': score,
+                                   'chunk': chunk
                                }, score))
             results.append(result)
         return results

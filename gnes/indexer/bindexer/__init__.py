@@ -60,17 +60,11 @@ class BIndexer(BaseIndexer):
         if vectors.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
 
-
         num_rows = len(doc_ids)
-        cids = []
-        offsets = []
-        for cid, offset in doc_ids:
-            cids.append(cid)
-            offsets.append(offset)
-
-        cids = np.array(cids, dtype=np.uint32).tobytes()
+        doc_ids, offsets = zip(*doc_ids)
+        doc_ids = np.array(doc_ids, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.bindexer.index_trie(vectors.tobytes(), num_rows, cids, offsets)
+        self.bindexer.index_trie(vectors.tobytes(), num_rows, doc_ids, offsets)
 
     def query(
             self,
