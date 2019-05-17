@@ -69,10 +69,8 @@ def grpc_client(args):
                       50 * 1024 * 1024)]) as channel:
         stub = gnes_pb2_grpc.GnesStub(channel)
 
-        batch_size = args.batch_size if args.batch_size else 100
-
         if args.train:
-            for p in batch_iterator(docs, batch_size):
+            for p in batch_iterator(docs, args.batch_size):
                 req_id = str(uuid.uuid4())
                 request = gnes_pb2.IndexRequest()
 
@@ -92,9 +90,9 @@ def grpc_client(args):
             print(request._request_id)
             response = stub.Index(request)
 
-            print("gnes client received: " + str(response))
+            print('gnes client received: ' + str(response))
         elif args.index:
-            for p in batch_iterator(docs, batch_size):
+            for p in batch_iterator(docs, args.batch_size):
                 req_id = str(uuid.uuid4())
                 request = gnes_pb2.IndexRequest()
 
@@ -102,8 +100,8 @@ def grpc_client(args):
                 request.docs.extend(p)
                 print(request._request_id)
                 response = stub.Index(request)
-                print("gnes client received: " + str(response))
-        else:
+                print('gnes client received: ' + str(response))
+        elif args.query:
             for doc in docs[:5]:
                 req_id = str(uuid.uuid4())
 
@@ -115,21 +113,20 @@ def grpc_client(args):
                 request.doc.CopyFrom(doc)
                 print(request._request_id)
                 response = stub.Search(request)
-                print("gnes client received: " + str(response))
+                print('gnes client received: ' + str(response))
 
 
 def client(args):
     from ..service.client import ClientService
-    from zmq.utils import jsonapi
     with ClientService(args) as cs:
         data = [v for v in args.txt_file if v.strip()]
         if not data:
             raise ValueError('input text file is empty, nothing to do')
         else:
-            data = [[line.strip() for line in doc.split('。') if len(line.strip())>3] for doc in data]
+            data = [[line.strip() for line in doc.split('。') if len(line.strip()) > 3] for doc in data]
 
             if args.index:
-                result = cs.index(data, args.train)
+                cs.index(data, args.train)
             else:
                 for line in data:
                     result = cs.query(line)

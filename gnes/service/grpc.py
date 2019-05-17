@@ -15,27 +15,18 @@
 
 # pylint: disable=low-comment-ratio
 
-from concurrent import futures
-import contextlib
-
-import threading
 import multiprocessing
-import time
-import socket
-import grpc
-
-import ctypes
+import threading
 import uuid
-from typing import List, Optional
-import datetime
+from concurrent import futures
 
+import grpc
 import zmq
 
 from gnes.proto import gnes_pb2, gnes_pb2_grpc
-from ..messaging import send_message, recv_message
 from ..helper import set_logger
+from ..messaging import send_message, recv_message
 
-_ONE_DAY = datetime.timedelta(days=1)
 _PROCESS_COUNT = multiprocessing.cpu_count()
 _THREAD_CONCURRENCY = _PROCESS_COUNT
 
@@ -67,9 +58,6 @@ class ZmqContext(object):
         """Exit the context."""
         self.tlocal.client.close()
         self.tlocal.client = None
-
-        if exc_type is not None:
-            raise
 
 
 class ZmqClient:
@@ -114,7 +102,7 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
         self.zmq_context = ZmqContext(args)
 
     def Index(self, request, context):
-        #req_id = str(uuid.uuid4())
+        # req_id = str(uuid.uuid4())
         req_id = request._request_id if request._request_id else str(
             uuid.uuid4())
         self.logger.info('index request: %s received' % req_id)
@@ -150,7 +138,7 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
 
         req_id = request._request_id if request._request_id else str(
             uuid.uuid4())
-        self.logger.info('index request: %s received' % req_id)
+        self.logger.info('search request: %s received' % req_id)
         message = gnes_pb2.Message()
         message.client_id = req_id
         message.msg_id = req_id
@@ -174,82 +162,19 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
         with self.zmq_context as zmq_client:
             # message.client_id = zmq_client.identity
             zmq_client.send_message(message, self.args.timeout)
-            #print('send request message: ' + str(message))
+            # print('send request message: ' + str(message))
             result = zmq_client.recv_message()
 
             response = gnes_pb2.SearchResponse()
             response.querys.extend(result.querys)
 
             try:
-                for _ in range(len(result.querys[0].results)):
-                    print(result.querys[0].results[_].chunk.text)
-            except:
-                print('error', line, result)
+                for r in result.querys[0].results:
+                    print(r.chunk.text)
+            except Exception as ex:
+                self.logger.error(ex)
 
             return response
-
-
-def _wait_forever(server):
-    try:
-        while True:
-            time.sleep(_ONE_DAY.total_seconds())
-    except KeyboardInterrupt:
-        server.stop(None)
-
-
-@contextlib.contextmanager
-def _reserve_port():
-    """Find and reserve a port for all subprocesses to use."""
-    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-    if sock.getsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT) != 1:
-        raise RuntimeError("Failed to set SO_REUSEPORT.")
-    sock.bind(('', 0))
-    try:
-        yield sock.getsockname()[1]
-    finally:
-        sock.close()
-
-
-def _run_server(bind_address, args):
-    """Start a server in a subprocess."""
-    options = (('grpc.so_reuseport', 1),)
-
-    # WARNING: This example takes advantage of SO_REUSEPORT. Due to the
-    # limitations of manylinux1, none of our precompiled Linux wheels currently
-    # support this option. (https://github.com/grpc/grpc/issues/18210). To take
-    # advantage of this feature, install from source with
-    # `pip install grpcio --no-binary grpcio`.
-
-    server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY,),
-        options=options)
-    gnes_pb2_grpc.add_GnesServicer_to_server(GRPCServicer(args), server)
-    server.add_insecure_port(bind_address)
-    server.start()
-    _wait_forever(server)
-
-
-def start_serve(args):
-    bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
-    LOGGER.info('start grpc service at: %s' % bind_address)
-    process_count = _PROCESS_COUNT if not args.num_procs else args.num_procs
-    workers = []
-    for _ in range(process_count):
-        # NOTE: It is imperative that the worker subprocesses be forked before
-        # any gRPC servers start up. See
-        # https://github.com/grpc/grpc/issues/16001 for more details.
-        worker = multiprocessing.Process(
-            target=_run_server, args=(
-                bind_address,
-                args,
-            ))
-        worker.start()
-        workers.append(worker)
-        LOGGER.info('[%d] grpc service started' % _)
-
-    for worker in workers:
-        worker.join()
 
 
 def serve(args):
@@ -269,4 +194,5 @@ def serve(args):
     LOGGER.info("grpc service is listening at: %s" % bind_address)
 
     # Keep application alive
-    _wait_forever(server)
+    forever = threading.Event()
+    forever.wait()
