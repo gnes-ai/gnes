@@ -58,16 +58,23 @@ class Message_handler:
         async def post_handler(request):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
-                res = await loop.run_in_executor(executor,
-                                                 self.query,
-                                                 data['texts'])
+                print('receiver request', request, data)
+                result = await loop.run_in_executor(executor,
+                                                    self.query,
+                                                    data['texts'])
                 ok = 1
+                res_f = []
+                for _1 in range(len(result.querys)):
+                    res_ = []
+                    for _ in range(len(result.querys[_1].results)):
+                        res_.append(result.querys[_1].results[_].chunk.text)
+                    res_f.append(res_)
 
             except TimeoutError:
-                res = ''
+                res_f = ''
                 ok = 0
-
-            ret_body = json.dumps({"result": res, "meta": {}, "ok": str(ok)})
+            print(res_f)
+            ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
             return web.Response(body=ret_body)
 
         @asyncio.coroutine
