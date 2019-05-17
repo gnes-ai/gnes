@@ -53,7 +53,7 @@ class Message_handler:
         self.result = {}
 
         loop = asyncio.get_event_loop()
-        executor = ThreadPoolExecutor(max_workers=10)
+        executor = ThreadPoolExecutor(max_workers=100)
 
         async def post_handler(request):
             try:
@@ -73,7 +73,6 @@ class Message_handler:
             except TimeoutError:
                 res_f = ''
                 ok = 0
-            print(res_f)
             ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
             return web.Response(body=ret_body)
 
