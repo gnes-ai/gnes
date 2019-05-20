@@ -33,13 +33,13 @@ class NumpyIndexer(BaseIndexer):
     def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
             **kwargs):
         if len(vectors) % len(doc_ids) != 0:
-            raise ValueError("vectors bytes should be divided by doc_ids")
+            raise ValueError('vectors bytes should be divided by doc_ids')
 
         if not self.num_bytes:
             self.num_bytes = vectors.shape[1]
         elif self.num_bytes != vectors.shape[1]:
             raise ValueError(
-                "vectors' shape [%d, %d] does not match with indexer's dim: " %
+                "vectors' shape [%d, %d] does not match with indexer's dim: %d" %
                 (vectors.shape[0], vectors.shape[1], self.num_bytes))
 
         if self._vectors is not None:

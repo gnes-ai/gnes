@@ -17,7 +17,7 @@
 
 import zmq
 
-from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
+from .base import BaseService as BS, ComponentNotLoad, ServiceError, MessageHandler
 from ..messaging import *
 from ..proto import gnes_pb2, array2blob
 
@@ -26,16 +26,16 @@ class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        from ..encoder.base import PipelineEncoder
+        from ..encoder.base import BaseEncoder
 
         self._model = None
         try:
-            self._model = PipelineEncoder.load(self.args.dump_path)
+            self._model = BaseEncoder.load(self.args.dump_path)
             self.logger.info('load a trained encoder')
         except FileNotFoundError:
             self.logger.warning('fail to load the model from %s' % self.args.dump_path)
             try:
-                self._model = PipelineEncoder.load_yaml(
+                self._model = BaseEncoder.load_yaml(
                     self.args.yaml_path)
                 self.logger.info(
                     'load an uninitialized encoder, training is needed!')
@@ -43,17 +43,6 @@ class EncoderService(BS):
                 raise ComponentNotLoad
 
         self.train_data = []
-
-            # if self.args.mode == ServiceMode.TRAIN:
-            #     try:
-            #         self._model = PipelineEncoder.load_yaml(
-            #             self.args.yaml_path)
-            #         self.logger.info(
-            #             'load an uninitialized encoder, training is needed!')
-            #     except FileNotFoundError:
-            #         raise ComponentNotLoad
-            # else:
-            #     raise ComponentNotLoad
 
     def _raise_empty_model_error(self):
         raise ValueError('no model config available, exit!')

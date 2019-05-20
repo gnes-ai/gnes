@@ -15,7 +15,9 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Tuple, Any, Dict
+
+import numpy as np
 
 from ..base import TrainableBase
 from ..encoder.base import CompositionalEncoder
@@ -34,10 +36,7 @@ class BaseIndexer(TrainableBase):
 
 class BaseBinaryIndexer(BaseIndexer):
 
-    def __init__(self):
-        super().__init__()
-
-    def add(self, keys: bytes, docs: bytes, *args, **kwargs):
+    def add(self, keys: Any, docs: np.ndarray, *args, **kwargs):
         pass
 
     def query(self, keys: bytes, top_k: int, *args,
@@ -65,26 +64,19 @@ class MultiheadIndexer(CompositionalEncoder):
               keys: Any,
               top_k: int,
               sent_recall_factor: int = 1,
-              return_field: Optional[Tuple] = ('id', 'content'),
               *args,
               **kwargs) -> List[List[Tuple[Dict, float]]]:
         topk_results = self.component['binary_indexer'].query(
             keys, top_k * sent_recall_factor, normalized_score=True)
 
         doc_caches = dict()
-        results = []
+        topk_results_with_docs = []
         for topk in topk_results:
-            result = []
+            topk_wd = []
             for (doc_id, offset), score in topk:
                 doc = doc_caches.get(doc_id, self.component['doc_indexer'].query([doc_id])[0])
                 doc_caches[doc_id] = doc
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
-                result.append(({
-                                   'doc_id': doc_id,
-                                   'doc_size': doc.doc_size,
-                                   'offset': offset,
-                                   'score': score,
-                                   'chunk': chunk
-                               }, score))
-            results.append(result)
-        return results
+                topk_wd.append(((doc_id, offset), score, (doc.doc_size, chunk)))
+            topk_results_with_docs.append(topk_wd)
+        return topk_results_with_docs

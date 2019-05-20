@@ -1,0 +1,4 @@
+!NumpyIndexer
+  parameter:
+    num_bytes: 2
+    data_path: ./idx.doc_content
