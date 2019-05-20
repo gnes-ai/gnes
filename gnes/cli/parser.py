@@ -196,7 +196,8 @@ def set_https_service_parser(parser=None):
                         help='http port to deploy the service')
     parser.add_argument('--max_workers', type=int, default=100,
                         help='max workers to deal with the message')
-
+    parser.add_argument('--timeout', type=int, default=5000,
+                        help='max workers to deal with the message')
     return parser
 
 
