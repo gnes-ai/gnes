@@ -66,7 +66,7 @@ def client(args):
         cs.join()
 
 
-def client_server(args):
-    from ..service.client import ClientServer
-    with ClientServer(args) as cs:
-        cs.join()
+def https(args):
+    from ..service.https import Message_handler
+    mh = Message_handler(args)
+    mh.start_service()

@@ -181,6 +181,25 @@ def set_indexer_service_parser(parser=None):
     return parser
 
 
+def set_https_service_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    parser.add_argument('--port_in', type=int, default=8599,
+                        help='port to receive message from gnes')
+    parser.add_argument('--port_out', type=int, default=8598,
+                        help='port to send out message')
+    parser.add_argument('--host_in', type=str, default='localhost',
+                        help='host to receive message from gnes')
+    parser.add_argument('--host_out', type=str, default='localhost',
+                        help='host to send out message')
+    parser.add_argument('--http_port', type=int, default=80,
+                        help='http port to deploy the service')
+    parser.add_argument('--max_workers', type=int, default=100,
+                        help='max workers to deal with the message')
+
+    return parser
+
+
 def get_main_parser():
     # create the top-level parser
     parser = set_base_parser()
@@ -192,4 +211,5 @@ def get_main_parser():
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))
+    set_https_service_parser(sp.add_parser('https', help='start a proxy service'))
     return parser

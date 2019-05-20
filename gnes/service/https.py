@@ -35,8 +35,10 @@ class Message_handler:
         self.timeout = args.timeout if args else 5000
         self.port_in = args.port_in if args else 8599
         self.port_out = args.port_out if args else 8598
-        self.host_out = args.host_out if args else "localhost"
-        self.host_in = args.host_in if args else "localhost"
+        self.host_out = args.host_out if args.host_out else "localhost"
+        self.host_in = args.host_in if args.host_in else "localhost"
+        self.http_port = args.http_port if args else 80
+        self.max_workers = args.max_workers if args else 100
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -54,8 +56,9 @@ class Message_handler:
         self.result = {}
         self.index_suc_msg = 'suc'
 
+    def start_service(self):
         loop = asyncio.get_event_loop()
-        executor = ThreadPoolExecutor(max_workers=100)
+        executor = ThreadPoolExecutor(max_workers=self.max_workers)
 
         async def post_handler(request):
             try:
@@ -91,10 +94,12 @@ class Message_handler:
             # persistant connection or non-persistant connection
             handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
             app = web.Application(loop=loop,
-                                  client_max_size=1024**4,
+                                  client_max_size=10**10,
                                   handler_args=handler_args)
-            app.router.add_route('post', '/query', post_handler)
-            srv = yield from loop.create_server(app.make_handler(), 'localhost', 80)
+            app.router.add_route('post', '/gnes', post_handler)
+            srv = yield from loop.create_server(app.make_handler(),
+                                                'localhost',
+                                                self.http_port)
             print('Server started at localhost:80...')
             return srv
 
