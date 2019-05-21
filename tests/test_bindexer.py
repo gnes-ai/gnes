@@ -23,7 +23,7 @@ class TestFIndexer(unittest.TestCase):
                                    [2, 1, 3, 4],
                                    [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[((234, 0), 0), ((123, 1), 0)], [((432, 0), 0), ((1, 0), 0)], [((234, 0), 1), ((123, 1), 1)]]
+        self.toy_exp = [[((234, 0), 4), ((123, 1), 4)], [((432, 0), 4), ((1, 0), 4)], [((234, 0), 3), ((123, 1), 3)]]
 
         self.data_path = './test_bindexer_data'
         touch_dir(self.data_path)
