@@ -86,7 +86,6 @@ class EncoderService(BS):
 
         elif msg.mode == gnes_pb2.Message.QUERY:
             vecs = self._model.encode(chunks)
-            print(len(vecs),len(chunks), vecs)
             assert len(vecs) == len(chunks)
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
