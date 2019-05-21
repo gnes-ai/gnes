@@ -120,27 +120,23 @@ esac
 
 
 ### 3. Set all ports
-HOST_PORT_IN=$(TITLE="specify an incoming port of your service, client will send data to this port on the host";
-               TITLE_SHORT="host port in";
-               DEFAULT_VALUE="$RANDOM";
-               ui.show_input)
-HOST_PORT_OUT=$(TITLE="specify an outgoing port of your service, client will receive data from this port on the host";
-               TITLE_SHORT="host port out";
-               DEFAULT_VALUE=$(expr $HOST_PORT_IN + 1);
-               ui.show_input)
+GRPC_PORT=$(TITLE="specify the grpc port of your service, client will communicate via this port on the host";
+           TITLE_SHORT="grpc port";
+           DEFAULT_VALUE="$RANDOM";
+           ui.show_input)
 
-INCOME_PROXY_IN=$HOST_PORT_IN
-OUTGOING_PROXY_OUT=$HOST_PORT_OUT
 # these random port need no UI config
+INCOME_PROXY_IN=$RANDOM
 INCOME_PROXY_OUT=$RANDOM
 MIDDLEMAN_PROXY_IN=$RANDOM
 MIDDLEMAN_PROXY_OUT=$RANDOM
 OUTGOING_PROXY_IN=$RANDOM
+OUTGOING_PROXY_OUT=$RANDOM
 
 #### 6. Final service naming
 
 GNES_STACK_NAME=$(TITLE="please name this service";
                   TITLE_SHORT="naming service";
-                  DEFAULT_VALUE="gnes-swarm-${RANDOM}";
+                  DEFAULT_VALUE="my-gnes-${RANDOM}";
                   ui.show_input)
 

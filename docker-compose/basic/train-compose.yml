@@ -7,19 +7,34 @@ services:
         aliases:
           - encoder_serviced
     command: >
-      encode --port_in ${INCOME_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_IN}
+      encode --port_in ${INCOME_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
         --socket_in PULL_BIND --socket_out PUSH_CONNECT
         --mode TRAIN --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
       - "${MODEL_DIR}:/ext_data"
       - "${OUTPUT_DIR}:/dump"
-    ports:
-      - ${INCOME_PROXY_IN}:${INCOME_PROXY_IN}
     configs:
       - encoder_config
 
+  grpc_serve:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      grpc_serve --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+       --host_in encoder_serviced --host_out encoder_serviced
+       --grpc_port ${GRPC_PORT}
+
+    networks:
+      gnes-net:
+        aliases:
+          - grpc_serviced
+
+    ports:
+      - ${GRPC_PORT}:${GRPC_PORT}
+
 networks:
   gnes-net:
+    driver: overlay
+    attachable: true
 
 configs:
   encoder_config:

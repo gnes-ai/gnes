@@ -47,15 +47,17 @@ function check_arg() {
 }
 
 function make_yaml() {
+    INCOME_PROXY_IN=$RANDOM
     INCOME_PROXY_OUT=$RANDOM
     MIDDLEMAN_PROXY_IN=$RANDOM
     MIDDLEMAN_PROXY_OUT=$RANDOM
     OUTGOING_PROXY_IN=$RANDOM
+    OUTGOING_PROXY_OUT=$RANDOM
     (. ${ENV_PATH} && eval "echo \"$(cat ${SOURCE_PATH})\"") > ${TARGET_PATH}
-    printf "
+    (. ${ENV_PATH} && printf "
     a yaml file is generated to ${TARGET_PATH}
     to deploy it:
-    \e[0;32mdocker stack deploy --compose-file ${TARGET_PATH} my-gnes\e[0m\n"
+    \e[0;32mdocker stack deploy --with-registry-auth --compose-file ${TARGET_PATH} my-gnes-${RANDOM}\e[0m\n")
 }
 
 check_arg

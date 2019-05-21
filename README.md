@@ -65,6 +65,11 @@ docker stack rm gnes-swarm-0531
 
 The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
 
+#### 3. (optional) Train Mode: training a GNES system 
+
+#### 4. Index Mode: adding new documents to GNES
+
+#### 5. Query Mode: searching relevant documents for a given query  
 
 ### Building the documentation from scratch
 
