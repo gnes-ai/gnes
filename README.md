@@ -56,20 +56,32 @@ If you are new to GNES, it is recommended to use the wizard to config and start 
 bash <(curl -s https://transfer.sh/yVeBa/gnes-wizard.sh)
 ```
 
-To stop a running GNES service, you can first use `docker stack ls` to find the name of the running services, say `gnes-swarm-0531`, then do: 
+At the last step, the wizard will generate a random name for the service, say `my-gnes-0531`. Keep that name in mind. If you miss that name, you can always use `docker stack ls` to checkout the name of your service.
+
+To tell whether the service is running successfully or not, you can use `docker stack ps my-gnes-0531`. It should give you results as follows:
 ```bash
-docker stack rm gnes-swarm-0531
+ID                  NAME                         IMAGE                                           NODE                DESIRED STATE       CURRENT STATE                ERROR               PORTS
+zku2zm9deli9        my-gnes-0531_encoder.1      ccr.ccs.tencentyun.com/gnes/aipd-gnes:86c0a3a   VM-0-3-ubuntu       Running             Running about an hour ago
+yc09pst6s7yt        my-gnes-0531_grpc_serve.1   ccr.ccs.tencentyun.com/gnes/aipd-gnes:86c0a3a   VM-0-3-ubuntu       Running             Running about an hour ago
 ```
 
-<h2 align="center">:book: Documentation</h2>
+Note, the running status under `CURRENT STATE` suggests everything is fine.
 
-The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
+To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
+
+- Having troubles to start GNES? Checkout our [troubleshooting guide](#).
+- For pro-users/developers, you may want to use our `gnes-yaml.sh` tools to [generate a YAML config via CLI](#); or simply [handcraft your own `docker-compose.yml`](#).
 
 #### 3. (optional) Train Mode: training a GNES system 
 
 #### 4. Index Mode: adding new documents to GNES
 
 #### 5. Query Mode: searching relevant documents for a given query  
+
+
+<h2 align="center">:book: Documentation</h2>
+
+The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
 
 ### Building the documentation from scratch
 
