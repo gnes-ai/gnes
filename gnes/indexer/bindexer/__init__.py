@@ -16,7 +16,7 @@
 # pylint: disable=low-comment-ratio
 
 import os
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 
@@ -69,11 +69,11 @@ class BIndexer(BaseBinaryIndexer):
     def query(
             self,
             keys: np.ndarray,
-            top_k: int = 1,
-            normalized_score=False,
+            top_k: int,
+            normalized_score: bool = True,
             method: str = 'nsw',
             *args,
-            **kwargs) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
+            **kwargs) -> List[List[Tuple]]:
 
         if keys.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
@@ -89,9 +89,9 @@ class BIndexer(BaseBinaryIndexer):
             q_idx, doc_ids, offsets = self.bindexer.find_batch_trie(
                 keys, num_rows)
             for (i, q, o) in zip(doc_ids, q_idx, offsets):
-                result[q].append(((i, o), 1. if normalized_score else 0))
+                result[q].append(((i, o), 1 if normalized_score else self.num_bytes))
 
-            # search the indexed items with similary value
+            # search the indexed items with similar value
             doc_ids, offsets, dists, q_idx = self.bindexer.nsw_search(
                 keys, num_rows, top_k)
             for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
@@ -99,7 +99,7 @@ class BIndexer(BaseBinaryIndexer):
                     continue
                 result[q].append(
                     ((i, o),
-                     (1. - d / self.num_bytes) if normalized_score else d))
+                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
             for q in range(num_rows):
@@ -110,7 +110,7 @@ class BIndexer(BaseBinaryIndexer):
             for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
                 result[q].append(
                     ((i, o),
-                     (1. - d / self.num_bytes) if normalized_score else d))
+                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
         return result
 

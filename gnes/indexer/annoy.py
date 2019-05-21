@@ -38,7 +38,7 @@ class AnnoyIndexer(BaseBinaryIndexer):
             self._index.add_item(last_idx + idx, vec)
         self._doc_ids += keys
 
-    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         self._index.build(self.n_trees)
         if keys.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")

@@ -15,7 +15,7 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple, Any, Dict
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -30,7 +30,7 @@ class BaseIndexer(TrainableBase):
         pass
 
     def query(self, keys: Any, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[Any, float]]]:
+              **kwargs) -> List[List[Tuple[Any]]]:
         pass
 
 
@@ -40,7 +40,7 @@ class BaseBinaryIndexer(BaseIndexer):
         pass
 
     def query(self, keys: bytes, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[int, float]]]:
+              **kwargs) -> List[List[Tuple[Any]]]:
         pass
 
 
@@ -63,11 +63,9 @@ class MultiheadIndexer(CompositionalEncoder):
     def query(self,
               keys: Any,
               top_k: int,
-              sent_recall_factor: int = 1,
               *args,
-              **kwargs) -> List[List[Tuple[Dict, float]]]:
-        topk_results = self.component['binary_indexer'].query(
-            keys, top_k * sent_recall_factor, normalized_score=True)
+              **kwargs) -> List[List[Tuple]]:
+        topk_results = self.component['binary_indexer'].query(keys, top_k, *args, **kwargs)
 
         doc_caches = dict()
         topk_results_with_docs = []

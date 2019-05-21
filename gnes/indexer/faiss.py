@@ -62,7 +62,7 @@ class FaissIndexer(BaseBinaryIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                ret_i.append((self._doc_ids[_id_i], -1.0 * _score_i))
+                ret_i.append((self._doc_ids[_id_i], -_score_i))
             ret.append(ret_i)
 
         return ret
