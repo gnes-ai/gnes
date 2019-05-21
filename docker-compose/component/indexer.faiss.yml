@@ -1,10 +1,10 @@
-!MultiheadIndexer
+!JointIndexer
 component:
-  binary_indexer: !FaissIndexer
+  - !FaissIndexer
     parameter:
       num_dim: 300
       index_key: HNSW32
       data_path: /out_data/idx.faiss
-  doc_indexer: !LVDBIndexer
+  - !LVDBIndexer
     parameter:
       data_path: /out_data/idx.doc_content

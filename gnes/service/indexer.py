@@ -58,11 +58,11 @@ class IndexerService(BS):
             doc_ids += [doc.id] * doc.doc_size
             offsets += list(range(doc.doc_size))
 
-        from gnes.indexer.base import MultiheadIndexer, BaseBinaryIndexer, BaseTextIndexer
-        if isinstance(self._model, MultiheadIndexer) or isinstance(self._model, BaseBinaryIndexer):
+        from gnes.indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
+        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
             self._model.add(zip(doc_ids, offsets),
                             np.concatenate(all_vecs, 0), head_name='binary_indexer')
-        if isinstance(self._model, MultiheadIndexer) or isinstance(self._model, BaseTextIndexer):
+        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
             self._model.add([d.id for d in msg.docs],
                             msg.docs, head_name='doc_indexer')
         send_message(out, msg, self.args.timeout)

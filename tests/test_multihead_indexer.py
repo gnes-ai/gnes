@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer.base import MultiheadIndexer
+from gnes.indexer.base import JointIndexer
 from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
@@ -56,7 +56,7 @@ class TestMHIndexer(unittest.TestCase):
     #     mhi.close()
 
     def test_add(self):
-        mhi = MultiheadIndexer.load_yaml(self.yaml_path)
+        mhi = JointIndexer.load_yaml(self.yaml_path)
         mhi.add(range(len(self.docs)), self.docs, head_name='doc_indexer')
         for doc in self.docs:
             mhi.add([(doc.id, i) for i in range(doc.doc_size)], blob2array(doc.encodes), head_name='binary_indexer')
