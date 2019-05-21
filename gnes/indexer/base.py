@@ -30,7 +30,7 @@ class BaseIndexer(TrainableBase):
         pass
 
     def query(self, keys: Any, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[Any]]]:
+              **kwargs) -> List[List[Tuple]]:
         pass
 
 
@@ -40,7 +40,7 @@ class BaseBinaryIndexer(BaseIndexer):
         pass
 
     def query(self, keys: bytes, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[Any]]]:
+              **kwargs) -> List[List[Tuple]]:
         pass
 
 
@@ -49,7 +49,7 @@ class BaseTextIndexer(BaseIndexer):
     def add(self, keys: List[int], docs: Any, *args, **kwargs):
         pass
 
-    def query(self, keys: List[int], top_k: int, *args, **kwargs) -> List[Any]:
+    def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
         pass
 
 
