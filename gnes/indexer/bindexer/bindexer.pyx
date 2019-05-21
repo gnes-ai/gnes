@@ -24,8 +24,8 @@ from cpython cimport array
 from libc.stdlib cimport qsort
 from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
 
-DEF data_size_per_time = 100000
-DEF node_size_per_time = 100000
+DEF data_size_per_time = 65535
+DEF node_size_per_time = 65535
 DEF data_blocks_increment = 100
 DEF node_blocks_increment = 100
 DEF UIDX_max = 4294967295
@@ -40,6 +40,10 @@ ctypedef unsigned short UST
 ctypedef unsigned char UCR
 
 cdef struct coordi:
+    UIDX x
+    UIDX y
+
+cdef struct ncoordi:
     UST x
     UIDX y
 
@@ -56,7 +60,7 @@ cdef struct Data:
     UIDX doc_id
     UST offset
     coordi _next
-    coordi _neighbor
+    ncoordi _neighbor
     coordi parent
     UST num_in
     UST num_out
