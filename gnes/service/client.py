@@ -27,7 +27,6 @@ from .base import BaseService as BS, MessageHandler
 from ..messaging import *
 
 
-
 class ClientService(BS):
     handler = MessageHandler(BS.handler)
 

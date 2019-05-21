@@ -27,9 +27,7 @@ from gnes.proto import gnes_pb2, gnes_pb2_grpc
 from ..helper import set_logger
 from ..messaging import send_message, recv_message
 
-_PROCESS_COUNT = multiprocessing.cpu_count()
-_THREAD_CONCURRENCY = _PROCESS_COUNT
-
+_THREAD_CONCURRENCY = multiprocessing.cpu_count()
 LOGGER = set_logger(__name__)
 
 
@@ -179,7 +177,7 @@ class GNESServicer(gnes_pb2_grpc.GnesServicer):
 
 def serve(args):
     # Initialize GRPC Server
-    LOGGER.info("start grpc server with %d workers ..." % _THREAD_CONCURRENCY)
+    LOGGER.info('start a grpc server with %d workers ...' % _THREAD_CONCURRENCY)
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
 
@@ -188,10 +186,10 @@ def serve(args):
 
     # Start GRPC Server
     bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
-    # server.add_insecure_port('[::]:' + "5555")
+    # server.add_insecure_port('[::]:' + '5555')
     server.add_insecure_port(bind_address)
     server.start()
-    LOGGER.info("grpc service is listening at: %s" % bind_address)
+    LOGGER.info('grpc service is listening at: %s' % bind_address)
 
     # Keep application alive
     forever = threading.Event()

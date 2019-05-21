@@ -69,7 +69,7 @@ def grpc_client(args):
                       50 * 1024 * 1024)]) as channel:
         stub = gnes_pb2_grpc.GnesStub(channel)
 
-        if args.train:
+        if args.mode == 'train':
             for p in batch_iterator(docs, args.batch_size):
                 req_id = str(uuid.uuid4())
                 request = gnes_pb2.IndexRequest()
@@ -91,7 +91,7 @@ def grpc_client(args):
             response = stub.Index(request)
 
             print('gnes client received: ' + str(response))
-        elif args.index:
+        elif args.mode == 'index':
             for p in batch_iterator(docs, args.batch_size):
                 req_id = str(uuid.uuid4())
                 request = gnes_pb2.IndexRequest()
@@ -101,7 +101,7 @@ def grpc_client(args):
                 print(request._request_id)
                 response = stub.Index(request)
                 print('gnes client received: ' + str(response))
-        elif args.query:
+        elif args.mode == 'query':
             for doc in docs[:5]:
                 req_id = str(uuid.uuid4())
 
