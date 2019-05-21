@@ -38,7 +38,7 @@ class TestFIndexer(unittest.TestCase):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_1")
         fd.add(self.toy_label, self.toy_data)
 
-        rs = fd.query(self.toy_query, 2, method='nsw')
+        rs = fd.query(self.toy_query, 2, method='nsw', normalized_score=False)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[1], -x[0][0]))
         fd.close()
@@ -48,7 +48,7 @@ class TestFIndexer(unittest.TestCase):
     def test_force_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_2")
         fd.add(self.toy_label, self.toy_data)
-        rs = fd.query(self.toy_query, 2, method='force')
+        rs = fd.query(self.toy_query, 2, method='force', normalized_score=False)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[1], -x[0][0]))
         fd.close()
@@ -63,7 +63,7 @@ class TestFIndexer(unittest.TestCase):
         # shutil.rmtree(self.data_path + "_3")
 
         fd2 = BIndexer.load(self.dump_path)
-        rs = fd2.query(self.toy_query, 2)
+        rs = fd2.query(self.toy_query, 2, normalized_score=False)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[1], -x[0][0]))
         fd2.close()
