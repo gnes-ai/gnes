@@ -54,7 +54,8 @@ class Message_handler:
         self._auto_recv.start()
 
         self.result = {}
-        self.index_suc_msg = 'suc'
+        self.index_suc_msg = 'index succesful'
+        self.train_suc_msg = 'train succesful'
 
     def start_service(self):
         loop = asyncio.get_event_loop()
@@ -76,11 +77,18 @@ class Message_handler:
                             res_.append(result.querys[_1].results[_].chunk.text)
                         res_f.append(res_)
 
-                else:
+                elif mode == 'index':
                     result = await loop.run_in_executor(executor,
                                                         self.index,
                                                         data['texts'])
                     res_f = self.index_suc_msg
+                elif mode == 'train':
+                    result = await loop.run_in_executor(executor,
+                                                        self.train,
+                                                        data['texts'])
+                    res_f = self.train_suc_msg
+                else:
+                    res_f = 'specific the right mode: train, index, query'
 
                 ok = 1
             except TimeoutError:
@@ -107,23 +115,13 @@ class Message_handler:
         loop.run_forever()
 
     def index(self, texts: List[List[str]]):
-
-        message = gnes_pb2.Message()
-        message.client_id = self.identity
-        message.msg_id = str(uuid.uuid4()).encode('ascii')
+        message = self._gen_msg(texts)
         message.mode = gnes_pb2.Message.INDEX
+        return self._send_recv_msg(message)
 
-        for text in texts:
-            doc = message.docs.add()
-            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-            doc.text = ' '.join(text)
-            doc.text_chunks.extend(text)
-            doc.doc_size = len(text)
-            doc.is_parsed = True
-
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-
+    def train(self, texts: List[List[str]]):
+        message = self._gen_msg(texts)
+        message.mode = gnes_pb2.Message.TRAIN
         return self._send_recv_msg(message)
 
     def query(self, texts: List[str]):
@@ -146,6 +144,23 @@ class Message_handler:
             q.text = chunk
 
         return self._send_recv_msg(message)
+
+    def _gen_msg(self, texts: List[List[str]]):
+        message = gnes_pb2.Message()
+        message.client_id = self.identity
+        message.msg_id = str(uuid.uuid4()).encode('ascii')
+
+        for text in texts:
+            doc = message.docs.add()
+            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
+            doc.text = ' '.join(text)
+            doc.text_chunks.extend(text)
+            doc.doc_size = len(text)
+            doc.is_parsed = True
+
+        message.route = self.__class__.__name__
+        message.is_parsed = True
+        return message
 
     def _send_recv_msg(self, message):
         send_message(self.sender, message, timeout=self.timeout)
