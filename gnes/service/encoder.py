@@ -17,34 +17,32 @@
 
 import zmq
 
-from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..document import MultiSentDocument, DocumentMapper, UniSentDocument
+from .base import BaseService as BS, ComponentNotLoad, ServiceError, MessageHandler
 from ..messaging import *
-from ..proto import gnes_pb2, array2blob, blob2array
+from ..proto import gnes_pb2, array2blob
 
 
 class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        from ..encoder.base import PipelineEncoder
+        from ..encoder.base import BaseEncoder
 
         self._model = None
         try:
-            self._model = PipelineEncoder.load(self.args.dump_path)
+            self._model = BaseEncoder.load(self.args.dump_path)
             self.logger.info('load a trained encoder')
         except FileNotFoundError:
             self.logger.warning('fail to load the model from %s' % self.args.dump_path)
-            if self.args.mode == ServiceMode.TRAIN:
-                try:
-                    self._model = PipelineEncoder.load_yaml(
-                        self.args.yaml_path)
-                    self.logger.info(
-                        'load an uninitialized encoder, training is needed!')
-                except FileNotFoundError:
-                    raise ComponentNotLoad
-            else:
+            try:
+                self._model = BaseEncoder.load_yaml(
+                    self.args.yaml_path)
+                self.logger.info(
+                    'load an uninitialized encoder, training is needed!')
+            except FileNotFoundError:
                 raise ComponentNotLoad
+
+        self.train_data = []
 
     def _raise_empty_model_error(self):
         raise ValueError('no model config available, exit!')
@@ -63,8 +61,13 @@ class EncoderService(BS):
                 raise NotImplemented()
 
         if msg.mode == gnes_pb2.Message.TRAIN:
-            self._model.train(chunks)
-            self.is_model_changed.set()
+            if len(chunks) > 0:
+                self.train_data.extend(chunks)
+
+            if msg.command == gnes_pb2.Message.TRAIN_ENCODER:
+                self._model.train(self.train_data)
+                self.is_model_changed.set()
+                self.train_data.clear()
 
         elif msg.mode == gnes_pb2.Message.INDEX:
             vecs = self._model.encode(chunks)
@@ -88,10 +91,8 @@ class EncoderService(BS):
             num_querys = len(msg.querys)
             assert num_querys == len(vecs)
             msg.docs[0].encodes.CopyFrom(array2blob(vecs))
-            doc.is_encoded = True
-
             msg.is_encoded = True
             send_message(out, msg, self.args.timeout)
         else:
             raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, self.args.mode))
+                               (self.__class__.__name__, msg.mode))

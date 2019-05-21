@@ -21,10 +21,10 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .base import BaseIndexer
+from .base import BaseBinaryIndexer
 
 
-class FaissIndexer(BaseIndexer):
+class FaissIndexer(BaseBinaryIndexer):
     lock_work_dir = True
 
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
@@ -33,8 +33,7 @@ class FaissIndexer(BaseIndexer):
         self.indexer_file_path = os.path.join(self.work_dir, self.internal_index_path)
         self.num_dim = num_dim
         self.index_key = index_key
-        self._doc_ids = None
-        self._post_init()
+        self._doc_ids = []
 
     def _post_init(self):
         import faiss
@@ -44,18 +43,14 @@ class FaissIndexer(BaseIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
-    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
-        if len(vectors) != len(doc_ids):
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
+        if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
         if vectors.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
-        # doc_ids = np.array(doc_ids)
-        if self._doc_ids is not None:
-            self._doc_ids += doc_ids
-        else:
-            self._doc_ids = doc_ids
+        self._doc_ids += keys
         self._faiss_index.add(vectors)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
@@ -67,7 +62,7 @@ class FaissIndexer(BaseIndexer):
         for _id, _score in zip(ids, score):
             ret_i = []
             for _id_i, _score_i in zip(_id, _score):
-                ret_i.append((self._doc_ids[_id_i], -1.0 * _score_i))
+                ret_i.append((self._doc_ids[_id_i], -_score_i))
             ret.append(ret_i)
 
         return ret

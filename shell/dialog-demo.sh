@@ -3,7 +3,7 @@
 # add this line to import the dialog api
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-. "$DIR/dialog.sh"
+. "$DIR/_dialog.sh"
 
 aa=$(TITLE='select your docker image source from the list:';
      TITLE_SHORT='example of ui.show_options';

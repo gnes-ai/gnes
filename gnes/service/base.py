@@ -25,9 +25,9 @@ import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
 
+from gnes.proto import gnes_pb2
 from ..helper import set_logger
 from ..messaging import *
-from gnes.proto import gnes_pb2
 
 
 class BetterEnum(Enum):
@@ -106,7 +106,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
 
     if socket_type in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
-        #sock.setsockopt(zmq.SUBSCRIBE, b'')
+        # sock.setsockopt(zmq.SUBSCRIBE, b'')
 
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 
@@ -281,7 +281,6 @@ class BaseService(threading.Thread):
         ctr_msg = gnes_pb2.Message()
         ctr_msg.msg_type = MessageType.CTRL_STATUS.name
         return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
-
 
     def __enter__(self):
         self.start()

@@ -16,15 +16,15 @@
 # pylint: disable=low-comment-ratio
 
 import os
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseIndexer
+from ..base import BaseBinaryIndexer
 
 
-class BIndexer(BaseIndexer):
+class BIndexer(BaseBinaryIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -52,34 +52,28 @@ class BIndexer(BaseIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
 
-    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args,
             **kwargs):
-        if len(vectors) != len(doc_ids):
+        if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
         if vectors.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
 
-
-        num_rows = len(doc_ids)
-        cids = []
-        offsets = []
-        for cid, offset in doc_ids:
-            cids.append(cid)
-            offsets.append(offset)
-
-        cids = np.array(cids, dtype=np.uint32).tobytes()
+        num_rows = len(keys)
+        keys, offsets = zip(*keys)
+        keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.bindexer.index_trie(vectors.tobytes(), num_rows, cids, offsets)
+        self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets)
 
     def query(
             self,
             keys: np.ndarray,
-            top_k: int = 1,
-            normalized_score=False,
+            top_k: int,
+            normalized_score: bool = True,
             method: str = 'nsw',
             *args,
-            **kwargs) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
+            **kwargs) -> List[List[Tuple]]:
 
         if keys.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
@@ -95,9 +89,9 @@ class BIndexer(BaseIndexer):
             q_idx, doc_ids, offsets = self.bindexer.find_batch_trie(
                 keys, num_rows)
             for (i, q, o) in zip(doc_ids, q_idx, offsets):
-                result[q].append(((i, o), 1. if normalized_score else 0))
+                result[q].append(((i, o), 1 if normalized_score else self.num_bytes))
 
-            # search the indexed items with similary value
+            # search the indexed items with similar value
             doc_ids, offsets, dists, q_idx = self.bindexer.nsw_search(
                 keys, num_rows, top_k)
             for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
@@ -105,7 +99,7 @@ class BIndexer(BaseIndexer):
                     continue
                 result[q].append(
                     ((i, o),
-                     (1. - d / self.num_bytes) if normalized_score else d))
+                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
             for q in range(num_rows):
@@ -116,7 +110,7 @@ class BIndexer(BaseIndexer):
             for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
                 result[q].append(
                     ((i, o),
-                     (1. - d / self.num_bytes) if normalized_score else d))
+                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
         return result
 

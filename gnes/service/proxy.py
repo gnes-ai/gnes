@@ -20,10 +20,10 @@ from typing import Dict
 
 import zmq
 
+from gnes.proto import gnes_pb2
 from .base import BaseService as BS, MessageHandler
 from ..helper import batch_iterator
 from ..messaging import *
-from gnes.proto import gnes_pb2
 
 
 class ProxyService(BS):
@@ -48,18 +48,23 @@ class MapProxyService(ProxyService):
             num_part = len(batches)
             for p_idx, b in enumerate(batches, start=1):
                 p_msg = gnes_pb2.Message()
-                p_msg.msg_id = msg.msg_id
-                p_msg.msg_type = msg.msg_type
-                p_msg.route = msg.route
-                p_msg.client_id = msg.client_id
+                p_msg.CopyFrom(msg)
+                del p_msg.docs[:]
+                del p_msg.querys[:]
+
+                # p_msg.msg_id = msg.msg_id
+                # p_msg.msg_type = msg.msg_type
+                # p_msg.route = msg.route
+                # p_msg.client_id = msg.client_id
                 p_msg.docs.extend(b)
-                if len(msg.querys) > 0:
-                    p_msg.querys.extend(msg.querys)
+                # if len(msg.querys) > 0:
+                #     p_msg.querys.extend(msg.querys)
                 p_msg.part_id = p_idx
                 p_msg.num_part = num_part
-                p_msg.is_parsed = msg.is_parsed
-                p_msg.is_encoded = msg.is_encoded
-                p_msg.mode = msg.mode
+                # p_msg.is_parsed = msg.is_parsed
+                # p_msg.is_encoded = msg.is_encoded
+                # p_msg.mode = msg.mode
+                # p_msg.command = msg.command
                 send_message(out, p_msg, self.args.timeout)
 
 
@@ -67,24 +72,28 @@ class ReduceProxyService(ProxyService):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):
-        self.pending_result = defaultdict(list)    # type: Dict[str, list]
+        self.pending_result = defaultdict(list)  # type: Dict[str, list]
 
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.pending_result[msg.msg_id].append(msg)
         len_result = len(self.pending_result[msg.msg_id])
+        # self.logger.info("receive message: %s - %s" % (msg.client_id, msg.msg_id))
+        # self.logger.info("len: %d vs args.num_part: %d - msg parts: %d" % (len_result, self.args.num_part, msg.num_part))
         if (not self.args.num_part and len_result == msg.num_part) or (
                 self.args.num_part
                 and len_result == self.args.num_part * msg.num_part):
 
+            # self.logger.info("job is done: %s" % msg.msg_id)
+
             tmp = sorted(
                 self.pending_result[msg.msg_id], key=lambda v: v.part_id)
 
-            if self.args.num_part < 2:
-                return tmp
             reduced_msg = gnes_pb2.Message()
             reduced_msg.msg_id = tmp[0].msg_id
             reduced_msg.client_id = tmp[0].client_id
+            reduced_msg.part_id = 1
+            reduced_msg.num_part = 1
 
             top_k = len(tmp[0].querys[0].results)
 
@@ -98,9 +107,6 @@ class ReduceProxyService(ProxyService):
                     m_query = gnes_pb2.Query()
                     m_query.results.extend(SearchResult)
                     reduced_msg.querys.extend([m_query])
-
-            reduced_msg.part_id = 1
-            reduced_msg.num_part = 1
 
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)

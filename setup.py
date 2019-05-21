@@ -73,6 +73,7 @@ setup(
         'termcolor',
         'jieba',
         'protobuf',
+        'grpcio',
         'bert-serving-server>=1.8.6',
         'bert-serving-client>=1.8.6',
         'plyvel>=1.0.5',
@@ -86,7 +87,8 @@ setup(
         'paramiko',
         'pattern3',
         'asyncio',
-        'aiohttp'
+        'aiohttp',
+        'annoy==1.15.2'
     ],
     extras_require={
         'test': ['pylint'],

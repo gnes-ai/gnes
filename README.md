@@ -73,7 +73,7 @@ To build the documentation by yourself, you need to first [install sphinx](http:
 ```bash
 git clone https://github.com/tencent/gnes.git && cd gnes
 sphinx-apidoc -o ./docs/ ./gnes
-make html
+cd docs && make html
 ```
 
 <h2 align="center">Tutorial</h2>

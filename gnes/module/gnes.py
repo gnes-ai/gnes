@@ -17,10 +17,9 @@
 
 from typing import List, Tuple, Dict, Any
 
-from ..document import BaseDocument, DocumentMapper
 from ..encoder.base import CompositionalEncoder
 from ..helper import batching, train_required
-from ..proto import gnes_pb2, array2blob, blob2array
+from ..proto import gnes_pb2, array2blob
 
 
 class GNES(CompositionalEncoder):
@@ -81,11 +80,11 @@ class GNES(CompositionalEncoder):
                 chunk = doc.text_chunks[
                     offset] if doc.text_chunks else doc.blob_chunks[offset]
                 result.append(({
-                    "doc_id": doc_id,
-                    "doc_size": doc.doc_size,
-                    "offset": offset,
-                    "chunk": chunk
-                }, score))
+                                   "doc_id": doc_id,
+                                   "doc_size": doc.doc_size,
+                                   "offset": offset,
+                                   "chunk": chunk
+                               }, score))
             results.append(result)
 
         return results
