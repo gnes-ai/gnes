@@ -15,7 +15,9 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Any, Union, Callable, Tuple
+
+import numpy as np
 
 from ..base import TrainableBase
 from ..encoder.base import CompositionalEncoder
@@ -28,20 +30,17 @@ class BaseIndexer(TrainableBase):
         pass
 
     def query(self, keys: Any, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[Any, float]]]:
+              **kwargs) -> List[List[Tuple]]:
         pass
 
 
 class BaseBinaryIndexer(BaseIndexer):
 
-    def __init__(self):
-        super().__init__()
-
-    def add(self, keys: bytes, docs: bytes, *args, **kwargs):
+    def add(self, keys: Any, docs: np.ndarray, *args, **kwargs):
         pass
 
     def query(self, keys: bytes, top_k: int, *args,
-              **kwargs) -> List[List[Tuple[int, float]]]:
+              **kwargs) -> List[List[Tuple]]:
         pass
 
 
@@ -50,41 +49,61 @@ class BaseTextIndexer(BaseIndexer):
     def add(self, keys: List[int], docs: Any, *args, **kwargs):
         pass
 
-    def query(self, keys: List[int], top_k: int, *args, **kwargs) -> List[Any]:
+    def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
         pass
 
 
-class MultiheadIndexer(CompositionalEncoder):
+class JointIndexer(CompositionalEncoder):
 
-    def add(self, keys: Any, docs: Any, head_name: str, *args,
+    @property
+    def component(self):
+        return self._component
+
+    @component.setter
+    def component(self, comps: Callable[[], Union[list, dict]]):
+        if not callable(comps):
+            raise TypeError('component mus be a callable function that returns '
+                            'a List[BaseEncoder]')
+        if not getattr(self, 'init_from_yaml', False):
+            self._component = comps()
+        else:
+            self.logger.info('component is omitted from construction, '
+                             'as it is initialized from yaml config')
+
+        self._binary_indexer = None
+        self._doc_indexer = None
+        for c in self.component:
+            if isinstance(c, BaseBinaryIndexer):
+                self._binary_indexer = c
+            elif isinstance(c, BaseTextIndexer):
+                self._doc_indexer = c
+        if not self._binary_indexer or not self._doc_indexer:
+            raise ValueError('"JointIndexer" requires a valid pair of "BaseBinaryIndexer" and "BaseTextIndexer"')
+
+    def add(self, keys: Any, docs: Any, *args,
             **kwargs) -> None:
-        if not self.is_pipeline and head_name in self.component:
-            self.component[head_name].add(keys, docs, *args, **kwargs)
+        if isinstance(docs, np.ndarray):
+            self._binary_indexer.add(keys, docs, *args, **kwargs)
+        elif isinstance(docs, list):
+            self._doc_indexer.add(keys, docs, *args, **kwargs)
+        else:
+            raise TypeError('can not find an indexer for doc type: %s' % type(docs))
 
     def query(self,
               keys: Any,
               top_k: int,
-              sent_recall_factor: int = 1,
-              return_field: Optional[Tuple] = ('id', 'content'),
               *args,
-              **kwargs) -> List[List[Tuple[Dict, float]]]:
-        topk_results = self.component['binary_indexer'].query(
-            keys, top_k * sent_recall_factor, normalized_score=True)
+              **kwargs) -> List[List[Tuple]]:
+        topk_results = self._binary_indexer.query(keys, top_k, *args, **kwargs)
 
         doc_caches = dict()
-        results = []
+        topk_results_with_docs = []
         for topk in topk_results:
-            result = []
+            topk_wd = []
             for (doc_id, offset), score in topk:
-                doc = doc_caches.get(doc_id, self.component['doc_indexer'].query([doc_id])[0])
+                doc = doc_caches.get(doc_id, self._doc_indexer.query([doc_id])[0])
                 doc_caches[doc_id] = doc
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
-                result.append(({
-                                   'doc_id': doc_id,
-                                   'doc_size': doc.doc_size,
-                                   'offset': offset,
-                                   'score': score,
-                                   'chunk': chunk
-                               }, score))
-            results.append(result)
-        return results
+                topk_wd.append(((doc_id, offset), score, (doc.doc_size, chunk)))
+            topk_results_with_docs.append(topk_wd)
+        return topk_results_with_docs

@@ -15,31 +15,31 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 
-from .base import BaseIndexer
+from .base import BaseBinaryIndexer
 
 
-class NumpyIndexer(BaseIndexer):
+class NumpyIndexer(BaseBinaryIndexer):
 
     def __init__(self, num_bytes: int = None, *args, **kwargs):
         super().__init__()
         self.num_bytes = num_bytes
-        self._vectors = None    # type: np.ndarray
+        self._vectors = None  # type: np.ndarray
         self._doc_ids = []
 
     def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
             **kwargs):
         if len(vectors) % len(doc_ids) != 0:
-            raise ValueError("vectors bytes should be divided by doc_ids")
+            raise ValueError('vectors bytes should be divided by doc_ids')
 
         if not self.num_bytes:
             self.num_bytes = vectors.shape[1]
         elif self.num_bytes != vectors.shape[1]:
             raise ValueError(
-                "vectors' shape [%d, %d] does not match with indexer's dim: " %
+                "vectors' shape [%d, %d] does not match with indexer's dim: %d" %
                 (vectors.shape[0], vectors.shape[1], self.num_bytes))
 
         if self._vectors is not None:
@@ -49,7 +49,7 @@ class NumpyIndexer(BaseIndexer):
         self._doc_ids.extend(doc_ids)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs
-             ) -> List[List[Tuple[Tuple[int, int], Union[float, int]]]]:
+              ) -> List[List[Tuple]]:
         keys = np.expand_dims(keys, axis=1)
         dist = keys - np.expand_dims(self._vectors, axis=0)
         dist = np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
@@ -58,5 +58,5 @@ class NumpyIndexer(BaseIndexer):
         for ids in dist:
             rk = sorted(enumerate(ids), key=lambda x: x[1])
             ret.append(
-                [(self._doc_ids[rk[i][0]], 1- rk[i][1]) for i in range(top_k)])
+                [(self._doc_ids[rk[i][0]], 1 - rk[i][1]) for i in range(top_k)])
         return ret

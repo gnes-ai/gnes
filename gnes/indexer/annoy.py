@@ -3,10 +3,10 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .base import BaseIndexer
+from .base import BaseBinaryIndexer
 
 
-class AnnoyIndexer(BaseIndexer):
+class AnnoyIndexer(BaseBinaryIndexer):
     lock_work_dir = True
 
     def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees=10, *args, **kwargs):
@@ -26,8 +26,8 @@ class AnnoyIndexer(BaseIndexer):
         except:
             self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
 
-    def add(self, doc_ids: List[int], vectors: np.ndarray, *args, **kwargs):
-        if len(vectors) != len(doc_ids):
+    def add(self, keys: List[int], vectors: np.ndarray, *args, **kwargs):
+        if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
         if vectors.dtype != np.float32:
@@ -36,9 +36,9 @@ class AnnoyIndexer(BaseIndexer):
         last_idx = len(self._doc_ids)
         for idx, vec in enumerate(vectors):
             self._index.add_item(last_idx + idx, vec)
-        self._doc_ids += doc_ids
+        self._doc_ids += keys
 
-    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple[int, float]]]:
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         self._index.build(self.n_trees)
         if keys.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")

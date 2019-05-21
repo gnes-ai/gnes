@@ -47,7 +47,7 @@ class LVDBIndexer(BaseTextIndexer):
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
 
-    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List['gnes_pb2.Document']:
+    def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         res = []
         for k in keys:
             doc_id = pickle.dumps(k)
@@ -79,9 +79,9 @@ class AsyncLVDBIndexer(LVDBIndexer):
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         self._jobs.append((keys, docs))
 
-    def query(self, keys: List[int], top_k: int = 1, *args, **kwargs) -> List[Any]:
+    def query(self, *args, **kwargs) -> List[Any]:
         self._is_idle.wait()
-        return super().query(keys, top_k)
+        return super().query(*args, **kwargs)
 
     def _db_write(self):
         while self._is_listening.is_set():

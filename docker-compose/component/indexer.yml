@@ -1,9 +1,9 @@
-!MultiheadIndexer
+!JointIndexer
 component:
-  binary_indexer: !BIndexer
+  - !BIndexer
     parameter:
       num_bytes: 30
       data_path: /out_data/idx.binary
-  doc_indexer: !LVDBIndexer
+  - !LVDBIndexer
     parameter:
       data_path: /out_data/idx.doc_content
