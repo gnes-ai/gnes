@@ -82,7 +82,7 @@ class HttpService:
             try:
                 data = await asyncio.wait_for(request.json(), 10)
                 mode = data["mode"] if "mode" in data else "query"
-                print('receiver request', request, data)
+                self.logger.info('receiver request: %s' % mode)
                 if mode == 'query':
                     result = await loop.run_in_executor(executor,
                                                         self.query,
