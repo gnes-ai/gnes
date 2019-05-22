@@ -213,7 +213,7 @@ def set_grpc_client_parser(parser=None):
     return parser
 
 
-def set_https_service_parser(parser=None):
+def set_http_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
@@ -237,5 +237,5 @@ def get_main_parser():
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))
-    set_https_service_parser(sp.add_parser('https', help='start a proxy service'))
+    set_http_service_parser(sp.add_parser('http', help='start a http service'))
     return parser

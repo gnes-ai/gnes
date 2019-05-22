@@ -20,6 +20,9 @@ import asyncio
 from aiohttp import web
 from concurrent.futures import ThreadPoolExecutor
 from ..messaging import send_message, recv_message
+from .base import build_socket, SocketType, ComponentNotLoad
+from ..helper import set_logger
+import zmq.decorators as zmqd
 from typing import List
 import zmq
 import ctypes
@@ -29,37 +32,51 @@ import threading
 import json
 
 
-class Message_handler:
+class HttpService:
     def __init__(self, args=None):
         self.args = args
-        self.timeout = args.timeout if args else 5000
-        self.port_in = args.port_in if args else 8599
-        self.port_out = args.port_out if args else 8598
-        self.host_out = args.host_out if args.host_out else "localhost"
-        self.host_in = args.host_in if args.host_in else "localhost"
-        self.http_port = args.http_port if args else 80
-        self.max_workers = args.max_workers if args else 100
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+        self.identity = str(uuid.uuid4())
+        self.result = {}
+        self.index_suc_msg = 'index succesful'
+        self.train_suc_msg = 'train succesful'
 
-        self.context = zmq.Context()
-        self.sender = self.context.socket(zmq.PUSH)
-        self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
+    def run(self):
+        self._run()
 
-        self.identity = str(uuid.uuid4()).encode('ascii')
-        self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
-        self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
+    @zmqd.context()
+    def _run(self, ctx):
+        ctx.setsockopt(zmq.LINGER, 0)
+        self.logger.info('bind sockets...')
+        self.in_sock, _ = build_socket(ctx, self.args.host_in,
+                                       self.args.port_in,
+                                       self.args.socket_in,
+                                       getattr(self, 'identity', None))
+        self.out_sock, _ = build_socket(ctx, self.args.host_out,
+                                        self.args.port_out,
+                                        self.args.socket_out,
+                                        getattr(self, 'identity', None))
+        self.logger.info('sockets built...')
 
         self._auto_recv = threading.Thread(target=self._recv_msg)
         self._auto_recv.setDaemon(1)
         self._auto_recv.start()
 
-        self.result = {}
-        self.index_suc_msg = 'index succesful'
-        self.train_suc_msg = 'train succesful'
+        try:
+            self.logger.info('staring service...')
+            self.start_service()
+        except StopIteration:
+            self.logger.info('break from the event loop')
+        except ComponentNotLoad:
+            self.logger.error('component can not be correctly loaded, terminated')
+        finally:
+            self.logger.info('service stopped...')
+            self.in_sock.close()
+            self.out_sock.close()
 
     def start_service(self):
         loop = asyncio.get_event_loop()
-        executor = ThreadPoolExecutor(max_workers=self.max_workers)
+        executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 
         async def post_handler(request):
             try:
@@ -107,12 +124,49 @@ class Message_handler:
             app.router.add_route('post', '/gnes', post_handler)
             srv = yield from loop.create_server(app.make_handler(),
                                                 'localhost',
-                                                self.http_port)
-            print('Server started at localhost:80...')
+                                                self.args.http_port)
+            self.logger.info('Server started at localhost:%d ...' % self.args.http_port)
             return srv
 
         loop.run_until_complete(init(loop))
         loop.run_forever()
+
+    def query(self, texts: List[str]):
+        search_req = gnes_pb2.SearchRequest()
+        search_req._request_id = str(uuid.uuid4()).encode('ascii')
+        search_req.time_out = self.args.timeout
+        search_req.top_k = 10
+
+        doc = gnes_pb2.Document()
+        doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
+        doc.text = ' '.join(texts)
+        doc.text_chunks.extend(texts)
+        doc.doc_size = len(texts)
+        doc.is_parsed = True
+
+        search_req.doc.CopyFrom(doc)
+
+        # query = gnes_pb2.Query()
+        # query.top_k = top_k
+
+        search_message = gnes_pb2.Message()
+        search_message.client_id = self.identity
+        search_message.msg_id = search_req._request_id
+        search_message.num_part = 1
+        search_message.part_id = 1
+        search_message.mode = gnes_pb2.Message.QUERY
+        search_message.docs.extend([doc])
+
+        for i, chunk in enumerate(doc.text_chunks):
+            q = search_message.querys.add()
+            q.id = i
+            q.text = chunk
+            q.top_k = search_req.top_k
+
+        search_message.route = self.__class__.__name__
+        search_message.is_parsed = True
+
+        return self._send_recv_msg(search_message)
 
     def index(self, texts: List[List[str]]):
         message = self._gen_msg(texts)
@@ -122,27 +176,6 @@ class Message_handler:
     def train(self, texts: List[List[str]]):
         message = self._gen_msg(texts)
         message.mode = gnes_pb2.Message.TRAIN
-        return self._send_recv_msg(message)
-
-    def query(self, texts: List[str]):
-        message = gnes_pb2.Message()
-        message.client_id = self.identity
-        message.msg_id = str(uuid.uuid4()).encode('ascii')
-
-        doc = gnes_pb2.Document()
-        doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-        doc.text = ' '.join(texts)
-        doc.text_chunks.extend(texts)
-        doc.doc_size = len(texts)
-
-        message.mode = gnes_pb2.Message.QUERY
-        message.docs.extend([doc])
-
-        for i, chunk in enumerate(doc.text_chunks):
-            q = message.querys.add()
-            q.id = i
-            q.text = chunk
-
         return self._send_recv_msg(message)
 
     def _gen_msg(self, texts: List[List[str]]):
@@ -163,7 +196,7 @@ class Message_handler:
         return message
 
     def _send_recv_msg(self, message):
-        send_message(self.sender, message, timeout=self.timeout)
+        send_message(self.out_sock, message, timeout=self.args.timeout)
         while True:
             if message.msg_id in self.result:
                 res = self.result[message.msg_id]
@@ -175,5 +208,5 @@ class Message_handler:
 
     def _recv_msg(self):
         while True:
-            msg = recv_message(self.receiver)
+            msg = recv_message(self.in_sock)
             self.result[msg.msg_id] = msg
