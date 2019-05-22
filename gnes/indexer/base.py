@@ -104,6 +104,6 @@ class JointIndexer(CompositionalEncoder):
                 doc = doc_caches.get(doc_id, self._doc_indexer.query([doc_id])[0])
                 doc_caches[doc_id] = doc
                 chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
-                topk_wd.append(((doc_id, offset), score, (doc.doc_size, chunk)))
+                topk_wd.append(((doc_id, offset), score, doc.doc_size, chunk))
             topk_results_with_docs.append(topk_wd)
         return topk_results_with_docs
