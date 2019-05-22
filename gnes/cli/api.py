@@ -139,6 +139,6 @@ def client(args):
 
 
 def http(args):
-    from ..service.https import HttpService
+    from ..service.http import HttpService
     mh = HttpService(args)
     mh.run()
