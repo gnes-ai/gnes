@@ -13,6 +13,45 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .helper import blob2array, array2blob
+import uuid
 
-__all__ = ['blob2array', 'array2blob']
+import numpy as np
+
+from . import gnes_pb2
+
+__all__ = ['blob2array', 'array2blob', 'new_message', 'gnes_pb2']
+
+
+def blob2array(blob: 'gnes_pb2.NdArray') -> np.ndarray:
+    """
+    Convert a blob proto to an array.
+    """
+    return np.frombuffer(blob.data, dtype=blob.dtype).reshape(blob.shape)
+
+
+def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
+    """Converts a N-dimensional array to blob proto.
+    """
+    blob = gnes_pb2.NdArray()
+    blob.data = x.tobytes()
+    blob.shape.extend(list(x.shape))
+    blob.dtype = x.dtype.name
+    return blob
+
+
+def new_message(client_id: str,
+                request_id: str = str(uuid.uuid4()),
+                num_part: int = 1,
+                part_id: int = 1,
+                timeout: int = 5000) -> 'gnes_pb2.BaseMessage':
+    msg = gnes_pb2.BaseMessage()
+    # make an envelope
+    msg.envelope.client_id = client_id
+    msg.envelope.request_id = request_id
+    r = msg.envelope.routes.add()
+    r.service = client_id
+    r.timestamp.GetCurrentTime()
+    msg.envelope.part_id = part_id
+    msg.envelope.num_part = num_part
+    msg.envelope.timeout = timeout
+    return msg

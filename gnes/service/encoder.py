@@ -44,9 +44,6 @@ class EncoderService(BS):
 
         self.train_data = []
 
-    def _raise_empty_model_error(self):
-        raise ValueError('no model config available, exit!')
-
     @handler.register(MessageType.DEFAULT.name)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         chunks = []

@@ -41,15 +41,10 @@ class ClientService(BS):
 
     def index(self, texts: List[List[str]],
               is_train: bool = False) -> Optional['gnes_pb2.Message']:
-        req_id = str(uuid.uuid4())
-
-        idx_req = gnes_pb2.IndexRequest()
-        idx_req._request_id = self.args.identity + req_id
-        idx_req.time_out = self.args.timeout
 
         message = gnes_pb2.Message()
-        message.client_id = self.args.identity
-        message.msg_id = idx_req._request_id
+        message.client_id = self.identity
+        message.msg_id = str(uuid.uuid4())
         message.num_part = 1
         message.part_id = 1
         if is_train:
@@ -79,14 +74,6 @@ class ClientService(BS):
 
     def query(self, texts: List[str],
               top_k: int = 10) -> Optional['gnes_pb2.Message']:
-        req_id = str(uuid.uuid4())
-
-        # build search_request
-        search_req = gnes_pb2.SearchRequest()
-        search_req._request_id = self.args.identity + req_id
-        search_req.time_out = self.args.timeout
-        search_req.top_k = top_k
-
         doc = gnes_pb2.Document()
         doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
         doc.text = ' '.join(texts)
@@ -94,14 +81,9 @@ class ClientService(BS):
         doc.doc_size = len(texts)
         doc.is_parsed = True
 
-        search_req.doc.CopyFrom(doc)
-
-        # query = gnes_pb2.Query()
-        # query.top_k = top_k
-
         search_message = gnes_pb2.Message()
-        search_message.client_id = self.args.identity
-        search_message.msg_id = search_req._request_id
+        search_message.client_id = self.identity
+        search_message.msg_id = str(uuid.uuid4())
         search_message.num_part = 1
         search_message.part_id = 1
         search_message.mode = gnes_pb2.Message.QUERY
@@ -111,7 +93,7 @@ class ClientService(BS):
             q = search_message.querys.add()
             q.id = i
             q.text = chunk
-            q.top_k = search_req.top_k
+            q.top_k = top_k
 
         search_message.route = self.__class__.__name__
         search_message.is_parsed = True
