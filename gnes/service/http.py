@@ -30,6 +30,7 @@ import numpy as np
 import uuid
 import threading
 import json
+import time
 
 
 class HttpService:
@@ -87,12 +88,14 @@ class HttpService:
                     result = await loop.run_in_executor(executor,
                                                         self.query,
                                                         data['texts'])
+
                     res_f = []
-                    for _1 in range(len(result.querys)):
-                        res_ = []
-                        for _ in range(len(result.querys[_1].results)):
-                            res_.append(result.querys[_1].results[_].chunk.text)
-                        res_f.append(res_)
+                    if result:
+                        for _1 in range(len(result.querys)):
+                            res_ = []
+                            for _ in range(len(result.querys[_1].results)):
+                                res_.append(result.querys[_1].results[_].chunk.text)
+                            res_f.append(res_)
 
                 elif mode == 'index':
                     result = await loop.run_in_executor(executor,
@@ -197,12 +200,16 @@ class HttpService:
 
     def _send_recv_msg(self, message):
         send_message(self.out_sock, message, timeout=self.args.timeout)
-        while True:
+        N = 0
+        while N < 10:
             if message.msg_id in self.result:
                 res = self.result[message.msg_id]
                 del self.result[message.msg_id]
                 break
             else:
+                time.sleep(0.2)
+                N += 1
+                res = None
                 continue
         return res
 
