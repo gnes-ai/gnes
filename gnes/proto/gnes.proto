@@ -116,47 +116,35 @@ message BaseRequest {
     }
 }
 
-// define Response
-message BaseResponse {
-    oneof inner {
-        TrainResponse train = 1;
-        IndexResponse index = 2;
-        QueryResponse query = 3;
-        ControlResponse control = 4;
-    }
+message QueryResult {
 
-    message Status {
-        uint32 code = 1;
-        string name = 2;
-    }
+    message TopKChunks {
 
-    message TrainResponse {
-        Status status = 1;
-    }
-
-    message IndexResponse {
-        Status status = 1;
-    }
-
-    message QueryResponse {
-        Status status = 1;
-
-        message TopKChunks {
-
-            message ScoredChunk {
-                Chunk chunk = 1;
-                float score = 2;
-            }
-
-            repeated ScoredChunk topk_chunks = 1;
+        message ScoredChunk {
+            Chunk chunk = 1;
+            float score = 2;
         }
 
-        repeated TopKChunks result = 2;
+        repeated ScoredChunk topk_chunks = 1;
     }
 
-    message ControlResponse {
-        Status status = 1;
+    repeated TopKChunks result = 2;
+}
+
+// define Response
+message BaseResponse {
+
+    enum Status {
+        SUCCESS = 0;
+        ENCODER_ERROR = 1;
+        INDEX_ERROR = 2;
+        PROXY_ERROR = 3;
+        UNKNOWN_ERROR = 4;
     }
+
+    Status status = 1;
+
+    QueryResult body = 2;
 }
 
 
