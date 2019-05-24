@@ -181,7 +181,7 @@ class HttpService:
                                        None)
             send_message(out_sock, message, timeout=self.args.timeout)
             try:
-                res = recv_message(in_sock, timeout=2)
+                res = recv_message(in_sock, timeout=2000)
             except:
                 res = None
             self.logger.info('message received, closing socket')
