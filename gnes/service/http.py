@@ -166,7 +166,7 @@ class HttpService:
         return message
 
     @zmqd.context()
-    def _send_recv_msg(self, ctx, message):
+    def _send_recv_msg(self, message, ctx):
         #with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)
         self.logger.info('connecting sockets...')
