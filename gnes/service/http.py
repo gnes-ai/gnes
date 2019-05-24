@@ -180,14 +180,10 @@ class HttpService:
                                        self.args.socket_out,
                                        None)
             send_message(out_sock, message, timeout=self.args.timeout)
-            N, res = 0, None
-            while N < 10:
-                res = recv_message(in_sock)
-                if res:
-                    break
-                else:
-                    time.sleep(0.2)
-                    N += 1
+            try:
+                res = recv_message(in_sock, timeout=2)
+            except:
+                res = None
             self.logger.info('message received, closing socket')
             in_sock.close()
             out_sock.close()
