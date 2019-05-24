@@ -184,6 +184,7 @@ class HttpService:
             while True:
                 res = recv_message(in_sock)
                 break
+            self.logger.info('message received, closing socket')
             in_sock.close()
             out_sock.close()
 
