@@ -45,37 +45,7 @@ class HttpService:
     def run(self):
         self._run()
 
-    @zmqd.context()
-    def _run(self, ctx):
-        ctx.setsockopt(zmq.LINGER, 0)
-        self.logger.info('bind sockets...')
-        self.in_sock, _ = build_socket(ctx, self.args.host_in,
-                                       self.args.port_in,
-                                       self.args.socket_in,
-                                       getattr(self, 'identity', None))
-        self.out_sock, _ = build_socket(ctx, self.args.host_out,
-                                        self.args.port_out,
-                                        self.args.socket_out,
-                                        getattr(self, 'identity', None))
-        self.logger.info('sockets built...')
-
-        self._auto_recv = threading.Thread(target=self._recv_msg)
-        self._auto_recv.setDaemon(1)
-        self._auto_recv.start()
-
-        try:
-            self.logger.info('staring service...')
-            self.start_service()
-        except StopIteration:
-            self.logger.info('break from the event loop')
-        except ComponentNotLoad:
-            self.logger.error('component can not be correctly loaded, terminated')
-        finally:
-            self.logger.info('service stopped...')
-            self.in_sock.close()
-            self.out_sock.close()
-
-    def start_service(self):
+    def _run(self):
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 
@@ -88,7 +58,6 @@ class HttpService:
                     result = await loop.run_in_executor(executor,
                                                         self.query,
                                                         data['texts'])
-
                     res_f = []
                     if result:
                         for _1 in range(len(result.querys)):
@@ -184,7 +153,7 @@ class HttpService:
     def _gen_msg(self, texts: List[List[str]]):
         message = gnes_pb2.Message()
         message.client_id = self.identity
-        message.msg_id = str(uuid.uuid4()).encode('ascii')
+        message.msg_id = str(uuid.uuid4())
 
         for text in texts:
             doc = message.docs.add()
@@ -199,21 +168,23 @@ class HttpService:
         return message
 
     def _send_recv_msg(self, message):
-        send_message(self.out_sock, message, timeout=self.args.timeout)
-        N = 0
-        while N < 10:
-            if message.msg_id in self.result:
-                res = self.result[message.msg_id]
-                del self.result[message.msg_id]
-                break
-            else:
-                time.sleep(0.2)
-                N += 1
-                res = None
-                continue
-        return res
+        with zmq.Context() as ctx:
+            ctx.setsockopt(zmq.LINGER, 0)
+            self.logger.info('connecting sockets...')
+            in_sock, _ = build_socket(ctx, self.args.host_in,
+                                      self.args.port_in,
+                                      self.args.socket_in,
+                                      message.msg_id)
+            out_sock, _ = build_socket(ctx, self.args.host_out,
+                                       self.args.port_out,
+                                       self.args.socket_out,
+                                       message.msg_id)
+            send_message(out_sock, message, timeout=self.args.timeout)
 
-    def _recv_msg(self):
-        while True:
-            msg = recv_message(self.in_sock)
-            self.result[msg.msg_id] = msg
+            while True:
+                res = recv_message(in_sock)
+                break
+            in_sock.close()
+            out_sock.close()
+
+        return res
