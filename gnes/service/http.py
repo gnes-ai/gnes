@@ -30,7 +30,6 @@ import numpy as np
 import uuid
 import threading
 import json
-import time
 
 
 class HttpService:
@@ -86,17 +85,16 @@ class HttpService:
             ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
             return web.Response(body=ret_body)
 
-        @asyncio.coroutine
-        def init(loop):
+        async def init(loop):
             # persistant connection or non-persistant connection
             handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
             app = web.Application(loop=loop,
                                   client_max_size=10**10,
                                   handler_args=handler_args)
             app.router.add_route('post', '/gnes', post_handler)
-            srv = yield from loop.create_server(app.make_handler(),
-                                                'localhost',
-                                                self.args.http_port)
+            srv = await loop.create_server(app.make_handler(),
+                                           'localhost',
+                                           self.args.http_port)
             self.logger.info('Server started at localhost:%d ...' % self.args.http_port)
             return srv
 
@@ -182,7 +180,8 @@ class HttpService:
             send_message(out_sock, message, timeout=self.args.timeout)
             try:
                 res = recv_message(in_sock, timeout=self.args.timeout)
-            except:
+            except TimeoutError:
+                self.logger.info('no response from sock, will return NULL list')
                 res = None
             self.logger.info('message received, closing socket')
             in_sock.close()
