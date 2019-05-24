@@ -165,27 +165,26 @@ class HttpService:
         message.is_parsed = True
         return message
 
-    @zmqd.context()
-    def _send_recv_msg(self, message, ctx):
-        #with zmq.Context() as ctx:
-        ctx.setsockopt(zmq.LINGER, 0)
-        self.logger.info('connecting sockets...')
-        in_sock, _ = build_socket(ctx, self.args.host_in,
-                                  self.args.port_in,
-                                  self.args.socket_in,
-                                  None)
-        out_sock, _ = build_socket(ctx, self.args.host_out,
-                                   self.args.port_out,
-                                   self.args.socket_out,
-                                   None)
-        send_message(out_sock, message, timeout=self.args.timeout)
-        try:
-            res = recv_message(in_sock, timeout=self.args.timeout)
-        except TimeoutError:
-            self.logger.info('no response from sock, will return NULL list')
-            res = None
-        self.logger.info('message received, closing socket')
-        in_sock.close()
-        out_sock.close()
+    def _send_recv_msg(self, message):
+        with zmq.Context() as ctx:
+            ctx.setsockopt(zmq.LINGER, 0)
+            self.logger.info('connecting sockets...')
+            in_sock, _ = build_socket(ctx, self.args.host_in,
+                                      self.args.port_in,
+                                      self.args.socket_in,
+                                      None)
+            out_sock, _ = build_socket(ctx, self.args.host_out,
+                                       self.args.port_out,
+                                       self.args.socket_out,
+                                       None)
+            send_message(out_sock, message, timeout=self.args.timeout)
+            try:
+                res = recv_message(in_sock, timeout=self.args.timeout)
+            except TimeoutError:
+                self.logger.info('no response from sock, will return NULL list')
+                res = None
+            self.logger.info('message received, closing socket')
+            in_sock.close()
+            out_sock.close()
 
         return res
