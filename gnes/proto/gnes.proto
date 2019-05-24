@@ -91,11 +91,13 @@ message BaseMessage {
 
 // define Request
 message BaseRequest {
+    string request_id = 1;
+
     oneof inner {
-        TrainRequest train = 1;
-        IndexRequest index = 2;
-        QueryRequest query = 3;
-        ControlRequest control = 4;
+        TrainRequest train = 2;
+        IndexRequest index = 3;
+        QueryRequest query = 4;
+        ControlRequest control = 5;
     }
 
     message TrainRequest {
@@ -116,23 +118,9 @@ message BaseRequest {
     }
 }
 
-message QueryResult {
-
-    message TopKChunks {
-
-        message ScoredChunk {
-            Chunk chunk = 1;
-            float score = 2;
-        }
-
-        repeated ScoredChunk topk_chunks = 1;
-    }
-
-    repeated TopKChunks result = 2;
-}
-
 // define Response
 message BaseResponse {
+    string request_id = 1;
 
     enum Status {
         SUCCESS = 0;
@@ -142,19 +130,34 @@ message BaseResponse {
         UNKNOWN_ERROR = 4;
     }
 
-    Status status = 1;
+    Status status = 2;
 
-    QueryResult body = 2;
+    message QueryResult {
+
+        message TopKChunks {
+
+            message ScoredChunk {
+                Chunk chunk = 1;
+                float score = 2;
+            }
+
+            repeated ScoredChunk topk_chunks = 1;
+        }
+
+        repeated TopKChunks result = 2;
+    }
+
+    QueryResult body = 3;
 }
 
 
 service GnesService {
     // option (rpc_core.method_no_deadline) = true;
     // option (rpc_core.service_default_deadline_ms) = 5000;
-    rpc Train (BaseMessage) returns (BaseMessage) {
+    rpc Train (BaseRequest) returns (BaseResponse) {
     }
-    rpc Index (BaseMessage) returns (BaseMessage) {
+    rpc Index (BaseRequest) returns (BaseResponse) {
     }
-    rpc Query (BaseMessage) returns (BaseMessage) {
+    rpc Query (BaseRequest) returns (BaseResponse) {
     }
 }

@@ -16,18 +16,18 @@ class GnesServiceStub(object):
     """
     self.Train = channel.unary_unary(
         '/gnes.GnesService/Train',
-        request_serializer=gnes__pb2.BaseMessage.SerializeToString,
-        response_deserializer=gnes__pb2.BaseMessage.FromString,
+        request_serializer=gnes__pb2.BaseRequest.SerializeToString,
+        response_deserializer=gnes__pb2.BaseResponse.FromString,
         )
     self.Index = channel.unary_unary(
         '/gnes.GnesService/Index',
-        request_serializer=gnes__pb2.BaseMessage.SerializeToString,
-        response_deserializer=gnes__pb2.BaseMessage.FromString,
+        request_serializer=gnes__pb2.BaseRequest.SerializeToString,
+        response_deserializer=gnes__pb2.BaseResponse.FromString,
         )
     self.Query = channel.unary_unary(
         '/gnes.GnesService/Query',
-        request_serializer=gnes__pb2.BaseMessage.SerializeToString,
-        response_deserializer=gnes__pb2.BaseMessage.FromString,
+        request_serializer=gnes__pb2.BaseRequest.SerializeToString,
+        response_deserializer=gnes__pb2.BaseResponse.FromString,
         )
 
 
@@ -62,18 +62,18 @@ def add_GnesServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'Train': grpc.unary_unary_rpc_method_handler(
           servicer.Train,
-          request_deserializer=gnes__pb2.BaseMessage.FromString,
-          response_serializer=gnes__pb2.BaseMessage.SerializeToString,
+          request_deserializer=gnes__pb2.BaseRequest.FromString,
+          response_serializer=gnes__pb2.BaseResponse.SerializeToString,
       ),
       'Index': grpc.unary_unary_rpc_method_handler(
           servicer.Index,
-          request_deserializer=gnes__pb2.BaseMessage.FromString,
-          response_serializer=gnes__pb2.BaseMessage.SerializeToString,
+          request_deserializer=gnes__pb2.BaseRequest.FromString,
+          response_serializer=gnes__pb2.BaseResponse.SerializeToString,
       ),
       'Query': grpc.unary_unary_rpc_method_handler(
           servicer.Query,
-          request_deserializer=gnes__pb2.BaseMessage.FromString,
-          response_serializer=gnes__pb2.BaseMessage.SerializeToString,
+          request_deserializer=gnes__pb2.BaseRequest.FromString,
+          response_serializer=gnes__pb2.BaseResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
