@@ -174,11 +174,11 @@ class HttpService:
             in_sock, _ = build_socket(ctx, self.args.host_in,
                                       self.args.port_in,
                                       self.args.socket_in,
-                                      message.msg_id)
+                                      None)
             out_sock, _ = build_socket(ctx, self.args.host_out,
                                        self.args.port_out,
                                        self.args.socket_out,
-                                       message.msg_id)
+                                       None)
             send_message(out_sock, message, timeout=self.args.timeout)
 
             while True:
