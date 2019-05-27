@@ -100,12 +100,18 @@ cdef DataDist*sort_Datadist(DataDist*W, UIDX wsize):
 cdef UST vec_distance(UCR*va, UCR*vb, UST bytes_per_vector):
     cdef UST i, dist
     dist = 0
-
+    cdef UCR tmp_vec
     #for i in prange(bytes_per_vector, num_threads=5):
     for i in range(bytes_per_vector):
-        if va[i] != vb[i]:
-            dist += 1
+        a = va[i]
+        b = vb[i]
+        tmp_vec = (a ^ b)
+
+        while tmp_vec > 0:
+            dist += tmp_vec & 1
+            tmp_vec >>= 1
     return dist
+
 
 cdef class IndexCore:
     cdef Node*root_node
@@ -408,7 +414,7 @@ cdef class IndexCore:
         else:
             max_iterations = self.max_insert_iterations
         max_dist_w = 0
-        min_dist_c = self.bytes_per_vector + 1
+        min_dist_c = self.bytes_per_vector * 8 + 1
         for i in range(self.num_entry):
             entry_node = self.id2data(self.entry_node[i])
             _vec = self.node2vec(entry_node)
@@ -433,7 +439,7 @@ cdef class IndexCore:
 
         while c_len > 0:
             max_dist_w = 0
-            min_dist_c = self.bytes_per_vector + 1
+            min_dist_c = self.bytes_per_vector * 8 + 1
             for i in range(w_len):
                 if self.W[i].dist > max_dist_w:
                     max_dist_w = self.W[i].dist
