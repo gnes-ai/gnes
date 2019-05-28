@@ -30,7 +30,6 @@ class HashEncoder(BaseEncoder):
         self.num_clusters = cluster_per_byte
         self.x = None
         self.vec_dim = None
-        self.num_bytes = None
         self.matrixs = None
         self.mean = None
         self.var = None
