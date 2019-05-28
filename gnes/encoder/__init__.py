@@ -32,5 +32,6 @@ _cls2file_map = {
     'BaseEncoder': 'base',
     'BinaryEncoder': 'base',
     'CompositionalEncoder': 'base',
-    'PipelineEncoder': 'base'
+    'PipelineEncoder': 'base',
+    'HashEncoder': 'hash',
 }
