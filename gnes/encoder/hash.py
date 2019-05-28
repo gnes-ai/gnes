@@ -35,6 +35,7 @@ class HashEncoder(BaseEncoder):
         self.var = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
+        print('num_bytes', self.num_bytes)
         self.vec_dim = vecs.shape[1]
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
@@ -67,7 +68,6 @@ class HashEncoder(BaseEncoder):
         self.num_clusters = x.cluster_per_byte
         self.x = x.x
         self.vec_dim = x.vec_dim
-        self.num_bytes = x.num_bytes
         self.matrixs = x.matrixs
         self.mean = x.mean
         self.var = x.var
