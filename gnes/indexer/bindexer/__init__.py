@@ -71,7 +71,7 @@ class BIndexer(BaseBinaryIndexer):
             keys: np.ndarray,
             top_k: int,
             normalized_score: bool = True,
-            method: str = 'nsw',
+            method: str = 'force',
             *args,
             **kwargs) -> List[List[Tuple]]:
 
