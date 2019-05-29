@@ -34,6 +34,7 @@ class HashEncoder(BaseEncoder):
         self.num_clusters = cluster_per_byte
         self.num_idx = num_idx
         self.kmeans_clusters = kmeans_clusters
+        self.centroids = None
         self.x = None
         self.vec_dim = None
         self.matrixs = None
@@ -41,8 +42,8 @@ class HashEncoder(BaseEncoder):
         self.var = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
-        self.centroids = self.train_kmeans(vecs)
         self.vec_dim = vecs.shape[1]
+        self.centroids = self.train_kmeans(vecs)
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
         self.x = int(self.vec_dim / self.num_bytes)
@@ -88,6 +89,9 @@ class HashEncoder(BaseEncoder):
     def _copy_from(self, x: 'HashEncoder') -> None:
         self.num_bytes = x.num_bytes
         self.num_clusters = x.cluster_per_byte
+        self.num_idx = x.num_idx
+        self.kmeans_clusters = x.kmeans_clusters
+        self.centroids = x.centroids
         self.x = x.x
         self.vec_dim = x.vec_dim
         self.matrixs = x.matrixs
