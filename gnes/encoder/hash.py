@@ -27,6 +27,7 @@ class HashEncoder(BaseEncoder):
                  num_bits: int = 8,
                  num_idx: int = 3,
                  kmeans_clusters: int = 100,
+                 method: str = 'product_uniform',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 <= num_bits <= 8, 'maximum 8 hash functions in a byte'
@@ -34,10 +35,11 @@ class HashEncoder(BaseEncoder):
         self.num_bits = num_bits
         self.num_idx = num_idx
         self.kmeans_clusters = kmeans_clusters
+        self.method = method
         self.centroids = None
         self.x = None
         self.vec_dim = None
-        self.matrixs = None
+        self.hash_cores = None
         self.mean = None
         self.var = None
 
@@ -52,7 +54,7 @@ class HashEncoder(BaseEncoder):
         self.x = int(self.vec_dim / self.num_bytes)
         self.mean = np.mean(vecs, axis=0)
         self.var = np.var(vecs, axis=0)
-        self.matrixs = [self.ran_gen() for _ in range(self.num_bytes)]
+        self.hash_cores = [self.ran_gen() for _ in range(self.num_bytes)]
         self.proj = np.array([2**i for i in range(self.num_bits)]).astype(np.int32)
 
     def train_kmeans(self, vecs):
@@ -70,10 +72,27 @@ class HashEncoder(BaseEncoder):
         dist = np.sum(np.square(vecs - self.centroids), -1)
         return np.argmax(-dist, axis=-1).astype(np.uint32)
 
-    def ran_gen(self, method='uniform'):
-        if method == 'uniform':
+    def ran_gen(self):
+        if self.method == 'product_uniform':
             return np.random.uniform(-1, 1, size=(self.x, self.num_bits)
                                      ).astype(np.float32)
+        elif self.method == 'uniform':
+            return np.random.uniform(-1, 1, size=(self.vec_dim, self.num_bits)
+                                     ).astype(np.float32)
+
+    def hash(self, vecs):
+        ret = []
+        if self.method == 'product_uniform':
+            vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, self.x])
+            for i in range(self.num_bytes):
+                out = np.greater(np.matmul(vecs[:, i, :], self.hash_cores[i]), 0)
+                ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
+            return np.concatenate(ret, axis=1).astype(np.uint32)
+        elif self.method == 'uniform':
+            for i in range(self.num_bytes):
+                out = np.greater(np.matmul(vecs, self.hash_cores[i]), 0)
+                ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
+            return np.concatenate(ret, axis=1).astype(np.uint32)
 
     @train_required
     @batching(batch_size=2048)
@@ -81,13 +100,7 @@ class HashEncoder(BaseEncoder):
         clusters = self.pred_kmeans(vecs)
         vecs = (vecs - self.mean) / self.var
         vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, self.x])
-        outcome = []
-        for i in range(self.num_bytes):
-            out = np.matmul(vecs[:, i, :], self.matrixs[i])
-            out = np.greater(out, 0)
-            outcome.append(np.sum(out * self.proj, axis=1, keepdims=1))
-        outcome = np.concatenate(outcome, axis=1).astype(np.uint32)
-
+        outcome = self.hash(vecs)
         return np.concatenate([clusters, outcome], axis=1)
 
     def _copy_from(self, x: 'HashEncoder') -> None:
@@ -98,7 +111,7 @@ class HashEncoder(BaseEncoder):
         self.centroids = x.centroids
         self.x = x.x
         self.vec_dim = x.vec_dim
-        self.matrixs = x.matrixs
+        self.hash_cores = x.hash_cores
         self.mean = x.mean
         self.var = x.var
         self.is_trained = x.is_trained
