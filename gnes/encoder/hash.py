@@ -41,7 +41,7 @@ class HashEncoder(BaseEncoder):
         self.var = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
-        self.centroids = self.gen_kmeans(vecs)
+        self.centroids = self.train_kmeans(vecs)
         self.vec_dim = vecs.shape[1]
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
