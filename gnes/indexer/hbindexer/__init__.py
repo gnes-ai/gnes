@@ -24,7 +24,7 @@ from .cython import IndexCore
 from ..base import BaseBinaryIndexer
 
 
-class BIndexer(BaseBinaryIndexer):
+class HBIndexer(BaseBinaryIndexer):
     lock_work_dir = True
 
     def __init__(self,
