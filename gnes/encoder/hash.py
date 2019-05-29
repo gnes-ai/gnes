@@ -43,7 +43,10 @@ class HashEncoder(BaseEncoder):
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
         self.vec_dim = vecs.shape[1]
-        self.centroids = self.train_kmeans(vecs)
+        self.centroids = [self.train_kmeans(vecs) for _ in range(self.num_idx)]
+        self.centroids = np.reshape(
+                        self.centroids, [1, self.num_idx, self.num_clusters, self.vec_dim]).astype(np.float32)
+
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
         self.x = int(self.vec_dim / self.num_bytes)
@@ -59,13 +62,13 @@ class HashEncoder(BaseEncoder):
                                        niter=10)
         kmeans_instance.train(vecs)
         centroids = kmeans_instance.centroids
-        centroids = np.reshape(centroids, [1, self.kmeans_clusters, self.vec_dim])
         return centroids
 
     def pred_kmeans(self, vecs):
-        vecs = np.reshape(vecs, [vecs.shape[0], 1, vecs.shape[1]])
+        vecs = np.reshape(vecs, [vecs.shape[0], 1, 1, vecs.shape[1]])
+
         dist = np.sum(np.square(vecs - self.centroids), -1)
-        return dist.argsort()[:, :self.num_idx].astype(np.uint32)
+        return np.argmax(-dist, axis=-1).astype(np.uint32)
 
     def ran_gen(self, method='uniform'):
         if method == 'uniform':
