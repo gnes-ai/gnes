@@ -48,26 +48,24 @@ class BIndexer(BaseBinaryIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.hbindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, clusters: np.ndarray, *args, **kwargs):
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
         if vectors.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
 
-        if clusters.dtype != np.uint32:
-            raise ValueError("vectors should be ndarray of uint32")
-
         n = len(keys)
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.hbindexer.index_trie(vectors.tobytes(), clusters.tobytes(), keys, offsets, n)
+        clusters = vectors[:, :4*self.n_idx].tobytes()
+        vectors = vectors[:, 4*self.n_idx:].tobytes()
+        self.hbindexer.index_trie(vectors, clusters, keys, offsets, n)
 
     def query(
             self,
             vectors: np.ndarray,
-            clusters: np.ndarray,
             top_k: int,
             normalized_score: bool = True,
             *args,
@@ -78,8 +76,8 @@ class BIndexer(BaseBinaryIndexer):
 
         # num_rows = int(len(keys) / self.num_bytes)
         n = vectors.shape[0]
-        vectors = vectors.tobytes()
-        clusters = clusters.tobytes()
+        clusters = vectors[:, :4*self.n_idx].tobytes()
+        vectors = vectors[:, 4*self.n_idx:].tobytes()
 
         result = [{} for _ in range(n)]
 
