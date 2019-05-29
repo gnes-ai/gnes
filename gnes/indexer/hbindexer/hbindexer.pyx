@@ -136,7 +136,6 @@ cdef class IndexCore:
     cdef uchar*** core
     cdef uint** data_num
 
-
     def __cinit__(self, n_clusters, n_bytes, n_idx):
         self.n_clusters = n_clusters
         self.n_bytes = n_bytes
@@ -173,7 +172,7 @@ cdef class IndexCore:
                 if (num + 1) % Increase == 0:
                     self.core[j][clus] = <uchar*> PyMem_Realloc(
                             self.core[j][clus],
-                            sizeof(uchar)*(self.n_bytes+6)*(num+Increase))
+                            sizeof(uchar)*(self.n_bytes+6)*(num+1+Increase))
                 # record doc id
                 for k in range(4):
                     self.core[j][clus][cur_num+k] = doc_ids[k]
@@ -182,7 +181,7 @@ cdef class IndexCore:
                 for k in range(2):
                     self.core[j][clus][cur_num+k] = off_sets[k]
                 cur_num += 2
-                for k in range(self.n_clusters):
+                for k in range(self.n_bytes):
                     self.core[j][clus][cur_num+k] = data[k]
                 clusters += 4
                 self.data_num[j][clus] += 1

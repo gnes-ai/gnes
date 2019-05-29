@@ -52,15 +52,15 @@ class BIndexer(BaseBinaryIndexer):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
-        if vectors.dtype != np.uint8:
-            raise ValueError("vectors should be ndarray of uint8")
+        if vectors.dtype != np.uint32:
+            raise ValueError("vectors should be ndarray of uint32")
 
         n = len(keys)
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        clusters = vectors[:, :4*self.n_idx].tobytes()
-        vectors = vectors[:, 4*self.n_idx:].tobytes()
+        clusters = vectors[:, :self.n_idx].tobytes()
+        vectors = vectors[:, self.n_idx:].astype(np.uint8).tobytes()
         self.hbindexer.index_trie(vectors, clusters, keys, offsets, n)
 
     def query(
@@ -71,20 +71,20 @@ class BIndexer(BaseBinaryIndexer):
             *args,
             **kwargs) -> List[List[Tuple]]:
 
-        if vectors.dtype != np.uint8:
-            raise ValueError("vectors should be ndarray of uint8")
+        if vectors.dtype != np.uint32:
+            raise ValueError("vectors should be ndarray of uint32")
 
         # num_rows = int(len(keys) / self.num_bytes)
         n = vectors.shape[0]
-        clusters = vectors[:, :4*self.n_idx].tobytes()
-        vectors = vectors[:, 4*self.n_idx:].tobytes()
+        clusters = vectors[:, :self.n_idx].tobytes()
+        vectors = vectors[:, self.n_idx:].astype(np.uint8).tobytes()
 
         result = [{} for _ in range(n)]
 
         doc_ids, offsets, dists, q_idx = self.hbindexer.query(
             vectors, clusters, n, top_k*self.n_idx)
         for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
-            result[q][(i, o)] = (1. - d / self.n_bytes) if normalized_score else self.n_bytes - d
+            result[q][(i, o)] = (1. - d / self.n_bytes*8) if normalized_score else self.n_bytes*8 - d
 
         return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
 
