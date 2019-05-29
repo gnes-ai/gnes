@@ -24,14 +24,14 @@ from ..helper import batching, train_required
 
 class HashEncoder(BaseEncoder):
     def __init__(self, num_bytes: int,
-                 cluster_per_byte: int = 8,
+                 num_bits: int = 8,
                  num_idx: int = 3,
                  kmeans_clusters: int = 100,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assert 1 <= cluster_per_byte <= 8, 'maximum 8 hash functions in a byte'
+        assert 1 <= num_bits <= 8, 'maximum 8 hash functions in a byte'
         self.num_bytes = num_bytes
-        self.num_clusters = cluster_per_byte
+        self.num_bits = num_bits
         self.num_idx = num_idx
         self.kmeans_clusters = kmeans_clusters
         self.centroids = None
@@ -45,7 +45,7 @@ class HashEncoder(BaseEncoder):
         self.vec_dim = vecs.shape[1]
         self.centroids = [self.train_kmeans(vecs) for _ in range(self.num_idx)]
         self.centroids = np.reshape(
-                        self.centroids, [1, self.num_idx, self.num_clusters, self.vec_dim]).astype(np.float32)
+                        self.centroids, [1, self.num_idx, self.kmeans_clusters, self.vec_dim]).astype(np.float32)
 
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
@@ -53,7 +53,7 @@ class HashEncoder(BaseEncoder):
         self.mean = np.mean(vecs, axis=0)
         self.var = np.var(vecs, axis=0)
         self.matrixs = [self.ran_gen() for _ in range(self.num_bytes)]
-        self.proj = np.array([2**i for i in range(self.num_clusters)]).astype(np.int32)
+        self.proj = np.array([2**i for i in range(self.num_bits)]).astype(np.int32)
 
     def train_kmeans(self, vecs):
         import faiss
@@ -72,7 +72,7 @@ class HashEncoder(BaseEncoder):
 
     def ran_gen(self, method='uniform'):
         if method == 'uniform':
-            return np.random.uniform(-1, 1, size=(self.x, self.num_clusters)
+            return np.random.uniform(-1, 1, size=(self.x, self.num_bits)
                                      ).astype(np.float32)
 
     @train_required
@@ -92,7 +92,7 @@ class HashEncoder(BaseEncoder):
 
     def _copy_from(self, x: 'HashEncoder') -> None:
         self.num_bytes = x.num_bytes
-        self.num_clusters = x.cluster_per_byte
+        self.num_bits = x.num_bits
         self.num_idx = x.num_idx
         self.kmeans_clusters = x.kmeans_clusters
         self.centroids = x.centroids
