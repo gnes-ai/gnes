@@ -60,6 +60,7 @@ class HashEncoder(BaseEncoder):
         kmeans_instance.train(vecs)
         centroids = kmeans_instance.centroids
         centroids = np.reshape(centroids, [1, self.kmeans_clusters, self.vec_dim])
+        return centroids
 
     def pred_kmeans(self, vecs):
         vecs = np.reshape(vecs, [vecs.shape[0], 1, vecs.shape[1]])
