@@ -23,11 +23,17 @@ from ..helper import batching, train_required
 
 
 class HashEncoder(BaseEncoder):
-    def __init__(self, num_bytes: int, cluster_per_byte: int = 8, *args, **kwargs):
+    def __init__(self, num_bytes: int,
+                 cluster_per_byte: int = 8,
+                 num_idx: int = 3,
+                 kmeans_clusters: int = 100,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 <= cluster_per_byte <= 8, 'maximum 8 hash functions in a byte'
         self.num_bytes = num_bytes
         self.num_clusters = cluster_per_byte
+        self.num_idx = num_idx
+        self.kmeans_clusters = kmeans_clusters
         self.x = None
         self.vec_dim = None
         self.matrixs = None
@@ -35,7 +41,7 @@ class HashEncoder(BaseEncoder):
         self.var = None
 
     def train(self, vecs: np.ndarray, *args, **kwargs):
-        import faiss 
+        self.centroids = self.gen_kmeans(vecs)
         self.vec_dim = vecs.shape[1]
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
@@ -45,6 +51,20 @@ class HashEncoder(BaseEncoder):
         self.matrixs = [self.ran_gen() for _ in range(self.num_bytes)]
         self.proj = np.array([2**i for i in range(self.num_clusters)]).astype(np.int32)
 
+    def train_kmeans(self, vecs):
+        import faiss
+        kmeans_instance = faiss.Kmeans(self.vec_dim,
+                                       self.kmeans_clusters,
+                                       niter=10)
+        kmeans_instance.train(vecs)
+        centroids = kmeans_instance.centroids
+        centroids = np.reshape(centroids, [1, self.kmeans_clusters, self.vec_dim])
+
+    def pred_kmeans(self, vecs):
+        vecs = np.reshape(vecs, [vecs.shape[0], 1, vecs.shape[1]])
+        dist = np.sum(np.square(vecs - self.centroids), -1)
+        return dist.argsort()[:, :self.num_idx].astype(np.uint32)
+
     def ran_gen(self, method='uniform'):
         if method == 'uniform':
             return np.random.uniform(-1, 1, size=(self.x, self.num_clusters)
@@ -53,6 +73,7 @@ class HashEncoder(BaseEncoder):
     @train_required
     @batching(batch_size=2048)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
+        clusters = self.pred_kmeans(vecs)
         vecs = (vecs - self.mean) / self.var
         vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, self.x])
         outcome = []
@@ -60,8 +81,9 @@ class HashEncoder(BaseEncoder):
             out = np.matmul(vecs[:, i, :], self.matrixs[i])
             out = np.greater(out, 0)
             outcome.append(np.sum(out * self.proj, axis=1, keepdims=1))
-        outcome = np.concatenate(outcome, axis=1).astype(np.uint8)
-        return outcome
+        outcome = np.concatenate(outcome, axis=1).astype(np.uint32)
+
+        return np.concatenate([clusters, outcome], axis=1)
 
     def _copy_from(self, x: 'HashEncoder') -> None:
         self.num_bytes = x.num_bytes
