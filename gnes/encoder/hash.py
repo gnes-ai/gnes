@@ -73,6 +73,7 @@ class HashEncoder(BaseEncoder):
         return np.argmax(-dist, axis=-1).astype(np.uint32)
 
     def ran_gen(self):
+        self.logger.info('hash functions with %s' % self.method)
         if self.method == 'product_uniform':
             return np.random.uniform(-1, 1, size=(self.x, self.num_bits)
                                      ).astype(np.float32)
