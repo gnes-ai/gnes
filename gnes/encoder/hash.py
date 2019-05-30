@@ -109,6 +109,7 @@ class HashEncoder(BaseEncoder):
         self.num_idx = x.num_idx
         self.kmeans_clusters = x.kmeans_clusters
         self.centroids = x.centroids
+        self.method = x.method
         self.x = x.x
         self.vec_dim = x.vec_dim
         self.hash_cores = x.hash_cores
