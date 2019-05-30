@@ -100,7 +100,6 @@ class HashEncoder(BaseEncoder):
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         clusters = self.pred_kmeans(vecs)
         vecs = (vecs - self.mean) / self.var
-        vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, self.x])
         outcome = self.hash(vecs)
         return np.concatenate([clusters, outcome], axis=1)
 
