@@ -80,6 +80,14 @@ class HashEncoder(BaseEncoder):
         elif self.method == 'uniform':
             return np.random.uniform(-1, 1, size=(self.vec_dim, self.num_bits)
                                      ).astype(np.float32)
+        elif self.method == 'ortho_uniform':
+            from scipy.stats import ortho_group
+            m = ortho_group.rvs(dim=max(self.vec_dim, self.num_bits)
+                                ).astype(np.float32)
+            if self.vec_dim >= self.num_bits:
+                return m[:, :self.num_bits]
+            else:
+                return m[:self.vec_dim, :]
 
     def hash(self, vecs):
         ret = []
@@ -89,7 +97,7 @@ class HashEncoder(BaseEncoder):
                 out = np.greater(np.matmul(vecs[:, i, :], self.hash_cores[i]), 0)
                 ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
             return np.concatenate(ret, axis=1).astype(np.uint32)
-        elif self.method == 'uniform':
+        elif self.method == 'uniform' or self.method == 'ortho_uniform':
             for i in range(self.num_bytes):
                 out = np.greater(np.matmul(vecs, self.hash_cores[i]), 0)
                 ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
