@@ -47,7 +47,7 @@ services:
         aliases:
           - encoder_serviced
     deploy:
-      replicas: 1
+      replicas: ${NUM_ENCODER}
       restart_policy:
         condition: on-failure
         max_attempts: 3
