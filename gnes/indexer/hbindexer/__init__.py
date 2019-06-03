@@ -43,6 +43,9 @@ class HBIndexer(BaseBinaryIndexer):
         self.indexer_bin_path = os.path.join(self.work_dir,
                                              self.internal_index_path)
 
+        if self.n_idx <= 0:
+            raise ValueError('There should be at least 1 clustering slot')
+
     def _post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
         if os.path.exists(self.indexer_bin_path):

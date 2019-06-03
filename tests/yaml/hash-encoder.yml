@@ -8,7 +8,7 @@ component:
       batch_size: 2048
   - !HashEncoder
     parameter:
-      self.num_bytes: 16
-      self.num_bits: 8
-      self.num_idx: 2
-      self.kmeans_clusters: 10
+      num_bytes: 16
+      num_bits: 8
+      num_idx: 2
+      kmeans_clusters: 10
