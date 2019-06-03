@@ -22,7 +22,7 @@ from .base import BaseEncoder
 from ..helper import batching, train_required
 
 
-class HashEncoder(BaseEncoder):
+class HashEncoder(BaseEncoder): 
     def __init__(self, num_bytes: int,
                  num_bits: int = 8,
                  num_idx: int = 3,
@@ -62,13 +62,14 @@ class HashEncoder(BaseEncoder):
         kmeans_instance = faiss.Kmeans(self.vec_dim,
                                        self.kmeans_clusters,
                                        niter=10)
+        if vecs.dtype != np.float32:
+            vecs = vecs.astype(np.float32)
         kmeans_instance.train(vecs)
         centroids = kmeans_instance.centroids
         return centroids
 
     def pred_kmeans(self, vecs):
         vecs = np.reshape(vecs, [vecs.shape[0], 1, 1, vecs.shape[1]])
-
         dist = np.sum(np.square(vecs - self.centroids), -1)
         return np.argmax(-dist, axis=-1).astype(np.uint32)
 
@@ -106,6 +107,8 @@ class HashEncoder(BaseEncoder):
     @train_required
     @batching(batch_size=2048)
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
+        if vecs.shape[1] != self.vec_dim:
+            raise ValueError('input dimension error')
         clusters = self.pred_kmeans(vecs)
         vecs = (vecs - self.mean) / self.var
         outcome = self.hash(vecs)
