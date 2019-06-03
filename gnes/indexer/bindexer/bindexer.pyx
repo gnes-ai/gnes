@@ -23,13 +23,18 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
 from libc.stdlib cimport qsort
 from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
+from cython.parallel import prange
 
-DEF data_size_per_time = 65535
-DEF node_size_per_time = 65535
+cdef extern from "limits.h":
+    cdef int USHRT_MAX
+    cdef unsigned int UINT_MAX
+
+short_max = USHRT_MAX
+int_max = UINT_MAX
+data_size_per_time = USHRT_MAX
+node_size_per_time = USHRT_MAX
 DEF data_blocks_increment = 100
 DEF node_blocks_increment = 100
-DEF UIDX_max = 4294967295
-DEF UST_max = 65535
 
 DEF search_v_max = 10000
 DEF search_c_max = 10000
@@ -40,13 +45,12 @@ ctypedef unsigned short UST
 ctypedef unsigned char UCR
 
 cdef struct coordi:
-    UIDX x
-    UIDX y
+    UST x
+    UST y
 
 cdef struct ncoordi:
     UST x
     UIDX y
-
 
 cdef struct Node:
     coordi left
@@ -93,6 +97,15 @@ cdef DataDist*sort_Datadist(DataDist*W, UIDX wsize):
     qsort(W, wsize, sizeof(DataDist), &cmpfunc)
     return W
 
+cdef UST vec_distance(UCR*va, UCR*vb, UST bytes_per_vector):
+    cdef UST i, dist
+    dist = 0
+
+    #for i in prange(bytes_per_vector, num_threads=5):
+    for i in range(bytes_per_vector):
+        if va[i] != vb[i]:
+            dist += 1
+    return dist
 
 cdef class IndexCore:
     cdef Node*root_node
@@ -168,8 +181,8 @@ cdef class IndexCore:
         self.res = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef)
         self.res_query = <coordi*> PyMem_Malloc(sizeof(coordi)*self.ef*10)
 
-        self.NULL_coordi.x = UST_max
-        self.NULL_coordi.y = UIDX_max
+        self.NULL_coordi.x = short_max
+        self.NULL_coordi.y = short_max
 
         self.initialized = 0
 
@@ -399,7 +412,7 @@ cdef class IndexCore:
         for i in range(self.num_entry):
             entry_node = self.id2data(self.entry_node[i])
             _vec = self.node2vec(entry_node)
-            eq_dist = self.vec_distance(_vec, cur_vec)
+            eq_dist = vec_distance(_vec, cur_vec, self.bytes_per_vector)
             PyMem_Free(_vec)
             self.C[i].dist = eq_dist
             self.C[i].data = entry_node
@@ -458,7 +471,7 @@ cdef class IndexCore:
                     else:
                         print('visisted list is full ...')
                     _vec = self.node2vec(candi_node)
-                    eq_dist = self.vec_distance(_vec, cur_vec)
+                    eq_dist = vec_distance(_vec, cur_vec, self.bytes_per_vector)
                     PyMem_Free(_vec)
                     count += 1
                     if w_len < self.ef * 10:
@@ -548,7 +561,7 @@ cdef class IndexCore:
         else:
             _vec1 = self.node2vec(org_node)
             _vec2 = self.node2vec(update_node)
-            dist = self.vec_distance(_vec1, _vec2)
+            dist = vec_distance(_vec1, _vec2, self.bytes_per_vector)
             PyMem_Free(_vec1)
             PyMem_Free(_vec2)
             if self.update_single_neighbor:
@@ -559,7 +572,7 @@ cdef class IndexCore:
                     tmp_coordi = self.all_neigh[_x][_y]
                     _vec1 = self.id2vec(tmp_coordi)
                     _vec2 = self.node2vec(update_node)
-                    cur_dist = self.vec_distance(_vec1, _vec2)
+                    cur_dist = vec_distance(_vec1, _vec2, self.bytes_per_vector)
                     PyMem_Free(_vec1)
                     PyMem_Free(_vec2)
                     if cur_dist > max_dist:
@@ -577,7 +590,7 @@ cdef class IndexCore:
                     tmp_coordi = self.all_neigh[_x][_y]
                     _vec1 = self.id2vec(tmp_coordi)
                     _vec2 = self.node2vec(update_node)
-                    cur_dist = self.vec_distance(_vec1, _vec2)
+                    cur_dist = vec_distance(_vec1, _vec2, self.bytes_per_vector)
                     PyMem_Free(_vec1)
                     PyMem_Free(_vec2)
                     neighbor[i].data = self.id2data(tmp_coordi)
@@ -671,7 +684,7 @@ cdef class IndexCore:
                     res_idx.append(_0)
                     res_docs.append(self.id2data(res[_1]).doc_id)
                     res_offset.append(self.id2data(res[_1]).offset)
-                    res_dist.append(self.vec_distance(self.cur_vec, self.id2vec(res[_1])))
+                    res_dist.append(vec_distance(self.cur_vec, self.id2vec(res[_1]), self.bytes_per_vector))
                 else:
                     break
 
@@ -704,12 +717,12 @@ cdef class IndexCore:
                         tmp_vec = self.id2vec(tmp)
                         if _id < top_k:
                             Q[_id].data_coordi = tmp
-                            Q[_id].dist = self.vec_distance(self.id2vec(tmp), self.cur_vec)
+                            Q[_id].dist = vec_distance(self.id2vec(tmp), self.cur_vec, self.bytes_per_vector)
                             Q[_id].data = &self.all_data[_2][_3]
                             if Q[_id].dist > w_far.dist:
                                 w_far = Q[_id]
                         else:
-                            _dist = self.vec_distance(self.id2vec(tmp), self.cur_vec)
+                            _dist = vec_distance(self.id2vec(tmp), self.cur_vec, self.bytes_per_vector)
                             if _dist < w_far.dist:
                                 _dist_far = 0
                                 for _1 in range(top_k):

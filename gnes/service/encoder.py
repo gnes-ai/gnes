@@ -64,7 +64,7 @@ class EncoderService(BS):
             if len(chunks) > 0:
                 self.train_data.extend(chunks)
 
-            if msg.command == gnes_pb2.Message.TRAIN_ENCODER:
+            #if msg.command == gnes_pb2.Message.TRAIN_ENCODER:
                 self._model.train(self.train_data)
                 self.is_model_changed.set()
                 self.train_data.clear()

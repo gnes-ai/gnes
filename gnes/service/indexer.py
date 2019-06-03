@@ -77,7 +77,9 @@ class IndexerService(BS):
             vecs = blob2array(msg.docs[0].encodes)
             assert len(vecs) == len(msg.querys)
 
+            self.logger.info('quering message with id {}'.format(msg.msg_id))
             results = self._model.query(vecs, top_k=msg.querys[0].top_k)
+            self.logger.info('querying finished wiht id {}'.format(msg.msg_id))
 
             # convert to protobuf result
             for query, top_k in zip(msg.querys, results):

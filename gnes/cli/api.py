@@ -138,7 +138,7 @@ def client(args):
         cs.join()
 
 
-def https(args):
-    from ..service.https import HttpService
+def http(args):
+    from ..service.http import HttpService
     mh = HttpService(args)
     mh.run()

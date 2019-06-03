@@ -78,7 +78,7 @@ class ReduceProxyService(ProxyService):
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.pending_result[msg.msg_id].append(msg)
         len_result = len(self.pending_result[msg.msg_id])
-        # self.logger.info("receive message: %s - %s" % (msg.client_id, msg.msg_id))
+        self.logger.info("receive message: %s - %s" % (msg.client_id, msg.msg_id))
         # self.logger.info("len: %d vs args.num_part: %d - msg parts: %d" % (len_result, self.args.num_part, msg.num_part))
         if (not self.args.num_part and len_result == msg.num_part) or (
                 self.args.num_part
