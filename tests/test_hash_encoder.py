@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 from gnes.encoder.hash import HashEncoder
+from gnes.encoder.base import PipelineEncoder
 
 
 class TestHash(unittest.TestCase):
@@ -14,26 +15,27 @@ class TestHash(unittest.TestCase):
         self.x = 1000
         self.y = 128
         self.test_data = np.random.random([self.x, self.y]).astype(np.float32)
-        self.test_data2 = np.random.random([1, self.y+1]).astype(np.float32)
-        self.test_data3 = np.random.random([self.x, self.y+1]).astype(np.float32)
+        dirname = os.path.dirname(__file__)
+        self.hash_yaml = os.path.join(dirname, 'yaml', 'hash-encoder.yml')
 
     def test_train_pred(self):
         m = HashEncoder(self.num_bytes, self.num_bits,
                         self.num_idx, self.kmeans_clusters)
         m.train(self.test_data)
-        self.assertEquals(2, len(m.centroids))
-        self.assertEquals((self.kmeans_clusters, self.y), m.centroids[0].shape)
-        self.assertEqual(self.num_idx, len(m.hash_cores))
+        self.assertEquals(self.num_idx, m.centroids.shape[1])
+        self.assertEquals(self.kmeans_clusters, m.centroids.shape[2])
+        self.assertEqual(self.y, m.centroids.shape[3])
+
+        self.assertEqual(self.num_bytes, len(m.hash_cores))
 
         out = m.encode(self.test_data)
         self.assertEqual(self.x, out.shape[0])
         self.assertEqual(self.num_idx+self.num_bytes, out.shape[1])
         self.assertEqual(np.uint32, out.dtype)
 
-    def test_exception(self):
-        m = HashEncoder(self.num_bytes, self.num_bits,
-                        self.num_idx, self.kmeans_clusters)
-        self.assertRaises(ValueError, m.train(self.test_data3))
-
-        m.train(self.test_data)
-        self.assertRaises(ValueError, m.encode(self.test_data2))
+    def test_yaml_load(self):
+        pca_hash = PipelineEncoder.load_yaml(self.hash_yaml)
+        pca_hash.train(self.test_data)
+        out = pca_hash.encode(self.test_data)
+        self.assertEqual(self.x, out.shape[0])
+        self.assertEqual(self.num_idx+self.num_bytes, out.shape[1])

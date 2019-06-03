@@ -1,0 +1,14 @@
+!PipelineEncoder
+component:
+  - !PCALocalEncoder
+    parameter:
+      output_dim: 32
+      num_locals: 16
+    property:
+      batch_size: 2048
+  - !HashEncoder
+    parameter:
+      self.num_bytes: 16
+      self.num_bits: 8
+      self.num_idx: 2
+      self.kmeans_clusters: 10

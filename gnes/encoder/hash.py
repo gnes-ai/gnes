@@ -22,7 +22,7 @@ from .base import BaseEncoder
 from ..helper import batching, train_required
 
 
-class HashEncoder(BaseEncoder): 
+class HashEncoder(BaseEncoder):
     def __init__(self, num_bytes: int,
                  num_bits: int = 8,
                  num_idx: int = 3,
