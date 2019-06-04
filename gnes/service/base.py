@@ -258,12 +258,10 @@ class BaseService(threading.Thread):
     def _handler_control(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         if msg.request.control.command == msg.request.control.TERMINATE:
             self.is_event_loop.clear()
-            msg.response.request_id = msg.envelope.request_id
             msg.response.control.status = gnes_pb2.Response.SUCCESS
             send_message(out, msg, self.args.timeout)
             raise StopIteration
         elif msg.request.control.command == msg.request.control.STATUS:
-            msg.response.request_id = msg.envelope.request_id
             msg.response.control.status = gnes_pb2.Response.ERROR
             send_message(out, msg, self.args.timeout)
         else:

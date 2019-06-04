@@ -77,11 +77,17 @@ class ReduceProxyService(ProxyService):
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_query(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         self.pending_result[msg.envelope.request_id].append(msg)
-        # self.logger.info("receive message: %s - %s" % (msg.client_id, msg.msg_id))
-        # self.logger.info("len: %d vs args.num_part: %d - msg parts: %d" % (len_result, self.args.num_part, msg.num_part))
-        if (not self.args.num_part and len_result == msg.num_part) or (
-                self.args.num_part
-                and len_result == self.args.num_part * msg.num_part):
+        msg_parts = self.pending_result[msg.envelope.request_id]
+        len_result = len(msg_parts)
+
+
+        if self.args.num_part == len_result:
+            all_result = [for m in msg_parts for r in m.search.result]
+            for j in range(1, len_result):
+                tmp.search.result.extend(msg_parts[j])
+
+
+
 
             # self.logger.info("job is done: %s" % msg.msg_id)
 
