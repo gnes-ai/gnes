@@ -14,12 +14,12 @@
 #  limitations under the License.
 
 # pylint: disable=low-comment-ratio
+from typing import List, Union
 
 import zmq
 
-from .base import BaseService as BS, ComponentNotLoad, ServiceError, MessageHandler
-from ..messaging import *
-from ..proto import gnes_pb2, array2blob
+from .base import BaseService as BS, ComponentNotLoad, MessageHandler
+from ..proto import gnes_pb2, array2blob, send_message
 
 
 class EncoderService(BS):
@@ -44,51 +44,43 @@ class EncoderService(BS):
 
         self.train_data = []
 
-    @handler.register(MessageType.DEFAULT.name)
-    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        chunks = []
-        chunks_num = []
-        for doc in msg.docs:
-            chunks_num.append(doc.doc_size)
-            if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
-                chunks.extend(doc.text_chunks)
-            elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
-                chunks.extend(doc.blob_chunks)
-            else:
-                raise NotImplemented()
+    @staticmethod
+    def get_chunks_from_docs(docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']) -> List:
+        if not isinstance(docs, list):
+            docs = [docs]
+        return [c.text if d.doc_type == gnes_pb2.Document.TEXT else c.blob
+                for d in docs for c in d.chunks]
 
-        if msg.mode == gnes_pb2.Message.TRAIN:
-            if len(chunks) > 0:
-                self.train_data.extend(chunks)
+    @handler.register(gnes_pb2.Request.IndexRequest)
+    def _handler_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        chunks = self.get_chunks_from_docs(msg.request.index.docs)
+        vecs = self._model.encode(chunks)
+        s = 0
+        for i, d in enumerate(msg.request.index.docs):
+            d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
+            s += len(d.chunks)
 
-            if msg.command == gnes_pb2.Message.TRAIN_ENCODER:
-                self._model.train(self.train_data)
-                self.is_model_changed.set()
-                self.train_data.clear()
+        send_message(out, msg, self.args.timeout)
 
-        elif msg.mode == gnes_pb2.Message.INDEX:
-            vecs = self._model.encode(chunks)
-            self.logger.info('vecs shape {}'.format(vecs.shape))
-            self.logger.info('chunks size {}'.format(len(chunks)))
-            assert len(vecs) == len(chunks)
-            start = 0
-            for i, doc in enumerate(msg.docs):
-                x = vecs[start:start + chunks_num[i]]
-                doc.encodes.CopyFrom(array2blob(x))
-                doc.is_encoded = True
-                start += chunks_num[i]
+    @handler.register(gnes_pb2.Request.TrainRequest)
+    def _handler_train(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        chunks = self.get_chunks_from_docs(msg.request.train.docs)
+        self.train_data.extend(chunks)
+        msg.response.train.status = gnes_pb2.Response.PENDING
+        send_message(out, msg, self.args.timeout)
 
-            msg.is_encoded = True
-            send_message(out, msg, self.args.timeout)
+    @handler.register(gnes_pb2.Request.ControlRequest)
+    def _handler_flush(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        if msg.request.control.command == msg.request.control.FLUSH:
+            self._model.train(self.train_data)
+            self.is_model_changed.set()
+            self.train_data.clear()
+        msg.response.control.status = gnes_pb2.Response.SUCCESS
+        send_message(out, msg, self.args.timeout)
 
-        elif msg.mode == gnes_pb2.Message.QUERY:
-            vecs = self._model.encode(chunks)
-            assert len(vecs) == len(chunks)
-            num_querys = len(msg.querys)
-            assert num_querys == len(vecs)
-            msg.docs[0].encodes.CopyFrom(array2blob(vecs))
-            msg.is_encoded = True
-            send_message(out, msg, self.args.timeout)
-        else:
-            raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, msg.mode))
+    @handler.register(gnes_pb2.Request.QueryRequest)
+    def _handler_search(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        chunks = self.get_chunks_from_docs(msg.request.search.query)
+        vecs = self._model.encode(chunks)
+        msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(vecs))
+        send_message(out, msg, self.args.timeout)

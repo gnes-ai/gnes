@@ -18,9 +18,8 @@
 import numpy as np
 import zmq
 
-from gnes.proto import gnes_pb2, blob2array
-from .base import BaseService as BS, ComponentNotLoad, ServiceMode, ServiceError, MessageHandler
-from ..messaging import *
+from .base import BaseService as BS, ComponentNotLoad, ServiceMode, MessageHandler
+from ..proto import gnes_pb2, blob2array, send_message
 
 
 class IndexerService(BS):
@@ -66,39 +65,40 @@ class IndexerService(BS):
         send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
-    @handler.register(MessageType.DEFAULT.name)
-    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        if msg.mode == gnes_pb2.Message.INDEX:
-            self._index_and_notify(msg, out)
-        elif msg.mode == gnes_pb2.Message.QUERY:
-            if not msg.is_encoded:
-                raise RuntimeError('the documents should be encoded at first!')
+    @handler.register(gnes_pb2.Request.IndexRequest)
+    def _handler_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        all_vecs = []
+        doc_ids = []
+        offsets = []
 
-            vecs = blob2array(msg.docs[0].encodes)
-            assert len(vecs) == len(msg.querys)
+        for d in msg.request.index.docs:
+            all_vecs.append(blob2array(d.chunk_embeddings))
+            doc_ids += [d.doc_id] * len(d.chunks)
+            offsets += [c.offset_1d for c in d.chunks]
 
-            results = self._model.query(vecs, top_k=msg.querys[0].top_k)
+        from gnes.indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
+        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
+            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
 
-            # convert to protobuf result
-            for query, top_k in zip(msg.querys, results):
-                for (_doc_id, _offset), _score, *args in top_k:
-                    r = query.results.add()
-                    r.doc_id = _doc_id
-                    r.offset = _offset
-                    r.chunk.offset = _offset
-                    r.chunk.doc_id = _doc_id
-                    r.score = _score
+        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
+            self._model.add([d.doc_id for d in msg.request.index.docs], msg.request.index.doc)
 
-                    # if args is not empty, then it must come from a multiheadindexer
-                    if args:
-                        r.doc_size = args[0]
-                        if msg.doc_type == gnes_pb2.Document.TEXT_DOC:
-                            r.chunk.text = args[1]
-                        elif msg.doc_type == gnes_pb2.Document.IMAGE_DOC:
-                            r.chunk.blob = args[1]
-                        else:
-                            raise NotImplementedError
-            send_message(out, msg, self.args.timeout)
-        else:
-            raise ServiceError('service %s runs in unknown mode %s' %
-                               (self.__class__.__name__, msg.mode))
+        msg.response.index.status = gnes_pb2.Response.SUCCESS
+        send_message(out, msg, self.args.timeout)
+        self.is_model_changed.set()
+
+    @handler.register(gnes_pb2.Request.QueryRequest)
+    def _handler_search(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        vecs = blob2array(msg.request.search.query.chunk_embeddings)
+        results = self._model.query(vecs, top_k=msg.request.search.top_k)
+        for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
+            r_topk = msg.response.search.result.add()
+            for (_doc_id, _offset), _score, *args in all_topks:
+                r = r_topk.add()
+                r.chunk.doc_id = _doc_id
+                r.chunk.offset_1d = _offset
+                r.score = _score
+                # if args is not empty, then it must come from a multiheadindexer
+                if args:
+                    r.chunk.CopyFrom(args[0])
+        send_message(out, msg, self.args.timeout)

@@ -25,9 +25,8 @@ import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
 
-from gnes.proto import gnes_pb2
 from ..helper import set_logger
-from ..messaging import *
+from ..proto import gnes_pb2, add_route, send_message, recv_message
 
 
 class BetterEnum(Enum):
@@ -115,9 +114,8 @@ class MessageHandler:
     def __init__(self, mh: 'MessageHandler' = None):
         self.routes = {k: v for k, v in mh.routes.items()} if mh else {}
         self.logger = set_logger(self.__class__.__name__)
-        self.unk_msg_route = None
 
-    def register(self, msg_type: str):
+    def register(self, msg_type):
         def decorator(f):
             self.routes[msg_type] = f
             return f
@@ -125,18 +123,15 @@ class MessageHandler:
         return decorator
 
     def serve(self, msg: 'gnes_pb2.Message'):
-        if not isinstance(msg, gnes_pb2.Message):
-            raise ServiceError('dont know how to handle message: %s' % msg)
+        body = getattr(msg, msg.WhichOneof('body'))
+        msg_type = type(getattr(body, body.WhichOneof('body')))
 
-        if not msg.msg_type in self.routes:
-            if self.unk_msg_route:
-                self.logger.warning('fall back to %s handler as i dont know how to handle message with type: %s' % (
-                    self.unk_msg_route, msg.msg_type))
-                fn = self.routes.get(self.unk_msg_route)
-            else:
-                raise ServiceError('dont know how to handle message with type: %s' % msg.msg_type)
+        self.logger.info('received a %r message' % msg_type)
+        if msg_type in self.routes:
+            fn = self.routes.get(msg_type)
         else:
-            fn = self.routes.get(msg.msg_type)
+            self.logger.warning('cant find handler for message type: %s, fall back to the default handler' % msg_type)
+            fn = self.routes.get(NotImplementedError)
         return fn
 
 
@@ -154,9 +149,6 @@ class BaseService(threading.Thread):
         self.is_handler_done = threading.Event()
         self._model = None
         self.identity = args.identity if 'identity' in args else None
-
-        # forward message that does not match with any registed routes
-        self.handler.unk_msg_route = self.args.unk_msg_route if 'unk_msg_route' in args else None
 
     def run(self):
         self._run()
@@ -189,11 +181,14 @@ class BaseService(threading.Thread):
         try:
             fn = self.handler.serve(msg)
             if fn:
-                msg.route = ' -> '.join([msg.route, self.__class__.__name__])
-                self.logger.info('handling a message of type: %s with route: %s' %
-                                 (msg.msg_type, msg.route))
-                fn(self, msg, self.ctrl_sock if MessageType.is_control_message(
-                    msg.msg_type) else self.out_sock)
+                add_route(msg.envelope, self.__class__.__name__)
+                self.logger.info('handling a message with route: %s' % msg.envelope.routes)
+                if msg.request and type(
+                        getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                    out_sock = self.ctrl_sock
+                else:
+                    out_sock = self.out_sock
+                fn(self, msg, out_sock)
                 self.logger.info('handler is done')
         except ServiceError as e:
             self.logger.error(e)
@@ -255,32 +250,40 @@ class BaseService(threading.Thread):
     def _post_init(self):
         pass
 
-    @handler.register(MessageType.DEFAULT.name)
+    @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        pass
+        raise NotImplementedError
 
-    @handler.register(MessageType.CTRL_STATUS.name)
-    def _handler_status(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        pass
-
-    @handler.register(MessageType.CTRL_TERMINATE.name)
-    def _handler_terminate(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        send_message(out, msg, self.args.timeout)
-        self.is_event_loop.clear()
-        raise StopIteration
+    @handler.register(gnes_pb2.Request.ControlRequest)
+    def _handler_control(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        if msg.request.control.command == msg.request.control.TERMINATE:
+            self.is_event_loop.clear()
+            msg.response.request_id = msg.envelope.request_id
+            msg.response.control.status = gnes_pb2.Response.SUCCESS
+            send_message(out, msg, self.args.timeout)
+            raise StopIteration
+        elif msg.request.control.command == msg.request.control.STATUS:
+            msg.response.request_id = msg.envelope.request_id
+            msg.response.control.status = gnes_pb2.Response.ERROR
+            send_message(out, msg, self.args.timeout)
+        else:
+            raise ServiceError('dont know how to handle %s' % msg.request.control)
 
     def close(self):
         if self._model:
             self.dump()
             self._model.close()
+
         if self.is_event_loop.is_set():
-            send_terminate_message(self.ctrl_addr, timeout=self.args.timeout)
+            msg = gnes_pb2.Message()
+            msg.request.control.command = msg.request.control.TERMINATE
+            return send_ctrl_message(self.ctrl_addr, msg, timeout=self.args.timeout)
 
     @property
     def status(self):
-        ctr_msg = gnes_pb2.Message()
-        ctr_msg.msg_type = MessageType.CTRL_STATUS.name
-        return send_ctrl_message(self.ctrl_addr, ctr_msg, self.args.time_out)
+        msg = gnes_pb2.Message()
+        msg.request.control.command = msg.request.control.STATUS
+        return send_ctrl_message(self.ctrl_addr, msg, timeout=self.args.timeout)
 
     def __enter__(self):
         self.start()
@@ -300,9 +303,3 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
         r = recv_message(sock, timeout)
         sock.close()
         return r
-
-
-def send_terminate_message(*args, **kwargs):
-    term_msg = gnes_pb2.Message()
-    term_msg.msg_type = MessageType.CTRL_TERMINATE.name
-    return send_ctrl_message(msg=term_msg, *args, **kwargs)

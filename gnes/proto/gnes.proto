@@ -80,23 +80,23 @@ message Envelope {
     repeated route routes = 6;
 }
 
-message BaseMessage {
+message Message {
     Envelope envelope = 1;
 
-    oneof inner {
-        BaseRequest request = 2;
-        BaseResponse response = 3;
+    oneof body {
+        Request request = 2;
+        Response response = 3;
     }
 }
 
 // define Request
-message BaseRequest {
+message Request {
     string request_id = 1;
 
-    oneof inner {
+    oneof body {
         TrainRequest train = 2;
         IndexRequest index = 3;
-        QueryRequest query = 4;
+        QueryRequest search = 4;
         ControlRequest control = 5;
     }
 
@@ -114,26 +114,47 @@ message BaseRequest {
     }
 
     message ControlRequest {
-        string command = 1;
+        enum Command {
+            TERMINATE = 0;
+            STATUS = 1;
+            FLUSH = 2;
+        }
+
+        Command command = 1;
     }
 }
 
 // define Response
-message BaseResponse {
+message Response {
     string request_id = 1;
+
+
+    oneof body {
+        TrainResponse train = 2;
+        IndexResponse index = 3;
+        QueryResponse search = 4;
+        ControlResponse control = 5;
+    }
 
     enum Status {
         SUCCESS = 0;
-        ENCODER_ERROR = 1;
-        INDEX_ERROR = 2;
-        PROXY_ERROR = 3;
-        UNKNOWN_ERROR = 4;
+        ERROR = 1;
+        PENDING = 2;
     }
 
-    Status status = 2;
+    message TrainResponse {
+        Status status = 1;
+    }
 
-    message QueryResult {
+    message IndexResponse {
+        Status status = 1;
+    }
 
+    message ControlResponse {
+        Status status = 1;
+    }
+
+    message QueryResponse {
         message TopKChunks {
 
             message ScoredChunk {
@@ -144,20 +165,19 @@ message BaseResponse {
             repeated ScoredChunk topk_chunks = 1;
         }
 
+        Status status = 1;
         repeated TopKChunks result = 2;
     }
-
-    QueryResult body = 3;
 }
 
 
 service GnesService {
     // option (rpc_core.method_no_deadline) = true;
     // option (rpc_core.service_default_deadline_ms) = 5000;
-    rpc Train (BaseRequest) returns (BaseResponse) {
+    rpc Train (Request) returns (Response) {
     }
-    rpc Index (BaseRequest) returns (BaseResponse) {
+    rpc Index (Request) returns (Response) {
     }
-    rpc Query (BaseRequest) returns (BaseResponse) {
+    rpc Query (Request) returns (Response) {
     }
 }

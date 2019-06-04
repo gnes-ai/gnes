@@ -1,9 +1,11 @@
 import unittest
 
-from google.protobuf.json_format import MessageToJson, Parse
+import numpy as np
 from numpy.testing import assert_array_equal
 
+from gnes.cli.parser import set_service_parser
 from gnes.proto import *
+from gnes.service.base import BaseService
 
 
 class TestProto(unittest.TestCase):
@@ -15,13 +17,26 @@ class TestProto(unittest.TestCase):
         assert_array_equal(x, x1)
 
     def test_new_msg(self):
-        msg = new_message('test')
-        print(msg)
-        json_obj = MessageToJson(msg)
-        print(json_obj)
-        msg2 = Parse(json_obj, gnes_pb2.BaseMessage())
-        print(msg2)
-        self.assertEqual(msg, msg2)
+        a = gnes_pb2.Message()
+        a.response.index.status = gnes_pb2.Response.SUCCESS
+        print(a)
+        exit()
+        a.request.train.docs.extend([gnes_pb2.Document() for _ in range(2)])
+        print(a)
+        a.request.train.ClearField('docs')
+        a.request.train.docs.extend([gnes_pb2.Document() for _ in range(3)])
+        print(a)
+        exit()
+        print(getattr(a, a.WhichOneof('inner')))
+        c = type(getattr(a, a.WhichOneof('inner')))
+        d = {c: '123'}
+        print(d)
+        print(d[gnes_pb2.Request])
+        print(type(a.request.train))
+        print(a)
 
-        msg.envelope.routes[0].timestamp.seconds = 1
-        self.assertNotEqual(msg, msg2)
+    def test_service_open_close(self):
+        args = set_service_parser().parse_args([])
+        with BaseService(args) as bs:
+            self.assertTrue(bs.is_ready)
+            print(bs.status)
