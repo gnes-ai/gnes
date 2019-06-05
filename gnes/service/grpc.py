@@ -23,9 +23,8 @@ from concurrent import futures
 import grpc
 import zmq
 
-from gnes.proto import gnes_pb2, gnes_pb2_grpc
+from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..helper import set_logger
-from ..messaging import send_message, recv_message
 
 _THREAD_CONCURRENCY = multiprocessing.cpu_count()
 LOGGER = set_logger(__name__)

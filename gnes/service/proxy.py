@@ -80,38 +80,9 @@ class ReduceProxyService(ProxyService):
         msg_parts = self.pending_result[msg.envelope.request_id]
         len_result = len(msg_parts)
 
-
+        reduced_msg = msg_parts[0]
         if self.args.num_part == len_result:
-            all_result = [for m in msg_parts for r in m.search.result]
             for j in range(1, len_result):
-                tmp.search.result.extend(msg_parts[j])
-
-
-
-
-            # self.logger.info("job is done: %s" % msg.msg_id)
-
-            tmp = sorted(
-                self.pending_result[msg.msg_id], key=lambda v: v.part_id)
-
-            reduced_msg = gnes_pb2.Message()
-            reduced_msg.msg_id = tmp[0].msg_id
-            reduced_msg.client_id = tmp[0].client_id
-            reduced_msg.part_id = 1
-            reduced_msg.num_part = 1
-
-            top_k = len(tmp[0].querys[0].results)
-
-            for i in range(msg.num_part):
-                # m-th query
-                for m in range(len(tmp[i * self.args.num_part].querys)):
-                    SearchResult = []
-                    for n in range(self.args.num_part):
-                        SearchResult += tmp[i * self.args.num_part + n].querys[m].results
-                    SearchResult = sorted(SearchResult, key=lambda x: -x.score)[:top_k]
-                    m_query = gnes_pb2.Query()
-                    m_query.results.extend(SearchResult)
-                    reduced_msg.querys.extend([m_query])
-
+                reduced_msg.search.result.extend(msg_parts[j].search.result)
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)

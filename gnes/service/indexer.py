@@ -57,7 +57,7 @@ class IndexerService(BS):
             doc_ids += [doc.id] * doc.doc_size
             offsets += list(range(doc.doc_size))
 
-        from gnes.indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
+        from ..indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
         if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
             self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
         if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
@@ -76,7 +76,7 @@ class IndexerService(BS):
             doc_ids += [d.doc_id] * len(d.chunks)
             offsets += [c.offset_1d for c in d.chunks]
 
-        from gnes.indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
+        from ..indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
         if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
             self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
 
