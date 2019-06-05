@@ -17,161 +17,63 @@
 
 import multiprocessing
 import threading
-import uuid
 from concurrent import futures
 
 import grpc
-import zmq
 
-from ..proto import gnes_pb2, gnes_pb2_grpc
+from .base import BaseService as BS, MessageHandler
 from ..helper import set_logger
+from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 
 _THREAD_CONCURRENCY = multiprocessing.cpu_count()
 LOGGER = set_logger(__name__)
 
 
-class ZmqContext(object):
-    """The zmq context class."""
+class ClientService(BS):
+    handler = MessageHandler(BS.handler)
+    use_event_loop = False
 
-    def __init__(self, args):
-        """Database connection context.
-
-        Args:
-            servers: a list of config dicts for connecting to database
-            dbapi_name: the name of database engine
-        """
-        self.args = args
-
-        self.tlocal = threading.local()
-        self.tlocal.client = None
-
-    def __enter__(self):
-        """Enter the context."""
-        client = ZmqClient(self.args)
-        self.tlocal.client = client
-        return client
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        """Exit the context."""
-        self.tlocal.client.close()
-        self.tlocal.client = None
+    def _post_init(self):
+        self.result = []
 
 
-class ZmqClient:
-
-    def __init__(self, args):
-        self.args = args
-        self.host_in = args.host_in
-        self.host_out = args.host_out
-        self.port_in = args.port_in
-        self.port_out = args.port_out
-        # identity: str =None,
-        self.context = zmq.Context()
-        self.sender = self.context.socket(zmq.PUSH)
-        self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
-
-        self.identity = str(uuid.uuid4()).encode('ascii')
-        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
-        self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
-        self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
-
-    def close(self):
-        self.sender.close()
-        self.receiver.close()
-        self.context.term()
-
-    def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
-        message.client_id = self.identity
-        self.logger.info('send message: %s' % message.client_id)
-        send_message(self.sender, message, timeout=timeout)
-
-    def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        msg = recv_message(self.receiver, timeout=timeout)
-        return msg
-
-
-class GNESServicer(gnes_pb2_grpc.GnesServicer):
+class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
 
     def __init__(self, args):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.zmq_context = ZmqContext(args)
+        self.zmq_client = ClientService(args)
+
+    def add_envelope(self, body: 'gnes_pb2.Request'):
+        msg = gnes_pb2.Message()
+        msg.envelope.client_id = self.zmq_client.identity
+        msg.envelope.request_id = body.request_id
+        msg.envelope.part_id = 1
+        msg.envelope.num_part = 1
+        msg.envelope.timeout = 5000
+        r = msg.envelope.routes.add()
+        r.service = self.zmq_client.__class__.__name__
+        r.timestamp.GetCurrentTime()
+        msg.request.CopyFrom(body)
+        return msg
+
+    def Train(self, request, context):
+        msg = self.add_envelope(request)
+        send_message(self.zmq_client.out_sock, msg, self.args.timeout)
+        resp = recv_message(self.zmq_client.in_sock, self.args.timeout)
+        return resp.body
 
     def Index(self, request, context):
-        # req_id = str(uuid.uuid4())
-        req_id = request._request_id if request._request_id else str(
-            uuid.uuid4())
-        self.logger.info('index request: %s received' % req_id)
-        message = gnes_pb2.Message()
-        message.client_id = req_id
-        message.msg_id = req_id
-        message.num_part = 1
-        message.part_id = 1
-        if request.update_model:
-            message.mode = gnes_pb2.Message.TRAIN
-            if not request.send_more:
-                message.command = gnes_pb2.Message.TRAIN_ENCODER
-                # self.logger.info("cmd message received: %s" % str(message))
-        else:
-            message.mode = gnes_pb2.Message.INDEX
-        message.docs.extend(request.docs)
-
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-
-        with self.zmq_context as zmq_client:
-            zmq_client.send_message(message, self.args.timeout)
-            # result = zmq_client.recv_message()
-            # print(result)
-        return gnes_pb2.IndexResponse()
-
-        # process result message and build response proto
+        msg = self.add_envelope(request)
+        send_message(self.zmq_client.out_sock, msg, self.args.timeout)
+        resp = recv_message(self.zmq_client.in_sock, self.args.timeout)
+        return resp.body
 
     def Search(self, request, context):
-        # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        # context.set_details('Method not implemented!')
-        # raise NotImplementedError('Method not implemented!')
-
-        req_id = request._request_id if request._request_id else str(
-            uuid.uuid4())
-        self.logger.info('search request: %s received' % req_id)
-        message = gnes_pb2.Message()
-        message.client_id = req_id
-        message.msg_id = req_id
-        message.num_part = 1
-        message.part_id = 1
-        message.mode = gnes_pb2.Message.QUERY
-        message.docs.extend([request.doc])
-
-        chunks = request.doc.text_chunks if len(
-            request.doc.text_chunks) > 0 else request.doc.blob_chunks
-
-        for i, chunk in enumerate(chunks):
-            q = message.querys.add()
-            q.id = i
-            q.text = chunk
-            q.top_k = request.top_k
-
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-
-        with self.zmq_context as zmq_client:
-            # message.client_id = zmq_client.identity
-            zmq_client.send_message(message, self.args.timeout)
-            # print('send request message: ' + str(message))
-            result = zmq_client.recv_message()
-
-            response = gnes_pb2.SearchResponse()
-            response.querys.extend(result.querys)
-
-            try:
-                for r in result.querys[0].results:
-                    print(r.chunk.text)
-            except Exception as ex:
-                self.logger.error(ex)
-
-            return response
+        msg = self.add_envelope(request)
+        send_message(self.zmq_client.out_sock, msg, self.args.timeout)
+        resp = recv_message(self.zmq_client.in_sock, self.args.timeout)
+        return resp.body
 
 
 def serve(args):
@@ -181,7 +83,7 @@ def serve(args):
         futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
 
     # Initialize Services
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESServicer(args), server)
+    gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), server)
 
     # Start GRPC Server
     bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)

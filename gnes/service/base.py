@@ -138,6 +138,7 @@ class MessageHandler:
 class BaseService(threading.Thread):
     handler = MessageHandler()
     default_host = '0.0.0.0'
+    use_event_loop = True
 
     def __init__(self, args):
         super().__init__()
@@ -229,10 +230,14 @@ class BaseService(threading.Thread):
                     pull_sock = ctrl_sock
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
-                msg = recv_message(pull_sock)
-                self.is_handler_done.clear()
-                self.message_handler(msg)
-                self.is_handler_done.set()
+                if self.use_event_loop or pull_sock == ctrl_sock:
+                    msg = recv_message(pull_sock)
+                    self.is_handler_done.clear()
+                    self.message_handler(msg)
+                    self.is_handler_done.set()
+                else:
+                    self.logger.warning(
+                        'received a new message from in_sock but since "use_event_loop=False", I will not handle it')
                 if self.args.dump_interval == 0:
                     self.dump()
         except StopIteration:
