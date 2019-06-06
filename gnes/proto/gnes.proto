@@ -57,6 +57,9 @@ message Document {
 
     // document type
     DocType doc_type = 4;
+
+    // meta information of this document
+    bytes meta_info = 5;
 }
 
 message Envelope {
@@ -180,4 +183,7 @@ service GnesRPC {
     }
     rpc Query (Request) returns (Response) {
     }
+    rpc _Call (Request) returns (Response) {
+    }
 }
+

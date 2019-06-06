@@ -66,26 +66,21 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         msg.request.CopyFrom(body)
         return msg
 
-    def Train(self, request, context):
+    def _Call(self, request, context):
         with BaseServicePool(self.base_services) as bs:
             msg = self.add_envelope(request, bs)
             send_message(bs.out_sock, msg, self.args.timeout)
             resp = recv_message(bs.in_sock, self.args.timeout)
             return resp.body
+
+    def Train(self, request, context):
+        return self._Call(request, context)
 
     def Index(self, request, context):
-        with BaseServicePool(self.base_services) as bs:
-            msg = self.add_envelope(request, bs)
-            send_message(bs.out_sock, msg, self.args.timeout)
-            resp = recv_message(bs.in_sock, self.args.timeout)
-            return resp.body
+        return self._Call(request, context)
 
     def Search(self, request, context):
-        with BaseServicePool(self.base_services) as bs:
-            msg = self.add_envelope(request, bs)
-            send_message(bs.out_sock, msg, self.args.timeout)
-            resp = recv_message(bs.in_sock, self.args.timeout)
-            return resp.body
+        return self._Call(request, context)
 
 
 def serve(args):
