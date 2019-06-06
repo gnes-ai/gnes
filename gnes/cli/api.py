@@ -38,9 +38,9 @@ def proxy(args):
 
 
 def grpc_serve(args):
-    from ..service.grpc import GRPCService
+    from ..service.grpc import GRPCFrontend
     import threading
-    with GRPCService(args):
+    with GRPCFrontend(args):
         forever = threading.Event()
         forever.wait()
 

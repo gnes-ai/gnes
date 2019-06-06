@@ -15,7 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-import threading
 import uuid
 from concurrent import futures
 from typing import List
@@ -26,7 +25,7 @@ from .base import BaseService
 from ..helper import set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 
-__all__ = ['GRPCService']
+__all__ = ['GRPCFrontend']
 
 
 class BaseServicePool:
@@ -83,7 +82,7 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         return self._Call(request, context)
 
 
-class GRPCService:
+class GRPCFrontend:
     def __init__(self, args):
         self.logger = set_logger(self.__class__.__name__, args.verbose)
         self.server = grpc.server(
@@ -98,7 +97,6 @@ class GRPCService:
     def __enter__(self):
         self.server.start()
         self.logger.info('grpc service is listening at: %s' % self.bind_address)
-        # Keep application alive
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
