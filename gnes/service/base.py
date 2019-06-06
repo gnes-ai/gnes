@@ -183,7 +183,8 @@ class BaseService(threading.Thread):
             fn = self.handler.serve(msg)
             if fn:
                 add_route(msg.envelope, self.__class__.__name__)
-                self.logger.info('handling a message with route: %s' % msg.envelope.routes)
+                self.logger.info(
+                    'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
                 if msg.request and type(
                         getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
                     out_sock = self.ctrl_sock
