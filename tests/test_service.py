@@ -2,7 +2,7 @@ import os
 import unittest
 
 from gnes.cli.parser import set_service_parser, set_proxy_service_parser
-from gnes.proto import send_message, gnes_pb2, recv_message
+from gnes.proto import gnes_pb2
 from gnes.service.base import BaseService
 from gnes.service.proxy import ProxyService
 
@@ -66,10 +66,10 @@ class TestService(unittest.TestCase):
         ])
         with ProxyService(p_args), BaseService(args, use_event_loop=False) as bs:
             msg = gnes_pb2.Message()
-            send_message(bs.out_sock, msg)
-            msg2 = recv_message(bs.in_sock, msg)
-            print(msg2)
+            bs.send_message(msg)
+            msg2 = bs.recv_message()
 
+        self.assertNotEqual(msg, msg2)
 
     def test_proxy_service(self):
         p_args = set_proxy_service_parser().parse_args([

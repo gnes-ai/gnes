@@ -204,6 +204,14 @@ class BaseService(threading.Thread):
         except ServiceError as e:
             self.logger.error(e)
 
+    def send_message(self, msg: 'gnes_pb2.Message'):
+        send_message(self.out_sock, msg)
+
+    def recv_message(self):
+        m = recv_message(self.in_sock)
+        self.is_handler_done.set()
+        return m
+
     @zmqd.context()
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
@@ -241,13 +249,16 @@ class BaseService(threading.Thread):
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
                 if self.use_event_loop or pull_sock == ctrl_sock:
-                    msg = recv_message(pull_sock)
                     self.is_handler_done.clear()
+                    msg = recv_message(pull_sock)
                     self.message_handler(msg)
                     self.is_handler_done.set()
                 else:
+                    self.is_handler_done.clear()
                     self.logger.warning(
-                        'received a new message from in_sock but since "use_event_loop=False", I will not handle it')
+                        'received a new message but since "use_event_loop=False" I will not handle it. '
+                        'I will just block the thread until "is_handler_done" is set!')
+                    self.is_handler_done.wait()
                 if self.args.dump_interval == 0:
                     self.dump()
         except StopIteration:
