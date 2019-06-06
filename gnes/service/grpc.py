@@ -33,9 +33,6 @@ class ClientService(BS):
     handler = MessageHandler(BS.handler)
     use_event_loop = False
 
-    def _post_init(self):
-        self.result = []
-
 
 class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
 

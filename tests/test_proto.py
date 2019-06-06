@@ -16,17 +16,18 @@ class TestProto(unittest.TestCase):
         x1 = blob2array(blob)
         assert_array_equal(x, x1)
 
+    def test_enums(self):
+        print(gnes_pb2.Request.ControlRequest.FLUSH)
+
     def test_new_msg(self):
         a = gnes_pb2.Message()
         a.response.index.status = gnes_pb2.Response.SUCCESS
         print(a)
-        exit()
         a.request.train.docs.extend([gnes_pb2.Document() for _ in range(2)])
         print(a)
         a.request.train.ClearField('docs')
         a.request.train.docs.extend([gnes_pb2.Document() for _ in range(3)])
         print(a)
-        exit()
         print(getattr(a, a.WhichOneof('inner')))
         c = type(getattr(a, a.WhichOneof('inner')))
         d = {c: '123'}

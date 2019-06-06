@@ -71,7 +71,7 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.ControlRequest)
     def _handler_flush(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        if msg.request.control.command == msg.request.control.FLUSH:
+        if msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
             self._model.train(self.train_data)
             self.is_model_changed.set()
             self.train_data.clear()
