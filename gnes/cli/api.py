@@ -37,7 +37,7 @@ def proxy(args):
         es.join()
 
 
-def grpc_serve(args):
+def frontend(args):
     from ..service.grpc import GRPCFrontend
     import threading
     with GRPCFrontend(args):
@@ -45,9 +45,8 @@ def grpc_serve(args):
         forever.wait()
 
 
-def grpc_client(args):
+def client(args):
     import grpc
-    import uuid
 
     from ..helper import batch_iterator
     from ..proto import gnes_pb2, gnes_pb2_grpc
@@ -67,37 +66,24 @@ def grpc_client(args):
                 req = gnes_pb2.Request()
                 req.train.docs.extend(p)
                 resp = stub._Call(req)
+                print('client received: %s' % resp)
 
-            # start training
+            # start the real training
             req = gnes_pb2.Request()
             req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
             resp = stub._Call(req)
-
-            print('gnes client received: ' + str(response))
+            print('client received: %s' % resp)
         elif args.mode == 'index':
-            for p in batch_iterator(docs, args.batch_size):
-                req_id = str(uuid.uuid4())
-                req = gnes_pb2.IndexRequest()
-
-                req._request_id = req_id
-                req.docs.extend(p)
-                print(req._request_id)
-                response = stub.Index(req)
-                print('gnes client received: ' + str(response))
+            req = gnes_pb2.Request()
+            req.index.docs.extend(pb_docs)
+            resp = stub._Call(req)
+            print('client received: %s' % resp)
         elif args.mode == 'query':
-            for doc in docs[:5]:
-                req_id = str(uuid.uuid4())
-
-                # build search_request
-                req = gnes_pb2.SearchRequest()
-                req._request_id = req_id
-                req.top_k = 5
-
-                req.doc.CopyFrom(doc)
-                print(req._request_id)
-                response = stub.Search(req)
-                print('gnes client received: ' + str(response))
-
+            for idx, doc in enumerate(pb_docs):
+                req = gnes_pb2.Request()
+                req.search.query = doc
+                resp = stub._Call(req)
+                print('query %d result: %s' % (idx, resp))
 
 def https(args):
     from ..service.http import HttpService
