@@ -20,16 +20,12 @@ class TestService(unittest.TestCase):
         ])
         g_args = set_grpc_frontend_parser().parse_args()
         with ProxyService(p_args), GRPCFrontend(g_args):
-            forever = threading.Event()
-            forever.wait()
+            with grpc.insecure_channel(
+                    '%s:%s' % (g_args.grpc_host, g_args.grpc_port),
+                    options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
+                             ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
+                stub = gnes_pb2_grpc.GnesRPCStub(channel)
+                r = gnes_pb2.Request()
+                p = stub._Call(r)
+                print(p)
 
-    def test_grpc2(self):
-        g_args = set_grpc_frontend_parser().parse_args()
-        with grpc.insecure_channel(
-                '%s:%s' % (g_args.grpc_host, g_args.grpc_port),
-                options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
-            stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            r = gnes_pb2.Request()
-            p = stub._Call(r)
-            print(p)
