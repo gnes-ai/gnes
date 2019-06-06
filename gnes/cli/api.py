@@ -66,24 +66,26 @@ def client(args):
                 req = gnes_pb2.Request()
                 req.train.docs.extend(p)
                 resp = stub._Call(req)
-                print('client received: %s' % resp)
+                print(resp)
 
             # start the real training
             req = gnes_pb2.Request()
             req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
             resp = stub._Call(req)
-            print('client received: %s' % resp)
+            print(resp)
         elif args.mode == 'index':
             req = gnes_pb2.Request()
             req.index.docs.extend(pb_docs)
             resp = stub._Call(req)
-            print('client received: %s' % resp)
+            print(resp)
         elif args.mode == 'query':
             for idx, doc in enumerate(pb_docs):
                 req = gnes_pb2.Request()
                 req.search.query = doc
                 resp = stub._Call(req)
                 print('query %d result: %s' % (idx, resp))
+                input('press any key to continue...')
+
 
 def https(args):
     from ..service.http import HttpService
