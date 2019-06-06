@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='gnes',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\ngnes.proto\x12\x04gnes\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n\x07NdArray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\r\n\x05\x64type\x18\x03 \x01(\t\"\xac\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x0e\n\x04text\x18\x02 \x01(\tH\x00\x12\x1d\n\x04\x62lob\x18\x03 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x11\n\toffset_1d\x18\x04 \x01(\r\x12)\n\toffset_nd\x18\x05 \x01(\x0b\x32\x16.gnes.Chunk.Coordinate\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\x42\t\n\x07\x63ontent\"\xc2\x01\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x1b\n\x06\x63hunks\x18\x02 \x03(\x0b\x32\x0b.gnes.Chunk\x12\'\n\x10\x63hunk_embeddings\x18\x03 \x01(\x0b\x32\r.gnes.NdArray\x12(\n\x08\x64oc_type\x18\x04 \x01(\x0e\x32\x16.gnes.Document.DocType\"6\n\x07\x44ocType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04TEXT\x10\x01\x12\t\n\x05IMAGE\x10\x02\x12\t\n\x05VIDEO\x10\x03\"\xd4\x01\n\x08\x45nvelope\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x0f\n\x07part_id\x18\x03 \x01(\r\x12\x10\n\x08num_part\x18\x04 \x01(\r\x12\x0f\n\x07timeout\x18\x05 \x01(\r\x12$\n\x06routes\x18\x06 \x03(\x0b\x32\x14.gnes.Envelope.route\x1aG\n\x05route\x12\x0f\n\x07service\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"y\n\x07Message\x12 \n\x08\x65nvelope\x18\x01 \x01(\x0b\x32\x0e.gnes.Envelope\x12 \n\x07request\x18\x02 \x01(\x0b\x32\r.gnes.RequestH\x00\x12\"\n\x08response\x18\x03 \x01(\x0b\x32\x0e.gnes.ResponseH\x00\x42\x06\n\x04\x62ody\"\xf2\x03\n\x07Request\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12+\n\x05train\x18\x02 \x01(\x0b\x32\x1a.gnes.Request.TrainRequestH\x00\x12+\n\x05index\x18\x03 \x01(\x0b\x32\x1a.gnes.Request.IndexRequestH\x00\x12,\n\x06search\x18\x04 \x01(\x0b\x32\x1a.gnes.Request.QueryRequestH\x00\x12/\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1c.gnes.Request.ControlRequestH\x00\x1a,\n\x0cTrainRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a,\n\x0cIndexRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a<\n\x0cQueryRequest\x12\x1d\n\x05query\x18\x01 \x01(\x0b\x32\x0e.gnes.Document\x12\r\n\x05top_k\x18\x02 \x01(\r\x1ax\n\x0e\x43ontrolRequest\x12\x35\n\x07\x63ommand\x18\x01 \x01(\x0e\x32$.gnes.Request.ControlRequest.Command\"/\n\x07\x43ommand\x12\r\n\tTERMINATE\x10\x00\x12\n\n\x06STATUS\x10\x01\x12\t\n\x05\x46LUSH\x10\x02\x42\x06\n\x04\x62ody\"\xc5\x05\n\x08Response\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12-\n\x05train\x18\x02 \x01(\x0b\x32\x1c.gnes.Response.TrainResponseH\x00\x12-\n\x05index\x18\x03 \x01(\x0b\x32\x1c.gnes.Response.IndexResponseH\x00\x12.\n\x06search\x18\x04 \x01(\x0b\x32\x1c.gnes.Response.QueryResponseH\x00\x12\x31\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1e.gnes.Response.ControlResponseH\x00\x1a\x36\n\rTrainResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x36\n\rIndexResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x38\n\x0f\x43ontrolResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x82\x02\n\rQueryResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x12\x37\n\x06result\x18\x02 \x03(\x0b\x32\'.gnes.Response.QueryResponse.TopKChunks\x1a\x90\x01\n\nTopKChunks\x12H\n\x0btopk_chunks\x18\x01 \x03(\x0b\x32\x33.gnes.Response.QueryResponse.TopKChunks.ScoredChunk\x1a\x38\n\x0bScoredChunk\x12\x1a\n\x05\x63hunk\x18\x01 \x01(\x0b\x32\x0b.gnes.Chunk\x12\r\n\x05score\x18\x02 \x01(\x02\"-\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x42\x06\n\x04\x62ody2\x87\x01\n\x07GnesRPC\x12(\n\x05Train\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Index\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Query\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\ngnes.proto\x12\x04gnes\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n\x07NdArray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\r\n\x05\x64type\x18\x03 \x01(\t\"\xac\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x0e\n\x04text\x18\x02 \x01(\tH\x00\x12\x1d\n\x04\x62lob\x18\x03 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x11\n\toffset_1d\x18\x04 \x01(\r\x12)\n\toffset_nd\x18\x05 \x01(\x0b\x32\x16.gnes.Chunk.Coordinate\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\x42\t\n\x07\x63ontent\"\xd5\x01\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x1b\n\x06\x63hunks\x18\x02 \x03(\x0b\x32\x0b.gnes.Chunk\x12\'\n\x10\x63hunk_embeddings\x18\x03 \x01(\x0b\x32\r.gnes.NdArray\x12(\n\x08\x64oc_type\x18\x04 \x01(\x0e\x32\x16.gnes.Document.DocType\x12\x11\n\tmeta_info\x18\x05 \x01(\x0c\"6\n\x07\x44ocType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04TEXT\x10\x01\x12\t\n\x05IMAGE\x10\x02\x12\t\n\x05VIDEO\x10\x03\"\xd4\x01\n\x08\x45nvelope\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x0f\n\x07part_id\x18\x03 \x01(\r\x12\x10\n\x08num_part\x18\x04 \x01(\r\x12\x0f\n\x07timeout\x18\x05 \x01(\r\x12$\n\x06routes\x18\x06 \x03(\x0b\x32\x14.gnes.Envelope.route\x1aG\n\x05route\x12\x0f\n\x07service\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"y\n\x07Message\x12 \n\x08\x65nvelope\x18\x01 \x01(\x0b\x32\x0e.gnes.Envelope\x12 \n\x07request\x18\x02 \x01(\x0b\x32\r.gnes.RequestH\x00\x12\"\n\x08response\x18\x03 \x01(\x0b\x32\x0e.gnes.ResponseH\x00\x42\x06\n\x04\x62ody\"\xf2\x03\n\x07Request\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12+\n\x05train\x18\x02 \x01(\x0b\x32\x1a.gnes.Request.TrainRequestH\x00\x12+\n\x05index\x18\x03 \x01(\x0b\x32\x1a.gnes.Request.IndexRequestH\x00\x12,\n\x06search\x18\x04 \x01(\x0b\x32\x1a.gnes.Request.QueryRequestH\x00\x12/\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1c.gnes.Request.ControlRequestH\x00\x1a,\n\x0cTrainRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a,\n\x0cIndexRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a<\n\x0cQueryRequest\x12\x1d\n\x05query\x18\x01 \x01(\x0b\x32\x0e.gnes.Document\x12\r\n\x05top_k\x18\x02 \x01(\r\x1ax\n\x0e\x43ontrolRequest\x12\x35\n\x07\x63ommand\x18\x01 \x01(\x0e\x32$.gnes.Request.ControlRequest.Command\"/\n\x07\x43ommand\x12\r\n\tTERMINATE\x10\x00\x12\n\n\x06STATUS\x10\x01\x12\t\n\x05\x46LUSH\x10\x02\x42\x06\n\x04\x62ody\"\xc5\x05\n\x08Response\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12-\n\x05train\x18\x02 \x01(\x0b\x32\x1c.gnes.Response.TrainResponseH\x00\x12-\n\x05index\x18\x03 \x01(\x0b\x32\x1c.gnes.Response.IndexResponseH\x00\x12.\n\x06search\x18\x04 \x01(\x0b\x32\x1c.gnes.Response.QueryResponseH\x00\x12\x31\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1e.gnes.Response.ControlResponseH\x00\x1a\x36\n\rTrainResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x36\n\rIndexResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x38\n\x0f\x43ontrolResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x82\x02\n\rQueryResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x12\x37\n\x06result\x18\x02 \x03(\x0b\x32\'.gnes.Response.QueryResponse.TopKChunks\x1a\x90\x01\n\nTopKChunks\x12H\n\x0btopk_chunks\x18\x01 \x03(\x0b\x32\x33.gnes.Response.QueryResponse.TopKChunks.ScoredChunk\x1a\x38\n\x0bScoredChunk\x12\x1a\n\x05\x63hunk\x18\x01 \x01(\x0b\x32\x0b.gnes.Chunk\x12\r\n\x05score\x18\x02 \x01(\x02\"-\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x42\x06\n\x04\x62ody2\xb1\x01\n\x07GnesRPC\x12(\n\x05Train\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Index\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Query\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05_Call\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -52,8 +52,8 @@ _DOCUMENT_DOCTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=428,
-  serialized_end=482,
+  serialized_start=447,
+  serialized_end=501,
 )
 _sym_db.RegisterEnumDescriptor(_DOCUMENT_DOCTYPE)
 
@@ -78,8 +78,8 @@ _REQUEST_CONTROLREQUEST_COMMAND = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1266,
-  serialized_end=1313,
+  serialized_start=1285,
+  serialized_end=1332,
 )
 _sym_db.RegisterEnumDescriptor(_REQUEST_CONTROLREQUEST_COMMAND)
 
@@ -104,8 +104,8 @@ _RESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1980,
-  serialized_end=2025,
+  serialized_start=1999,
+  serialized_end=2044,
 )
 _sym_db.RegisterEnumDescriptor(_RESPONSE_STATUS)
 
@@ -282,6 +282,13 @@ _DOCUMENT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='meta_info', full_name='gnes.Document.meta_info', index=4,
+      number=5, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -296,7 +303,7 @@ _DOCUMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=288,
-  serialized_end=482,
+  serialized_end=501,
 )
 
 
@@ -333,8 +340,8 @@ _ENVELOPE_ROUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=626,
-  serialized_end=697,
+  serialized_start=645,
+  serialized_end=716,
 )
 
 _ENVELOPE = _descriptor.Descriptor(
@@ -398,8 +405,8 @@ _ENVELOPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=485,
-  serialized_end=697,
+  serialized_start=504,
+  serialized_end=716,
 )
 
 
@@ -446,8 +453,8 @@ _MESSAGE = _descriptor.Descriptor(
       name='body', full_name='gnes.Message.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=699,
-  serialized_end=820,
+  serialized_start=718,
+  serialized_end=839,
 )
 
 
@@ -477,8 +484,8 @@ _REQUEST_TRAINREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1039,
-  serialized_end=1083,
+  serialized_start=1058,
+  serialized_end=1102,
 )
 
 _REQUEST_INDEXREQUEST = _descriptor.Descriptor(
@@ -507,8 +514,8 @@ _REQUEST_INDEXREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1085,
-  serialized_end=1129,
+  serialized_start=1104,
+  serialized_end=1148,
 )
 
 _REQUEST_QUERYREQUEST = _descriptor.Descriptor(
@@ -544,8 +551,8 @@ _REQUEST_QUERYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1131,
-  serialized_end=1191,
+  serialized_start=1150,
+  serialized_end=1210,
 )
 
 _REQUEST_CONTROLREQUEST = _descriptor.Descriptor(
@@ -575,8 +582,8 @@ _REQUEST_CONTROLREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1193,
-  serialized_end=1313,
+  serialized_start=1212,
+  serialized_end=1332,
 )
 
 _REQUEST = _descriptor.Descriptor(
@@ -636,8 +643,8 @@ _REQUEST = _descriptor.Descriptor(
       name='body', full_name='gnes.Request.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=823,
-  serialized_end=1321,
+  serialized_start=842,
+  serialized_end=1340,
 )
 
 
@@ -667,8 +674,8 @@ _RESPONSE_TRAINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1549,
-  serialized_end=1603,
+  serialized_start=1568,
+  serialized_end=1622,
 )
 
 _RESPONSE_INDEXRESPONSE = _descriptor.Descriptor(
@@ -697,8 +704,8 @@ _RESPONSE_INDEXRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1605,
-  serialized_end=1659,
+  serialized_start=1624,
+  serialized_end=1678,
 )
 
 _RESPONSE_CONTROLRESPONSE = _descriptor.Descriptor(
@@ -727,8 +734,8 @@ _RESPONSE_CONTROLRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1661,
-  serialized_end=1717,
+  serialized_start=1680,
+  serialized_end=1736,
 )
 
 _RESPONSE_QUERYRESPONSE_TOPKCHUNKS_SCOREDCHUNK = _descriptor.Descriptor(
@@ -764,8 +771,8 @@ _RESPONSE_QUERYRESPONSE_TOPKCHUNKS_SCOREDCHUNK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1922,
-  serialized_end=1978,
+  serialized_start=1941,
+  serialized_end=1997,
 )
 
 _RESPONSE_QUERYRESPONSE_TOPKCHUNKS = _descriptor.Descriptor(
@@ -794,8 +801,8 @@ _RESPONSE_QUERYRESPONSE_TOPKCHUNKS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1834,
-  serialized_end=1978,
+  serialized_start=1853,
+  serialized_end=1997,
 )
 
 _RESPONSE_QUERYRESPONSE = _descriptor.Descriptor(
@@ -831,8 +838,8 @@ _RESPONSE_QUERYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1720,
-  serialized_end=1978,
+  serialized_start=1739,
+  serialized_end=1997,
 )
 
 _RESPONSE = _descriptor.Descriptor(
@@ -893,8 +900,8 @@ _RESPONSE = _descriptor.Descriptor(
       name='body', full_name='gnes.Response.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1324,
-  serialized_end=2033,
+  serialized_start=1343,
+  serialized_end=2052,
 )
 
 _CHUNK_COORDINATE.containing_type = _CHUNK
@@ -1141,8 +1148,8 @@ _GNESRPC = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=2036,
-  serialized_end=2171,
+  serialized_start=2055,
+  serialized_end=2232,
   methods=[
   _descriptor.MethodDescriptor(
     name='Train',
@@ -1166,6 +1173,15 @@ _GNESRPC = _descriptor.ServiceDescriptor(
     name='Query',
     full_name='gnes.GnesRPC.Query',
     index=2,
+    containing_service=None,
+    input_type=_REQUEST,
+    output_type=_RESPONSE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='_Call',
+    full_name='gnes.GnesRPC._Call',
+    index=3,
     containing_service=None,
     input_type=_REQUEST,
     output_type=_RESPONSE,

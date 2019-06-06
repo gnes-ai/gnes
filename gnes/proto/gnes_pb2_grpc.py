@@ -29,6 +29,11 @@ class GnesRPCStub(object):
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
+    self._Call = channel.unary_unary(
+        '/gnes.GnesRPC/_Call',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
+        )
 
 
 class GnesRPCServicer(object):
@@ -57,6 +62,13 @@ class GnesRPCServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def _Call(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_GnesRPCServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -72,6 +84,11 @@ def add_GnesRPCServicer_to_server(servicer, server):
       ),
       'Query': grpc.unary_unary_rpc_method_handler(
           servicer.Query,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
+      ),
+      '_Call': grpc.unary_unary_rpc_method_handler(
+          servicer._Call,
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),

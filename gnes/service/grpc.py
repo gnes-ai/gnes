@@ -26,7 +26,7 @@ from .base import BaseService
 from ..helper import set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 
-LOGGER = set_logger(__name__)
+__all__ = ['GRPCService']
 
 
 class BaseServicePool:
@@ -83,22 +83,23 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         return self._Call(request, context)
 
 
-def serve(args):
-    # Initialize GRPC Server
-    LOGGER.info('start a grpc server with %d workers ...' % args.max_concurrency)
-    server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=args.max_concurrency))
+class GRPCService:
+    def __init__(self, args):
+        self.logger = set_logger(self.__class__.__name__, args.verbose)
+        self.server = grpc.server(
+            futures.ThreadPoolExecutor(max_workers=args.max_concurrency))
+        self.logger.info('start a grpc server with %d workers' % args.max_concurrency)
+        gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), self.server)
 
-    # Initialize Services
-    gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), server)
+        # Start GRPC Server
+        self.bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
+        self.server.add_insecure_port(self.bind_address)
 
-    # Start GRPC Server
-    bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
-    # server.add_insecure_port('[::]:' + '5555')
-    server.add_insecure_port(bind_address)
-    server.start()
-    LOGGER.info('grpc service is listening at: %s' % bind_address)
+    def __enter__(self):
+        self.server.start()
+        self.logger.info('grpc service is listening at: %s' % self.bind_address)
+        # Keep application alive
+        return self
 
-    # Keep application alive
-    forever = threading.Event()
-    forever.wait()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.server.close()

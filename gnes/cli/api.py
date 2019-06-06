@@ -38,8 +38,11 @@ def proxy(args):
 
 
 def grpc_serve(args):
-    from ..service import grpc
-    grpc.serve(args)
+    from ..service.grpc import GRPCService
+    import threading
+    with GRPCService(args):
+        forever = threading.Event()
+        forever.wait()
 
 
 def grpc_client(args):
@@ -48,71 +51,51 @@ def grpc_client(args):
 
     from ..helper import batch_iterator
     from ..proto import gnes_pb2, gnes_pb2_grpc
+    from ..preprocessor.text import txt_file2pb_docs
 
-    data = [v for v in args.txt_file if v.strip() if len(v) > 0]
-
-    docs = []
-    for i, line in enumerate(data):
-        doc = gnes_pb2.Document()
-        doc.id = i
-        doc.text = line
-        sents = [s.strip() for s in line.split('。') if len(s.strip()) > 0]
-        doc.text_chunks.extend(sents)
-        doc.doc_size = len(sents)
-        doc.is_parsed = True
-        docs.append(doc)
+    pb_docs = txt_file2pb_docs(args.txt_file)
 
     with grpc.insecure_channel(
             '%s:%s' % (args.grpc_host, args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
-                     ('grpc.max_receive_message_length',
-                      50 * 1024 * 1024)]) as channel:
+                     ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
         stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
         if args.mode == 'train':
-            for p in batch_iterator(docs, args.batch_size):
-                req_id = str(uuid.uuid4())
-                request = gnes_pb2.IndexRequest()
+            # feed and accumulate training data
+            for p in batch_iterator(pb_docs, args.batch_size):
+                req = gnes_pb2.Request()
+                req.train.docs.extend(p)
+                resp = stub._Call(req)
 
-                request._request_id = req_id
-                request.docs.extend(p)
-                request.send_more = True
-                request.update_model = True
-
-                print(request._request_id)
-                response = stub.Index(request)
-
-            req_id = str(uuid.uuid4())
-            request = gnes_pb2.IndexRequest()
-
-            request._request_id = req_id
-            request.update_model = True
-            print(request._request_id)
-            response = stub.Index(request)
+            # start training
+            req = gnes_pb2.Request()
+            req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+            resp = stub._Call(req)
 
             print('gnes client received: ' + str(response))
         elif args.mode == 'index':
             for p in batch_iterator(docs, args.batch_size):
                 req_id = str(uuid.uuid4())
-                request = gnes_pb2.IndexRequest()
+                req = gnes_pb2.IndexRequest()
 
-                request._request_id = req_id
-                request.docs.extend(p)
-                print(request._request_id)
-                response = stub.Index(request)
+                req._request_id = req_id
+                req.docs.extend(p)
+                print(req._request_id)
+                response = stub.Index(req)
                 print('gnes client received: ' + str(response))
         elif args.mode == 'query':
             for doc in docs[:5]:
                 req_id = str(uuid.uuid4())
 
                 # build search_request
-                request = gnes_pb2.SearchRequest()
-                request._request_id = req_id
-                request.top_k = 5
+                req = gnes_pb2.SearchRequest()
+                req._request_id = req_id
+                req.top_k = 5
 
-                request.doc.CopyFrom(doc)
-                print(request._request_id)
-                response = stub.Search(request)
+                req.doc.CopyFrom(doc)
+                print(req._request_id)
+                response = stub.Search(req)
                 print('gnes client received: ' + str(response))
 
 
