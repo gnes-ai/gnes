@@ -67,7 +67,7 @@ def grpc_client(args):
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length',
                       50 * 1024 * 1024)]) as channel:
-        stub = gnes_pb2_grpc.GnesStub(channel)
+        stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
         if args.mode == 'train':
             for p in batch_iterator(docs, args.batch_size):
@@ -116,29 +116,7 @@ def grpc_client(args):
                 print('gnes client received: ' + str(response))
 
 
-def client(args):
-    from ..service.client import ClientService
-    with ClientService(args) as cs:
-        data = [v for v in args.txt_file if v.strip()]
-        if not data:
-            raise ValueError('input text file is empty, nothing to do')
-        else:
-            data = [[line.strip() for line in doc.split('。') if len(line.strip()) > 3] for doc in data]
-
-            if args.index:
-                cs.index(data, args.train)
-            else:
-                for line in data:
-                    result = cs.query(line)
-                    try:
-                        for _ in range(len(result.querys[0].results)):
-                            print(result.querys[0].results[_].chunk.text)
-                    except:
-                        print('error', line, result)
-        cs.join()
-
-
 def https(args):
-    from ..service.https import HttpService
+    from ..service.http import HttpService
     mh = HttpService(args)
     mh.run()

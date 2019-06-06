@@ -138,9 +138,8 @@ class MessageHandler:
 class BaseService(threading.Thread):
     handler = MessageHandler()
     default_host = '0.0.0.0'
-    use_event_loop = True
 
-    def __init__(self, args):
+    def __init__(self, args, use_event_loop=True):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
@@ -150,6 +149,7 @@ class BaseService(threading.Thread):
         self.is_handler_done = threading.Event()
         self._model = None
         self.identity = args.identity if 'identity' in args else None
+        self.use_event_loop = use_event_loop
 
     def run(self):
         self._run()
