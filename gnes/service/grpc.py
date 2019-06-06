@@ -46,9 +46,6 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
     def __init__(self, args):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, args.verbose)
-        self.base_services = [BaseService(args, use_event_loop=False) for _ in range(args.max_concurrency)]
-        for bs in self.base_services:
-            bs.start()
 
     def add_envelope(self, body: 'gnes_pb2.Request', bs: 'BaseService'):
         msg = gnes_pb2.Message()
@@ -69,7 +66,7 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
 
     def _Call(self, request, context):
         self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
-        with BaseServicePool(self.base_services) as bs:
+        with BaseService(self.args, use_event_loop=False) as bs:
             msg = self.add_envelope(request, bs)
             send_message(bs.out_sock, msg, self.args.timeout)
             resp = recv_message(bs.in_sock, self.args.timeout)
