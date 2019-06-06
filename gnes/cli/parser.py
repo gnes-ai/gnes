@@ -99,7 +99,8 @@ def _set_client_parser(parser=None):
         port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
         port_out=parser.get_default('port_in'),
         socket_in=SocketType.SUB_CONNECT,
-        socket_out=SocketType.PUSH_CONNECT)
+        socket_out=SocketType.PUSH_CONNECT,
+        read_only=True)
     return parser
 
 
@@ -139,7 +140,8 @@ def set_proxy_service_parser(parser=None):
     parser.add_argument('--num_part', type=int, default=1,
                         help='the number of partial result to collect')
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUB_BIND)
+                        socket_out=SocketType.PUB_BIND,
+                        read_only=True)
     return parser
 
 

@@ -1,11 +1,9 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_service_parser, set_proxy_service_parser, set_client_parser
+from gnes.cli.parser import set_service_parser, set_proxy_service_parser
 from gnes.service.base import BaseService
-from gnes.service.client import ClientService
-
-from gnes.service.proxy import MapProxyService, ReduceProxyService, ProxyService
+from gnes.service.proxy import ProxyService
 
 
 class TestService(unittest.TestCase):
@@ -17,7 +15,7 @@ class TestService(unittest.TestCase):
     def setUp(self):
         self.test_querys = []
         self.test_docs = []
-        with open(self.data_path) as f:
+        with open(self.data_path, encoding='utf8') as f:
             title = ''
             sents = []
             for line in f:
@@ -33,7 +31,6 @@ class TestService(unittest.TestCase):
 
                     sents.clear()
                     title = ''
-
 
     @classmethod
     def tearDownClass(cls):
@@ -101,9 +98,9 @@ class TestService(unittest.TestCase):
         ])
         c_args = set_client_parser().parse_args([
             '--port_in',
-            '1115',    # receive from reducer-proxy
+            '1115',  # receive from reducer-proxy
             '--port_out',
-            '1111',    # send to mapper-proxy
+            '1111',  # send to mapper-proxy
             '--socket_in',
             'PULL_BIND',
             '--socket_out',
@@ -117,7 +114,6 @@ class TestService(unittest.TestCase):
             result = cs.index(self.test_docs)
             self.assertEqual(len(result.docs), len(self.test_docs))
             self.assertEqual(result.docs[0].doc_size, len(self.test_docs[0]))
-
 
         # with muliple dummy workers
         with ProxyService(m_args), \

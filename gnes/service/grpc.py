@@ -66,6 +66,7 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         return msg
 
     def _Call(self, request, context):
+        self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
         with BaseServicePool(self.base_services) as bs:
             msg = self.add_envelope(request, bs)
             send_message(bs.out_sock, msg, self.args.timeout)
@@ -100,4 +101,4 @@ class GRPCFrontend:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.server.close()
+        pass
