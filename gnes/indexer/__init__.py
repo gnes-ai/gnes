@@ -23,6 +23,7 @@ _cls2file_map = {
     'NumpyIndexer': 'numpy',
     'HnswIndexer': 'hnsw_indexer',
     'BIndexer': 'bindexer',
+    'HBIndexer': 'hbindexer',
     'JointIndexer': 'base',
     'BaseIndexer': 'base',
     'BaseBinaryIndexer': 'base',

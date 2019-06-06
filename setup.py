@@ -25,6 +25,11 @@ extensions = [
         extra_compile_args=['-O3'],
     ),
     Extension(
+        'gnes.indexer.hbindexer.cython',
+        ['gnes/indexer/hbindexer/hbindexer.pyx'],
+        extra_compile_args=['-O3'],
+    ),
+    Extension(
         'gnes.indexer.hnsw_indexer.cython.hnsw',
         ['gnes/indexer/hnsw_indexer/cython/hnsw.pyx'],
         extra_compile_args=['-O3'],

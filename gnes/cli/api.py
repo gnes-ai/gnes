@@ -87,7 +87,7 @@ def client(args):
                 input('press any key to continue...')
 
 
-def https(args):
+def http(args):
     from ..service.http import HttpService
     mh = HttpService(args)
     mh.run()
