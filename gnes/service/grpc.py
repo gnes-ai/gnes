@@ -68,8 +68,8 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
         with BaseService(self.args, use_event_loop=False) as bs:
             msg = self.add_envelope(request, bs)
-            send_message(bs.out_sock, msg, self.args.timeout)
-            resp = recv_message(bs.in_sock, self.args.timeout)
+            bs.send_message(msg, self.args.timeout)
+            resp = bs.recv_message(self.args.timeout)
             return resp.body
 
     def Train(self, request, context):

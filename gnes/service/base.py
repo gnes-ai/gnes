@@ -204,11 +204,11 @@ class BaseService(threading.Thread):
         except ServiceError as e:
             self.logger.error(e)
 
-    def send_message(self, msg: 'gnes_pb2.Message'):
-        send_message(self.out_sock, msg)
+    def send_message(self, *args, **kwargs):
+        send_message(self.out_sock, *args, **kwargs)
 
-    def recv_message(self):
-        m = recv_message(self.in_sock)
+    def recv_message(self, *args, **kwargs):
+        m = recv_message(self.in_sock, *args, **kwargs)
         self.is_handler_done.set()
         return m
 
