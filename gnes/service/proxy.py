@@ -85,6 +85,6 @@ class ReduceProxyService(ProxyService):
             print(msg_parts)
             self.logger.info(msg_parts)
             for j in range(1, len_result):
-                reduced_msg.search.result.extend(msg_parts[j].search.result)
+                reduced_msg.response.search.result.extend(msg_parts[j].response.search.result)
             send_message(out, reduced_msg, self.args.timeout)
             self.pending_result.pop(msg.msg_id)
