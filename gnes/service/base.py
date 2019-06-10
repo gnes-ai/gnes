@@ -194,11 +194,12 @@ class BaseService(threading.Thread):
                 add_route(msg.envelope, self.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
-                if msg.request and msg.request.WhichOneof('body') and \
-                        type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                    out_sock = self.ctrl_sock
-                else:
-                    out_sock = self.out_sock
+                # if msg.request and msg.request.WhichOneof('body') and \
+                #         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                #     out_sock = self.ctrl_sock
+                # else:
+                #     out_sock = self.out_sock
+                out_sock = self.out_sock
                 fn(self, msg, out_sock)
                 self.logger.info('handler is done')
         except ServiceError as e:
@@ -282,12 +283,12 @@ class BaseService(threading.Thread):
 
     @handler.register(gnes_pb2.Request.ControlRequest)
     def _handler_control(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        if msg.request.control.command == msg.request.control.TERMINATE:
+        if msg.request.control.command == gnes_pb2.Request.ControlRequest.TERMINATE:
             self.is_event_loop.clear()
             msg.response.control.status = gnes_pb2.Response.SUCCESS
             send_message(out, msg, self.args.timeout)
             raise StopIteration
-        elif msg.request.control.command == msg.request.control.STATUS:
+        elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
             send_message(out, msg, self.args.timeout)
         else:

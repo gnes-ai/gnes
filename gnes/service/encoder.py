@@ -76,7 +76,9 @@ class EncoderService(BS):
         if msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
             self._model.train(self.train_data)
             self.is_model_changed.set()
+            self.logger.info("encoder has been trained and clear the training data")
             self.train_data.clear()
+
         msg.response.control.status = gnes_pb2.Response.SUCCESS
         send_message(out, msg, self.args.timeout)
 
