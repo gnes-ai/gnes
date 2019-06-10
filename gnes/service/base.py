@@ -123,15 +123,24 @@ class MessageHandler:
         return decorator
 
     def serve(self, msg: 'gnes_pb2.Message'):
-        body = getattr(msg, msg.WhichOneof('body'))
-        msg_type = type(getattr(body, body.WhichOneof('body')))
+        def get_default_fn(m_type):
+            self.logger.warning('cant find handler for message type: %s, fall back to the default handler' % m_type)
+            f = self.routes.get(m_type, self.routes[NotImplementedError])
+            return f
 
-        self.logger.info('received a %r message' % msg_type)
-        if msg_type in self.routes:
-            fn = self.routes.get(msg_type)
+        if msg.WhichOneof('body'):
+            body = getattr(msg, msg.WhichOneof('body'))
+            if body.WhichOneof('body'):
+                msg_type = type(getattr(body, body.WhichOneof('body')))
+                if msg_type in self.routes:
+                    self.logger.info('received a %r message' % msg_type)
+                    fn = self.routes.get(msg_type)
+                else:
+                    fn = get_default_fn(msg_type)
+            else:
+                fn = get_default_fn(type(body))
         else:
-            self.logger.warning('cant find handler for message type: %s, fall back to the default handler' % msg_type)
-            fn = self.routes.get(NotImplementedError)
+            fn = get_default_fn(type(msg))
         return fn
 
 
@@ -185,8 +194,8 @@ class BaseService(threading.Thread):
                 add_route(msg.envelope, self.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
-                if msg.request and type(
-                        getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                if msg.request and msg.request.WhichOneof('body') and \
+                        type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
                     out_sock = self.ctrl_sock
                 else:
                     out_sock = self.out_sock
@@ -194,6 +203,14 @@ class BaseService(threading.Thread):
                 self.logger.info('handler is done')
         except ServiceError as e:
             self.logger.error(e)
+
+    def send_message(self, *args, **kwargs):
+        send_message(self.out_sock, *args, **kwargs)
+
+    def recv_message(self, *args, **kwargs):
+        m = recv_message(self.in_sock, *args, **kwargs)
+        self.is_handler_done.set()
+        return m
 
     @zmqd.context()
     def _run(self, ctx):
@@ -232,13 +249,16 @@ class BaseService(threading.Thread):
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
                 if self.use_event_loop or pull_sock == ctrl_sock:
-                    msg = recv_message(pull_sock)
                     self.is_handler_done.clear()
+                    msg = recv_message(pull_sock)
                     self.message_handler(msg)
                     self.is_handler_done.set()
                 else:
+                    self.is_handler_done.clear()
                     self.logger.warning(
-                        'received a new message from in_sock but since "use_event_loop=False", I will not handle it')
+                        'received a new message but since "use_event_loop=False" I will not handle it. '
+                        'I will just block the thread until "is_handler_done" is set!')
+                    self.is_handler_done.wait()
                 if self.args.dump_interval == 0:
                     self.dump()
         except StopIteration:

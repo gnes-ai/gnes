@@ -2,6 +2,7 @@ import os
 import unittest
 
 from gnes.cli.parser import set_service_parser, set_proxy_service_parser
+from gnes.proto import gnes_pb2
 from gnes.service.base import BaseService
 from gnes.service.proxy import ProxyService
 
@@ -41,6 +42,34 @@ class TestService(unittest.TestCase):
         args = set_service_parser().parse_args([])
         with BaseService(args) as bs:
             self.assertTrue(bs.is_ready)
+
+    def test_service_no_event_loop(self):
+        p_args = set_proxy_service_parser().parse_args([
+            '--port_in',
+            '5310',
+            '--port_out',
+            '5311',
+            '--socket_in',
+            'PULL_BIND',
+            '--socket_out',
+            'PUSH_BIND',
+        ])
+        args = set_service_parser().parse_args([
+            '--port_out',
+            '5310',
+            '--port_in',
+            '5311',
+            '--socket_in',
+            'PULL_CONNECT',
+            '--socket_out',
+            'PUSH_CONNECT',
+        ])
+        with ProxyService(p_args), BaseService(args, use_event_loop=False) as bs:
+            msg = gnes_pb2.Message()
+            bs.send_message(msg)
+            msg2 = bs.recv_message()
+
+        self.assertNotEqual(msg, msg2)
 
     def test_proxy_service(self):
         p_args = set_proxy_service_parser().parse_args([
