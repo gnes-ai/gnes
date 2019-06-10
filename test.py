@@ -16,7 +16,7 @@ pd_d = [line2pb_doc(data[i], i) for i in range(len(data))]
 
 req = gnes_pb2.Request()
 req.search.query.CopyFrom(pd_d[1])
-req.search.top_k = 10
+req.search.top_k = 2
 
 args = set_http_service_parser().parse_args()
 args.port_in = 8599
