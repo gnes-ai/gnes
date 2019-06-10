@@ -18,7 +18,7 @@ class TestService(unittest.TestCase):
             '--socket_out',
             'PUSH_BIND',
         ])
-        g_args = set_grpc_frontend_parser().parse_args()
+        g_args = set_grpc_frontend_parser().parse_args([])
         with ProxyService(p_args), GRPCFrontend(g_args):
             with grpc.insecure_channel(
                     '%s:%s' % (g_args.grpc_host, g_args.grpc_port),

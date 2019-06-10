@@ -176,7 +176,7 @@ def _set_grpc_parser(parser=None):
                         type=str,
                         default='8800',
                         help='host port of the grpc service')
-
+    return parser
 
 def set_grpc_frontend_parser(parser=None):
     if not parser:
