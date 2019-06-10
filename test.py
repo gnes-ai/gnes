@@ -10,12 +10,12 @@ from gnes.service.base import SocketType
 import uuid
 from gnes.cli.parser import set_http_service_parser
 
-data = open('jane.txt').read().split('\n')
+data = open('query.txt').read().split('\n')
 
 pd_d = [line2pb_doc(l) for l in data]
 
 req = gnes_pb2.Request()
-req.index.docs.extend(pd_d)
+req.search.query.CopyFrom(pd_d[0])
 
 args = set_http_service_parser().parse_args()
 args.port_in = 8599
