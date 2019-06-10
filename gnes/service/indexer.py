@@ -81,7 +81,7 @@ class IndexerService(BS):
             self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
 
         if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
-            self._model.add([d.doc_id for d in msg.request.index.docs], msg.request.index.doc)
+            self._model.add([d.doc_id for d in msg.request.index.docs], [d for d in msg.request.index.docs])
 
         msg.response.index.status = gnes_pb2.Response.SUCCESS
         send_message(out, msg, self.args.timeout)
@@ -94,7 +94,7 @@ class IndexerService(BS):
         for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
             r_topk = msg.response.search.result.add()
             for (_doc_id, _offset), _score, *args in all_topks:
-                r = r_topk.add()
+                r = r_topk.topk_chunks.add()
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
                 r.score = _score

@@ -15,7 +15,6 @@ services:
     command: >
       proxy --proxy_type=ProxyService --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT}
       --socket_in PULL_BIND --socket_out PUSH_BIND
-      --unk_msg_route DEFAULT
     networks:
       gnes-net:
         aliases:
@@ -26,7 +25,6 @@ services:
     command: >
       proxy --proxy_type=ProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
       --socket_in PULL_BIND --socket_out PUB_BIND
-      --unk_msg_route DEFAULT
     networks:
       gnes-net:
         aliases:

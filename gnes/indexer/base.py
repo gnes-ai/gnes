@@ -95,7 +95,6 @@ class JointIndexer(CompositionalEncoder):
               *args,
               **kwargs) -> List[List[Tuple]]:
         topk_results = self._binary_indexer.query(keys, top_k, *args, **kwargs)
-
         doc_caches = dict()
         topk_results_with_docs = []
         for topk in topk_results:
