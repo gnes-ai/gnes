@@ -95,7 +95,6 @@ class JointIndexer(CompositionalEncoder):
               *args,
               **kwargs) -> List[List[Tuple]]:
         topk_results = self._binary_indexer.query(keys, top_k, *args, **kwargs)
-        print(topk_results)
         doc_caches = dict()
         topk_results_with_docs = []
         for topk in topk_results:
@@ -103,7 +102,6 @@ class JointIndexer(CompositionalEncoder):
             for (doc_id, offset), score in topk:
                 doc = doc_caches.get(doc_id, self._doc_indexer.query([doc_id])[0])
                 doc_caches[doc_id] = doc
-                #topk_wd.append(((doc_id, offset), score, doc.chunks[offset]))
-                topk_wd.append(((doc_id, offset), score, 'doc.chunks[offset]'))
+                topk_wd.append(((doc_id, offset), score, doc.chunks[offset]))
             topk_results_with_docs.append(topk_wd)
         return topk_results_with_docs
