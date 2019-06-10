@@ -46,7 +46,7 @@ class EncoderService(BS):
 
     @staticmethod
     def get_chunks_from_docs(docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']) -> List:
-        if not isinstance(docs, list):
+        if not getattr(docs, 'doc_type', None):
             docs = [docs]
         return [c.text if d.doc_type == gnes_pb2.Document.TEXT else c.blob
                 for d in docs for c in d.chunks]
@@ -64,9 +64,6 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        self.logger.info('larry debug: using the right handler')
-        self.logger.info('larry debug', msg.request.train.docs[0])
-        self.logger.info('larry debug', msg.request.train.docs[0].doc_type)
         chunks = self.get_chunks_from_docs(msg.request.train.docs)
         self.train_data.extend(chunks)
         msg.response.train.status = gnes_pb2.Response.PENDING
