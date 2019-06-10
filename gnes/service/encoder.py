@@ -46,7 +46,9 @@ class EncoderService(BS):
 
     @staticmethod
     def get_chunks_from_docs(docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']) -> List:
-        if not getattr(docs, 'doc_type', None):
+        print('larry debug', docs[0].doc_type)
+        if getattr(docs, 'doc_type', None) is not None:
+            print('larry debug', getattr(docs, 'doc_type', None))
             docs = [docs]
         return [c.text if d.doc_type == gnes_pb2.Document.TEXT else c.blob
                 for d in docs for c in d.chunks]
