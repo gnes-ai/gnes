@@ -64,6 +64,9 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        self.logger.info('larry debug: using the right handler')
+        self.logger.info('larry debug', msg.request.train.docs[0])
+        self.logger.info('larry debug', msg.request.train.docs[0].doc_type)
         chunks = self.get_chunks_from_docs(msg.request.train.docs)
         self.train_data.extend(chunks)
         msg.response.train.status = gnes_pb2.Response.PENDING

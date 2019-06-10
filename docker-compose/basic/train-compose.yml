@@ -19,7 +19,7 @@ services:
   grpc_serve:
     image: ${DOCKER_IMG_URL}
     command: >
-      grpc_serve --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+      frontend --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
        --host_in encoder_serviced --host_out encoder_serviced
        --grpc_port ${GRPC_PORT}
 
