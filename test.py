@@ -12,10 +12,10 @@ from gnes.cli.parser import set_http_service_parser
 
 data = open('query.txt').read().split('\n')
 
-pd_d = [line2pb_doc(l) for l in data]
+pd_d = [line2pb_doc(data[i], i) for i in range(len(data))]
 
 req = gnes_pb2.Request()
-req.search.query = pd_d[0]
+req.search.query.CopyFrom(pd_d[1])
 req.search.top_k = 10
 
 args = set_http_service_parser().parse_args()
