@@ -91,6 +91,7 @@ class IndexerService(BS):
     def _handler_search(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
+        print('larry debug', results)
         for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
             r_topk = msg.response.search.result.add()
             for (_doc_id, _offset), _score, *args in all_topks:
