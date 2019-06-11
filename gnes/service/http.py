@@ -58,7 +58,7 @@ class HttpService:
                         doc = line2pb_doc_simple(data['texts'])
                         req = gnes_pb2.Request()
                         req.search.query.CopyFrom(doc)
-                        req.search.top_k = self.args.top_k
+                        req.search.top_k = data["top_k"] if top_k in data else 10
                         res_f = self.stub._Call(req)
                         ok = 1
                 except TimeoutError:
