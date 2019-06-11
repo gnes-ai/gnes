@@ -62,7 +62,7 @@ class HttpService:
                         self.logger.info('req has been processed')
                         res_f = self.stub._Call(req)
                         print(res_f)
-                        res_f = MessageToJson(res_f)
+                        res_f = json.loads(MessageToJson(res_f))
                         print(res_f)
                         self.logger.info('result received')
                         ok = 1
