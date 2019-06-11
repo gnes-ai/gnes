@@ -170,6 +170,7 @@ message Response {
 
         Status status = 1;
         repeated TopKChunks result = 2;
+        repeated Document candidate_docs = 3;
     }
 }
 
