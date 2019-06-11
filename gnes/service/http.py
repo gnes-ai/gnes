@@ -21,7 +21,7 @@ from aiohttp import web
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
-
+from google.protobuf.json_format import MessageToJson
 from ..helper import batch_iterator, set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..preprocessor.text import line2pb_doc_simple
@@ -61,6 +61,9 @@ class HttpService:
                         req.search.top_k = data["top_k"] if "top_k" in data else 10
                         self.logger.info('req has been processed')
                         res_f = self.stub._Call(req)
+                        print(res_f)
+                        res_f = MessageToJson(res_f)
+                        print(res_f)
                         self.logger.info('result received')
                         ok = 1
                 except TimeoutError:
