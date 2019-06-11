@@ -84,10 +84,13 @@ class HttpService:
         loop.run_forever()
 
     def _grpc_call(self, req):
+        print('channel receive')
         with grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             res_f = stub._Call(req)
-            return json.loads(MessageToJson(res_f))
+            print('calling finished')
+        print('returning result')
+        return json.loads(MessageToJson(res_f))
