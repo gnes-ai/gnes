@@ -84,6 +84,7 @@ def client(args):
             for idx, doc in enumerate(pb_docs):
                 req = gnes_pb2.Request()
                 req.search.query.CopyFrom(doc)
+                req.search.top_k = 10
                 resp = stub._Call(req)
                 print('query %d result: %s' % (idx, resp))
                 input('press any key to continue...')
