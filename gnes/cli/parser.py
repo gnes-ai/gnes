@@ -207,9 +207,11 @@ def set_grpc_client_parser(parser=None):
 def set_http_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    set_service_parser(parser)
+    _set_grpc_parser(parser)
     parser.add_argument('--http_port', type=int, default=80,
                         help='http port to deploy the service')
+    parser.add_argument('--http_host', type=str, default='0.0.0.0',
+                        help='http host to deploy the service')
     parser.add_argument('--max_workers', type=int, default=100,
                         help='max workers to deal with the message')
     return parser
