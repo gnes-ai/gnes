@@ -36,9 +36,13 @@ class ProxyService(BS):
 class MapProxyService(ProxyService):
     handler = MessageHandler(BS.handler)
 
-    @handler.register(NotImplementedError)
-    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        raise NotImplementedError('%r can handle %r only' % (self.__class__, gnes_pb2.Request.IndexRequest))
+    # @handler.register(NotImplementedError)
+    # def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    #     raise NotImplementedError('%r can handle %r only' % (self.__class__, gnes_pb2.Request.IndexRequest))
+
+    @handler.register(gnes_pb2.Request.QueryRequest)
+    def _handler_query_req(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+        send_message(out, msg, self.args.timeout)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index_req(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):

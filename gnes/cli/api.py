@@ -74,14 +74,16 @@ def client(args):
             resp = stub._Call(req)
             print(resp)
         elif args.mode == 'index':
-            req = gnes_pb2.Request()
-            req.index.docs.extend(pb_docs)
-            resp = stub._Call(req)
-            print(resp)
+            for p in batch_iterator(pb_docs, args.batch_size):
+                req = gnes_pb2.Request()
+                req.index.docs.extend(p)
+                resp = stub._Call(req)
+                print(resp)
+
         elif args.mode == 'query':
             for idx, doc in enumerate(pb_docs):
                 req = gnes_pb2.Request()
-                req.search.query = doc
+                req.search.query.CopyFrom(doc)
                 resp = stub._Call(req)
                 print('query %d result: %s' % (idx, resp))
                 input('press any key to continue...')
