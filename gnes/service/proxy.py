@@ -84,7 +84,7 @@ class ReduceProxyService(ProxyService):
         msg_parts = self.pending_result[msg.envelope.request_id]
         len_result = len(msg_parts)
         reduced_msg = msg_parts[0]
-        tk = reduced_msg.response.search.top_k
+        tk = len(reduced_msg.response.search.result[0])
 
         if self.args.num_part == len_result:
             num_queries = len(msg_parts[0].response.search.result)
