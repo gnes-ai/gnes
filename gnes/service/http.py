@@ -34,8 +34,6 @@ class HttpService:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.identity = str(uuid.uuid4())
-        self.result = {}
 
     def run(self):
         self._run()
@@ -55,10 +53,12 @@ class HttpService:
                     req = gnes_pb2.Request()
                     req.search.query.CopyFrom(doc)
                     req.search.top_k = data["top_k"] if "top_k" in data else 10
-                    self.logger.info('req has been processed')
-                    res_f = await loop.run_in_executor(executor,
-                                                       self._grpc_call,
-                                                       req)
+                    self.logger.info('query request has been processed')
+
+                    #res_f = await loop.run_in_executor(executor,
+                    #                                   self._grpc_call,
+                    #                                   req)
+                    res_f = self._grpc_call(req)
                     self.logger.info('result received')
                     ok = 1
             except TimeoutError:
