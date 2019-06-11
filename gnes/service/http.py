@@ -55,10 +55,10 @@ class HttpService:
                     req.search.top_k = data["top_k"] if "top_k" in data else 10
                     self.logger.info('query request has been processed')
 
-                    #res_f = await loop.run_in_executor(executor,
-                    #                                   self._grpc_call,
-                    #                                   req)
-                    res_f = self._grpc_call(req)
+                    res_f = await loop.run_in_executor(executor,
+                                                       self._grpc_call,
+                                                       req)
+                    #res_f = self._grpc_call(req)
                     self.logger.info('result received')
                     ok = 1
             except TimeoutError:
