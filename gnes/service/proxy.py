@@ -84,7 +84,8 @@ class ReduceProxyService(ProxyService):
         msg_parts = self.pending_result[msg.envelope.request_id]
         len_result = len(msg_parts)
         reduced_msg = msg_parts[0]
-        tk = len(reduced_msg.response.search.result[0])
+        tk = len(reduced_msg.response.search.result[0].topk_chunks)
+        print(reduced_msg)
 
         if self.args.num_part == len_result:
             num_queries = len(msg_parts[0].response.search.result)
@@ -92,11 +93,11 @@ class ReduceProxyService(ProxyService):
             self.logger.info(msg_parts)
             for m in range(num_queries):
                 for j in range(len_result):
-                    chunks[m].extend(msg_parts[j].response.search.result[m])
+                    chunks[m].extend(msg_parts[j].response.search.result[m].topk_chunks)
             chunks = [sorted(l, key=lambda x: -x.score)[:tk] for l in chunks]
             for m in range(num_queries):
                 _chunks = sorted(chunks[m], key=lambda x: -x.score)[:tk]
-                reduced_msg.response.search.result[m] = _chunks
+                reduced_msg.response.search.result[m].topk_chunks = _chunks
 
             #reduced_msg.response.search.result.extend(msg_parts[j].response.search.result)
             send_message(out, reduced_msg, self.args.timeout)
