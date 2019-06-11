@@ -27,3 +27,15 @@ def line2pb_doc(line: str, doc_id: int = 0) -> 'gnes_pb2.Document':
             c.text = s
             c.offset_1d = ci
     return doc
+
+
+def line2pb_doc_simple(lines: List[str], doc_id: int = 0) -> 'gnes_pb2.Document':
+    doc = gnes_pb2.Document()
+    doc.doc_id = doc_id
+    doc.doc_type = gnes_pb2.Document.TEXT
+    for i in range(len(lines)):
+        c = doc.chunks.add()
+        c.doc_id = doc_id
+        c.text = lines[i]
+        c.offset_1d = i
+    return doc
