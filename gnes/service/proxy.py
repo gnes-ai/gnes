@@ -97,7 +97,7 @@ class ReduceProxyService(ProxyService):
             chunks = [sorted(l, key=lambda x: -x.score)[:tk] for l in chunks]
             for m in range(num_queries):
                 _chunks = sorted(chunks[m], key=lambda x: -x.score)[:tk]
-                reduced_msg.response.search.result[m].topk_chunks = _chunks
+                reduced_msg.response.search.result[m].topk_chunks[:] = _chunks
 
             #reduced_msg.response.search.result.extend(msg_parts[j].response.search.result)
             send_message(out, reduced_msg, self.args.timeout)
