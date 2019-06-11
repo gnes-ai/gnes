@@ -88,5 +88,6 @@ class HttpService:
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
-            res_f = gnes_pb2_grpc.GnesRPCStub(channel)
+            stub = gnes_pb2_grpc.GnesRPCStub(channel)
+            res_f = stub._Call(req)
             return json.loads(MessageToJson(res_f))
