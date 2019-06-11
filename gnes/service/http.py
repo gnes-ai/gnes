@@ -41,49 +41,52 @@ class HttpService:
         self._run()
 
     def _run(self):
+
+        loop = asyncio.get_event_loop()
+        executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
+
+        async def post_handler(request):
+            try:
+                data = await asyncio.wait_for(request.json(), 10)
+                mode = data["mode"] if "mode" in data else "query"
+                self.logger.info('receiver request: %s' % mode)
+                if mode == 'query':
+                    doc = line2pb_doc_simple(data['texts'])
+                    req = gnes_pb2.Request()
+                    req.search.query.CopyFrom(doc)
+                    req.search.top_k = data["top_k"] if "top_k" in data else 10
+                    self.logger.info('req has been processed')
+                    res_f = await loop.run_in_executor(executor,
+                                                       self._grpc_call,
+                                                       req)
+                    self.logger.info('result received')
+                    ok = 1
+            except TimeoutError:
+                res_f = ''
+                ok = 0
+            ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
+            return web.Response(body=ret_body)
+
+        async def init(loop):
+            # persistant connection or non-persistant connection
+            handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
+            app = web.Application(loop=loop,
+                                  client_max_size=10**10,
+                                  handler_args=handler_args)
+            app.router.add_route('post', '/gnes', post_handler)
+            srv = await loop.create_server(app.make_handler(),
+                                           self.args.http_host,
+                                           self.args.http_port)
+            self.logger.info('Server started at: %d ...' % self.args.http_port)
+            return srv
+
+        loop.run_until_complete(init(loop))
+        loop.run_forever()
+
+    def _grpc_call(self, req):
         with grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
-            self.stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            loop = asyncio.get_event_loop()
-            #executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
-
-            async def post_handler(request):
-                try:
-                    data = await asyncio.wait_for(request.json(), 10)
-                    mode = data["mode"] if "mode" in data else "query"
-                    self.logger.info('receiver request: %s' % mode)
-                    if mode == 'query':
-                        doc = line2pb_doc_simple(data['texts'])
-                        req = gnes_pb2.Request()
-                        req.search.query.CopyFrom(doc)
-                        req.search.top_k = data["top_k"] if "top_k" in data else 10
-                        self.logger.info('req has been processed')
-                        res_f = self.stub._Call(req)
-                        print(res_f)
-                        res_f = json.loads(MessageToJson(res_f))
-                        print(res_f)
-                        self.logger.info('result received')
-                        ok = 1
-                except TimeoutError:
-                    res_f = ''
-                    ok = 0
-                ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
-                return web.Response(body=ret_body)
-
-            async def init(loop):
-                # persistant connection or non-persistant connection
-                handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
-                app = web.Application(loop=loop,
-                                      client_max_size=10**10,
-                                      handler_args=handler_args)
-                app.router.add_route('post', '/gnes', post_handler)
-                srv = await loop.create_server(app.make_handler(),
-                                               self.args.http_host,
-                                               self.args.http_port)
-                self.logger.info('Server started at: %d ...' % self.args.http_port)
-                return srv
-
-            loop.run_until_complete(init(loop))
-            loop.run_forever()
+            res_f = gnes_pb2_grpc.GnesRPCStub(channel)
+            return json.loads(MessageToJson(res_f))
