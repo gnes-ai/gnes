@@ -9,14 +9,10 @@ python:
 
 cache:
   - pip
-  directories:
-    - /home/travis/docker/
 
 env:
-  global:
-    # Docker
-    - CONTAINER_NAME=gnes
-    - IMAGE_NAME=tencent/gnes
+  # Docker
+  - CONTAINER_NAME=gnes IMAGE_NAME=tencent/gnes
 
 before_install:
   - pip install --upgrade pip
@@ -34,10 +30,11 @@ install:
       pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl;
     fi
 
-  # Take advantage of docker caching by pulling previously built images.
-  - docker build -t ${IMAGE_NAME}:${TRAVIS_COMMIT} --pull=true .
+  - docker build -t ${IMAGE_NAME}:${TRAVIS_COMMIT} .
   - docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}:${TRAVIS_COMMIT}
   - docker ps -a
+  # wait for docker to start
+  - sleep 5
 
 before_script:
   - env > .env
