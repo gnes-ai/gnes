@@ -117,7 +117,7 @@ class HttpService:
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            if getattr(req, 'train'):
+            if isinstance(req, list):
                 for _req in req:
                     stub._Call(req)
                 req = gnes_pb2.Request()
