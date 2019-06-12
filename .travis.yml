@@ -7,6 +7,7 @@ python:
   - "3.6"
 
 install:
+  - pip install --upgrade pip
   # install TensorFlow from https://storage.googleapis.com/tensorflow/
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.0.0a0-cp27-none-linux_x86_64.whl;
