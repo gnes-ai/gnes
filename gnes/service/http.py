@@ -22,7 +22,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import grpc
 from google.protobuf.json_format import MessageToJson
-from ..helper import set_logger
+from ..helper import set_logger, batch_iterator
 from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..preprocessor.text import line2pb_doc_simple
 from typing import List
@@ -39,6 +39,7 @@ class HttpService:
                               'index': self._index,
                               'train': self._train}
         self.feasible_mode = set(self.msg_processor.keys())
+        self.batch_size = 2560
         self.msg_timeout_str = 'TimeoutError'
 
     def run(self):
@@ -90,9 +91,12 @@ class HttpService:
 
     def _train(self, texts: List[str], *args):
         p = [line2pb_doc_simple([l], random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
-        req = gnes_pb2.Request()
-        req.train.docs.extend(p)
-        return req
+        req_list = []
+        for pi in batch_iterator(p, self.batch_size):
+            req = gnes_pb2.Request()
+            req.train.docs.extend(pi)
+            req_list.append(req)
+        return req_list
 
     def _query(self, texts: List[str], top_k: int, *args):
         doc = line2pb_doc_simple(texts)
@@ -113,9 +117,12 @@ class HttpService:
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            res_f = stub._Call(req)
             if getattr(req, 'train'):
+                for _req in req:
+                    stub._Call(req)
                 req = gnes_pb2.Request()
                 req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+                res_f = stub._Call(req)
+            else:
                 res_f = stub._Call(req)
         return json.loads(MessageToJson(res_f))
