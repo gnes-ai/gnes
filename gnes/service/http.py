@@ -119,7 +119,7 @@ class HttpService:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             if isinstance(req, list):
                 for _req in req:
-                    stub._Call(req)
+                    stub._Call(_req)
                 req = gnes_pb2.Request()
                 req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
                 res_f = stub._Call(req)
