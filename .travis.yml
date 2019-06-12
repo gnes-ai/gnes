@@ -42,6 +42,9 @@ install:
 before_script:
   - env > .env
 
+after_script:
+  - docker rm -f ${CONTAINER_NAME}
+
 # command to run tests
 script:
   # Test install with current version of setuptools
