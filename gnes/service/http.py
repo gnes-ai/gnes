@@ -25,7 +25,7 @@ from google.protobuf.json_format import MessageToJson
 from ..helper import batch_iterator, set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..preprocessor.text import line2pb_doc_simple
-
+from typing import List
 import uuid
 import json
 
@@ -81,15 +81,15 @@ class HttpService:
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
-    def _query(self, *args):
-        doc = line2pb_doc_simple(args[0])
+    def _query(self, texts: List[str], top_k: int, *args):
+        doc = line2pb_doc_simple(texts)
         req = gnes_pb2.Request()
         req.search.query.CopyFrom(doc)
-        req.search.top_k = args[1]
+        req.search.top_k = top_k
         return req
 
-    def _index(self, *args):
-        p = [line2pb_doc_simple(l, idx) for idx, l in enumerate(args[0])]
+    def _index(self, texts: List[List[str]], *args):
+        p = [line2pb_doc_simple(l, uuid.uuid4()) for l in texts]
         req = gnes_pb2.Request()
         req.index.docs.extend(p)
         return req
