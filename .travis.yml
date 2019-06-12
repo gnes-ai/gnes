@@ -32,7 +32,9 @@ before_install:
   - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
 
   # - docker rmi $(docker images -q) || true
-  # - docker build -t ${IMAGE_NAME} .
+
+  # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
+  # - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
 
 install:
   - docker build -t ${IMAGE_NAME}:${TRAVIS_COMMIT} .
@@ -50,7 +52,7 @@ script:
   # Test install with current version of setuptools
   # - pip install -e . --progress-bar off
   # - pylint gnes/**/*.py --exit-zero
-  - docker run --entrypoint "/bin/bash" --rm -it ${IMAGE_NAME}:${TRAVIS_COMMIT} python -m unittest tests/*.py
+  - docker run --entrypoint "python" --rm -it ${IMAGE_NAME}:${TRAVIS_COMMIT} -m unittest tests/*.py
 
 after_script:
   - docker rm -f ${CONTAINER_NAME}
