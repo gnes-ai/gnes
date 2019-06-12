@@ -74,6 +74,7 @@ setup(
     ],
     ext_modules=extensions,
     install_requires=[
+        'attrs>=17.4.0',
         'numpy',
         'termcolor',
         'jieba',
