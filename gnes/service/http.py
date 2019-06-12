@@ -54,7 +54,7 @@ class HttpService:
 
                 req = await loop.run_in_executor(executor,
                                                  self.msg_processor[mode],
-                                                 (texts, tk))
+                                                 texts, tk)
                 ret = await loop.run_in_executor(executor,
                                                  self._grpc_call,
                                                  req)
