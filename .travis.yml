@@ -3,7 +3,7 @@ sudo: false
 language: python
 services:
   - docker
-python:
+python: # Only py3.6 for now
   - "3.6"
 
 install:
@@ -14,10 +14,14 @@ install:
     elif [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then
       pip install https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.12.0-cp36-cp36m-linux_x86_64.whl;
     fi
-  - pip install -e .
+  - pip install -e . --upgrade-strategy=eager
 
 cache:
   - pip
+
+# command to run tests
+script:
+  - pylint gnes/**/*.py --exit-zero
 
 branches:
   only:
