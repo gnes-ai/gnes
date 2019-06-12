@@ -8,39 +8,50 @@ python:
   - "3.6"
 
 cache:
+  directories:
+  - $CACHE_DIR
   - pip
 
 env:
-  # Docker
-  - CONTAINER_NAME=gnes IMAGE_NAME=tencent/gnes
+  global:
+    # Docker
+    - CONTAINER_NAME=gnes
+    - IMAGE_NAME=gnes
+    - DOCKER_CACHE_FOLDER=$HOME/.cache/docker
+    - DOCKER_CACHE_FILE=${DOCKER_CACHE_FOLDER}/${CONTAINER_NAME}.tgz
+
 
 before_install:
   - pip install --upgrade pip
   - pip install -U pylint
 
   - docker --version
+  - mkdir -p ${CACHE_FOLDER}
+  - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+
   # - docker rmi $(docker images -q) || true
   # - docker build -t ${IMAGE_NAME} .
 
 install:
-  - docker build -t ${IMAGE_NAME}:${TRAVIS_COMMIT} .
-  - docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}:${TRAVIS_COMMIT}
-  - docker ps -a
+  - docker build -t ${IMAGE_NAME}:${TRAVIS_COMMIT} ${PWD}
+  - docker save ${IMAGE_NAME}:${TRAVIS_COMMIT} | gzip -c > ${CACHE_FILE}
+  # - docker run -d --name ${CONTAINER_NAME} ${IMAGE_NAME}:${TRAVIS_COMMIT}
+  # - docker ps -a
   # wait for docker to start
-  - sleep 5
+  # - sleep 5
 
 before_script:
   - env > .env
-
-after_script:
-  - docker rm -f ${CONTAINER_NAME}
 
 # command to run tests
 script:
   # Test install with current version of setuptools
   # - pip install -e . --progress-bar off
-  - pylint gnes/**/*.py --exit-zero
-  - docker exec ${CONTAINER_NAME} python -m unittest tests/*.py
+  # - pylint gnes/**/*.py --exit-zero
+  - docker run --entrypoint "/bin/bash" --rm -it ${IMAGE_NAME}:${TRAVIS_COMMIT} python -m unittest tests/*.py
+
+after_script:
+  - docker rm -f ${CONTAINER_NAME}
 
 branches:
   only:
