@@ -22,12 +22,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 import grpc
 from google.protobuf.json_format import MessageToJson
-from ..helper import batch_iterator, set_logger
+from ..helper import set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..preprocessor.text import line2pb_doc_simple
 from typing import List
-import uuid
 import json
+import random
+import ctypes
 
 
 class HttpService:
@@ -89,7 +90,7 @@ class HttpService:
         return req
 
     def _index(self, texts: List[List[str]], *args):
-        p = [line2pb_doc_simple(l, uuid.uuid4()) for l in texts]
+        p = [line2pb_doc_simple(l, random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
         req = gnes_pb2.Request()
         req.index.docs.extend(p)
         return req
