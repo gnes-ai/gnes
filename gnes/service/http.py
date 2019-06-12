@@ -34,7 +34,7 @@ class HttpService:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.mod2fn = {'query': self._query_msg}
+        self.msg_processor = {'query': self._query, 'index': self._index}
 
     def run(self):
         self._run()
@@ -47,14 +47,14 @@ class HttpService:
         async def post_handler(request):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
-                msg = data['text']
+                texts = data['texts']
                 tk = data['top_k'] if 'top_k' in data else 10
                 mode = data['mode'] if 'mode' in data else 'query'
                 self.logger.info('receiver request: %s' % mode)
 
                 req = await loop.run_in_executor(executor,
-                                                 self.mod2fn[mode],
-                                                 (msg, tk))
+                                                 self.msg_processor[mode],
+                                                 (texts, tk))
                 ret = await loop.run_in_executor(executor,
                                                  self._grpc_call,
                                                  req)
@@ -81,11 +81,17 @@ class HttpService:
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
-    def _query_msg(self, *args):
+    def _query(self, *args):
         doc = line2pb_doc_simple(args[0])
         req = gnes_pb2.Request()
         req.search.query.CopyFrom(doc)
         req.search.top_k = args[1]
+        return req
+
+    def _index(self, *args):
+        p = [line2pb_doc_simple(l, idx) for idx, l in enumerate(args[0])]
+        req = gnes_pb2.Request()
+        req.index.docs.extend(p)
         return req
 
     def _grpc_call(self, req):
