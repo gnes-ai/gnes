@@ -26,7 +26,7 @@ before_install:
   - pip install -U pylint
 
   - docker --version
-  - mkdir -p ${CACHE_FOLDER}
+  - mkdir -p ${DOCKER_CACHE_FOLDER}
   - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
 
   # - docker rmi $(docker images -q) || true
