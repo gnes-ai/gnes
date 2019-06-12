@@ -9,7 +9,7 @@ python:
 
 cache:
   directories:
-  - $CACHE_DIR
+  - $DOCKER_CACHE_FOLDER
   - pip
 
 env:
