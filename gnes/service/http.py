@@ -35,7 +35,11 @@ class HttpService:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.msg_processor = {'query': self._query, 'index': self._index}
+        self.msg_processor = {'query': self._query,
+                              'index': self._index,
+                              'train': self._train}
+        self.feasible_mode = set(self.msg_processor.keys())
+        self.msg_timeout_str = 'TimeoutError'
 
     def run(self):
         self._run()
@@ -51,7 +55,8 @@ class HttpService:
                 texts = data['texts']
                 tk = data['top_k'] if 'top_k' in data else 10
                 mode = data['mode'] if 'mode' in data else 'query'
-                self.logger.info('receiver request: %s' % mode)
+                if mode not in self.feasible_mode:
+                    raise ValueError('request mode is not feasible')
 
                 req = await loop.run_in_executor(executor,
                                                  self.msg_processor[mode],
@@ -61,9 +66,10 @@ class HttpService:
                                                  req)
                 ok = 1
             except TimeoutError:
-                ret = ''
+                ret = self.msg_timeout_str
                 ok = 0
-            ret_body = json.dumps({"result": ret, "meta": {}, "ok": str(ok)},ensure_ascii=False)
+            ret_body = json.dumps({"result": ret, "meta": {}, "ok": str(ok)},
+                                  ensure_ascii=False)
             return web.Response(body=ret_body)
 
         async def init(loop):
@@ -82,6 +88,12 @@ class HttpService:
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
+    def _train(self, texts: List[str], *args):
+        p = [line2pb_doc_simple([l], random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
+        req = gnes_pb2.Request()
+        req.train.docs.extend(p)
+        return req
+
     def _query(self, texts: List[str], top_k: int, *args):
         doc = line2pb_doc_simple(texts)
         req = gnes_pb2.Request()
@@ -96,13 +108,14 @@ class HttpService:
         return req
 
     def _grpc_call(self, req):
-        self.logger.info('channel receive')
         with grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             res_f = stub._Call(req)
-            self.logger.info('calling finished')
-        self.logger.info('returning result')
+            if getattr(req, 'train'):
+                req = gnes_pb2.Request()
+                req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+                res_f = stub._Call(req)
         return json.loads(MessageToJson(res_f))
