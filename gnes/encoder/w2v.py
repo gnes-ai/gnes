@@ -37,10 +37,10 @@ class Word2VecEncoder(BaseEncoder):
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
         self.dimension = dimension
-        self.word2vec_df = {}
 
     def _post_init(self):
         count = 0
+        self.word2vec_df = {}
         with open(self.model_dir, 'r') as f:
             for line in f.readlines():
                 line = line.strip().split(' ')
