@@ -286,7 +286,7 @@ class BaseService(threading.Thread):
         if msg.request.control.command == gnes_pb2.Request.ControlRequest.TERMINATE:
             self.is_event_loop.clear()
             msg.response.control.status = gnes_pb2.Response.SUCCESS
-            send_message(out, msg, self.args.timeout)
+            send_message(self.ctrl_sock, msg, self.args.timeout)
             raise StopIteration
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
@@ -301,7 +301,7 @@ class BaseService(threading.Thread):
 
         if self.is_event_loop.is_set():
             msg = gnes_pb2.Message()
-            msg.request.control.command = msg.request.control.TERMINATE
+            msg.request.control.command = gnes_pb2.Request.ControlRequest.TERMINATE
             return send_ctrl_message(self.ctrl_addr, msg, timeout=self.args.timeout)
 
     @property
