@@ -25,5 +25,6 @@ class TestFIndexer(unittest.TestCase):
         a = AnnoyIndexer(5, self.data_path)
         a.add(list(range(10)), self.toy_data)
         self.assertEqual(a.size, 10)
-        self.assertEqual(a.query(self.toy_data, top_k=1), [[(j, 0.0)] for j in range(10)])
+        top_1 = [i[0][0] for i in a.query(self.toy_data, top_k=1)]
+        self.assertEqual(top_1, list(range(10)))
         a.close()

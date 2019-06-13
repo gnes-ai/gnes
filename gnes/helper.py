@@ -347,7 +347,7 @@ def pooling_pd(data_array, pooling_strategy):
     elif pooling_strategy == 'REDUCE_MEAN_MAX':
         _pooled_data = np.concatenate(
             (data_array.mean().values,
-             data_array.max().values), axis=1)
+             data_array.max().values), axis=0)
     else:
         raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
     return _pooled_data
