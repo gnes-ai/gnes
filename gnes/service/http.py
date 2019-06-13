@@ -39,8 +39,7 @@ class HttpService:
                               'index': self._index,
                               'train': self._train}
         self.feasible_mode = set(self.msg_processor.keys())
-        self.batch_size = 2560
-        self.msg_timeout_str = 'TimeoutError'
+        self.timeout_str = 'TimeoutError'
 
     def run(self):
         self._run()
@@ -54,20 +53,20 @@ class HttpService:
             try:
                 data = await asyncio.wait_for(request.json(), 10)
                 texts = data['texts']
-                tk = data['top_k'] if 'top_k' in data else 10
+                top_k = data['top_k'] if 'top_k' in data else self.args.default_k
                 mode = data['mode'] if 'mode' in data else 'query'
                 if mode not in self.feasible_mode:
                     raise ValueError('request mode is not feasible')
 
                 req = await loop.run_in_executor(executor,
                                                  self.msg_processor[mode],
-                                                 texts, tk)
+                                                 texts, top_k)
                 ret = await loop.run_in_executor(executor,
                                                  self._grpc_call,
                                                  req)
                 ok = 1
             except TimeoutError:
-                ret = self.msg_timeout_str
+                ret = self.timeout_str
                 ok = 0
             ret_body = json.dumps({"result": ret, "meta": {}, "ok": str(ok)},
                                   ensure_ascii=False)
@@ -92,7 +91,7 @@ class HttpService:
     def _train(self, texts: List[str], *args):
         p = [line2pb_doc_simple([l], random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
         req_list = []
-        for pi in batch_iterator(p, self.batch_size):
+        for pi in batch_iterator(p, self.args.train_batch_size):
             req = gnes_pb2.Request()
             req.train.docs.extend(pi)
             req_list.append(req)
