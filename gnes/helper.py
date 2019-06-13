@@ -341,13 +341,13 @@ def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -
 
 def pooling_pd(data_array, pooling_strategy):
     if pooling_strategy == 'REDUCE_MEAN':
-        _pooled_data = data_array.mean().values
+        _pooled_data = np.mean(data_array, axis=0)
     elif pooling_strategy == 'REDUCE_MAX':
-        _pooled_data = data_array.max().values
+        _pooled_data = np.max(data_array, axis=0)
     elif pooling_strategy == 'REDUCE_MEAN_MAX':
         _pooled_data = np.concatenate(
-            (data_array.mean().values,
-             data_array.max().values), axis=0)
+            (np.mean(data_array, axis=0),
+             np.max(data_array, axis=0)), axis=0)
     else:
         raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
     return _pooled_data

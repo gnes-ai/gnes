@@ -28,6 +28,7 @@ class Word2VecEncoder(BaseEncoder):
     def __init__(self, model_dir,
                  skiprows: int = 1,
                  batch_size: int = 64,
+                 dimension: int = 300,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_dir = model_dir
@@ -35,14 +36,21 @@ class Word2VecEncoder(BaseEncoder):
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
+        self.dimension = dimension
+        self.word2vec_df = {}
 
     def _post_init(self):
-        import pandas as pd
-        self.word2vec_df = pd.read_table(self.model_dir, sep=' ', quoting=3,
-                                         header=None, skiprows=self.skiprows,
-                                         index_col=0)
-        self.word2vec_df = self.word2vec_df.astype(np.float32).dropna(axis=1).dropna(axis=0)
-        self.empty = np.zeros([self.word2vec_df.shape[1]], dtype=np.float32)
+        count = 0
+        with open(self.model_dir, 'r') as f:
+            for line in f.readlines():
+                line = line.strip().split(' ')
+                if count < self.skiprows:
+                    count += 1
+                    continue
+                if len(line) > self.dimension:
+                    self.word2vec_df[line[0]] = np.array([float(i) for i in line[1:]], dtype=np.float32)
+
+        self.empty = np.zeros([self.dimension], dtype=np.float32)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
@@ -52,7 +60,7 @@ class Word2VecEncoder(BaseEncoder):
 
         for tokens in batch_tokens:
             try:
-                _layer_data = self.word2vec_df.loc[tokens].dropna()
+                _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
                 _pooled = pooling_pd(_layer_data, self.pooling_strategy)
             except KeyError:
                 _pooled = self.empty
