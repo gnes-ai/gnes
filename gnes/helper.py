@@ -157,7 +157,8 @@ def time_profile(func):
             elapsed = time.perf_counter() - start_t
             if os.environ.get('GNES_PROFILING_MEM', False):
                 end_mem = memory_usage()[0]
-            level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            #level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            level_prefix = ''
             if os.environ.get('GNES_PROFILING_MEM', False):
                 mem_status = 'memory: %4.2fM -> %4.2fM' % (start_mem, end_mem)
             else:
