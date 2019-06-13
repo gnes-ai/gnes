@@ -55,6 +55,9 @@ class Word2VecEncoder(BaseEncoder):
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
+        self.logger.info('debugging serious performance error')
+        import time
+        st = time.time()
         batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text if sent.strip()]
         pooled_data = []
 
@@ -65,6 +68,7 @@ class Word2VecEncoder(BaseEncoder):
             except KeyError:
                 _pooled = self.empty
             pooled_data.append(_pooled)
+        self.logger.info('debugging result. this encoding takes {:.5f}'.format(time.time()-st))
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
