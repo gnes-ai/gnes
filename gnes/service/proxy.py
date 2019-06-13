@@ -89,7 +89,6 @@ class ReduceProxyService(ProxyService):
         if self.args.num_part == len_result:
             num_queries = len(msg_parts[0].response.search.result)
             chunks = [[] for _ in range(num_queries)]
-            self.logger.info(msg_parts)
             for m in range(num_queries):
                 for j in range(len_result):
                     chunks[m].extend(msg_parts[j].response.search.result[m].topk_chunks)
