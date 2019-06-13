@@ -214,6 +214,10 @@ def set_http_service_parser(parser=None):
                         help='http host to deploy the service')
     parser.add_argument('--max_workers', type=int, default=100,
                         help='max workers to deal with the message')
+    parser.add_argument('--default_k', type=int, default=10,
+                        help='default top_k for query mode')
+    parser.add_argument('--train_batch_size', type=int, default=2560,
+                        help='batch size for feed data for train mode')
     return parser
 
 

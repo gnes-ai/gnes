@@ -22,68 +22,106 @@ from concurrent.futures import ThreadPoolExecutor
 
 import grpc
 from google.protobuf.json_format import MessageToJson
-from ..helper import batch_iterator, set_logger
+from ..helper import set_logger, batch_iterator
 from ..proto import gnes_pb2, gnes_pb2_grpc
 from ..preprocessor.text import line2pb_doc_simple
-
-import uuid
+from typing import List
 import json
+import random
+import ctypes
 
 
 class HttpService:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.identity = str(uuid.uuid4())
-        self.result = {}
+        self.msg_processor = {'query': self._query,
+                              'index': self._index,
+                              'train': self._train}
+        self.feasible_mode = set(self.msg_processor.keys())
+        self.timeout_str = 'TimeoutError'
 
     def run(self):
         self._run()
 
     def _run(self):
+
+        loop = asyncio.get_event_loop()
+        executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
+
+        async def post_handler(request):
+            try:
+                data = await asyncio.wait_for(request.json(), 10)
+                texts = data['texts']
+                top_k = data['top_k'] if 'top_k' in data else self.args.default_k
+                mode = data['mode'] if 'mode' in data else 'query'
+                if mode not in self.feasible_mode:
+                    raise ValueError('request mode is not feasible')
+
+                req = await loop.run_in_executor(executor,
+                                                 self.msg_processor[mode],
+                                                 texts, top_k)
+                ret = await loop.run_in_executor(executor,
+                                                 self._grpc_call,
+                                                 req)
+                ok = 1
+            except TimeoutError:
+                ret = self.timeout_str
+                ok = 0
+            ret_body = json.dumps({"result": ret, "meta": {}, "ok": str(ok)},
+                                  ensure_ascii=False)
+            return web.Response(body=ret_body)
+
+        async def init(loop):
+            # persistant connection or non-persistant connection
+            handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
+            app = web.Application(loop=loop,
+                                  client_max_size=10**10,
+                                  handler_args=handler_args)
+            app.router.add_route('post', '/gnes', post_handler)
+            srv = await loop.create_server(app.make_handler(),
+                                           self.args.http_host,
+                                           self.args.http_port)
+            self.logger.info('Server started at: %d ...' % self.args.http_port)
+            return srv
+
+        loop.run_until_complete(init(loop))
+        loop.run_forever()
+
+    def _train(self, texts: List[str], *args):
+        p = [line2pb_doc_simple([l], random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
+        req_list = []
+        for pi in batch_iterator(p, self.args.train_batch_size):
+            req = gnes_pb2.Request()
+            req.train.docs.extend(pi)
+            req_list.append(req)
+        return req_list
+
+    def _query(self, texts: List[str], top_k: int, *args):
+        doc = line2pb_doc_simple(texts)
+        req = gnes_pb2.Request()
+        req.search.query.CopyFrom(doc)
+        req.search.top_k = top_k
+        return req
+
+    def _index(self, texts: List[List[str]], *args):
+        p = [line2pb_doc_simple(l, random.randint(0, ctypes.c_uint(-1).value)) for l in texts]
+        req = gnes_pb2.Request()
+        req.index.docs.extend(p)
+        return req
+
+    def _grpc_call(self, req):
         with grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
             options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                      ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
-            self.stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            loop = asyncio.get_event_loop()
-            #executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
-
-            async def post_handler(request):
-                try:
-                    data = await asyncio.wait_for(request.json(), 10)
-                    mode = data["mode"] if "mode" in data else "query"
-                    self.logger.info('receiver request: %s' % mode)
-                    if mode == 'query':
-                        doc = line2pb_doc_simple(data['texts'])
-                        req = gnes_pb2.Request()
-                        req.search.query.CopyFrom(doc)
-                        req.search.top_k = data["top_k"] if "top_k" in data else 10
-                        self.logger.info('req has been processed')
-                        res_f = self.stub._Call(req)
-                        print(res_f)
-                        res_f = json.loads(MessageToJson(res_f))
-                        print(res_f)
-                        self.logger.info('result received')
-                        ok = 1
-                except TimeoutError:
-                    res_f = ''
-                    ok = 0
-                ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
-                return web.Response(body=ret_body)
-
-            async def init(loop):
-                # persistant connection or non-persistant connection
-                handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
-                app = web.Application(loop=loop,
-                                      client_max_size=10**10,
-                                      handler_args=handler_args)
-                app.router.add_route('post', '/gnes', post_handler)
-                srv = await loop.create_server(app.make_handler(),
-                                               self.args.http_host,
-                                               self.args.http_port)
-                self.logger.info('Server started at: %d ...' % self.args.http_port)
-                return srv
-
-            loop.run_until_complete(init(loop))
-            loop.run_forever()
+            stub = gnes_pb2_grpc.GnesRPCStub(channel)
+            if isinstance(req, list):
+                for _req in req:
+                    stub._Call(_req)
+                req = gnes_pb2.Request()
+                req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+                res_f = stub._Call(req)
+            else:
+                res_f = stub._Call(req)
+        return json.loads(MessageToJson(res_f))
