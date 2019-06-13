@@ -9,7 +9,7 @@ from gnes.service.grpc import GRPCFrontend
 from gnes.service.proxy import ProxyService
 
 
-class TestService(unittest.TestCase):
+class TestGRPCService(unittest.TestCase):
 
     def test_grpc(self):
         # https://github.com/grpc/grpc/issues/9987#issuecomment-370156099

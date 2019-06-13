@@ -255,11 +255,11 @@ class BaseService(threading.Thread):
                     self.message_handler(msg)
                     self.is_handler_done.set()
                 else:
-                    self.is_handler_done.clear()
                     self.logger.warning(
                         'received a new message but since "use_event_loop=False" I will not handle it. '
                         'I will just block the thread until "is_handler_done" is set!')
                     self.is_handler_done.wait()
+                    self.is_handler_done.clear()
                 if self.args.dump_interval == 0:
                     self.dump()
         except StopIteration:
@@ -290,7 +290,7 @@ class BaseService(threading.Thread):
             raise StopIteration
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
-            send_message(out, msg, self.args.timeout)
+            send_message(self.ctrl_sock, msg, self.args.timeout)
         else:
             raise ServiceError('dont know how to handle %s' % msg.request.control)
 
@@ -307,7 +307,7 @@ class BaseService(threading.Thread):
     @property
     def status(self):
         msg = gnes_pb2.Message()
-        msg.request.control.command = msg.request.control.STATUS
+        msg.request.control.command = gnes_pb2.Request.ControlRequest.STATUS
         return send_ctrl_message(self.ctrl_addr, msg, timeout=self.args.timeout)
 
     def __enter__(self):

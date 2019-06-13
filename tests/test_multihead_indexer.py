@@ -5,9 +5,11 @@ import numpy as np
 
 from gnes.indexer.base import JointIndexer
 from gnes.proto import gnes_pb2, array2blob, blob2array
+from gnes.preprocessor.text import txt_file2pb_docs
 
 
-class TestMHIndexer(unittest.TestCase):
+
+class TestJointIndexer(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
@@ -19,41 +21,8 @@ class TestMHIndexer(unittest.TestCase):
         self.querys = None
         self.docs = []
         self.chunk_keys = []
-        with open(os.path.join(dirname, 'tangshi.txt')) as f:
-            title = ''
-            sents = []
-            doc_id = 0
-            for line in f:
-                line = line.strip()
 
-                if line and not title:
-                    title = line
-                    sents.append(line)
-                elif line and title:
-                    sents.append(line)
-                elif not line and title and len(sents) > 1:
-                    doc = gnes_pb2.Document()
-                    doc.id = doc_id
-                    doc.text = ' '.join(sents)
-                    doc.text_chunks.extend(sents)
-                    doc.doc_size = len(sents)
-                    x = np.random.randint(
-                            0, 255, [len(sents), self.n_bytes]).astype(np.uint8)
-                    doc.encodes.CopyFrom(array2blob(x))
-
-                    if self.querys is None:
-                        self.querys = x[:self.query_num]
-
-                    doc.is_parsed = True
-                    doc.is_encoded = True
-                    doc_id += 1
-                    sents.clear()
-                    title = ''
-                    self.docs.append(doc)
-
-    # def test_load(self):
-    #     mhi = MultiheadIndexer.load_yaml(self.yaml_path)
-    #     mhi.close()
+        self.pb_docs = txt_file2pb_docs(os.path.join(dirname, 'tangshi.txt'))
 
     def test_add(self):
         mhi = JointIndexer.load_yaml(self.yaml_path)

@@ -28,13 +28,6 @@ class TestProto(unittest.TestCase):
         a.request.train.ClearField('docs')
         a.request.train.docs.extend([gnes_pb2.Document() for _ in range(3)])
         print(a)
-        print(getattr(a, a.WhichOneof('inner')))
-        c = type(getattr(a, a.WhichOneof('inner')))
-        d = {c: '123'}
-        print(d)
-        print(d[gnes_pb2.Request])
-        print(type(a.request.train))
-        print(a)
 
     def test_service_open_close(self):
         args = set_service_parser().parse_args([])
