@@ -69,7 +69,7 @@ class Word2VecEncoder(BaseEncoder):
                 _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
                 self.logger.info('debugging: dic takes {}'.format(time.time()-st))
                 st = time.time()
-                _pooled = pooling_pd(_layer_data, self.pooling_strategy)
+                _pooled = np.mean(_layer_data, axis=0)
                 self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
             except KeyError:
                 _pooled = self.empty
