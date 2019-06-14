@@ -29,8 +29,8 @@ class TestProto(unittest.TestCase):
         a.request.train.docs.extend([gnes_pb2.Document() for _ in range(3)])
         print(a)
 
-    def test_service_open_close(self):
-        args = set_service_parser().parse_args([])
-        with BaseService(args) as bs:
-            self.assertTrue(bs.is_ready)
-            print(bs.status)
+    # def test_service_open_close(self):
+    #     args = set_service_parser().parse_args([])
+    #     with BaseService(args) as bs:
+    #         self.assertTrue(bs.is_ready)
+    #         print(bs.status)
