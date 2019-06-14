@@ -52,7 +52,7 @@ class Word2VecEncoder(BaseEncoder):
 
         self.empty = np.zeros([self.dimension], dtype=np.float32)
 
-    @batching
+    #@batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
         self.logger.info('debugging serious performance error')
