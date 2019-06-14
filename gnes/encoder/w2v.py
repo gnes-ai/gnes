@@ -70,7 +70,7 @@ class Word2VecEncoder(BaseEncoder):
         self.logger.info('debugging: dic takes {}'.format(time.time()-st))
 
         st = time.time()
-        pooled_data = [sum(_pool)/len(_pool+1e-9) for _pool in pooled_data]
+        pooled_data = [sum(_pool)/(len(_pool)+1e-9) for _pool in pooled_data]
         self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
 
         return np.array(pooled_data).astype(np.float32)
