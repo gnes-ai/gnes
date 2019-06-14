@@ -59,16 +59,20 @@ class Word2VecEncoder(BaseEncoder):
         import time
         st = time.time()
         batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text if sent.strip()]
+        ed = time.time()
+        self.logger.info('debugging: segment takes {}'.format(ed - st))
         pooled_data = []
 
         for tokens in batch_tokens:
+            st = time.time()
             try:
                 _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
                 _pooled = pooling_pd(_layer_data, self.pooling_strategy)
             except KeyError:
                 _pooled = self.empty
+            self.logger.info('debugging: takes {}'.format(time.time()-st))
             pooled_data.append(_pooled)
-        self.logger.info('debugging result. this encoding takes {:.5f}'.format(time.time()-st))
+    
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
