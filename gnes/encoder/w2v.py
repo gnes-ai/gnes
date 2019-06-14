@@ -64,13 +64,16 @@ class Word2VecEncoder(BaseEncoder):
         pooled_data = []
 
         for tokens in batch_tokens:
-            st = time.time()
             try:
+                st = time.time()
                 _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
+                self.logger.info('debugging: dic takes {}'.format(time.time()-st))
+                st = time.time()
                 _pooled = pooling_pd(_layer_data, self.pooling_strategy)
+                self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
             except KeyError:
                 _pooled = self.empty
-            self.logger.info('debugging: takes {}'.format(time.time()-st))
+
             pooled_data.append(_pooled)
     
         return np.asarray(pooled_data, dtype=np.float32)
