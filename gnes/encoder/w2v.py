@@ -73,7 +73,7 @@ class Word2VecEncoder(BaseEncoder):
         pooled_data = [np.mean(_pool, axis=0) for _pool in pooled_data]
         self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
 
-        return np.array(pooled_data).astye(np.float32)
+        return np.array(pooled_data).astype(np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
