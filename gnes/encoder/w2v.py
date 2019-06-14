@@ -21,7 +21,7 @@ from typing import List
 import numpy as np
 
 from .base import BaseEncoder
-from ..helper import batching, cn_tokenizer, pooling_pd
+from ..helper import batching, cn_tokenizer, pooling_simple
 
 
 class Word2VecEncoder(BaseEncoder):
@@ -37,10 +37,10 @@ class Word2VecEncoder(BaseEncoder):
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
         self.dimension = dimension
-        self.word2vec_df = {}
 
     def _post_init(self):
         count = 0
+        self.word2vec_df = {}
         with open(self.model_dir, 'r') as f:
             for line in f.readlines():
                 line = line.strip().split(' ')
@@ -55,17 +55,14 @@ class Word2VecEncoder(BaseEncoder):
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
-        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text if sent.strip()]
+        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
         pooled_data = []
 
         for tokens in batch_tokens:
-            try:
-                _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
-                _pooled = pooling_pd(_layer_data, self.pooling_strategy)
-            except KeyError:
-                _pooled = self.empty
-            pooled_data.append(_pooled)
-        return np.asarray(pooled_data, dtype=np.float32)
+            _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
+            pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
+
+        return np.array(pooled_data).astype(np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()

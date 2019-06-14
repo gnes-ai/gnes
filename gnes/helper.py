@@ -157,7 +157,8 @@ def time_profile(func):
             elapsed = time.perf_counter() - start_t
             if os.environ.get('GNES_PROFILING_MEM', False):
                 end_mem = memory_usage()[0]
-            level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            #level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            level_prefix = ''
             if os.environ.get('GNES_PROFILING_MEM', False):
                 mem_status = 'memory: %4.2fM -> %4.2fM' % (start_mem, end_mem)
             else:
@@ -339,15 +340,15 @@ def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -
     return total_size
 
 
-def pooling_pd(data_array, pooling_strategy):
+def pooling_simple(data_array, pooling_strategy):
     if pooling_strategy == 'REDUCE_MEAN':
-        _pooled_data = np.mean(data_array, axis=0)
+        _pooled_data = sum(data_array)/(len(data_array)+1e-10)
     elif pooling_strategy == 'REDUCE_MAX':
-        _pooled_data = np.max(data_array, axis=0)
+        _pooled_data = max(data_array)/(len(data_array)+1e-10)
     elif pooling_strategy == 'REDUCE_MEAN_MAX':
         _pooled_data = np.concatenate(
-            (np.mean(data_array, axis=0),
-             np.max(data_array, axis=0)), axis=0)
+            (sum(data_array)/(len(data_array)+1e-10),
+             max(data_array)/(len(data_array)+1e-10)), axis=0)
     else:
         raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
     return _pooled_data
