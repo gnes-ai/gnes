@@ -21,7 +21,7 @@ from typing import List
 import numpy as np
 
 from .base import BaseEncoder
-from ..helper import batching, cn_tokenizer, pooling_pd
+from ..helper import batching, cn_tokenizer, pooling_simple
 
 
 class Word2VecEncoder(BaseEncoder):
@@ -57,21 +57,12 @@ class Word2VecEncoder(BaseEncoder):
         # tokenize text
         self.logger.info('debugging serious performance error')
         import time
-        st = time.time()
         batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
-        ed = time.time()
-        self.logger.info('debugging: segment takes {}'.format(ed - st))
         pooled_data = []
 
-        st = time.time()
         for tokens in batch_tokens:
             _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
-            pooled_data.append(_layer_data)
-        self.logger.info('debugging: dic takes {}'.format(time.time()-st))
-
-        st = time.time()
-        pooled_data = [sum(_pool)/(len(_pool)+1e-9) for _pool in pooled_data]
-        self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
+            pooled_data.append(pooling_simple(_layer_data))
 
         return np.array(pooled_data).astype(np.float32)
 
