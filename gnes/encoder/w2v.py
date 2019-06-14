@@ -58,25 +58,22 @@ class Word2VecEncoder(BaseEncoder):
         self.logger.info('debugging serious performance error')
         import time
         st = time.time()
-        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text if sent.strip()]
+        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
         ed = time.time()
         self.logger.info('debugging: segment takes {}'.format(ed - st))
         pooled_data = []
 
+        st = time.time()
         for tokens in batch_tokens:
-            try:
-                st = time.time()
-                _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
-                self.logger.info('debugging: dic takes {}'.format(time.time()-st))
-                st = time.time()
-                _pooled = np.mean(_layer_data, axis=0)
-                self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
-            except KeyError:
-                _pooled = self.empty
+            _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
+            pooled_data.append(_layer_data)
+        self.logger.info('debugging: dic takes {}'.format(time.time()-st))
 
-            pooled_data.append(_pooled)
-    
-        return np.asarray(pooled_data, dtype=np.float32)
+        st = time.time()
+        pooled_data = np.mean(pooled_data, axis=1).astype(np.float32)
+        self.logger.info('debugging: pooling takes {}'.format(time.time()-st))
+
+        return pooled_data
 
     def __getstate__(self):
         d = super().__getstate__()
