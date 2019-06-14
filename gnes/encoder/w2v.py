@@ -52,7 +52,7 @@ class Word2VecEncoder(BaseEncoder):
 
         self.empty = np.zeros([self.dimension], dtype=np.float32)
 
-    #@batching
+    @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
         self.logger.info('debugging serious performance error')
@@ -62,7 +62,7 @@ class Word2VecEncoder(BaseEncoder):
 
         for tokens in batch_tokens:
             _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
-            pooled_data.append(pooling_simple(_layer_data))
+            pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
 
         return np.array(pooled_data).astype(np.float32)
 
