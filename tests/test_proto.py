@@ -3,9 +3,7 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from gnes.cli.parser import set_service_parser
-from gnes.proto import *
-from gnes.service.base import BaseService
+from gnes.proto import gnes_pb2
 
 
 class TestProto(unittest.TestCase):
@@ -28,9 +26,3 @@ class TestProto(unittest.TestCase):
         a.request.train.ClearField('docs')
         a.request.train.docs.extend([gnes_pb2.Document() for _ in range(3)])
         print(a)
-
-    # def test_service_open_close(self):
-    #     args = set_service_parser().parse_args([])
-    #     with BaseService(args) as bs:
-    #         self.assertTrue(bs.is_ready)
-    #         print(bs.status)
