@@ -38,7 +38,7 @@ class HttpService:
         self.msg_processor = {'query': self._query,
                               'index': self._index,
                               'train': self._train}
-        self.feasible_mode = set(self.msg_processor.keys())
+        self.all_mode = set(self.msg_processor.keys())
         self.timeout_str = 'TimeoutError'
 
     def run(self):
@@ -55,7 +55,7 @@ class HttpService:
                 texts = data['texts']
                 top_k = data['top_k'] if 'top_k' in data else self.args.default_k
                 mode = data['mode'] if 'mode' in data else 'query'
-                if mode not in self.feasible_mode:
+                if mode not in self.all_mode:
                     raise ValueError('request mode is not feasible')
 
                 req = await loop.run_in_executor(executor,
