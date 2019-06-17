@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from gnes.proto import gnes_pb2
+from gnes.proto import gnes_pb2, array2blob, blob2array
 
 
 class TestProto(unittest.TestCase):

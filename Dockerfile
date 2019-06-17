@@ -1,4 +1,4 @@
-FROM docker.oa.com:8080/public/ailab-py3-torch:latest AS dependency
+FROM ccr.ccs.tencentyun.com/ailab/py3-deep-learning:cpu AS dependency
 
 WORKDIR /nes/
 
@@ -12,8 +12,8 @@ FROM dependency as base
 
 ADD . ./
 
-RUN pip install .
+RUN pip install -e .
 
-WORKDIR /
+# WORKDIR /
 
 ENTRYPOINT ["gnes"]
