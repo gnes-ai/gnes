@@ -100,6 +100,17 @@ cd docs && make html
 <h2 align="center">TODO</h2>
 
 <h2 align="center">Contact</h2>
+Please email your questions or comments to [Han Xiao](https://hanxiao.github.io).
+
+<h2 align="center">Citing GNES</h2>
+```latex
+@misc{tencent2019GNES,
+  title={GNES: Generic Neural Elastic Search},
+  author={Xiao, Han and Yan, Jianfeng and Wang, Feng},
+  howpublished={\url{https://github.com/tencent/GNES}},
+  year={2019}
+}
+```
 
 <h2 align="center">License</h2>
 

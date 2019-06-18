@@ -16,8 +16,6 @@ class TestW2vEncoder(unittest.TestCase):
                 if line:
                     self.test_str.append(line)
 
-
-
     def test_encoding(self):
         w2v_encoder = Word2VecEncoder(
             model_dir=os.environ['WORD2VEC_MODEL'],

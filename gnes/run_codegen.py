@@ -4,6 +4,7 @@ from grpc_tools import protoc
 
 protoc.main((
     '',
+    '-I=/usr/local/include',
     '-I=gnes/proto',
     '--python_out=gnes/proto',
     '--grpc_python_out=gnes/proto',

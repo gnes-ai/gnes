@@ -62,7 +62,6 @@ def set_nes_search_parser(parser=None):
 
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService
-    from ..messaging import MessageType
     if not parser:
         parser = set_base_parser()
     parser.add_argument('--port_in', type=int, default=5310,
@@ -81,8 +80,6 @@ def set_service_parser(parser=None):
                         help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int, default=None,
                         help='port for control the service')
-    parser.add_argument('--unk_msg_route', type=str, default=MessageType.DEFAULT.name,
-                        help='handler route for unknown message type')
     parser.add_argument('--timeout', type=int, default=5000,
                         help='timeout (ms) of all communication')
     parser.add_argument('--dump_interval', type=int, default=5,
@@ -93,29 +90,17 @@ def set_service_parser(parser=None):
     return parser
 
 
-def set_client_parser(parser=None):
+def _set_client_parser(parser=None):
     from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
-    import sys
-    import uuid
-    parser.add_argument('--identity', type=str, default=str(uuid.uuid4()),
-                        help='unique id string of this client')
-    parser.add_argument('--wait_reply', action='store_true', default=False,
-                        help='mode of this client')
-    parser.add_argument('--txt_file', type=argparse.FileType('r'),
-                        default=sys.stdin,
-                        help='text file to be used, each line is a doc/query')
-    parser.add_argument('--index', action='store_true', default=False,
-                        help='merge result from multiple indexer')
-    parser.add_argument('--train', action='store_true', default=False,
-                        help='training in index')
     parser.set_defaults(
         port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
         port_out=parser.get_default('port_in'),
         socket_in=SocketType.SUB_CONNECT,
-        socket_out=SocketType.PUSH_CONNECT)
+        socket_out=SocketType.PUSH_CONNECT,
+        read_only=True)
     return parser
 
 
@@ -155,7 +140,8 @@ def set_proxy_service_parser(parser=None):
     parser.add_argument('--num_part', type=int, default=1,
                         help='the number of partial result to collect')
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUB_BIND)
+                        socket_out=SocketType.PUB_BIND,
+                        read_only=True)
     return parser
 
 
@@ -179,18 +165,26 @@ def set_indexer_service_parser(parser=None):
     return parser
 
 
-def set_grpc_service_parser(parser=None):
+def _set_grpc_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    set_service_parser(parser)
     parser.add_argument('--grpc_host',
                         type=str,
                         default='0.0.0.0',
-                        help='host address of the grpc wrapper')
+                        help='host address of the grpc service')
     parser.add_argument('--grpc_port',
                         type=str,
                         default='8800',
-                        help='host port of the grpc wrapper')
+                        help='host port of the grpc service')
+    return parser
+
+def set_grpc_frontend_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    _set_client_parser(parser)
+    _set_grpc_parser(parser)
+    parser.add_argument('--max_concurrency', type=int, default=10,
+                        help='maximum concurrent client allowed')
     return parser
 
 
@@ -198,10 +192,7 @@ def set_grpc_client_parser(parser=None):
     import sys
     if not parser:
         parser = set_base_parser()
-    parser.add_argument('--grpc_host', type=str, default='127.0.0.1',
-                        help='the grpc host name')
-    parser.add_argument('--grpc_port', type=str, default='8800',
-                        help='the grpc port')
+    _set_grpc_parser(parser)
     parser.add_argument('--txt_file', type=argparse.FileType('r'),
                         default=sys.stdin,
                         help='text file to be used, each line is a doc/query')
@@ -216,11 +207,17 @@ def set_grpc_client_parser(parser=None):
 def set_http_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    set_service_parser(parser)
+    _set_grpc_parser(parser)
     parser.add_argument('--http_port', type=int, default=80,
                         help='http port to deploy the service')
+    parser.add_argument('--http_host', type=str, default='0.0.0.0',
+                        help='http host to deploy the service')
     parser.add_argument('--max_workers', type=int, default=100,
                         help='max workers to deal with the message')
+    parser.add_argument('--default_k', type=int, default=10,
+                        help='default top_k for query mode')
+    parser.add_argument('--train_batch_size', type=int, default=2560,
+                        help='batch size for feed data for train mode')
     return parser
 
 
@@ -231,9 +228,8 @@ def get_main_parser():
                                description='Commands',
                                help='Description', dest='cli')
 
-    set_client_parser(sp.add_parser('client', help='start a client'))
-    set_grpc_client_parser(sp.add_parser('grpc_client', help='start a grpc client'))
-    set_grpc_service_parser(sp.add_parser('grpc_serve', help='start a grpc service'))
+    set_grpc_client_parser(sp.add_parser('client', help='start a grpc client'))
+    set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))

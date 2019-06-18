@@ -4,41 +4,15 @@ from shutil import rmtree
 
 from gnes.indexer.leveldb import LVDBIndexer
 from gnes.proto import gnes_pb2
+from gnes.preprocessor.text import txt_file2pb_docs
 
 
 class TestBaseLVDB(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        self.test_docs = []
-        with open(os.path.join(dirname, 'tangshi.txt')) as f:
-            title = ''
-            sents = []
-            doc_id = 0
-            for line in f:
-                line = line.strip()
+        self.test_docs = txt_file2pb_docs(os.path.join(dirname, 'tangshi.txt'))
 
-                if line and not title:
-                    title = line
-                    sents.append(line)
-                elif line and title:
-                    sents.append(line)
-                elif not line and title and len(sents) > 1:
-                    doc = gnes_pb2.Document()
-                    doc.id = doc_id
-                    doc.text = ' '.join(sents)
-                    doc.text_chunks.extend(sents)
-                    doc.doc_size = len(sents)
-
-                    doc.is_parsed = True
-                    doc.is_encoded = True
-                    doc_id += 1
-                    sents.clear()
-                    title = ''
-                    self.test_docs.append(doc)
-
-        # self.query_hit_id = self.test_data1.doc_id_document[0]
-        # self.query_miss_id = [random.randint(0, 10000) for _ in self.test_data1.doc_id_document[0]]
 
         self.db_path = './test_leveldb'
         self.dump_path = os.path.join(dirname, 'indexer.bin')

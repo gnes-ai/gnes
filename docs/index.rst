@@ -20,6 +20,7 @@ Welcome to GNES documentation!
    chapter/overview.md
    chapter/yaml-config.md
    chapter/troubleshooting.md
+   chapter/protobuf-dev.md
    gnes
 
 
