@@ -22,7 +22,6 @@ class TestFlairEncoder(unittest.TestCase):
             pooling_strategy="REDUCE_MEAN")
 
     def test_encoding(self):
-
         vec = self.flair_encoder.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 512)

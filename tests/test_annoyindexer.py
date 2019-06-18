@@ -8,7 +8,7 @@ from gnes.helper import touch_dir
 from gnes.indexer.annoy import AnnoyIndexer
 
 
-class TestFIndexer(unittest.TestCase):
+class TestAnnoyIndexer(unittest.TestCase):
     def setUp(self):
         self.toy_data = np.random.random([10, 5]).astype(np.float32)
 

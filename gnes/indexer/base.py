@@ -62,8 +62,8 @@ class JointIndexer(CompositionalEncoder):
     @component.setter
     def component(self, comps: Callable[[], Union[list, dict]]):
         if not callable(comps):
-            raise TypeError('component mus be a callable function that returns '
-                            'a List[BaseEncoder]')
+            raise TypeError('component must be a callable function that returns '
+                            'a List[BaseIndexer]')
         if not getattr(self, 'init_from_yaml', False):
             self._component = comps()
         else:

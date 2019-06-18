@@ -8,7 +8,7 @@ from gnes.helper import touch_dir
 from gnes.indexer.bindexer import BIndexer
 
 
-class TestFIndexer(unittest.TestCase):
+class TestBIndexer(unittest.TestCase):
     def setUp(self):
         self.toy_data = np.array([[1, 2, 1, 2],
                                   [2, 1, 3, 4],
