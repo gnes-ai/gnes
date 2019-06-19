@@ -158,18 +158,22 @@ message Response {
     }
 
     message QueryResponse {
-        message TopKChunks {
+        message TopKResults {
 
-            message ScoredChunk {
-                Chunk chunk = 1;
-                float score = 2;
+            message ScoredResult {
+                oneof body {
+                    Chunk chunk = 1;
+                    Document doc = 2;
+                }
+
+                float score = 3;
             }
 
-            repeated ScoredChunk topk_chunks = 1;
+            repeated ScoredResult topk_results = 1;
         }
 
         Status status = 1;
-        repeated TopKChunks result = 2;
+        repeated TopKResults result = 2;
     }
 }
 
