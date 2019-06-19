@@ -20,12 +20,11 @@ from typing import List
 
 import numpy as np
 
-
-from .base import BaseEncoder
+from .base import BaseTextEncoder
 from ..helper import batching, pooling_np
 
 
-class FlairEncoder(BaseEncoder):
+class FlairEncoderBase(BaseTextEncoder):
 
     def __init__(self, model_name: str = 'multi-forward-fast',
                  batch_size: int = 64,

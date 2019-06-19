@@ -18,11 +18,11 @@
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseBinaryEncoder
 from ..helper import batching, train_required
 
 
-class PQEncoder(BaseEncoder):
+class PQEncoderBase(BaseBinaryEncoder):
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
@@ -67,7 +67,7 @@ class PQEncoder(BaseEncoder):
                 num_dim, self.num_bytes)
         return int(num_dim / self.num_bytes)
 
-    def _copy_from(self, x: 'PQEncoder') -> None:
+    def _copy_from(self, x: 'PQEncoderBase') -> None:
         self.num_bytes = x.num_bytes
         self.num_clusters = x.num_clusters
         self.centroids = x.centroids

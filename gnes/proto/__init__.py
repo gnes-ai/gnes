@@ -64,12 +64,11 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str):
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
     try:
-        # if timeout > 0:
-        #     sock.setsockopt(zmq.SNDTIMEO, timeout)
-        # else:
-        #     sock.setsockopt(zmq.SNDTIMEO, -1)
+        if timeout > 0:
+            sock.setsockopt(zmq.SNDTIMEO, timeout)
+        else:
+            sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.setsockopt(zmq.SNDTIMEO, -1)
         sock.send_multipart([msg.envelope.client_id.encode(), msg.SerializeToString()])
     except zmq.error.Again:
         raise TimeoutError(
@@ -83,12 +82,10 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
 def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Message']:
     response = []
     try:
-        # if timeout > 0:
-        #     sock.setsockopt(zmq.RCVTIMEO, timeout)
-        # else:
-        #     sock.setsockopt(zmq.RCVTIMEO, -1)
-
-        sock.setsockopt(zmq.RCVTIMEO, -1)
+        if timeout > 0:
+            sock.setsockopt(zmq.RCVTIMEO, timeout)
+        else:
+            sock.setsockopt(zmq.RCVTIMEO, -1)
 
         _, msg_data = sock.recv_multipart()
         msg = gnes_pb2.Message()

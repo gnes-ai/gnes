@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.flair import FlairEncoder
+from gnes.encoder.flair import FlairEncoderBase
 
 
 class TestFlairEncoder(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestFlairEncoder(unittest.TestCase):
                 if line:
                     self.test_str.append(line)
 
-        self.flair_encoder = FlairEncoder(
+        self.flair_encoder = FlairEncoderBase(
             model_name=os.environ.get('FLAIR_CI_MODEL'),
             pooling_strategy="REDUCE_MEAN")
 
@@ -29,7 +29,7 @@ class TestFlairEncoder(unittest.TestCase):
     def test_dump_load(self):
         self.flair_encoder.dump(self.dump_path)
 
-        flair_encoder2 = FlairEncoder.load(self.dump_path)
+        flair_encoder2 = FlairEncoderBase.load(self.dump_path)
         vec = flair_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 512)

@@ -20,11 +20,11 @@ from typing import Dict, Any
 
 import numpy as np
 
-from .pq import PQEncoder
+from ..encoder.base import BaseBinaryEncoder
 from ..helper import batching, train_required
 
 
-class TFPQEncoder(PQEncoder):
+class TFPQEncoderBase(BaseBinaryEncoder):
     @classmethod
     def _pre_init(cls):
         import GPUtil

@@ -20,11 +20,11 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseTextEncoder
 from ..helper import batching, cn_tokenizer, pooling_simple
 
 
-class Word2VecEncoder(BaseEncoder):
+class Word2VecEncoderBase(BaseTextEncoder):
     def __init__(self, model_dir,
                  skiprows: int = 1,
                  batch_size: int = 64,

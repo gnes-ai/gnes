@@ -80,8 +80,8 @@ def set_service_parser(parser=None):
                         help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int, default=None,
                         help='port for control the service')
-    parser.add_argument('--timeout', type=int, default=5000,
-                        help='timeout (ms) of all communication')
+    parser.add_argument('--timeout', type=int, default=-1,
+                        help='timeout (ms) of all communication, -1 for waiting forever')
     parser.add_argument('--dump_interval', type=int, default=5,
                         help='dump the service every n seconds')
     parser.add_argument('--read_only', action='store_true', default=False,

@@ -2,8 +2,9 @@ import os
 import unittest
 
 import numpy as np
-from gnes.encoder.hash import HashEncoder
+
 from gnes.encoder.base import PipelineEncoder
+from gnes.encoder.hash import HashEncoderBase
 
 
 class TestHash(unittest.TestCase):
@@ -19,8 +20,8 @@ class TestHash(unittest.TestCase):
         self.hash_yaml = os.path.join(dirname, 'yaml', 'hash-encoder.yml')
 
     def test_train_pred(self):
-        m = HashEncoder(self.num_bytes, self.num_bits,
-                        self.num_idx, self.kmeans_clusters)
+        m = HashEncoderBase(self.num_bytes, self.num_bits,
+                            self.num_idx, self.kmeans_clusters)
         m.train(self.test_data)
         self.assertEquals(self.num_idx, m.centroids.shape[1])
         self.assertEquals(self.kmeans_clusters, m.centroids.shape[2])

@@ -18,11 +18,11 @@
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseNumericEncoder
 from ..helper import get_perm, batching, get_optimal_sample_size, train_required
 
 
-class PCALocalEncoder(BaseEncoder):
+class PCALocalEncoderBase(BaseNumericEncoder):
     def __init__(self, output_dim: int, num_locals: int,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,7 +60,7 @@ class PCALocalEncoder(BaseEncoder):
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.pca_components)
 
-    def _copy_from(self, x: 'PCALocalEncoder') -> None:
+    def _copy_from(self, x: 'PCALocalEncoderBase') -> None:
         self.output_dim = x.output_dim
         self.pca_components = x.pca_components
         self.mean = x.mean

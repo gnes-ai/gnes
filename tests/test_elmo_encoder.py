@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.elmo import ElmoEncoder
+from gnes.encoder.elmo import ElmoEncoderBase
 
 
 class TestElmoEncoder(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestElmoEncoder(unittest.TestCase):
                 if line:
                     self.test_str.append(line)
 
-        self.elmo_encoder = ElmoEncoder(
+        self.elmo_encoder = ElmoEncoderBase(
             model_dir=os.environ.get('ELMO_CI_MODEL', '/zhs.model'),
             pooling_strategy="REDUCE_MEAN")
 
@@ -29,7 +29,7 @@ class TestElmoEncoder(unittest.TestCase):
     def test_dump_load(self):
         self.elmo_encoder.dump(self.dump_path)
 
-        elmo_encoder2 = ElmoEncoder.load(self.dump_path)
+        elmo_encoder2 = ElmoEncoderBase.load(self.dump_path)
 
         vec = elmo_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))

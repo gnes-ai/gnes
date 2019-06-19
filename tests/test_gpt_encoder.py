@@ -1,8 +1,10 @@
 import os
 import unittest
-#from numpy.testing import assert_array_equal
 
-from gnes.encoder.gpt import GPTEncoder
+from gnes.encoder.gpt import GPTEncoderBase
+
+
+# from numpy.testing import assert_array_equal
 
 
 class TestGPTEncoder(unittest.TestCase):
@@ -17,7 +19,7 @@ class TestGPTEncoder(unittest.TestCase):
                 if line:
                     self.test_str.append(line)
 
-        self.gpt_encoder = GPTEncoder(
+        self.gpt_encoder = GPTEncoderBase(
             model_dir=os.environ.get('GPT_CI_MODEL', '/openai_gpt'),
             pooling_strategy="REDUCE_MEAN")
 
@@ -29,7 +31,7 @@ class TestGPTEncoder(unittest.TestCase):
 
     def test_dump_load(self):
         self.gpt_encoder.dump(self.dump_path)
-        gpt_encoder2 = GPTEncoder.load(self.dump_path)
+        gpt_encoder2 = GPTEncoderBase.load(self.dump_path)
 
         vec = gpt_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))

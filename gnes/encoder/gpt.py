@@ -20,11 +20,11 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseTextEncoder
 from ..helper import batching, pooling_torch
 
 
-class GPTEncoder(BaseEncoder):
+class GPTEncoderBase(BaseTextEncoder):
     def __init__(self,
                  model_dir: str,
                  batch_size: int = 64,
@@ -115,7 +115,7 @@ class GPTEncoder(BaseEncoder):
         return d
 
 
-class GPT2Encoder(GPTEncoder):
+class GPT2Encoder(GPTEncoderBase):
 
     def _get_token_ids(self, x):
         return self._tokenizer.encode(x)
