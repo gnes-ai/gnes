@@ -28,12 +28,12 @@ def index(args):
         es.join()
 
 
-def proxy(args):
-    from ..service import proxy as my_proxy
-    if not args.proxy_type:
+def router(args):
+    from ..service import router as my_router
+    if not args.router_type:
         raise ValueError(
-            '--proxy_type is required when starting a proxy from CLI')
-    with getattr(my_proxy, args.proxy_type)(args) as es:
+            '--router_type is required when starting a router from CLI')
+    with getattr(my_router, args.router_type)(args) as es:
         es.join()
 
 

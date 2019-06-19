@@ -80,8 +80,8 @@ def set_service_parser(parser=None):
                         help='socket type for output port')
     parser.add_argument('--port_ctrl', type=int, default=None,
                         help='port for control the service')
-    parser.add_argument('--timeout', type=int, default=5000,
-                        help='timeout (ms) of all communication')
+    parser.add_argument('--timeout', type=int, default=-1,
+                        help='timeout (ms) of all communication, -1 for waiting forever')
     parser.add_argument('--dump_interval', type=int, default=5,
                         help='dump the service every n seconds')
     parser.add_argument('--read_only', action='store_true', default=False,
@@ -125,16 +125,16 @@ def set_encoder_service_parser(parser=None):
     return parser
 
 
-def set_proxy_service_parser(parser=None):
+def set_router_service_parser(parser=None):
     from ..service.base import SocketType
     from inspect import isclass
-    from ..service import proxy as my_proxy
+    from ..service import router as my_router
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
-    parser.add_argument('--proxy_type', type=str, default='ProxyService',
-                        choices=[x for x in dir(my_proxy) if isclass(getattr(my_proxy, x))],
-                        help='type of proxy')
+    parser.add_argument('--router_type', type=str, default='RouterService',
+                        choices=[x for x in dir(my_router) if isclass(getattr(my_router, x))],
+                        help='type of router')
     parser.add_argument('--batch_size', type=int, default=None,
                         help='the size of the request to split')
     parser.add_argument('--num_part', type=int, default=1,
@@ -232,6 +232,6 @@ def get_main_parser():
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
-    set_proxy_service_parser(sp.add_parser('proxy', help='start a proxy service'))
+    set_router_service_parser(sp.add_parser('router', help='start a router service'))
     set_http_service_parser(sp.add_parser('http', help='start a http service'))
     return parser

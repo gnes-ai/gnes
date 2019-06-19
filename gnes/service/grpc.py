@@ -15,8 +15,8 @@
 
 # pylint: disable=low-comment-ratio
 
-import uuid
 import threading
+import uuid
 from concurrent import futures
 from typing import List
 
@@ -41,6 +41,7 @@ class BaseServicePool:
 
     def __exit__(self, *args):
         self.available_bc.append(self.bc)
+
 
 class ZmqContext(object):
     """The zmq context class."""
@@ -73,17 +74,15 @@ class ZmqClient:
 
     def __init__(self, args):
         self.args = args
+        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
+        self.identity = str(uuid.uuid4())
         self.host_in = args.host_in
         self.host_out = args.host_out
         self.port_in = args.port_in
         self.port_out = args.port_out
-        # identity: str =None,
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
-
-        self.identity = str(uuid.uuid4())
-        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity.encode())
         self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
@@ -99,6 +98,7 @@ class ZmqClient:
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
         msg = recv_message(self.receiver, timeout=timeout)
         return msg
+
 
 class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
 

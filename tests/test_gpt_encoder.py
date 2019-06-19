@@ -1,8 +1,10 @@
 import os
 import unittest
-#from numpy.testing import assert_array_equal
 
 from gnes.encoder.gpt import GPTEncoder
+
+
+# from numpy.testing import assert_array_equal
 
 
 class TestGPTEncoder(unittest.TestCase):

@@ -18,11 +18,11 @@
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseNumericEncoder
 from ..helper import batching, train_required
 
 
-class HashEncoder(BaseEncoder):
+class HashEncoder(BaseNumericEncoder):
     def __init__(self, num_bytes: int,
                  num_bits: int = 8,
                  num_idx: int = 3,
@@ -47,7 +47,7 @@ class HashEncoder(BaseEncoder):
         self.vec_dim = vecs.shape[1]
         self.centroids = [self.train_kmeans(vecs) for _ in range(self.num_idx)]
         self.centroids = np.reshape(
-                        self.centroids, [1, self.num_idx, self.kmeans_clusters, self.vec_dim]).astype(np.float32)
+            self.centroids, [1, self.num_idx, self.kmeans_clusters, self.vec_dim]).astype(np.float32)
 
         if self.vec_dim % self.num_bytes != 0:
             raise ValueError('vec dim should be divided by x')
@@ -55,7 +55,7 @@ class HashEncoder(BaseEncoder):
         self.mean = np.mean(vecs, axis=0)
         self.var = np.var(vecs, axis=0)
         self.hash_cores = [self.ran_gen() for _ in range(self.num_bytes)]
-        self.proj = np.array([2**i for i in range(self.num_bits)]).astype(np.int32)
+        self.proj = np.array([2 ** i for i in range(self.num_bits)]).astype(np.int32)
 
     def train_kmeans(self, vecs):
         import faiss
@@ -96,12 +96,12 @@ class HashEncoder(BaseEncoder):
             vecs = np.reshape(vecs, [vecs.shape[0], self.num_bytes, self.x])
             for i in range(self.num_bytes):
                 out = np.greater(np.matmul(vecs[:, i, :], self.hash_cores[i]), 0)
-                ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
+                ret.append(np.sum(out * self.proj, axis=1, keepdims=1))
             return np.concatenate(ret, axis=1).astype(np.uint32)
         elif self.method == 'uniform' or self.method == 'ortho_uniform':
             for i in range(self.num_bytes):
                 out = np.greater(np.matmul(vecs, self.hash_cores[i]), 0)
-                ret.append(np.sum(out*self.proj, axis=1, keepdims=1))
+                ret.append(np.sum(out * self.proj, axis=1, keepdims=1))
             return np.concatenate(ret, axis=1).astype(np.uint32)
 
     @train_required
