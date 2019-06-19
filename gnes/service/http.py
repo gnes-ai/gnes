@@ -62,12 +62,9 @@ class HttpService:
                 if mode not in self.msg_processor:
                     raise ValueError('request mode: %s is not supported' % mode)
 
-                req = await loop.run_in_executor(executor,
-                                                 self.msg_processor[mode],
-                                                 texts, top_k)
                 ret = await loop.run_in_executor(executor,
                                                  self._grpc_call,
-                                                 req)
+                                                 texts, top_k, mode)
                 return web.Response(body=json.dumps({'result': ret, 'meta': meta}, ensure_ascii=False),
                                     status=200,
                                     content_type='application/json')

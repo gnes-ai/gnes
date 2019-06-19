@@ -22,7 +22,7 @@ from .base import BaseNumericEncoder
 from ..helper import get_perm, batching, get_optimal_sample_size, train_required
 
 
-class PCALocalEncoderBase(BaseNumericEncoder):
+class PCALocalEncoder(BaseNumericEncoder):
     def __init__(self, output_dim: int, num_locals: int,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,7 +60,7 @@ class PCALocalEncoderBase(BaseNumericEncoder):
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         return np.matmul(vecs - self.mean, self.pca_components)
 
-    def _copy_from(self, x: 'PCALocalEncoderBase') -> None:
+    def _copy_from(self, x: 'PCALocalEncoder') -> None:
         self.output_dim = x.output_dim
         self.pca_components = x.pca_components
         self.mean = x.mean

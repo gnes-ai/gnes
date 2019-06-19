@@ -25,7 +25,7 @@ from ..helper import batch_iterator
 from ..proto import gnes_pb2, send_message
 
 
-class ProxyService(BS):
+class RouterService(BS):
     handler = MessageHandler(BS.handler)
 
     @handler.register(NotImplementedError)
@@ -33,7 +33,7 @@ class ProxyService(BS):
         send_message(out, msg, self.args.timeout)
 
 
-class MapProxyService(ProxyService):
+class MapRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
     # @handler.register(NotImplementedError)
@@ -59,7 +59,7 @@ class MapProxyService(ProxyService):
                 send_message(out, msg, self.args.timeout)
 
 
-class ReduceProxyService(ProxyService):
+class ReduceRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
     def _post_init(self):

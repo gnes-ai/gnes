@@ -24,7 +24,7 @@ from .base import BaseTextEncoder
 from ..helper import batching, pooling_torch
 
 
-class GPTEncoderBase(BaseTextEncoder):
+class GPTEncoder(BaseTextEncoder):
     def __init__(self,
                  model_dir: str,
                  batch_size: int = 64,
@@ -115,7 +115,7 @@ class GPTEncoderBase(BaseTextEncoder):
         return d
 
 
-class GPT2Encoder(GPTEncoderBase):
+class GPT2Encoder(GPTEncoder):
 
     def _get_token_ids(self, x):
         return self._tokenizer.encode(x)

@@ -24,7 +24,7 @@ from .base import BaseTextEncoder
 from ..helper import batching, cn_tokenizer, pooling_np
 
 
-class ElmoEncoderBase(BaseTextEncoder):
+class ElmoEncoder(BaseTextEncoder):
 
     def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):

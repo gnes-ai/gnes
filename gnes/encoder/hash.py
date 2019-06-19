@@ -22,7 +22,7 @@ from .base import BaseNumericEncoder
 from ..helper import batching, train_required
 
 
-class HashEncoderBase(BaseNumericEncoder):
+class HashEncoder(BaseNumericEncoder):
     def __init__(self, num_bytes: int,
                  num_bits: int = 8,
                  num_idx: int = 3,
@@ -114,7 +114,7 @@ class HashEncoderBase(BaseNumericEncoder):
         outcome = self.hash(vecs)
         return np.concatenate([clusters, outcome], axis=1)
 
-    def _copy_from(self, x: 'HashEncoderBase') -> None:
+    def _copy_from(self, x: 'HashEncoder') -> None:
         self.num_bytes = x.num_bytes
         self.num_bits = x.num_bits
         self.num_idx = x.num_idx

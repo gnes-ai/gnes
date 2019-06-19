@@ -24,7 +24,7 @@ from .base import BaseTextEncoder
 from ..helper import batching, pooling_np
 
 
-class FlairEncoderBase(BaseTextEncoder):
+class FlairEncoder(BaseTextEncoder):
 
     def __init__(self, model_name: str = 'multi-forward-fast',
                  batch_size: int = 64,

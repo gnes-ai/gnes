@@ -4,9 +4,9 @@ from shutil import rmtree
 
 from gnes.base import TrainableType
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.pca import PCALocalEncoderBase
-from gnes.encoder.pq import PQEncoderBase
-from gnes.encoder.tf_pq import TFPQEncoderBase
+from gnes.encoder.pca import PCALocalEncoder
+from gnes.encoder.pq import PQEncoder
+from gnes.encoder.tf_pq import TFPQEncoder
 from gnes.module.gnes import GNES
 
 
@@ -125,9 +125,9 @@ class TestYaml(unittest.TestCase):
 
     def test_nest_pipeline(self):
         self._test_different_encoder_yamlize(dummyPipeline, a=1, b=2, c=3, wee=4)
-        self._test_different_encoder_yamlize(PQEncoderBase, 10)
-        self._test_different_encoder_yamlize(TFPQEncoderBase, 10)
-        self._test_different_encoder_yamlize(PCALocalEncoderBase, 20, 10)
+        self._test_different_encoder_yamlize(PQEncoder, 10)
+        self._test_different_encoder_yamlize(TFPQEncoder, 10)
+        self._test_different_encoder_yamlize(PCALocalEncoder, 20, 10)
 
     def _test_different_encoder_yamlize(self, cls, *args, **kwargs):
         a = cls(*args, **kwargs)

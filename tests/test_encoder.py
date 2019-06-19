@@ -5,9 +5,9 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.pca import PCALocalEncoderBase
-from gnes.encoder.pq import PQEncoderBase
-from gnes.encoder.tf_pq import TFPQEncoderBase
+from gnes.encoder.pca import PCALocalEncoder
+from gnes.encoder.pq import PQEncoder
+from gnes.encoder.tf_pq import TFPQEncoder
 
 
 class TestPCA(unittest.TestCase):
@@ -19,8 +19,8 @@ class TestPCA(unittest.TestCase):
         self.lopq_yaml_np2 = os.path.join(dirname, 'yaml', 'lopq-encoder-3.yml')
 
     def test_pq_assert(self):
-        self._test_pq_assert(PQEncoderBase)
-        self._test_pq_assert(TFPQEncoderBase)
+        self._test_pq_assert(PQEncoder)
+        self._test_pq_assert(TFPQEncoder)
 
     def test_pq_tfpq_identity(self):
         def _test_pq_tfpq_identity(pq1, pq2):
@@ -30,8 +30,8 @@ class TestPCA(unittest.TestCase):
             out2 = pq2.encode(self.test_vecs)
             assert_allclose(out1, out2)
 
-        _test_pq_tfpq_identity(PQEncoderBase(10), TFPQEncoderBase(10))
-        _test_pq_tfpq_identity(TFPQEncoderBase(10), PQEncoderBase(10))
+        _test_pq_tfpq_identity(PQEncoder(10), TFPQEncoder(10))
+        _test_pq_tfpq_identity(TFPQEncoder(10), PQEncoder(10))
 
     def _test_pq_assert(self, cls):
         self.assertRaises(AssertionError, cls, 100, 0)
@@ -49,13 +49,13 @@ class TestPCA(unittest.TestCase):
         self.assertTrue(np.all(np.frombuffer(out, np.uint8) <= num_clusters))
 
     def test_assert_pca(self):
-        self.assertRaises(AssertionError, PCALocalEncoderBase, 8, 3)
-        self.assertRaises(AssertionError, PCALocalEncoderBase, 2, 3)
+        self.assertRaises(AssertionError, PCALocalEncoder, 8, 3)
+        self.assertRaises(AssertionError, PCALocalEncoder, 2, 3)
 
-        pca = PCALocalEncoderBase(100, 2)
+        pca = PCALocalEncoder(100, 2)
         self.assertRaises(AssertionError, pca.train, self.test_vecs)
 
-        pca = PCALocalEncoderBase(8, 2)
+        pca = PCALocalEncoder(8, 2)
         self.assertRaises(AssertionError, pca.train, self.test_vecs[:7])
 
         pca.train(self.test_vecs)

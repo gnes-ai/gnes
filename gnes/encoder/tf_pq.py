@@ -24,7 +24,7 @@ from ..encoder.base import BaseBinaryEncoder
 from ..helper import batching, train_required
 
 
-class TFPQEncoderBase(BaseBinaryEncoder):
+class TFPQEncoder(BaseBinaryEncoder):
     @classmethod
     def _pre_init(cls):
         import GPUtil

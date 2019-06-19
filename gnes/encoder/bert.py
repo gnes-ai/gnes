@@ -24,7 +24,7 @@ from .base import CompositionalEncoder, BaseTextEncoder
 from ..helper import batching
 
 
-class BertEncoderBase(BaseTextEncoder):
+class BertEncoder(BaseTextEncoder):
     store_args_kwargs = True
 
     def __init__(self, *args, **kwargs):
@@ -55,7 +55,7 @@ class BertEncoderWithServer(CompositionalEncoder):
         return self.component['bert_client'].encode(text, *args, **kwargs)
 
 
-class BertEncoderServerBase(BaseTextEncoder):
+class BertEncoderServer(BaseTextEncoder):
     store_args_kwargs = True
 
     def __init__(self, *args, **kwargs):

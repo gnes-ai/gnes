@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.w2v import Word2VecEncoderBase
+from gnes.encoder.w2v import Word2VecEncoder
 
 
 class TestW2vEncoder(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestW2vEncoder(unittest.TestCase):
                     self.test_str.append(line)
 
     def test_encoding(self):
-        w2v_encoder = Word2VecEncoderBase(
+        w2v_encoder = Word2VecEncoder(
             model_dir=os.environ['WORD2VEC_MODEL'],
             pooling_strategy="REDUCE_MEAN")
         vec = w2v_encoder.encode(self.test_str)
@@ -25,11 +25,11 @@ class TestW2vEncoder(unittest.TestCase):
         self.assertEqual(vec.shape[1], 300)
 
     def test_dump_load(self):
-        w2v_encoder = Word2VecEncoderBase(
+        w2v_encoder = Word2VecEncoder(
             model_dir=os.environ['WORD2VEC_MODEL'],
             pooling_strategy="REDUCE_MEAN")
         w2v_encoder.dump(self.dump_path)
-        w2v_encoder2 = Word2VecEncoderBase.load(self.dump_path)
+        w2v_encoder2 = Word2VecEncoder.load(self.dump_path)
         vec = w2v_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
         self.assertEqual(vec.shape[1], 300)
