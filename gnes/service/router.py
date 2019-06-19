@@ -36,10 +36,6 @@ class RouterService(BS):
 class MapRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
-    # @handler.register(NotImplementedError)
-    # def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-    #     raise NotImplementedError('%r can handle %r only' % (self.__class__, gnes_pb2.Request.IndexRequest))
-
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_query_req(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
         send_message(out, msg, self.args.timeout)
@@ -64,10 +60,6 @@ class ReduceRouterService(RouterService):
 
     def _post_init(self):
         self.pending_result = defaultdict(list)  # type: Dict[str, list]
-
-    @handler.register(NotImplementedError)
-    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        raise NotImplementedError('%r can handle %r only' % (self.__class__, gnes_pb2.Request.IndexRequest))
 
     @handler.register(gnes_pb2.Response.IndexResponse)
     def _handler_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
