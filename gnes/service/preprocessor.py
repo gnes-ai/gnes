@@ -15,8 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-import zmq
-
 from .base import BaseService as BS, MessageHandler, ComponentNotLoad
 from ..proto import gnes_pb2
 
@@ -30,19 +28,27 @@ class PreprocessorService(BS):
         self._model = None
         try:
             self._model = BasePreprocessor.load(self.args.dump_path)
-            self.logger.info('load a trained encoder')
+            self.logger.info('load a trained preprocessor')
         except FileNotFoundError:
             self.logger.warning('fail to load the model from %s' % self.args.dump_path)
             try:
-                self._model = BasePreprocessor.load_yaml(
-                    self.args.yaml_path)
-                self.logger.info(
-                    'load an uninitialized encoder, training is needed!')
+                self._model = BasePreprocessor.load_yaml(self.args.yaml_path)
             except FileNotFoundError:
                 raise ComponentNotLoad
 
     @handler.register(gnes_pb2.Request.TrainRequest)
-    def _handler_train_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
         _docs = self._model.apply(msg.request.train.docs)
         msg.request.train.ClearField('docs')
         msg.request.train.docs.extend(_docs)
+
+    @handler.register(gnes_pb2.Request.IndexRequest)
+    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
+        _docs = self._model.apply(msg.request.index.docs)
+        msg.request.train.ClearField('docs')
+        msg.request.train.docs.extend(_docs)
+
+    @handler.register(gnes_pb2.Request.QueryRequest)
+    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
+        _docs = self._model.apply([msg.request.search.query])
+        msg.request.search.query.CopyFrom(_docs[0])
