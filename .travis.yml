@@ -6,6 +6,13 @@ services:
   - docker
 python:
   - "3.6"
+addons:
+  apt:
+    packages:
+      - libatlas-base-dev
+      - liblapack-dev
+      - bison
+      - byacc
 
 cache:
   bundler: true
@@ -15,20 +22,34 @@ cache:
 
 env:
   global:
+    # model path
     - MODEL_DIR=${TRAVIS_HOME}/ext_data
     - BERT_CI_MODEL=${MODEL_DIR}/chinese_L-12_H-768_A-12
     - ELMO_CI_MODEL=${MODEL_DIR}/zhs.model
-    - FLAIR_CI_MODEL=${MODEL_DIR}/multi-forward-fast
+    - FLAIR_CI_MODEL=multi-forward-fast
     - GPT_CI_MODEL=${MODEL_DIR}/openai_gpt
     - GPT2_CI_MODEL=${MODEL_DIR}/openai_gpt2
     - XL_CI_MODEL=${MODEL_DIR}/transformer_xl_wt103
     - WORD2VEC_MODEL=${MODEL_DIR}/sgns.wiki.bigram-char.sample
 
+    # environment
+    - TENSORFLOW_VERSION=1.12.0
+    - TENSORFLOW_ARCH=cpu
+    - TORCH_VERSION=1.1.0
+    - TORCH_ARCH=cpu
+
 before_install:
+  - pip install --upgrade pip
+
   - mkdir -p ${MODEL_DIR}
   - ./.travis/download.sh
+  # Install TensorFlow
+  - pip install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow-${TENSORFLOW_VERSION}-cp36-cp36m-linux_x86_64.whl
+  # Install Torch
+  - pip install https://download.pytorch.org/whl/cpu/torch-${TORCH_VERSION}-cp36-cp36m-linux_x86_64.whl
+  # Install Faiss
+  - ./.travis/install.sh
 
-  - pip install --upgrade pip
   - pip install -U pylint
 
 
@@ -38,6 +59,7 @@ before_install:
 install:
   # Test install with current version of setuptools
   - pip install -e . --progress-bar off
+  - python -m unittest tests/*.py
 
 before_script:
   # - mkdir ${MODEL_DIR}

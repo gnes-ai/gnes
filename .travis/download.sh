@@ -37,6 +37,10 @@ function donwload_models() {
         wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/transformer_xl_wt103.tar.bz2 -qO transformer_xl_wt103.tar.bz2
         tar -xvjf transformer_xl_wt103.tar.bz2
     fi
+
+    if [ ! -f sgns.wiki.bigram-char.sample ]; then
+        wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/sgns.wiki.bigram-char.sample -q0 sgns.wiki.bigram-char.sample
+    fi
 }
 
 if [ "${TRAVIS_OS_NAME}" == linux ]; then
