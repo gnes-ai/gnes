@@ -8,8 +8,6 @@ set -e  # fail and exit on any command erroring
 function donwload_models() {
     cd ${MODEL_DIR}
 
-    RUN wget https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip -O temp.zip; unzip temp.zip; rm temp.zip
-
     if [ ! -f zhs.model.tar.bz2 ]; then
         echo "download pretrained bert-chinese_L-12_H-768_A-12 model ..."
         wget https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip -O temp.zip
