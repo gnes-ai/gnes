@@ -21,7 +21,7 @@ function install_faiss() {
         cd faiss-master &&
         ./configure --without-cuda &&
         make -j 10 &&
-        make install &&
+        sudo make install &&
         make -C python && cd python &&
         pip install -U .
 }
