@@ -20,7 +20,7 @@ env:
 before_install:
   - pip install --upgrade pip
   - pip install -U pylint
-  - ./.travis/download.sh
+
 
   # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
   # - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
@@ -29,8 +29,9 @@ install:
   # Test install with current version of setuptools
   - pip install -e . --progress-bar off
 
-# before_script:
-#   - env > .env
+before_script:
+  - ./.travis/download.sh
+  # - env > .env
 
 # command to run tests
 script:
