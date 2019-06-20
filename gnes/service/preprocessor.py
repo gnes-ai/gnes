@@ -45,8 +45,8 @@ class PreprocessorService(BS):
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
         _docs = self._model.apply(msg.request.index.docs)
-        msg.request.train.ClearField('docs')
-        msg.request.train.docs.extend(_docs)
+        msg.request.index.ClearField('docs')
+        msg.request.index.docs.extend(_docs)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):

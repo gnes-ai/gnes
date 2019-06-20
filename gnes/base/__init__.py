@@ -41,9 +41,12 @@ def import_class_by_str(name: str):
         if class_name in cls2file:
             return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
 
-    r = _import('encoder', name) or _import('indexer', name) or _import('module', name)
-    if r:
-        return r
+    search_modules = ['encoder', 'indexer', 'preprocessor','module']
+
+    for m in search_modules:
+        r = _import(m, name)
+        if r:
+            return r
     else:
         raise ImportError('Can not locate any class with name: %s, misspelling?' % name)
 
