@@ -96,8 +96,7 @@ class ZmqClient:
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        msg = recv_message(self.receiver, timeout=timeout)
-        return msg
+        return recv_message(self.receiver, timeout=timeout)
 
 
 class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):

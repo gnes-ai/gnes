@@ -60,6 +60,14 @@ message Document {
 
     // meta information of this document
     bytes meta_info = 5;
+
+    // raw information of this document
+    oneof raw_data {
+        string raw_text = 6;
+        NdArray raw_image = 7;
+        NdArray raw_video = 8;
+        bytes raw_bytes = 9;  // for other types
+    }
 }
 
 message Envelope {
