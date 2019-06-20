@@ -6,7 +6,7 @@ set -e  # fail and exit on any command erroring
 : "${MODEL_DIR:?}"
 
 function donwload_models() {
-    cd ${MODEL_DIR}
+    mkdir ${MODEL_DIR}; cd ${MODEL_DIR}
 
     if [ ! -f zhs.model.tar.bz2 ]; then
         echo "download pretrained bert-cn model ..."
