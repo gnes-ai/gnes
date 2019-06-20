@@ -15,9 +15,12 @@ cache:
 
 env:
   global:
-    - MODEL_DIR=/ext_data
+    - MODEL_DIR=${TRAVIS_HOME}/ext_data
 
 before_install:
+  - mkdir ${MODEL_DIR}
+  - ./.travis/download.sh
+
   - pip install --upgrade pip
   - pip install -U pylint
 
@@ -30,9 +33,9 @@ install:
   - pip install -e . --progress-bar off
 
 before_script:
-  - mkdir ${MODEL_DIR}
-  - ./.travis/download.sh
-  # - env > .env
+  # - mkdir ${MODEL_DIR}
+  # - ./.travis/download.sh
+  - env > .env
 
 # command to run tests
 script:
