@@ -1,6 +1,6 @@
+sudo: required
 os: linux
 dist: xenial
-sudo: false
 language: python
 services:
   - docker
@@ -10,16 +10,17 @@ python:
 cache:
   bundler: true
   directories:
-    - $MODEL_DATA_FOLDER
+    - $MODEL_DIR
     - pip
 
 env:
   global:
-    - MODEL_DATA_FOLDER=$HOME/ext_model/
+    - MODEL_DIR=$HOME/ext_model/
 
 before_install:
   - pip install --upgrade pip
   - pip install -U pylint
+  - ./.travis/download.sh
 
   # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
   # - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
