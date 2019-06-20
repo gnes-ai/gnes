@@ -16,6 +16,13 @@ cache:
 env:
   global:
     - MODEL_DIR=${TRAVIS_HOME}/ext_data
+    - BERT_CI_MODEL=${MODEL_DIR}/chinese_L-12_H-768_A-12
+    - ELMO_CI_MODEL=${MODEL_DIR}/zhs.model
+    - FLAIR_CI_MODEL=${MODEL_DIR}/multi-forward-fast
+    - GPT_CI_MODEL=${MODEL_DIR}/openai_gpt
+    - GPT2_CI_MODEL=${MODEL_DIR}/openai_gpt2
+    - XL_CI_MODEL=${MODEL_DIR}/transformer_xl_wt103
+    - WORD2VEC_MODEL=${MODEL_DIR}/sgns.wiki.bigram-char.sample
 
 before_install:
   - mkdir -p ${MODEL_DIR}
