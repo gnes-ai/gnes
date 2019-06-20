@@ -23,7 +23,7 @@ function install_faiss() {
         make -j 10 &&
         make install &&
         make -C python && cd python &&
-        pip install .
+        pip install -U .
 }
 
 if [ "${TRAVIS_OS_NAME}" == linux ]; then
