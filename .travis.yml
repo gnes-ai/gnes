@@ -18,7 +18,7 @@ env:
     - MODEL_DIR=${TRAVIS_HOME}/ext_data
 
 before_install:
-  - mkdir ${MODEL_DIR}
+  - mkdir -p ${MODEL_DIR}
   - ./.travis/download.sh
 
   - pip install --upgrade pip
