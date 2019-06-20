@@ -20,11 +20,11 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseEncoder, CompositionalEncoder
+from .base import CompositionalEncoder, BaseTextEncoder
 from ..helper import batching
 
 
-class BertEncoder(BaseEncoder):
+class BertEncoder(BaseTextEncoder):
     store_args_kwargs = True
 
     def __init__(self, *args, **kwargs):
@@ -55,7 +55,7 @@ class BertEncoderWithServer(CompositionalEncoder):
         return self.component['bert_client'].encode(text, *args, **kwargs)
 
 
-class BertEncoderServer(BaseEncoder):
+class BertEncoderServer(BaseTextEncoder):
     store_args_kwargs = True
 
     def __init__(self, *args, **kwargs):

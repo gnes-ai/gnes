@@ -32,7 +32,20 @@ class BaseEncoder(TrainableBase):
         pass
 
 
-class BinaryEncoder(BaseEncoder):
+class BaseTextEncoder(BaseEncoder):
+
+    def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+        pass
+
+
+class BaseNumericEncoder(BaseEncoder):
+
+    def encode(self, text: np.ndarray, *args, **kwargs) -> np.ndarray:
+        pass
+
+
+class BaseBinaryEncoder(BaseEncoder):
+
     def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:
         if data.dtype != np.uint8:
             raise ValueError('data must be np.uint8 but received %s' % data.dtype)

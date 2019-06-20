@@ -111,7 +111,6 @@ class BIndexer(BaseBinaryIndexer):
                 result[q].append(
                     ((i, o),
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
-
         return result
 
     def __getstate__(self):

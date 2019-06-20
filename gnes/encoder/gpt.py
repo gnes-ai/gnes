@@ -20,11 +20,11 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseTextEncoder
 from ..helper import batching, pooling_torch
 
 
-class GPTEncoder(BaseEncoder):
+class GPTEncoder(BaseTextEncoder):
     def __init__(self,
                  model_dir: str,
                  batch_size: int = 64,

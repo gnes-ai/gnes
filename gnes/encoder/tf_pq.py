@@ -20,7 +20,7 @@ from typing import Dict, Any
 
 import numpy as np
 
-from .pq import PQEncoder
+from ..encoder.pq import PQEncoder
 from ..helper import batching, train_required
 
 

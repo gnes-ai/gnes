@@ -8,7 +8,7 @@ services:
           - encoder_serviced
     command: >
       encode --port_in ${INCOME_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
-        --socket_in PULL_BIND --socket_out PUSH_CONNECT
+        --socket_in PULL_BIND --socket_out PUB_BIND
         --mode TRAIN --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
       - "${MODEL_DIR}:/ext_data"
@@ -16,11 +16,12 @@ services:
     configs:
       - encoder_config
 
-  grpc_serve:
+  frontend:
     image: ${DOCKER_IMG_URL}
     command: >
-      grpc_serve --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
+      frontend --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
        --host_in encoder_serviced --host_out encoder_serviced
+       --socket_in SUB_CONNECT --socket_out PUSH_CONNECT
        --grpc_port ${GRPC_PORT}
 
     networks:

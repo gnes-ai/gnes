@@ -62,8 +62,8 @@ class JointIndexer(CompositionalEncoder):
     @component.setter
     def component(self, comps: Callable[[], Union[list, dict]]):
         if not callable(comps):
-            raise TypeError('component mus be a callable function that returns '
-                            'a List[BaseEncoder]')
+            raise TypeError('component must be a callable function that returns '
+                            'a List[BaseIndexer]')
         if not getattr(self, 'init_from_yaml', False):
             self._component = comps()
         else:
@@ -95,7 +95,6 @@ class JointIndexer(CompositionalEncoder):
               *args,
               **kwargs) -> List[List[Tuple]]:
         topk_results = self._binary_indexer.query(keys, top_k, *args, **kwargs)
-
         doc_caches = dict()
         topk_results_with_docs = []
         for topk in topk_results:
@@ -103,7 +102,6 @@ class JointIndexer(CompositionalEncoder):
             for (doc_id, offset), score in topk:
                 doc = doc_caches.get(doc_id, self._doc_indexer.query([doc_id])[0])
                 doc_caches[doc_id] = doc
-                chunk = doc.text_chunks[offset] if doc.text_chunks else doc.blob_chunks[offset]
-                topk_wd.append(((doc_id, offset), score, doc.doc_size, chunk))
+                topk_wd.append(((doc_id, offset), score, doc.chunks[offset]))
             topk_results_with_docs.append(topk_wd)
         return topk_results_with_docs

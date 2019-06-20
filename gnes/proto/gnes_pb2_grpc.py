@@ -4,7 +4,7 @@ import grpc
 from . import gnes_pb2 as gnes__pb2
 
 
-class GnesStub(object):
+class GnesRPCStub(object):
   # missing associated documentation comment in .proto file
   pass
 
@@ -14,32 +14,55 @@ class GnesStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.Train = channel.unary_unary(
+        '/gnes.GnesRPC/Train',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
+        )
     self.Index = channel.unary_unary(
-        '/gnes.Gnes/Index',
-        request_serializer=gnes__pb2.IndexRequest.SerializeToString,
-        response_deserializer=gnes__pb2.IndexResponse.FromString,
+        '/gnes.GnesRPC/Index',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
         )
-    self.Search = channel.unary_unary(
-        '/gnes.Gnes/Search',
-        request_serializer=gnes__pb2.SearchRequest.SerializeToString,
-        response_deserializer=gnes__pb2.SearchResponse.FromString,
+    self.Query = channel.unary_unary(
+        '/gnes.GnesRPC/Query',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
+        )
+    self._Call = channel.unary_unary(
+        '/gnes.GnesRPC/_Call',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
         )
 
 
-class GnesServicer(object):
+class GnesRPCServicer(object):
   # missing associated documentation comment in .proto file
   pass
 
-  def Index(self, request, context):
+  def Train(self, request, context):
     """option (rpc_core.method_no_deadline) = true;
     option (rpc_core.service_default_deadline_ms) = 5000;
-    rpc Train(IndexRequest) returns (IndexResponse) {}
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def Search(self, request, context):
+  def Index(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Query(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def _Call(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -47,19 +70,29 @@ class GnesServicer(object):
     raise NotImplementedError('Method not implemented!')
 
 
-def add_GnesServicer_to_server(servicer, server):
+def add_GnesRPCServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'Train': grpc.unary_unary_rpc_method_handler(
+          servicer.Train,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
+      ),
       'Index': grpc.unary_unary_rpc_method_handler(
           servicer.Index,
-          request_deserializer=gnes__pb2.IndexRequest.FromString,
-          response_serializer=gnes__pb2.IndexResponse.SerializeToString,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
       ),
-      'Search': grpc.unary_unary_rpc_method_handler(
-          servicer.Search,
-          request_deserializer=gnes__pb2.SearchRequest.FromString,
-          response_serializer=gnes__pb2.SearchResponse.SerializeToString,
+      'Query': grpc.unary_unary_rpc_method_handler(
+          servicer.Query,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
+      ),
+      '_Call': grpc.unary_unary_rpc_method_handler(
+          servicer._Call,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'gnes.Gnes', rpc_method_handlers)
+      'gnes.GnesRPC', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

@@ -92,8 +92,7 @@ setup(
         'pandas',
         'paramiko',
         'pattern3',
-        'asyncio',
-        'aiohttp',
+        'aiohttp==3.5.4',
         'annoy==1.15.2'
     ],
     extras_require={

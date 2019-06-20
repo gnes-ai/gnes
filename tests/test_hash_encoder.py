@@ -2,8 +2,9 @@ import os
 import unittest
 
 import numpy as np
-from gnes.encoder.hash import HashEncoder
+
 from gnes.encoder.base import PipelineEncoder
+from gnes.encoder.hash import HashEncoder
 
 
 class TestHash(unittest.TestCase):

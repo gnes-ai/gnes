@@ -15,176 +15,102 @@
 
 # pylint: disable=low-comment-ratio
 
-from gnes.proto import gnes_pb2
+
 import asyncio
-from aiohttp import web
-from concurrent.futures import ThreadPoolExecutor
-from ..messaging import send_message, recv_message
-from .base import build_socket, SocketType, ComponentNotLoad
-from ..helper import set_logger
-import zmq.decorators as zmqd
-from typing import List
-import zmq
 import ctypes
-import numpy as np
-import uuid
-import threading
 import json
+import random
+from concurrent.futures import ThreadPoolExecutor
+
+import grpc
+from aiohttp import web
+from google.protobuf.json_format import MessageToJson
+
+from ..helper import set_logger, batch_iterator
+from ..preprocessor.text import line2pb_doc
+from ..proto import gnes_pb2, gnes_pb2_grpc
 
 
 class HttpService:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.identity = str(uuid.uuid4())
-        self.result = {}
-        self.index_suc_msg = 'index succesful'
-        self.train_suc_msg = 'train succesful'
 
     def run(self):
-        self._run()
-
-    def _run(self):
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 
-        async def post_handler(request):
+        def index_request_parse(data):
+            texts = data['docs']
+            p = [line2pb_doc(l, random.randint(0, ctypes.c_uint(-1).value), deliminator='') for l in texts]
+            req = gnes_pb2.Request()
+            req.index.docs.extend(p)
+            return [req]
+
+        def train_request_parse(data):
+            texts = data['docs']
+            batch_size = data.get('batch_size', self.args.train_batch_size)
+            p = [line2pb_doc(l, random.randint(0, ctypes.c_uint(-1).value), deliminator='') for l in texts]
+            req_list = []
+            for pi in batch_iterator(p, batch_size):
+                req = gnes_pb2.Request()
+                req.train.docs.extend(pi)
+                req_list.append(req)
+            req = gnes_pb2.Request()
+            req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+            req_list.append(req)
+            return req_list
+
+        def query_request_parse(data):
+            texts = data['query']
+            top_k = data.get('top_k', self.args.default_k)
+            if top_k <= 0:
+                raise ValueError('"top_k: %d" is not a valid number' % top_k)
+
+            doc = line2pb_doc(texts, deliminator='')
+            req = gnes_pb2.Request()
+            req.search.query.CopyFrom(doc)
+            req.search.top_k = top_k
+            return [req]
+
+        async def general_handler(request, parser):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
-                mode = data["mode"] if "mode" in data else "query"
-                self.logger.info('receiver request: %s' % mode)
-                if mode == 'query':
-                    result = await loop.run_in_executor(executor,
-                                                        self.query,
-                                                        data['texts'])
-                    res_f = []
-                    if result:
-                        for _1 in range(len(result.querys)):
-                            res_ = []
-                            for _ in range(len(result.querys[_1].results)):
-                                res_.append(result.querys[_1].results[_].chunk.text)
-                            res_f.append(res_)
-
-                elif mode == 'index':
-                    result = await loop.run_in_executor(executor,
-                                                        self.index,
-                                                        data['texts'])
-                    res_f = self.index_suc_msg
-                elif mode == 'train':
-                    result = await loop.run_in_executor(executor,
-                                                        self.train,
-                                                        data['texts'])
-                    res_f = self.train_suc_msg
-                else:
-                    res_f = 'specific the right mode: train, index, query'
-
-                ok = 1
-            except TimeoutError:
-                res_f = ''
-                ok = 0
-            ret_body = json.dumps({"result": res_f, "meta": {}, "ok": str(ok)},ensure_ascii=False)
-            return web.Response(body=ret_body)
+                resp = await loop.run_in_executor(executor,
+                                                  self._grpc_call,
+                                                  parser(data))
+                return web.Response(body=json.dumps({'result': resp, 'meta': None}, ensure_ascii=False),
+                                    status=200,
+                                    content_type='application/json')
+            except Exception as ex:
+                return web.Response(body=json.dumps({'message': ex.message, 'type': type(ex)}), status=400,
+                                    content_type='application/json')
 
         async def init(loop):
             # persistant connection or non-persistant connection
-            handler_args = {"tcp_keepalive": False, "keepalive_timeout": 25}
+            handler_args = {'tcp_keepalive': False, 'keepalive_timeout': 25}
             app = web.Application(loop=loop,
-                                  client_max_size=10**10,
+                                  client_max_size=10 ** 10,
                                   handler_args=handler_args)
-            app.router.add_route('post', '/gnes', post_handler)
+            app.router.add_route('post', '/gnes/train', lambda x: general_handler(x, train_request_parse))
+            app.router.add_route('post', '/gnes/index', lambda x: general_handler(x, index_request_parse))
+            app.router.add_route('post', '/gnes/query', lambda x: general_handler(x, query_request_parse))
             srv = await loop.create_server(app.make_handler(),
-                                           'localhost',
+                                           self.args.http_host,
                                            self.args.http_port)
-            self.logger.info('Server started at localhost:%d ...' % self.args.http_port)
+            self.logger.info('Server started at: %d ...' % self.args.http_port)
             return srv
 
         loop.run_until_complete(init(loop))
         loop.run_forever()
 
-    def query(self, texts: List[str]):
-        search_req = gnes_pb2.SearchRequest()
-        search_req._request_id = str(uuid.uuid4()).encode('ascii')
-        search_req.time_out = self.args.timeout
-        search_req.top_k = 10
-
-        doc = gnes_pb2.Document()
-        doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-        doc.text = ' '.join(texts)
-        doc.text_chunks.extend(texts)
-        doc.doc_size = len(texts)
-        doc.is_parsed = True
-
-        search_req.doc.CopyFrom(doc)
-
-        # query = gnes_pb2.Query()
-        # query.top_k = top_k
-
-        search_message = gnes_pb2.Message()
-        search_message.client_id = self.identity
-        search_message.msg_id = search_req._request_id
-        search_message.num_part = 1
-        search_message.part_id = 1
-        search_message.mode = gnes_pb2.Message.QUERY
-        search_message.docs.extend([doc])
-
-        for i, chunk in enumerate(doc.text_chunks):
-            q = search_message.querys.add()
-            q.id = i
-            q.text = chunk
-            q.top_k = search_req.top_k
-
-        search_message.route = self.__class__.__name__
-        search_message.is_parsed = True
-
-        return self._send_recv_msg(search_message)
-
-    def index(self, texts: List[List[str]]):
-        message = self._gen_msg(texts)
-        message.mode = gnes_pb2.Message.INDEX
-        return self._send_recv_msg(message)
-
-    def train(self, texts: List[List[str]]):
-        message = self._gen_msg(texts)
-        message.mode = gnes_pb2.Message.TRAIN
-        return self._send_recv_msg(message)
-
-    def _gen_msg(self, texts: List[List[str]]):
-        message = gnes_pb2.Message()
-        message.client_id = self.identity
-        message.msg_id = str(uuid.uuid4())
-
-        for text in texts:
-            doc = message.docs.add()
-            doc.id = np.random.randint(0, ctypes.c_uint(-1).value)
-            doc.text = ' '.join(text)
-            doc.text_chunks.extend(text)
-            doc.doc_size = len(text)
-            doc.is_parsed = True
-
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-        return message
-
-    def _send_recv_msg(self, message):
-        with zmq.Context() as ctx:
-            ctx.setsockopt(zmq.LINGER, 0)
-            self.logger.info('connecting sockets...')
-            in_sock, _ = build_socket(ctx, self.args.host_in,
-                                      self.args.port_in,
-                                      self.args.socket_in,
-                                      None)
-            out_sock, _ = build_socket(ctx, self.args.host_out,
-                                       self.args.port_out,
-                                       self.args.socket_out,
-                                       None)
-            send_message(out_sock, message, timeout=self.args.timeout)
-            try:
-                res = recv_message(in_sock, timeout=self.args.timeout)
-            except TimeoutError:
-                self.logger.info('no response from sock, will return NULL list')
-                res = None
-            self.logger.info('message received, closing socket')
-            in_sock.close()
-            out_sock.close()
-
-        return res
+    def _grpc_call(self, req):
+        with grpc.insecure_channel(
+                '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
+                options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
+                         ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
+            stub = gnes_pb2_grpc.GnesRPCStub(channel)
+            res_f = None
+            for _req in req:
+                res_f = stub._Call(_req)
+        return json.loads(MessageToJson(res_f))

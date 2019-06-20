@@ -15,20 +15,32 @@
 
 # pylint: disable=low-comment-ratio
 
-import multiprocessing
 import threading
 import uuid
 from concurrent import futures
+from typing import List
 
 import grpc
 import zmq
 
-from gnes.proto import gnes_pb2, gnes_pb2_grpc
+from .base import BaseService
 from ..helper import set_logger
-from ..messaging import send_message, recv_message
+from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 
-_THREAD_CONCURRENCY = multiprocessing.cpu_count()
-LOGGER = set_logger(__name__)
+__all__ = ['GRPCFrontend']
+
+
+class BaseServicePool:
+    def __init__(self, available_bc: List['BaseService']):
+        self.available_bc = available_bc
+        self.bc = None
+
+    def __enter__(self):
+        self.bc = self.available_bc.pop()
+        return self.bc
+
+    def __exit__(self, *args):
+        self.available_bc.append(self.bc)
 
 
 class ZmqContext(object):
@@ -62,19 +74,17 @@ class ZmqClient:
 
     def __init__(self, args):
         self.args = args
+        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
+        self.identity = str(uuid.uuid4())
         self.host_in = args.host_in
         self.host_out = args.host_out
         self.port_in = args.port_in
         self.port_out = args.port_out
-        # identity: str =None,
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
-
-        self.identity = str(uuid.uuid4()).encode('ascii')
-        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
         self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
+        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity.encode())
         self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
 
     def close(self):
@@ -83,8 +93,6 @@ class ZmqClient:
         self.context.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
-        message.client_id = self.identity
-        self.logger.info('send message: %s' % message.client_id)
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
@@ -92,105 +100,72 @@ class ZmqClient:
         return msg
 
 
-class GNESServicer(gnes_pb2_grpc.GnesServicer):
+class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
 
     def __init__(self, args):
         self.args = args
-        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+        self.logger = set_logger(self.__class__.__name__, args.verbose)
         self.zmq_context = ZmqContext(args)
 
-    def Index(self, request, context):
-        # req_id = str(uuid.uuid4())
-        req_id = request._request_id if request._request_id else str(
-            uuid.uuid4())
-        self.logger.info('index request: %s received' % req_id)
-        message = gnes_pb2.Message()
-        message.client_id = req_id
-        message.msg_id = req_id
-        message.num_part = 1
-        message.part_id = 1
-        if request.update_model:
-            message.mode = gnes_pb2.Message.TRAIN
-            if not request.send_more:
-                message.command = gnes_pb2.Message.TRAIN_ENCODER
-                # self.logger.info("cmd message received: %s" % str(message))
+    def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
+        msg = gnes_pb2.Message()
+        msg.envelope.client_id = zmq_client.identity if zmq_client.identity else ''
+        if body.request_id:
+            msg.envelope.request_id = body.request_id
         else:
-            message.mode = gnes_pb2.Message.INDEX
-        message.docs.extend(request.docs)
+            msg.envelope.request_id = str(uuid.uuid4())
+            self.logger.warning('request_id is missing, filled it with a random uuid!')
+        msg.envelope.part_id = 1
+        msg.envelope.num_part = 1
+        msg.envelope.timeout = 5000
+        r = msg.envelope.routes.add()
+        r.service = zmq_client.__class__.__name__
+        r.timestamp.GetCurrentTime()
+        msg.request.CopyFrom(body)
+        return msg
 
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-
+    def _Call(self, request, context):
+        self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
         with self.zmq_context as zmq_client:
-            zmq_client.send_message(message, self.args.timeout)
-            # result = zmq_client.recv_message()
-            # print(result)
-        return gnes_pb2.IndexResponse()
+            msg = self.add_envelope(request, zmq_client)
+            zmq_client.send_message(msg, self.args.timeout)
+            resp = zmq_client.recv_message(self.args.timeout)
+            self.logger.info("received message done!")
+            return resp.response
 
-        # process result message and build response proto
+        # with BaseService(self.args, use_event_loop=False) as bs:
+        #     msg = self.add_envelope(request, bs)
+        #     bs.send_message(msg, self.args.timeout)
+        #     resp = bs.recv_message(self.args.timeout)
+        #     self.logger.info("received message done!")
+        #     return resp.response
+
+    def Train(self, request, context):
+        return self._Call(request, context)
+
+    def Index(self, request, context):
+        return self._Call(request, context)
 
     def Search(self, request, context):
-        # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        # context.set_details('Method not implemented!')
-        # raise NotImplementedError('Method not implemented!')
-
-        req_id = request._request_id if request._request_id else str(
-            uuid.uuid4())
-        self.logger.info('search request: %s received' % req_id)
-        message = gnes_pb2.Message()
-        message.client_id = req_id
-        message.msg_id = req_id
-        message.num_part = 1
-        message.part_id = 1
-        message.mode = gnes_pb2.Message.QUERY
-        message.docs.extend([request.doc])
-
-        chunks = request.doc.text_chunks if len(
-            request.doc.text_chunks) > 0 else request.doc.blob_chunks
-
-        for i, chunk in enumerate(chunks):
-            q = message.querys.add()
-            q.id = i
-            q.text = chunk
-            q.top_k = request.top_k
-
-        message.route = self.__class__.__name__
-        message.is_parsed = True
-
-        with self.zmq_context as zmq_client:
-            # message.client_id = zmq_client.identity
-            zmq_client.send_message(message, self.args.timeout)
-            # print('send request message: ' + str(message))
-            result = zmq_client.recv_message()
-
-            response = gnes_pb2.SearchResponse()
-            response.querys.extend(result.querys)
-
-            try:
-                for r in result.querys[0].results:
-                    print(r.chunk.text)
-            except Exception as ex:
-                self.logger.error(ex)
-
-            return response
+        return self._Call(request, context)
 
 
-def serve(args):
-    # Initialize GRPC Server
-    LOGGER.info('start a grpc server with %d workers ...' % _THREAD_CONCURRENCY)
-    server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=_THREAD_CONCURRENCY))
+class GRPCFrontend:
+    def __init__(self, args):
+        self.logger = set_logger(self.__class__.__name__, args.verbose)
+        self.server = grpc.server(
+            futures.ThreadPoolExecutor(max_workers=args.max_concurrency))
+        self.logger.info('start a grpc server with %d workers' % args.max_concurrency)
+        gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), self.server)
 
-    # Initialize Services
-    gnes_pb2_grpc.add_GnesServicer_to_server(GNESServicer(args), server)
+        # Start GRPC Server
+        self.bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
+        self.server.add_insecure_port(self.bind_address)
 
-    # Start GRPC Server
-    bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
-    # server.add_insecure_port('[::]:' + '5555')
-    server.add_insecure_port(bind_address)
-    server.start()
-    LOGGER.info('grpc service is listening at: %s' % bind_address)
+    def __enter__(self):
+        self.server.start()
+        self.logger.info('grpc service is listening at: %s' % self.bind_address)
+        return self
 
-    # Keep application alive
-    forever = threading.Event()
-    forever.wait()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass

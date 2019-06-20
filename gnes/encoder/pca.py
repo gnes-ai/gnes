@@ -18,11 +18,11 @@
 
 import numpy as np
 
-from .base import BaseEncoder
+from .base import BaseNumericEncoder
 from ..helper import get_perm, batching, get_optimal_sample_size, train_required
 
 
-class PCALocalEncoder(BaseEncoder):
+class PCALocalEncoder(BaseNumericEncoder):
     def __init__(self, output_dim: int, num_locals: int,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)

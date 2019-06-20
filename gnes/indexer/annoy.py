@@ -24,7 +24,7 @@ class AnnoyIndexer(BaseBinaryIndexer):
         try:
             self._index.load(self.indexer_file_path)
         except:
-            self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
+            self.logger.warning('fail to load model from %s, will create an empty one' % self.indexer_file_path)
 
     def add(self, keys: List[int], vectors: np.ndarray, *args, **kwargs):
         if len(vectors) != len(keys):

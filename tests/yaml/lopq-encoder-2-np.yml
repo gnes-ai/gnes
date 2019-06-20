@@ -9,4 +9,4 @@ component:
   - !PQEncoder
     parameter:
       num_bytes: 8
-  - !BinaryEncoder {}
+  - !BaseBinaryEncoder {}
