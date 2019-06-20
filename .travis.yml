@@ -30,6 +30,7 @@ install:
   - pip install -e . --progress-bar off
 
 before_script:
+  - mkdir ${MODEL_DIR}
   - ./.travis/download.sh
   # - env > .env
 
