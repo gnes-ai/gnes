@@ -39,7 +39,7 @@ function donwload_models() {
     fi
 
     if [ ! -f sgns.wiki.bigram-char.sample ]; then
-        wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/sgns.wiki.bigram-char.sample -q0 sgns.wiki.bigram-char.sample
+        wget https://gnes-1252847528.cos.ap-guangzhou.myqcloud.com/sgns.wiki.bigram-char.sample -qO sgns.wiki.bigram-char.sample
     fi
 }
 
