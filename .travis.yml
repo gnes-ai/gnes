@@ -1,0 +1,46 @@
+os: linux
+dist: xenial
+sudo: false
+language: python
+services:
+  - docker
+python:
+  - "3.6"
+
+cache:
+  bundler: true
+  directories:
+    - $MODEL_DATA_FOLDER
+    - pip
+
+env:
+  global:
+    - MODEL_DATA_FOLDER=$HOME/ext_model/
+
+before_install:
+  - pip install --upgrade pip
+  - pip install -U pylint
+
+  # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
+  # - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
+
+install:
+  # Test install with current version of setuptools
+  - pip install -e . --progress-bar off
+
+# before_script:
+#   - env > .env
+
+# command to run tests
+script:
+  - pylint gnes/**/*.py --exit-zero
+
+# after_script:
+#   - docker rm -f ${CONTAINER_NAME}
+
+branches:
+  only:
+    - travis
+
+notifications:
+  email: false
