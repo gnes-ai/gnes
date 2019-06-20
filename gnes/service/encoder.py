@@ -35,7 +35,7 @@ class EncoderService(BS):
             try:
                 self._model = BaseEncoder.load_yaml(
                     self.args.yaml_path)
-                self.logger.info(
+                self.logger.warning(
                     'load an uninitialized encoder, training is needed!')
             except FileNotFoundError:
                 raise ComponentNotLoad

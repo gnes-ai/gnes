@@ -1,8 +1,11 @@
 import os
 import unittest
 
+from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
 from gnes.preprocessor.text import line2pb_doc, txt_file2pb_docs
 from gnes.proto import gnes_pb2
+from gnes.service.grpc import ZmqClient
+from gnes.service.preprocessor import PreprocessorService
 
 
 class TestProto(unittest.TestCase):
@@ -30,3 +33,17 @@ class TestProto(unittest.TestCase):
         r = gnes_pb2.Request()
         r.train.docs.extend(docs)
         self.assertEqual(len(r.train.docs), 26)
+
+    def test_preprocessor_service_empty(self):
+        args = set_preprocessor_service_parser().parse_args([])
+        with PreprocessorService(args):
+            pass
+
+    def test_preprocessor_service_echo(self):
+        args = set_preprocessor_service_parser().parse_args([])
+        c_args = _set_client_parser().parse_args([])
+        with PreprocessorService(args), ZmqClient(c_args) as client:
+            msg = gnes_pb2.Message()
+            msg.request.index.docs.extend([gnes_pb2.Document() for _ in range(5)])
+            r = client.send_message(msg)
+            print(r)

@@ -33,33 +33,6 @@ def set_base_parser():
     return parser
 
 
-def set_nes_index_parser(parser=None):
-    import pkg_resources
-
-    if not parser:
-        parser = set_base_parser()
-    parser.add_argument('--document', type=str, required=True,
-                        help='text document(s) to index, each line is a doc')
-    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=pkg_resources.resource_stream('gnes',
-                                                              '/'.join(
-                                                                  ('resources', 'config', 'gnes', 'default.yml'))),
-                        help='YAML file for the model config')
-    return parser
-
-
-def set_nes_search_parser(parser=None):
-    if not parser:
-        parser = set_base_parser()
-    parser.add_argument('--dump_path', type=str, required=True,
-                        help='binary dump of a trained encoder')
-    parser.add_argument('--query', type=str, required=False,
-                        help='text query(s) to search, each line is a query')
-    parser.add_argument('-it', '--interactive', action='store_true', default=False,
-                        help='enter the interactive mode for prompt input')
-    return parser
-
-
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService
     if not parser:
@@ -98,7 +71,7 @@ def _set_client_parser(parser=None):
     parser.set_defaults(
         port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
         port_out=parser.get_default('port_in'),
-        socket_in=SocketType.SUB_CONNECT,
+        socket_in=SocketType.PULL_CONNECT,
         socket_out=SocketType.PUSH_CONNECT,
         read_only=True)
     return parser
@@ -108,13 +81,10 @@ def set_encoder_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     import pkg_resources
-    from ..service.base import ServiceMode, SocketType
+    from ..service.base import SocketType
     set_service_parser(parser)
     parser.add_argument('--dump_path', type=str, default=None,
                         help='binary dump of the service')
-    parser.add_argument('--mode', type=ServiceMode.from_string, choices=list(ServiceMode),
-                        required=True,
-                        help='mode of this service')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
                         default=pkg_resources.resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),
@@ -122,6 +92,25 @@ def set_encoder_service_parser(parser=None):
 
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
                         socket_out=SocketType.PUSH_BIND)
+    return parser
+
+
+def set_preprocessor_service_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    import pkg_resources
+    from ..service.base import SocketType
+    set_service_parser(parser)
+    parser.add_argument('--dump_path', type=str, default=None,
+                        help='binary dump of the service')
+    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
+                        default=pkg_resources.resource_stream(
+                            'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))),
+                        help='yaml config of the service')
+
+    parser.set_defaults(socket_in=SocketType.PULL_BIND,
+                        socket_out=SocketType.PUSH_BIND,
+                        read_only=True)
     return parser
 
 
@@ -178,6 +167,7 @@ def _set_grpc_parser(parser=None):
                         help='host port of the grpc service')
     return parser
 
+
 def set_grpc_frontend_parser(parser=None):
     if not parser:
         parser = set_base_parser()
@@ -232,6 +222,6 @@ def get_main_parser():
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
-    set_router_service_parser(sp.add_parser('router', help='start a router service'))
+    set_router_service_parser(sp.add_parser('route', help='start a router service'))
     set_http_service_parser(sp.add_parser('http', help='start a http service'))
     return parser

@@ -17,7 +17,7 @@
 
 import numpy as np
 
-from .base import BaseService as BS, ComponentNotLoad, ServiceMode, MessageHandler
+from .base import BaseService as BS, ComponentNotLoad, MessageHandler
 from ..proto import gnes_pb2, blob2array
 
 
@@ -32,15 +32,12 @@ class IndexerService(BS):
             self._model = BaseIndexer.load(self.args.dump_path)
             self.logger.info('load an indexer')
         except FileNotFoundError:
-            if self.args.mode == ServiceMode.INDEX:
-                try:
-                    self._model = BaseIndexer.load_yaml(
-                        self.args.yaml_path)
-                    self.logger.info(
-                        'load an uninitialized indexer, indexing is needed!')
-                except FileNotFoundError:
-                    raise ComponentNotLoad
-            else:
+            try:
+                self._model = BaseIndexer.load_yaml(
+                    self.args.yaml_path)
+                self.logger.warining(
+                    'load an uninitialized indexer, indexing is needed!')
+            except FileNotFoundError:
                 raise ComponentNotLoad
 
     @handler.register(gnes_pb2.Request.IndexRequest)

@@ -64,11 +64,6 @@ class SocketType(BetterEnum):
         return self.value % 2 == 0
 
 
-class ServiceMode(BetterEnum):
-    TRAIN = 0
-    INDEX = 1
-    QUERY = 2
-
 
 class ComponentNotLoad(Exception):
     pass

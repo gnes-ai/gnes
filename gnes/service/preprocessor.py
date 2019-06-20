@@ -33,6 +33,7 @@ class PreprocessorService(BS):
             self.logger.warning('fail to load the model from %s' % self.args.dump_path)
             try:
                 self._model = BasePreprocessor.load_yaml(self.args.yaml_path)
+                self.logger.warning('load an empty model from %s' % self.args.yaml_path)
             except FileNotFoundError:
                 raise ComponentNotLoad
 
