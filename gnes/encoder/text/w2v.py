@@ -20,43 +20,52 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseTextEncoder
-from ..helper import batching, pooling_np
+from gnes.encoder.base import BaseTextEncoder
+from gnes.helper import batching, cn_tokenizer, pooling_simple
 
 
-class FlairEncoder(BaseTextEncoder):
-
-    def __init__(self, model_name: str = 'multi-forward-fast',
+class Word2VecEncoder(BaseTextEncoder):
+    def __init__(self, model_dir,
+                 skiprows: int = 1,
                  batch_size: int = 64,
+                 dimension: int = 300,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.model_name = model_name
-
+        self.model_dir = model_dir
+        self.skiprows = skiprows
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
+        self.dimension = dimension
 
     def _post_init(self):
-        from flair.embeddings import FlairEmbeddings
-        self._flair = FlairEmbeddings(self.model_name)
+        count = 0
+        self.word2vec_df = {}
+        with open(self.model_dir, 'r') as f:
+            for line in f.readlines():
+                line = line.strip().split(' ')
+                if count < self.skiprows:
+                    count += 1
+                    continue
+                if len(line) > self.dimension:
+                    self.word2vec_df[line[0]] = np.array([float(i) for i in line[1:]], dtype=np.float32)
+
+        self.empty = np.zeros([self.dimension], dtype=np.float32)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        from flair.data import Sentence
         # tokenize text
-        batch_tokens = [Sentence(sent) for sent in text]
-
-        flair_encodes = self._flair.embed(batch_tokens)
-
+        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
         pooled_data = []
-        for sentence in flair_encodes:
-            _layer_data = np.stack([s.embedding.numpy() for s in sentence])
-            _pooled = pooling_np(_layer_data, self.pooling_strategy)
-            pooled_data.append(_pooled)
-        return np.asarray(pooled_data, dtype=np.float32)
+
+        for tokens in batch_tokens:
+            _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
+            pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
+
+        return np.array(pooled_data).astype(np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
-        del d['_flair']
+        del d['word2vec_df']
+        del d['empty']
         return d

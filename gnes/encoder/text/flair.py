@@ -20,52 +20,43 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseTextEncoder
-from ..helper import batching, cn_tokenizer, pooling_np
+from gnes.encoder.base import BaseTextEncoder
+from gnes.helper import batching, pooling_np
 
 
-class ElmoEncoder(BaseTextEncoder):
+class FlairEncoder(BaseTextEncoder):
 
-    def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
+    def __init__(self, model_name: str = 'multi-forward-fast',
+                 batch_size: int = 64,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.model_dir = model_dir
+        self.model_name = model_name
 
         self.batch_size = batch_size
-        if pooling_layer > 2:
-            raise ValueError('pooling_layer = %d is not supported now!' %
-                             pooling_layer)
-        self.pooling_layer = pooling_layer
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
 
     def _post_init(self):
-        from elmoformanylangs import Embedder
-        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
+        from flair.embeddings import FlairEmbeddings
+        self._flair = FlairEmbeddings(self.model_name)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+        from flair.data import Sentence
         # tokenize text
-        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
+        batch_tokens = [Sentence(sent) for sent in text]
 
-        elmo_encodes = self._elmo.sents2elmo(batch_tokens, output_layer=-2)
+        flair_encodes = self._flair.embed(batch_tokens)
 
         pooled_data = []
-        for token_encodes in elmo_encodes:
-            if self.pooling_layer == -1:
-                _layer_data = np.average(token_encodes, axis=0)
-            elif self.pooling_layer >= 0:
-                _layer_data = token_encodes[self.pooling_layer]
-            else:
-                raise ValueError('pooling_layer = %d is not supported now!' %
-                                 self.pooling_layer)
-
+        for sentence in flair_encodes:
+            _layer_data = np.stack([s.embedding.numpy() for s in sentence])
             _pooled = pooling_np(_layer_data, self.pooling_strategy)
             pooled_data.append(_pooled)
         return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
-        del d['_elmo']
+        del d['_flair']
         return d

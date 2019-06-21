@@ -18,29 +18,15 @@
 import threading
 import uuid
 from concurrent import futures
-from typing import List
 
 import grpc
 import zmq
 
-from .base import BaseService
+from .base import build_socket
 from ..helper import set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 
 __all__ = ['GRPCFrontend']
-
-
-class BaseServicePool:
-    def __init__(self, available_bc: List['BaseService']):
-        self.available_bc = available_bc
-        self.bc = None
-
-    def __enter__(self):
-        self.bc = self.available_bc.pop()
-        return self.bc
-
-    def __exit__(self, *args):
-        self.available_bc.append(self.bc)
 
 
 class ZmqContext(object):
@@ -74,30 +60,31 @@ class ZmqClient:
 
     def __init__(self, args):
         self.args = args
-        self.logger = set_logger(self.__class__.__name__ + ':%s' % self.identity, self.args.verbose)
-        self.identity = str(uuid.uuid4())
-        self.host_in = args.host_in
-        self.host_out = args.host_out
-        self.port_in = args.port_in
-        self.port_out = args.port_out
-        self.context = zmq.Context()
-        self.sender = self.context.socket(zmq.PUSH)
-        self.sender.connect('tcp://%s:%d' % (self.host_out, self.port_out))
-        self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity.encode())
-        self.receiver.connect('tcp://%s:%d' % (self.host_in, self.port_in))
+        self.identity = args.identity if 'identity' in args else None
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+        self.ctx = zmq.Context()
+        self.ctx.setsockopt(zmq.LINGER, 0)
+        self.receiver, _ = build_socket(self.ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
+                                        getattr(self, 'identity', None))
+        self.sender, _ = build_socket(self.ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
+                                      getattr(self, 'identity', None))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         self.sender.close()
         self.receiver.close()
-        self.context.term()
+        self.ctx.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        msg = recv_message(self.receiver, timeout=timeout)
-        return msg
+        return recv_message(self.receiver, timeout=timeout)
 
 
 class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
@@ -132,13 +119,6 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
             resp = zmq_client.recv_message(self.args.timeout)
             self.logger.info("received message done!")
             return resp.response
-
-        # with BaseService(self.args, use_event_loop=False) as bs:
-        #     msg = self.add_envelope(request, bs)
-        #     bs.send_message(msg, self.args.timeout)
-        #     resp = bs.recv_message(self.args.timeout)
-        #     self.logger.info("received message done!")
-        #     return resp.response
 
     def Train(self, request, context):
         return self._Call(request, context)

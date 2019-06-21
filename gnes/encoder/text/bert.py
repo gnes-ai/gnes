@@ -20,8 +20,8 @@ from typing import List
 
 import numpy as np
 
-from .base import CompositionalEncoder, BaseTextEncoder
-from ..helper import batching
+from gnes.encoder.base import CompositionalEncoder, BaseTextEncoder
+from gnes.helper import batching
 
 
 class BertEncoder(BaseTextEncoder):

@@ -14,3 +14,12 @@
 #  limitations under the License.
 
 # pylint: disable=low-comment-ratio
+
+from ..base import TrainableBase
+from ..proto import gnes_pb2
+
+
+class BasePreprocessor(TrainableBase):
+
+    def apply(self, doc: 'gnes_pb2.Document'):
+        pass

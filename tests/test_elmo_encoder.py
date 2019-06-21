@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.elmo import ElmoEncoder
+from gnes.encoder.text.elmo import ElmoEncoder
 
 
 class TestElmoEncoder(unittest.TestCase):

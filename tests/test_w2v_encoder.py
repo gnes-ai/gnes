@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.w2v import Word2VecEncoder
+from gnes.encoder.text.w2v import Word2VecEncoder
 
 
 class TestW2vEncoder(unittest.TestCase):

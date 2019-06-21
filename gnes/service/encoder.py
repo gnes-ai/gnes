@@ -16,10 +16,8 @@
 # pylint: disable=low-comment-ratio
 from typing import List, Union
 
-import zmq
-
 from .base import BaseService as BS, ComponentNotLoad, MessageHandler
-from ..proto import gnes_pb2, array2blob, send_message
+from ..proto import gnes_pb2, array2blob
 
 
 class EncoderService(BS):
@@ -37,7 +35,7 @@ class EncoderService(BS):
             try:
                 self._model = BaseEncoder.load_yaml(
                     self.args.yaml_path)
-                self.logger.info(
+                self.logger.warning(
                     'load an uninitialized encoder, training is needed!')
             except FileNotFoundError:
                 raise ComponentNotLoad
@@ -52,7 +50,7 @@ class EncoderService(BS):
                 for d in docs for c in d.chunks]
 
     @handler.register(gnes_pb2.Request.IndexRequest)
-    def _handler_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_index(self, msg: 'gnes_pb2.Message'):
         chunks = self.get_chunks_from_docs(msg.request.index.docs)
         vecs = self._model.encode(chunks)
         s = 0
@@ -60,29 +58,25 @@ class EncoderService(BS):
             d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
             s += len(d.chunks)
 
-        send_message(out, msg, self.args.timeout)
-
     @handler.register(gnes_pb2.Request.TrainRequest)
-    def _handler_train(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_train(self, msg: 'gnes_pb2.Message'):
         chunks = self.get_chunks_from_docs(msg.request.train.docs)
         self.train_data.extend(chunks)
         msg.response.train.status = gnes_pb2.Response.PENDING
-        send_message(out, msg, self.args.timeout)
 
     @handler.register(gnes_pb2.Request.ControlRequest)
-    def _handler_flush(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_flush(self, msg: 'gnes_pb2.Message'):
         if msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
             self._model.train(self.train_data)
             self.is_model_changed.set()
             self.logger.info("encoder has been trained and clear the training data")
             self.train_data.clear()
-
-        msg.response.control.status = gnes_pb2.Response.SUCCESS
-        send_message(out, msg, self.args.timeout)
+            msg.response.control.status = gnes_pb2.Response.SUCCESS
+        else:
+            super()._handler_control(msg)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
-    def _handler_search(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_search(self, msg: 'gnes_pb2.Message'):
         chunks = self.get_chunks_from_docs(msg.request.search.query)
         vecs = self._model.encode(chunks)
         msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(vecs))
-        send_message(out, msg, self.args.timeout)

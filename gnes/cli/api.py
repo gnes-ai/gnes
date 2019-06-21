@@ -45,52 +45,11 @@ def frontend(args):
         forever.wait()
 
 
-def client(args):
-    import grpc
-
-    from ..helper import batch_iterator
-    from ..proto import gnes_pb2, gnes_pb2_grpc
-    from ..preprocessor.text import txt_file2pb_docs
-
-    pb_docs = txt_file2pb_docs(args.txt_file)
-
-    with grpc.insecure_channel(
-            '%s:%s' % (args.grpc_host, args.grpc_port),
-            options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
-                     ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
-        stub = gnes_pb2_grpc.GnesRPCStub(channel)
-
-        if args.mode == 'train':
-            # feed and accumulate training data
-            for p in batch_iterator(pb_docs, args.batch_size):
-                req = gnes_pb2.Request()
-                req.train.docs.extend(p)
-                resp = stub._Call(req)
-                print(resp)
-
-            # start the real training
-            req = gnes_pb2.Request()
-            req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
-            resp = stub._Call(req)
-            print(resp)
-        elif args.mode == 'index':
-            for p in batch_iterator(pb_docs, args.batch_size):
-                req = gnes_pb2.Request()
-                req.index.docs.extend(p)
-                resp = stub._Call(req)
-                print(resp)
-
-        elif args.mode == 'query':
-            for idx, doc in enumerate(pb_docs):
-                req = gnes_pb2.Request()
-                req.search.query.CopyFrom(doc)
-                req.search.top_k = 10
-                resp = stub._Call(req)
-                print('query %d result: %s' % (idx, resp))
-                input('press any key to continue...')
+def client_http(args):
+    from ..client.http import HttpClient
+    HttpClient(args).start()
 
 
-def http(args):
-    from ..service.http import HttpService
-    mh = HttpService(args)
-    mh.run()
+def client_cli(args):
+    from ..client.cli import CLIClient
+    CLIClient(args)

@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.hash import HashEncoder
+from gnes.encoder.numeric.hash import HashEncoder
 
 
 class TestHash(unittest.TestCase):

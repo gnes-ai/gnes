@@ -20,52 +20,52 @@ from typing import List
 
 import numpy as np
 
-from .base import BaseTextEncoder
-from ..helper import batching, cn_tokenizer, pooling_simple
+from gnes.encoder.base import BaseTextEncoder
+from gnes.helper import batching, cn_tokenizer, pooling_np
 
 
-class Word2VecEncoder(BaseTextEncoder):
-    def __init__(self, model_dir,
-                 skiprows: int = 1,
-                 batch_size: int = 64,
-                 dimension: int = 300,
+class ElmoEncoder(BaseTextEncoder):
+
+    def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.model_dir = model_dir
-        self.skiprows = skiprows
+
         self.batch_size = batch_size
+        if pooling_layer > 2:
+            raise ValueError('pooling_layer = %d is not supported now!' %
+                             pooling_layer)
+        self.pooling_layer = pooling_layer
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
-        self.dimension = dimension
 
     def _post_init(self):
-        count = 0
-        self.word2vec_df = {}
-        with open(self.model_dir, 'r') as f:
-            for line in f.readlines():
-                line = line.strip().split(' ')
-                if count < self.skiprows:
-                    count += 1
-                    continue
-                if len(line) > self.dimension:
-                    self.word2vec_df[line[0]] = np.array([float(i) for i in line[1:]], dtype=np.float32)
-
-        self.empty = np.zeros([self.dimension], dtype=np.float32)
+        from elmoformanylangs import Embedder
+        self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
         batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
+
+        elmo_encodes = self._elmo.sents2elmo(batch_tokens, output_layer=-2)
+
         pooled_data = []
+        for token_encodes in elmo_encodes:
+            if self.pooling_layer == -1:
+                _layer_data = np.average(token_encodes, axis=0)
+            elif self.pooling_layer >= 0:
+                _layer_data = token_encodes[self.pooling_layer]
+            else:
+                raise ValueError('pooling_layer = %d is not supported now!' %
+                                 self.pooling_layer)
 
-        for tokens in batch_tokens:
-            _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
-            pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
-
-        return np.array(pooled_data).astype(np.float32)
+            _pooled = pooling_np(_layer_data, self.pooling_strategy)
+            pooled_data.append(_pooled)
+        return np.asarray(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()
-        del d['word2vec_df']
-        del d['empty']
+        del d['_elmo']
         return d

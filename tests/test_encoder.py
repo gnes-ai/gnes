@@ -5,9 +5,9 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.pca import PCALocalEncoder
-from gnes.encoder.pq import PQEncoder
-from gnes.encoder.tf_pq import TFPQEncoder
+from gnes.encoder.numeric.pca import PCALocalEncoder
+from gnes.encoder.numeric.pq import PQEncoder
+from gnes.encoder.numeric.tf_pq import TFPQEncoder
 
 
 class TestPCA(unittest.TestCase):

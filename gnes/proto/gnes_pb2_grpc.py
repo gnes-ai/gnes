@@ -3,7 +3,6 @@ import grpc
 
 from . import gnes_pb2 as gnes__pb2
 
-
 class GnesRPCStub(object):
   # missing associated documentation comment in .proto file
   pass

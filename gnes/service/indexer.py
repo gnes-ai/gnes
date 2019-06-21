@@ -16,10 +16,9 @@
 # pylint: disable=low-comment-ratio
 
 import numpy as np
-import zmq
 
-from .base import BaseService as BS, ComponentNotLoad, ServiceMode, MessageHandler
-from ..proto import gnes_pb2, blob2array, send_message
+from .base import BaseService as BS, ComponentNotLoad, MessageHandler
+from ..proto import gnes_pb2, blob2array
 
 
 class IndexerService(BS):
@@ -33,40 +32,16 @@ class IndexerService(BS):
             self._model = BaseIndexer.load(self.args.dump_path)
             self.logger.info('load an indexer')
         except FileNotFoundError:
-            if self.args.mode == ServiceMode.INDEX:
-                try:
-                    self._model = BaseIndexer.load_yaml(
-                        self.args.yaml_path)
-                    self.logger.info(
-                        'load an uninitialized indexer, indexing is needed!')
-                except FileNotFoundError:
-                    raise ComponentNotLoad
-            else:
+            try:
+                self._model = BaseIndexer.load_yaml(
+                    self.args.yaml_path)
+                self.logger.warining(
+                    'load an uninitialized indexer, indexing is needed!')
+            except FileNotFoundError:
                 raise ComponentNotLoad
 
-    def _index_and_notify(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
-        if not msg.is_encoded:
-            raise RuntimeError("the documents should be encoded at first!")
-
-        offsets = []
-        all_vecs = []
-        doc_ids = []
-        for doc in msg.docs:
-            assert doc.doc_size == doc.encodes.shape[0]
-            all_vecs.append(blob2array(doc.encodes))
-            doc_ids += [doc.id] * doc.doc_size
-            offsets += list(range(doc.doc_size))
-
-        from ..indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
-        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
-            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
-        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
-            self._model.add([d.id for d in msg.docs], [d for d in msg.docs])
-        send_message(out, msg, self.args.timeout)
-        self.is_model_changed.set()
-
     @handler.register(gnes_pb2.Request.IndexRequest)
-    def _handler_index(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_index(self, msg: 'gnes_pb2.Message'):
         all_vecs = []
         doc_ids = []
         offsets = []
@@ -84,11 +59,10 @@ class IndexerService(BS):
             self._model.add([d.doc_id for d in msg.request.index.docs], [d for d in msg.request.index.docs])
 
         msg.response.index.status = gnes_pb2.Response.SUCCESS
-        send_message(out, msg, self.args.timeout)
         self.is_model_changed.set()
 
     @handler.register(gnes_pb2.Request.QueryRequest)
-    def _handler_search(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_search(self, msg: 'gnes_pb2.Message'):
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
         for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
@@ -101,4 +75,3 @@ class IndexerService(BS):
                 # if args is not empty, then it must come from a multiheadindexer
                 if args:
                     r.chunk.CopyFrom(args[0])
-        send_message(out, msg, self.args.timeout)

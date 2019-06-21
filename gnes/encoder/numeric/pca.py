@@ -18,8 +18,8 @@
 
 import numpy as np
 
-from .base import BaseNumericEncoder
-from ..helper import get_perm, batching, get_optimal_sample_size, train_required
+from gnes.encoder.base import BaseNumericEncoder
+from gnes.helper import get_perm, batching, get_optimal_sample_size, train_required
 
 
 class PCALocalEncoder(BaseNumericEncoder):

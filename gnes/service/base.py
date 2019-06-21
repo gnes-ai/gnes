@@ -18,8 +18,9 @@
 
 import threading
 import time
+import types
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, List, Union
 
 import zmq
 import zmq.decorators as zmqd
@@ -63,17 +64,15 @@ class SocketType(BetterEnum):
         return self.value % 2 == 0
 
 
-class ServiceMode(BetterEnum):
-    TRAIN = 0
-    INDEX = 1
-    QUERY = 2
-
-
 class ComponentNotLoad(Exception):
     pass
 
 
 class ServiceError(Exception):
+    pass
+
+
+class EventLoopEnd(Exception):
     pass
 
 
@@ -115,9 +114,13 @@ class MessageHandler:
         self.routes = {k: v for k, v in mh.routes.items()} if mh else {}
         self.logger = set_logger(self.__class__.__name__)
 
-    def register(self, msg_type):
+    def register(self, msg_type: Union[List, Tuple, type]):
         def decorator(f):
-            self.routes[msg_type] = f
+            if isinstance(msg_type, list) or isinstance(msg_type, tuple):
+                for m in msg_type:
+                    self.routes[m] = f
+            else:
+                self.routes[msg_type] = f
             return f
 
         return decorator
@@ -133,7 +136,7 @@ class MessageHandler:
             if body.WhichOneof('body'):
                 msg_type = type(getattr(body, body.WhichOneof('body')))
                 if msg_type in self.routes:
-                    self.logger.info('received a %r message' % msg_type)
+                    self.logger.info('received a %r message' % msg_type.__name__)
                     fn = self.routes.get(msg_type)
                 else:
                     fn = get_default_fn(msg_type)
@@ -177,6 +180,8 @@ class BaseService(threading.Thread):
                     'auto-dumping the new change of the model every %ds...' % self.args.dump_interval)
                 self.dump()
                 time.sleep(self.args.dump_interval)
+            else:
+                time.sleep(1)
 
     def dump(self):
         if not self.args.read_only:
@@ -194,14 +199,27 @@ class BaseService(threading.Thread):
                 add_route(msg.envelope, self.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
-                # if msg.request and msg.request.WhichOneof('body') and \
-                #         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                #     out_sock = self.ctrl_sock
-                # else:
-                #     out_sock = self.out_sock
-                out_sock = self.out_sock
-                fn(self, msg, out_sock)
-                self.logger.info('handler is done')
+                if msg.request and msg.request.WhichOneof('body') and \
+                        type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                    out_sock = self.ctrl_sock
+                else:
+                    out_sock = self.out_sock
+                try:
+                    # NOTE that msg is mutable object, it may be modified in fn()
+                    ret = fn(self, msg)
+                    if ret is None:
+                        # assume 'msg' is modified inside fn()
+                        send_message(out_sock, msg, timeout=self.args.timeout)
+                    elif isinstance(ret, types.GeneratorType):
+                        for r_msg in ret:
+                            send_message(out_sock, r_msg, timeout=self.args.timeout)
+                    else:
+                        raise ServiceError('unknown return type from the handler: %s' % fn)
+
+                    self.logger.info('handler %s is done' % fn)
+                except EventLoopEnd:
+                    send_message(out_sock, msg, timeout=self.args.timeout)
+                    raise EventLoopEnd
         except ServiceError as e:
             self.logger.error(e)
 
@@ -262,7 +280,7 @@ class BaseService(threading.Thread):
                     self.is_handler_done.clear()
                 if self.args.dump_interval == 0:
                     self.dump()
-        except StopIteration:
+        except EventLoopEnd:
             self.logger.info('break from the event loop')
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
@@ -278,19 +296,17 @@ class BaseService(threading.Thread):
         pass
 
     @handler.register(NotImplementedError)
-    def _handler_default(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_default(self, msg: 'gnes_pb2.Message'):
         raise NotImplementedError
 
     @handler.register(gnes_pb2.Request.ControlRequest)
-    def _handler_control(self, msg: 'gnes_pb2.Message', out: 'zmq.Socket'):
+    def _handler_control(self, msg: 'gnes_pb2.Message'):
         if msg.request.control.command == gnes_pb2.Request.ControlRequest.TERMINATE:
             self.is_event_loop.clear()
             msg.response.control.status = gnes_pb2.Response.SUCCESS
-            send_message(self.ctrl_sock, msg, self.args.timeout)
-            raise StopIteration
+            raise EventLoopEnd
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
-            send_message(self.ctrl_sock, msg, self.args.timeout)
         else:
             raise ServiceError('dont know how to handle %s' % msg.request.control)
 
