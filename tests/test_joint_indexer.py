@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from gnes.indexer.base import JointIndexer
-from gnes.preprocessor.text import txt_file2pb_docs
+from tests import txt_file2pb_docs
 
 
 class TestJointIndexer(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestJointIndexer(unittest.TestCase):
         self.docs = []
         self.querys = []
 
-        self.pb_docs = txt_file2pb_docs(os.path.join(dirname, 'tangshi.txt'))
+        self.pb_docs = txt_file2pb_docs(open(os.path.join(dirname, 'tangshi.txt')))
 
     def test_add(self):
         mhi = JointIndexer.load_yaml(self.yaml_path)

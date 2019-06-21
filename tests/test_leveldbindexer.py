@@ -3,16 +3,14 @@ import unittest
 from shutil import rmtree
 
 from gnes.indexer.leveldb import LVDBIndexer
-from gnes.proto import gnes_pb2
-from gnes.preprocessor.text import txt_file2pb_docs
+from tests import txt_file2pb_docs
 
 
 class TestBaseLVDB(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        self.test_docs = txt_file2pb_docs(os.path.join(dirname, 'tangshi.txt'))
-
+        self.test_docs = txt_file2pb_docs(open(os.path.join(dirname, 'tangshi.txt')))
 
         self.db_path = './test_leveldb'
         self.dump_path = os.path.join(dirname, 'indexer.bin')
@@ -36,7 +34,7 @@ class TestBaseLVDB(unittest.TestCase):
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, len(self.test_docs))
 
-        res2 = db.query(range(len(self.test_docs)+1, len(self.test_docs)+100))
+        res2 = db.query(range(len(self.test_docs) + 1, len(self.test_docs) + 100))
         num_non_empty = sum(1 for d in res2 if d)
         self.assertEqual(num_non_empty, 0)
         db.close()
@@ -52,7 +50,7 @@ class TestBaseLVDB(unittest.TestCase):
         num_non_empty = sum(1 for d in res1 if d)
         self.assertEqual(num_non_empty, self.test_data1.length)
 
-        res2 = db.query(range(len(self.test_docs)+1, len(self.test_docs)+100))
+        res2 = db.query(range(len(self.test_docs) + 1, len(self.test_docs) + 100))
         num_non_empty = sum(1 for d in res2 if d)
         self.assertEqual(num_non_empty, 0)
         db.close()
