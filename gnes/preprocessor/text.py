@@ -22,47 +22,40 @@ from typing import TextIO, List
 
 from .base import BasePreprocessor
 from ..proto import gnes_pb2
+from ..service.base import ServiceError
 
 
 class TextPreprocessor(BasePreprocessor):
     def __init__(self, start_doc_id: int = 0,
                  random_doc_id: bool = True,
-                 deliminator: str = r'[.。！？!?]+', *args, **kwargs):
+                 deliminator: str = r'[.。！？!?]+',
+                 do_strip: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start_doc_id = start_doc_id
         self.random_doc_id = random_doc_id
         self.deliminator = deliminator
+        self.do_strip = do_strip
         self.is_trained = True
 
-    def apply(self, batch_data: List[gnes_pb2.Document]) -> List['gnes_pb2.Document']:
-        # each str in batch_data will be transformed to a document
-        data = [d.raw_text for d in batch_data if d.raw_text.strip()]
-        docs = []
-        for doc_id, doc_txt in enumerate(data, self.start_doc_id):
-            doc = self._line2pb_doc(doc_txt,
-                                    doc_id if not self.random_doc_id else random.randint(0, ctypes.c_uint(-1).value))
-            docs.append(doc)
-        return docs
-
-    def _line2pb_doc(self, line: str, doc_id: int) -> 'gnes_pb2.Document':
-        doc = gnes_pb2.Document()
-        doc.doc_id = doc_id
+    def apply(self, doc: 'gnes_pb2.Document'):
+        doc.doc_id = self.start_doc_id if not self.random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
         doc.doc_type = gnes_pb2.Document.TEXT
-        # depending on whether deliminator is enabled or not
-        # the generated document could have multiple chunks or just one chunk
-        if self.deliminator:
-            for ci, s in enumerate(re.split(self.deliminator, line)):
-                if s.strip():
-                    c = doc.chunks.add()
-                    c.doc_id = doc_id
-                    c.text = s
-                    c.offset_1d = ci
+        raw_text = doc.raw_text.strip() if self.do_strip else doc.raw_text
+        if raw_text:
+            if self.deliminator:
+                for ci, s in enumerate(re.split(self.deliminator, raw_text)):
+                    if s.strip():
+                        c = doc.chunks.add()
+                        c.doc_id = doc.doc_id
+                        c.text = s.strip()
+                        c.offset_1d = ci
+            else:
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.text = raw_text
+                c.offset_1d = 0
         else:
-            c = doc.chunks.add()
-            c.doc_id = doc_id
-            c.text = line
-            c.offset_1d = 0
-        return doc
+            raise ServiceError('"raw_text" is empty string after striping, not allowed!')
 
 
 ## depreciated!!! useless for now

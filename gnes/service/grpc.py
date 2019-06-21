@@ -62,17 +62,23 @@ class ZmqClient:
         self.args = args
         self.identity = args.identity if 'identity' in args else None
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.context = zmq.Context()
-        self.context.setsockopt(zmq.LINGER, 0)
-        self.receiver, _ = build_socket(self.context, self.args.host_in, self.args.port_in, self.args.socket_in,
+        self.ctx = zmq.Context()
+        self.ctx.setsockopt(zmq.LINGER, 0)
+        self.receiver, _ = build_socket(self.ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
                                         getattr(self, 'identity', None))
-        self.sender, _ = build_socket(self.context, self.args.host_out, self.args.port_out, self.args.socket_out,
+        self.sender, _ = build_socket(self.ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                       getattr(self, 'identity', None))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         self.sender.close()
         self.receiver.close()
-        self.context.term()
+        self.ctx.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
         send_message(self.sender, message, timeout=timeout)

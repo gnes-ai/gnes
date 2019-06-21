@@ -64,7 +64,6 @@ class SocketType(BetterEnum):
         return self.value % 2 == 0
 
 
-
 class ComponentNotLoad(Exception):
     pass
 
@@ -137,7 +136,7 @@ class MessageHandler:
             if body.WhichOneof('body'):
                 msg_type = type(getattr(body, body.WhichOneof('body')))
                 if msg_type in self.routes:
-                    self.logger.info('received a %r message' % msg_type)
+                    self.logger.info('received a %r message' % msg_type.__name__)
                     fn = self.routes.get(msg_type)
                 else:
                     fn = get_default_fn(msg_type)
@@ -181,6 +180,8 @@ class BaseService(threading.Thread):
                     'auto-dumping the new change of the model every %ds...' % self.args.dump_interval)
                 self.dump()
                 time.sleep(self.args.dump_interval)
+            else:
+                time.sleep(1)
 
     def dump(self):
         if not self.args.read_only:
@@ -203,18 +204,22 @@ class BaseService(threading.Thread):
                     out_sock = self.ctrl_sock
                 else:
                     out_sock = self.out_sock
-                # NOTE that msg is mutable object, it may be modified in fn()
-                ret = fn(self, msg)
-                if ret is None:
-                    # assume 'msg' is modified inside fn()
-                    send_message(out_sock, msg, timeout=self.args.timeout)
-                elif isinstance(ret, types.GeneratorType):
-                    for r_msg in ret:
-                        send_message(out_sock, r_msg, timeout=self.args.timeout)
-                else:
-                    raise ServiceError('unknown return type from the handler: %s' % fn)
+                try:
+                    # NOTE that msg is mutable object, it may be modified in fn()
+                    ret = fn(self, msg)
+                    if ret is None:
+                        # assume 'msg' is modified inside fn()
+                        send_message(out_sock, msg, timeout=self.args.timeout)
+                    elif isinstance(ret, types.GeneratorType):
+                        for r_msg in ret:
+                            send_message(out_sock, r_msg, timeout=self.args.timeout)
+                    else:
+                        raise ServiceError('unknown return type from the handler: %s' % fn)
 
-                self.logger.info('handler %s is done' % fn)
+                    self.logger.info('handler %s is done' % fn)
+                except EventLoopEnd:
+                    send_message(out_sock, msg, timeout=self.args.timeout)
+                    raise EventLoopEnd
         except ServiceError as e:
             self.logger.error(e)
 

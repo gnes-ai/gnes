@@ -17,9 +17,7 @@
 
 
 import asyncio
-import ctypes
 import json
-import random
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
@@ -27,7 +25,6 @@ from aiohttp import web
 from google.protobuf.json_format import MessageToJson
 
 from ..helper import set_logger, batch_iterator
-from ..preprocessor.text import line2pb_doc
 from ..proto import gnes_pb2, gnes_pb2_grpc
 
 
@@ -40,38 +37,36 @@ class HttpService:
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 
-        def index_request_parse(data):
-            texts = data['docs']
-            p = [line2pb_doc(l, random.randint(0, ctypes.c_uint(-1).value), deliminator='') for l in texts]
+        def index_request_gen(data):
             req = gnes_pb2.Request()
-            req.index.docs.extend(p)
-            return [req]
+            for raw_text in data['docs']:
+                if raw_text.strip():
+                    d = req.index.docs.add()
+                    d.raw_text = raw_text
+            yield req
 
-        def train_request_parse(data):
-            texts = data['docs']
-            batch_size = data.get('batch_size', self.args.train_batch_size)
-            p = [line2pb_doc(l, random.randint(0, ctypes.c_uint(-1).value), deliminator='') for l in texts]
-            req_list = []
+        def train_request_gen(data):
+            batch_size = data.get('batch_size', self.args.batch_size)
+            p = [r for r in data['docs'] if r.strip()]
             for pi in batch_iterator(p, batch_size):
                 req = gnes_pb2.Request()
-                req.train.docs.extend(pi)
-                req_list.append(req)
+                for raw_text in pi:
+                    d = req.train.docs.add()
+                    d.raw_text = raw_text
+                yield req
             req = gnes_pb2.Request()
             req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
-            req_list.append(req)
-            return req_list
+            yield req
 
-        def query_request_parse(data):
-            texts = data['query']
-            top_k = data.get('top_k', self.args.default_k)
+        def query_request_gen(data):
+            top_k = data.get('top_k', self.args.top_k)
             if top_k <= 0:
                 raise ValueError('"top_k: %d" is not a valid number' % top_k)
 
-            doc = line2pb_doc(texts, deliminator='')
             req = gnes_pb2.Request()
-            req.search.query.CopyFrom(doc)
+            req.search.query.raw_text = data['query']
             req.search.top_k = top_k
-            return [req]
+            yield req
 
         async def general_handler(request, parser):
             try:
@@ -92,9 +87,9 @@ class HttpService:
             app = web.Application(loop=loop,
                                   client_max_size=10 ** 10,
                                   handler_args=handler_args)
-            app.router.add_route('post', '/gnes/train', lambda x: general_handler(x, train_request_parse))
-            app.router.add_route('post', '/gnes/index', lambda x: general_handler(x, index_request_parse))
-            app.router.add_route('post', '/gnes/query', lambda x: general_handler(x, query_request_parse))
+            app.router.add_route('post', '/gnes/train', lambda x: general_handler(x, train_request_gen))
+            app.router.add_route('post', '/gnes/index', lambda x: general_handler(x, index_request_gen))
+            app.router.add_route('post', '/gnes/query', lambda x: general_handler(x, query_request_gen))
             srv = await loop.create_server(app.make_handler(),
                                            self.args.http_host,
                                            self.args.http_port)
@@ -113,4 +108,4 @@ class HttpService:
             res_f = None
             for _req in req:
                 res_f = stub._Call(_req)
-        return json.loads(MessageToJson(res_f))
+            return json.loads(MessageToJson(res_f))

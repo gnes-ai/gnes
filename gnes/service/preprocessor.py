@@ -39,17 +39,14 @@ class PreprocessorService(BS):
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
-        _docs = self._model.apply(msg.request.train.docs)
-        msg.request.train.ClearField('docs')
-        msg.request.train.docs.extend(_docs)
+        for d in msg.request.train.docs:
+            self._model.apply(d)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
-        _docs = self._model.apply(msg.request.index.docs)
-        msg.request.index.ClearField('docs')
-        msg.request.index.docs.extend(_docs)
+        for d in msg.request.index.docs:
+            self._model.apply(d)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
-        _docs = self._model.apply([msg.request.search.query])
-        msg.request.search.query.CopyFrom(_docs[0])
+        self._model.apply(msg.request.search.query)

@@ -41,9 +41,50 @@ class TestProto(unittest.TestCase):
 
     def test_preprocessor_service_echo(self):
         args = set_preprocessor_service_parser().parse_args([])
-        c_args = _set_client_parser().parse_args([])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', args.port_out,
+            '--port_out', args.port_in
+        ])
         with PreprocessorService(args), ZmqClient(c_args) as client:
             msg = gnes_pb2.Message()
             msg.request.index.docs.extend([gnes_pb2.Document() for _ in range(5)])
-            r = client.send_message(msg)
+            client.send_message(msg)
+            r = client.recv_message()
             print(r)
+            msg.request.train.docs.extend([gnes_pb2.Document() for _ in range(5)])
+            client.send_message(msg)
+            r = client.recv_message()
+            print(r)
+
+    def test_preprocessor_service_realdata(self):
+        args = set_preprocessor_service_parser().parse_args([])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in)
+        ])
+        with open(os.path.join(self.dirname, '26-doc-chinese.txt'), 'r', encoding='utf8') as fp:
+            msg = gnes_pb2.Message()
+            all_text = ''
+            for v in fp:
+                if v.strip():
+                    d = msg.request.train.docs.add()
+                    d.raw_text = v
+                    all_text += v
+            with PreprocessorService(args), ZmqClient(c_args) as client:
+                client.send_message(msg)
+                r = client.recv_message()
+                print(r)
+
+                msg1 = gnes_pb2.Message()
+                msg1.request.index.docs.extend(msg.request.train.docs)
+
+                client.send_message(msg1)
+                r = client.recv_message()
+                print(r)
+
+                msg2 = gnes_pb2.Message()
+                msg2.request.search.query.raw_text = all_text
+
+                client.send_message(msg2)
+                r = client.recv_message()
+                print(r)
