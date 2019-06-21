@@ -41,7 +41,7 @@ def import_class_by_str(name: str):
         if class_name in cls2file:
             return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
 
-    search_modules = ['encoder', 'indexer', 'preprocessor','module']
+    search_modules = ['encoder', 'indexer', 'preprocessor', 'module']
 
     for m in search_modules:
         r = _import(m, name)

@@ -20,8 +20,8 @@ from typing import List
 
 import numpy as np
 
-from gnes.encoder.base import BaseTextEncoder
-from gnes.helper import batching, cn_tokenizer, pooling_simple
+from ..base import BaseTextEncoder
+from ...helper import batching, cn_tokenizer, pooling_simple
 
 
 class Word2VecEncoder(BaseTextEncoder):

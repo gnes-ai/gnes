@@ -26,7 +26,7 @@ from google.protobuf.json_format import MessageToJson
 
 from ..helper import set_logger
 from ..proto import gnes_pb2_grpc
-from ..proto.request.text.base import TextRequestGenerator
+from ..proto.request.text.simple import TextRequestGenerator
 
 
 class HttpClient:

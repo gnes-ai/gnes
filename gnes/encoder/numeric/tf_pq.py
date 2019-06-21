@@ -20,8 +20,8 @@ from typing import Dict, Any
 
 import numpy as np
 
-from gnes.encoder.numeric.pq import PQEncoder
-from gnes.helper import batching, train_required
+from .pq import PQEncoder
+from ...helper import batching, train_required
 
 
 class TFPQEncoder(PQEncoder):

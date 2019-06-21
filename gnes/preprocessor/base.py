@@ -22,4 +22,4 @@ from ..proto import gnes_pb2
 class BasePreprocessor(TrainableBase):
 
     def apply(self, doc: 'gnes_pb2.Document'):
-        pass
+        raise NotImplementedError

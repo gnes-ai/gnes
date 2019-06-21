@@ -3,15 +3,14 @@ import unittest
 from shutil import rmtree
 
 from gnes.indexer.leveldb import AsyncLVDBIndexer
-from gnes.proto import gnes_pb2
-from gnes.preprocessor.text import txt_file2pb_docs
+from tests import txt_file2pb_docs
 
 
 class TestBaseLVDB(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        self.test_docs = txt_file2pb_docs(os.path.join(dirname, 'tangshi.txt'))
+        self.test_docs = txt_file2pb_docs(open(os.path.join(dirname, 'tangshi.txt')))
 
         self.query_hit_id = list(range(len(self.test_docs)))
         self.query_miss_id = list(range(len(self.test_docs) + 1, len(self.test_docs) + 100))

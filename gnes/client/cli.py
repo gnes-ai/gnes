@@ -1,7 +1,7 @@
 import grpc
 
 from ..proto import gnes_pb2_grpc
-from ..proto.request.text.base import TextRequestGenerator
+from ..proto.request.text.simple import TextRequestGenerator
 
 
 class CLIClient:
