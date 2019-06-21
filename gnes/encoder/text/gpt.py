@@ -20,8 +20,8 @@ from typing import List
 
 import numpy as np
 
-from gnes.encoder.base import BaseTextEncoder
-from gnes.helper import batching, pooling_torch
+from ..base import BaseTextEncoder
+from ...helper import batching, pooling_torch
 
 
 class GPTEncoder(BaseTextEncoder):

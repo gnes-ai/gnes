@@ -18,8 +18,8 @@
 
 import numpy as np
 
-from gnes.encoder.base import BaseNumericEncoder
-from gnes.helper import batching, train_required
+from ..base import BaseNumericEncoder
+from ...helper import batching, train_required
 
 
 class HashEncoder(BaseNumericEncoder):
