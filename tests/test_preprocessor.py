@@ -42,8 +42,8 @@ class TestProto(unittest.TestCase):
     def test_preprocessor_service_echo(self):
         args = set_preprocessor_service_parser().parse_args([])
         c_args = _set_client_parser().parse_args([
-            '--port_in', args.port_out,
-            '--port_out', args.port_in
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in)
         ])
         with PreprocessorService(args), ZmqClient(c_args) as client:
             msg = gnes_pb2.Message()

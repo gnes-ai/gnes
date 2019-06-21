@@ -48,11 +48,11 @@ def frontend(args):
 def client(args):
     import grpc
 
-    from ..helper import batch_iterator
-    from ..proto import gnes_pb2, gnes_pb2_grpc
-    from ..preprocessor.text import txt_file2pb_docs
+    from ..proto import gnes_pb2_grpc
+    from ..proto.request.text.base import TextRequestGenerator
 
-    pb_docs = txt_file2pb_docs(args.txt_file)
+    all_docs = [v.strip() for v in args.txt_file]
+    text_req_gen = TextRequestGenerator()
 
     with grpc.insecure_channel(
             '%s:%s' % (args.grpc_host, args.grpc_port),
@@ -61,36 +61,23 @@ def client(args):
         stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
         if args.mode == 'train':
-            # feed and accumulate training data
-            for p in batch_iterator(pb_docs, args.batch_size):
-                req = gnes_pb2.Request()
-                req.train.docs.extend(p)
+            for req in text_req_gen.train(all_docs, args.batch_size):
                 resp = stub._Call(req)
                 print(resp)
-
-            # start the real training
-            req = gnes_pb2.Request()
-            req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
-            resp = stub._Call(req)
-            print(resp)
         elif args.mode == 'index':
-            for p in batch_iterator(pb_docs, args.batch_size):
-                req = gnes_pb2.Request()
-                req.index.docs.extend(p)
+            for req in text_req_gen.index(all_docs):
                 resp = stub._Call(req)
                 print(resp)
-
         elif args.mode == 'query':
-            for idx, doc in enumerate(pb_docs):
-                req = gnes_pb2.Request()
-                req.search.query.CopyFrom(doc)
-                req.search.top_k = 10
-                resp = stub._Call(req)
-                print('query %d result: %s' % (idx, resp))
-                input('press any key to continue...')
+            for idx, q in enumerate(all_docs):
+                for req in text_req_gen.query(q, args.top_k):
+                    resp = stub._Call(req)
+                    print(resp)
+                    print('query %d result: %s' % (idx, resp))
+                    input('press any key to continue...')
 
 
 def http(args):
     from ..service.http import HttpService
     mh = HttpService(args)
-    mh.run()
+    mh.start()
