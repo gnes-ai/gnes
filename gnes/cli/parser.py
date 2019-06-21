@@ -69,7 +69,7 @@ def _set_client_parser(parser=None):
         parser = set_base_parser()
     set_service_parser(parser)
     parser.set_defaults(
-        port_in=parser.get_default('port_out') + IDX_PORT_DELTA,
+        port_in=parser.get_default('port_out'),
         port_out=parser.get_default('port_in'),
         socket_in=SocketType.PULL_CONNECT,
         socket_out=SocketType.PUSH_CONNECT,
@@ -204,9 +204,9 @@ def set_http_service_parser(parser=None):
                         help='http host to deploy the service')
     parser.add_argument('--max_workers', type=int, default=100,
                         help='max workers to deal with the message')
-    parser.add_argument('--default_k', type=int, default=10,
+    parser.add_argument('--top_k', type=int, default=10,
                         help='default top_k for query mode')
-    parser.add_argument('--train_batch_size', type=int, default=2560,
+    parser.add_argument('--batch_size', type=int, default=2560,
                         help='batch size for feed data for train mode')
     return parser
 
@@ -218,10 +218,10 @@ def get_main_parser():
                                description='Commands',
                                help='Description', dest='cli')
 
-    set_grpc_client_parser(sp.add_parser('client', help='start a grpc client'))
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_router_service_parser(sp.add_parser('route', help='start a router service'))
-    set_http_service_parser(sp.add_parser('http', help='start a http service'))
+    set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
+    set_grpc_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
     return parser

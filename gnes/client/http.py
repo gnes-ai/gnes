@@ -29,7 +29,7 @@ from ..proto import gnes_pb2_grpc
 from ..proto.request.text.base import TextRequestGenerator
 
 
-class HttpService:
+class HttpClient:
     def __init__(self, args=None):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
@@ -62,7 +62,7 @@ class HttpService:
             app.router.add_route('post', '/train',
                                  lambda x: general_handler(x, req_gen.train, batch_size=self.args.batch_size))
             app.router.add_route('post', '/index',
-                                 lambda x: general_handler(x, req_gen.index))
+                                 lambda x: general_handler(x, req_gen.index, batch_size=self.args.batch_size))
             app.router.add_route('post', '/query',
                                  lambda x: general_handler(x, req_gen.query, top_k=self.args.top_k))
             srv = await loop.create_server(app.make_handler(),

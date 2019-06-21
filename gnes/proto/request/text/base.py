@@ -6,13 +6,14 @@ from ....helper import batch_iterator
 
 
 class TextRequestGenerator(BaseRequestGenerator):
-    def index(self, docs: List[str], *args, **kwargs):
-        req = gnes_pb2.Request()
-        for raw_text in docs:
-            if raw_text.strip():
+    def index(self, docs: List[str], batch_size: int = 0, *args, **kwargs):
+        p = [r for r in docs if r.strip()]
+        for pi in batch_iterator(p, batch_size):
+            req = gnes_pb2.Request()
+            for raw_text in pi:
                 d = req.index.docs.add()
                 d.raw_text = raw_text
-        yield req
+            yield req
 
     def train(self, docs: List[str], batch_size: int = 0, *args, **kwargs):
         p = [r for r in docs if r.strip()]

@@ -22,7 +22,6 @@ from typing import TextIO, List
 
 from .base import BasePreprocessor
 from ..proto import gnes_pb2
-from ..service.base import ServiceError
 
 
 class TextPreprocessor(BasePreprocessor):
@@ -41,21 +40,18 @@ class TextPreprocessor(BasePreprocessor):
         doc.doc_id = self.start_doc_id if not self.random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
         doc.doc_type = gnes_pb2.Document.TEXT
         raw_text = doc.raw_text.strip() if self.do_strip else doc.raw_text
-        if raw_text:
-            if self.deliminator:
-                for ci, s in enumerate(re.split(self.deliminator, raw_text)):
-                    if s.strip():
-                        c = doc.chunks.add()
-                        c.doc_id = doc.doc_id
-                        c.text = s.strip()
-                        c.offset_1d = ci
-            else:
-                c = doc.chunks.add()
-                c.doc_id = doc.doc_id
-                c.text = raw_text
-                c.offset_1d = 0
+        if self.deliminator:
+            for ci, s in enumerate(re.split(self.deliminator, raw_text)):
+                if s.strip():
+                    c = doc.chunks.add()
+                    c.doc_id = doc.doc_id
+                    c.text = s.strip()
+                    c.offset_1d = ci
         else:
-            raise ServiceError('"raw_text" is empty string after striping, not allowed!')
+            c = doc.chunks.add()
+            c.doc_id = doc.doc_id
+            c.text = raw_text
+            c.offset_1d = 0
 
 
 ## depreciated!!! useless for now
