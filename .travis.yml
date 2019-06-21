@@ -62,6 +62,7 @@ before_script:
   # - mkdir ${MODEL_DIR}
   # - ./.travis/download.sh
   - env > .env
+  # Fix issue: https://github.com/zalandoresearch/flair/issues/310
   - export BOTO_CONFIG=/dev/null
 
 # command to run tests
