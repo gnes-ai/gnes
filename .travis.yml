@@ -1,0 +1,81 @@
+sudo: required
+os: linux
+dist: xenial
+language: python
+services:
+  - docker
+python:
+  - "3.6"
+addons:
+  apt:
+    packages:
+      - libatlas-base-dev
+      - liblapack-dev
+      - bison
+      - byacc
+
+cache:
+  bundler: true
+  directories:
+    - $MODEL_DIR
+    - pip
+
+env:
+  global:
+    # model path
+    - MODEL_DIR=${TRAVIS_HOME}/ext_data
+    - BERT_CI_MODEL=${MODEL_DIR}/chinese_L-12_H-768_A-12
+    - ELMO_CI_MODEL=${MODEL_DIR}/zhs.model
+    - FLAIR_CI_MODEL=multi-forward-fast
+    - GPT_CI_MODEL=${MODEL_DIR}/openai_gpt
+    - GPT2_CI_MODEL=${MODEL_DIR}/openai_gpt2
+    - XL_CI_MODEL=${MODEL_DIR}/transformer_xl_wt103
+    - WORD2VEC_MODEL=${MODEL_DIR}/sgns.wiki.bigram-char.sample
+
+    # environment
+    - TENSORFLOW_VERSION=1.12.0
+    - TENSORFLOW_ARCH=cpu
+    - TORCH_VERSION=1.1.0
+    - TORCH_ARCH=cpu
+
+before_install:
+  - pip install --upgrade pip
+
+  - mkdir -p ${MODEL_DIR}
+  - ./.travis/download.sh
+  # Install Tensorflow and PyTorch
+  - ./.travis/pip_install.sh
+  # Install Faiss
+  - ./.travis/source_install.sh
+
+  - pip install -U pylint
+
+
+  # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
+  # - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
+
+install:
+  # Test install with current version of setuptools
+  - pip install -e . --progress-bar off
+
+before_script:
+  # - mkdir ${MODEL_DIR}
+  # - ./.travis/download.sh
+  - env > .env
+  # Fix issue: https://github.com/zalandoresearch/flair/issues/310
+  - export BOTO_CONFIG=/dev/null
+
+# command to run tests
+script:
+  - pylint gnes/**/*.py --exit-zero
+  - python -m unittest tests/*.py
+
+# after_script:
+#   - docker rm -f ${CONTAINER_NAME}
+
+branches:
+  only:
+    - travis
+
+notifications:
+  email: false
