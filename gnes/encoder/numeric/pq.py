@@ -18,8 +18,8 @@
 
 import numpy as np
 
-from .base import BaseBinaryEncoder
-from ..helper import batching, train_required
+from gnes.encoder.base import BaseBinaryEncoder
+from gnes.helper import batching, train_required
 
 
 class PQEncoder(BaseBinaryEncoder):

@@ -4,9 +4,9 @@ from shutil import rmtree
 
 from gnes.base import TrainableType
 from gnes.encoder.base import PipelineEncoder
-from gnes.encoder.pca import PCALocalEncoder
-from gnes.encoder.pq import PQEncoder
-from gnes.encoder.tf_pq import TFPQEncoder
+from gnes.encoder.numeric.pca import PCALocalEncoder
+from gnes.encoder.numeric.pq import PQEncoder
+from gnes.encoder.numeric.tf_pq import TFPQEncoder
 from gnes.module.gnes import GNES
 
 

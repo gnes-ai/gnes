@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.gpt import GPTEncoder
+from gnes.encoder.text.gpt import GPTEncoder
 
 
 # from numpy.testing import assert_array_equal

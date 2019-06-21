@@ -15,13 +15,11 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List
-
 from ..base import TrainableBase
 from ..proto import gnes_pb2
 
 
 class BasePreprocessor(TrainableBase):
 
-    def apply(self, batch_data: List['gnes_pb2.Document']) -> List['gnes_pb2.Document']:
+    def apply(self, doc: 'gnes_pb2.Document'):
         pass

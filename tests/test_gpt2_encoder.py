@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.gpt import GPT2Encoder
+from gnes.encoder.text.gpt import GPT2Encoder
 
 
 class TestGPT2Encoder(unittest.TestCase):

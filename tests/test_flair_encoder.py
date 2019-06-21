@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.encoder.flair import FlairEncoder
+from gnes.encoder.text.flair import FlairEncoder
 
 
 class TestFlairEncoder(unittest.TestCase):
