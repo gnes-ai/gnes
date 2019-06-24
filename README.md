@@ -58,6 +58,9 @@ bash <(curl -s https://transfer.sh/yVeBa/gnes-wizard.sh)
 
 At the last step, the wizard will generate a random name for the service, say `my-gnes-0531`. Keep that name in mind. If you miss that name, you can always use `docker stack ls` to checkout the name of your service.
 
+<details>
+ <summary>How do I know if GNES is running succesfully? (click to expand...)</summary>
+
 To tell whether the service is running successfully or not, you can use `docker stack ps my-gnes-0531`. It should give you results as follows:
 ```bash
 ID                  NAME                         IMAGE                                           NODE                DESIRED STATE       CURRENT STATE                ERROR               PORTS
@@ -67,16 +70,23 @@ yc09pst6s7yt        my-gnes-0531_grpc_serve.1   ccr.ccs.tencentyun.com/gnes/aipd
 
 Note, the running status under `CURRENT STATE` suggests everything is fine.
 
+</details>
+
+<details>
+<summary>How can I terminate GNES? (click to expand...)</summary>
+
 To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 - Having troubles to start GNES? Checkout our [troubleshooting guide](#).
 - For pro-users/developers, you may want to use our `gnes-yaml.sh` tools to [generate a YAML config via CLI](#); or simply [handcraft your own `docker-compose.yml`](#).
 
-#### 3. (optional) Train Mode: training a GNES system 
+</details>
 
-#### 4. Index Mode: adding new documents to GNES
+#### 3. Train mode: training encoders and indexers
 
-#### 5. Query Mode: searching relevant documents for a given query  
+#### 4. Index mode: adding new documents
+
+#### 5. Query mode: searching relevant documents of a given query  
 
 
 <h2 align="center">:book: Documentation</h2>
