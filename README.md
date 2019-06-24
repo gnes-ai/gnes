@@ -2,7 +2,7 @@
     <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </p>
 
-<p align="center">GNES is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. <br> It enables indexing and searching similar texts, images, videos in large scale on the cloud infrastructure.</p>
+<p align="center">GNES [*jee-nes*] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. <br>It enables indexing and searching similar texts, images, videos in large scale on the cloud infrastructure.</p>
 
 <p align="center">
 <a href="#">
