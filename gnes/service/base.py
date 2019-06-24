@@ -207,6 +207,8 @@ class BaseService(threading.Thread):
                 try:
                     # NOTE that msg is mutable object, it may be modified in fn()
                     ret = fn(self, msg)
+                    self.logger.info('larry debug 1')
+                    self.logger.info(ret)
                     if ret is None:
                         # assume 'msg' is modified inside fn()
                         send_message(out_sock, msg, timeout=self.args.timeout)
