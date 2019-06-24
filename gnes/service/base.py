@@ -309,6 +309,8 @@ class BaseService(threading.Thread):
             raise EventLoopEnd
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
+        elif msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
+            pass
         else:
             raise ServiceError('dont know how to handle %s' % msg.request.control)
 
