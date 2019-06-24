@@ -135,7 +135,7 @@ services:
   http_service:
     image: ${DOCKER_IMG_URL}
     command: >
-       http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
+       client_http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
         --grpc_host frontend  --max_workers=10
     networks:
       gnes-net:

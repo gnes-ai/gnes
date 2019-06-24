@@ -50,3 +50,7 @@ class PreprocessorService(BS):
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
         self._model.apply(msg.request.search.query)
+
+    @handler.register(gnes_pb2.Request.ControlRequest)
+    def _handler_control_request(self, msg: 'gnes_pb2.Message'):
+        pass

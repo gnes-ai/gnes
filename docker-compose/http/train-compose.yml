@@ -4,8 +4,8 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       preprocess --port_in ${PREPROCESSOR_IN} --port_out ${INCOME_ROUTE_IN}
-       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
-       --host_out encoder_serviced --host_in frontend
+       --socket_in PULL_BIND --socket_out PUSH_CONNECT
+       --host_out encoder_serviced
        --yaml_path /preprocessor_config --dump_path /dump/preprocessor.bin
     networks:
       gnes-net:
@@ -50,7 +50,7 @@ services:
   http_service:
     image: ${DOCKER_IMG_URL}
     command: >
-       http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
+       client_http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
         --grpc_host frontend  --max_workers=10
     networks:
       gnes-net:
