@@ -16,6 +16,8 @@
 # pylint: disable=low-comment-ratio
 
 # A key-value map for Class to the (module)file it located in
+from ..base import register_all_class
+
 _cls2file_map = {
     'FaissIndexer': 'faiss',
     'LVDBIndexer': 'leveldb',
@@ -30,3 +32,5 @@ _cls2file_map = {
     'BaseTextIndexer': 'base',
     'AnnoyIndexer': 'annoy'
 }
+
+register_all_class(_cls2file_map)
