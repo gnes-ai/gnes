@@ -95,12 +95,16 @@ cd docs && make html
 
 <h2 align="center">Tutorial</h2>
 
+TBA
+
 <h2 align="center">Contributing</h2>
+Thanks for your interest in contributing! There are many ways to get involved; start with our [contributor guidelines](#) and then check these [open issues](/issues) for specific tasks.
+
+For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
 
 <h2 align="center">Release Notes</h2>
 
-<h2 align="center">Contact</h2>
-Please email your questions or comments to [Han Xiao](https://hanxiao.github.io).
+TBA
 
 <h2 align="center">Citing GNES</h2>
 ```latex
