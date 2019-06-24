@@ -41,9 +41,11 @@ class HttpClient:
         async def general_handler(request, parser, *args, **kwargs):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
+                self.logger.info('data received, beigin processing')
                 resp = await loop.run_in_executor(executor,
                                                   stub_call,
                                                   parser(data.get('docs', data.get('query')), *args, **kwargs))
+                self.logger.info('handling finished, will send to user')
                 return web.Response(body=json.dumps({'result': resp, 'meta': None}, ensure_ascii=False),
                                     status=200,
                                     content_type='application/json')
