@@ -222,6 +222,7 @@ def get_main_parser():
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_router_service_parser(sp.add_parser('route', help='start a router service'))
+    set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
     set_grpc_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
     return parser

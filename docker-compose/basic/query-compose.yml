@@ -36,7 +36,7 @@ services:
       encode --port_in ${INCOME_ROUTE_OUT} --port_out ${MIDDLEMAN_ROUTE_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
       --host_in income-route --host_out middleman-route
-      --mode QUERY --yaml_path /encoder_config --dump_path /dump/model.bin
+      --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
       - "${MODEL_DIR}:/ext_data"
       - "${OUTPUT_DIR}:/dump"
@@ -63,7 +63,7 @@ services:
       index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
        --socket_in SUB_CONNECT --socket_out PUB_CONNECT
        --host_in middleman-route --host_out outgoing-route
-       --mode QUERY --yaml_path /indexer_config --dump_path /out_data/index.bin
+       --yaml_path /indexer_config --dump_path /out_data/index.bin
     volumes:
       - index_data:/out_data
       #- type: volume
@@ -73,7 +73,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: ${NUM_REPLICAS}
+      replicas: ${NUM_INDEXER}
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -101,7 +101,7 @@ services:
   frontend:
     image: ${DOCKER_IMG_URL}
     command: >
-      frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${INCOME_ROUTE_IN}
+      frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${PREPROCESSOR_IN}
        --host_in outgoing-route --host_out income-route
        --grpc_port ${GRPC_PORT}
 
