@@ -122,7 +122,7 @@ TBA
 @misc{tencent2019GNES,
   title={GNES: Generic Neural Elastic Search},
   author={Xiao, Han and Yan, Jianfeng and Wang, Feng},
-  howpublished={\url{https://github.com/tencent/GNES}},
+  howpublished={\url{https://github.com/tencent/gnes}},
   year={2019}
 }
 ```
