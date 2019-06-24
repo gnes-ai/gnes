@@ -53,4 +53,4 @@ class PreprocessorService(BS):
 
     @handler.register(gnes_pb2.Request.ControlRequest)
     def _handler_control_request(self, msg: 'gnes_pb2.Message'):
-        pass
+        msg
