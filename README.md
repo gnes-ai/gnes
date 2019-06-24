@@ -2,7 +2,7 @@
     <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </p>
 
-<p align="center">GNES is Generic Neural Elastic Search, a highly scalable semantic search system based on deep neural network.</p>
+<p align="center">GNES is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. It enables indexing and searching similar texts, images, videos in large scale.</p>
 
 <p align="center">
 <a href="#">
@@ -28,11 +28,11 @@
 
 <h2 align="center">Highlights</h2>
 
-- :telescope: **State-of-the-art**: 
-- :hatching_chick: **Easy-to-use on every level**: a YAML file is all you need to enable GNES.
-- :zap: **Fast**: 
-- :octopus: **Scalable**: built on Docker Swarm, GNES can be easily scaled up on multiple CPUs, GPUs and hosts.
-- :gem: **Reliable**: serves on billion-level documents and queries; days of running without a break or OOM or any nasty exceptions.
+- :cloud: **Cloud-native**: GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running statelessly and independently in their own containers.  They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.
+- :hatching_chick: **Easy-to-use on every level**: How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.
+- :rocket: **State-of-the-art**: Taking advantage of  fast-growing research AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
+- :nut_and_bolt: **Generic and compatible**: Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. 
+- :bowtie: **Best practice**: We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.
 
 
 <h2 align="center">Getting Started</h2>
@@ -97,7 +97,7 @@ cd docs && make html
 
 <h2 align="center">Contributing</h2>
 
-<h2 align="center">TODO</h2>
+<h2 align="center">Release Notes</h2>
 
 <h2 align="center">Contact</h2>
 Please email your questions or comments to [Han Xiao](https://hanxiao.github.io).
