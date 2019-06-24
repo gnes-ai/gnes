@@ -133,7 +133,7 @@ services:
       - ${GRPC_PORT}:${GRPC_PORT}
 
   http_service:
-    image: ccr.ccs.tencentyun.com/gnes/aipd-gnes:9a46cdf
+    image: ${DOCKER_IMG_URL}
     command: >
        http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
         --grpc_host frontend  --max_workers=10
