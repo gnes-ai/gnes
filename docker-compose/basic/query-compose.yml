@@ -131,3 +131,5 @@ configs:
     file: "${ENCODER_YAML_PATH}"
   indexer_config:
     file: "${INDEXER_YAML_PATH}"
+  preprocess_config:
+    file: "${PREPROCESSOR_YAML_PATH}"

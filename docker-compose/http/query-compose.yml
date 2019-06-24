@@ -1,5 +1,19 @@
 version: '3.4'
 services:
+  preprocess:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${INCOME_ROUTE_IN}
+      --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
+      --host_out income-route
+      --yaml_path /preprocessor_config --dump_path /dump/preprocessor.bin
+    networks:
+      gnes-net:
+        aliases:
+          - preprocessor_serviced
+    configs:
+      - preprocessor_config: preprocessor_config
+
   income-route:
     image: ${DOCKER_IMG_URL}
     command: >
@@ -149,3 +163,5 @@ configs:
     file: "${ENCODER_YAML_PATH}"
   indexer_config:
     file: "${INDEXER_YAML_PATH}"
+  preprocessor_config:
+    file: "${PREPROCESSOR_YAML_PATH}"

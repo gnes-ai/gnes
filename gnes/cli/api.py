@@ -45,6 +45,12 @@ def frontend(args):
         forever.wait()
 
 
+def preprocess(args):
+    from ..service.preprocessor import PreprocessorService
+    with PreprocessorService(args) as es:
+        es.join()
+
+
 def client_http(args):
     from ..client.http import HttpClient
     HttpClient(args).start()
