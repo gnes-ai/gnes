@@ -98,6 +98,7 @@ cd docs && make html
 TBA
 
 <h2 align="center">Contributing</h2>
+
 Thanks for your interest in contributing! There are many ways to get involved; start with our [contributor guidelines](#) and then check these [open issues](/issues) for specific tasks.
 
 For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
