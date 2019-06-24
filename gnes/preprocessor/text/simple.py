@@ -29,8 +29,10 @@ class TextPreprocessor(BasePreprocessor):
                     c.doc_id = doc.doc_id
                     c.text = s.strip()
                     c.offset_1d = ci
+                    c.weight = len(c.text) / len(raw_text)
         else:
             c = doc.chunks.add()
             c.doc_id = doc.doc_id
             c.text = raw_text
             c.offset_1d = 0
+            c.weight = 1.
