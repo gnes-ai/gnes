@@ -125,6 +125,10 @@ GRPC_PORT=$(TITLE="specify the grpc port of your service, client will communicat
            DEFAULT_VALUE="$RANDOM";
            ui.show_input)
 
+HTTP_PORT=$(TITLE="specify the (optional) http port, if specified, a http client service will be deployed to connect to the grpc service";
+           TITLE_SHORT="http port";
+           DEFAULT_VALUE="$RANDOM";
+           ui.show_input)
 # these random port need no UI config
 INCOME_ROUTE_IN=$RANDOM
 INCOME_ROUTE_OUT=$RANDOM
