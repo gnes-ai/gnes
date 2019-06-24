@@ -1,16 +1,16 @@
 version: '3.4'
 services:
-  income-proxy:
+  income-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type MapProxyService --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT}
+      route --route_type MapRouteService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=${BATCH_SIZE}
     networks:
       gnes-net:
         aliases:
-          - income_proxy
+          - income_route
     ports:
-      - ${HOST_PORT_IN}:${INCOME_PROXY_IN}
+      - ${HOST_PORT_IN}:${INCOME_ROUTE_IN}
     deploy:
       placement:
         constraints: [node.role == worker]
@@ -19,32 +19,32 @@ services:
         condition: on-failure
         max_attempts: 3
 
-  middleman-proxy:
+  middleman-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ProxyService --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT}
+      route --route_type=RouteService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUSH_BIND
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
         aliases:
-          - middleman_proxy
+          - middleman_route
     deploy:
       placement:
         constraints: [node.role == worker]
 
-  outgoing-proxy:
+  outgoing-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
+      route --route_type=RouteService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUB_BIND
       --unk_msg_route DEFAULT
     networks:
       gnes-net:
         aliases:
-          - outgoing_proxy
+          - outgoing_route
     ports:
-      - ${HOST_PORT_OUT}:${OUTGOING_PROXY_OUT}
+      - ${HOST_PORT_OUT}:${OUTGOING_ROUTE_OUT}
     deploy:
       placement:
         constraints: [node.role == worker]
@@ -52,9 +52,9 @@ services:
   encoder:
     image: ${DOCKER_IMG_URL}
     command: >
-      encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN}
+      encode --port_in ${INCOME_ROUTE_OUT} --port_out ${MIDDLEMAN_ROUTE_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
-      --host_in income-proxy --host_out middleman-proxy
+      --host_in income-route --host_out middleman-route
       --mode INDEX --yaml_path /encoder.yml --dump_path /dump/model.bin
     volumes:
       - "${ENCODER_YAML_PATH}:/encoder.yml"
@@ -73,15 +73,15 @@ services:
         max_attempts: 3
 
     depends_on:
-      - income-proxy
-      - middleman-proxy
+      - income-route
+      - middleman-route
 
   indexer:
     image: ${DOCKER_IMG_URL}
     command: >
-      index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN}
+      index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
        --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
-       --host_in middleman-proxy --host_out outgoing-proxy
+       --host_in middleman-route --host_out outgoing-route
        --mode INDEX --yaml_path /indexer.yml --dump_path /out_data/index.bin
     volumes:
       - "${INDEXER_YAML_PATH}:/indexer.yml"
@@ -114,8 +114,8 @@ services:
         aliases:
           - index_serviced
     depends_on:
-      - middleman-proxy
-      - outgoing-proxy
+      - middleman-route
+      - outgoing-route
 
 volumes:
   index_data:

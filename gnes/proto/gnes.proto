@@ -36,6 +36,9 @@ message Chunk {
 
     // the n-dim offset of the chunk wrt. the document (apply to image/video document)
     Coordinate offset_nd = 5;
+
+    float weight = 6;
+    float relevance = 7;
 }
 
 message Document {

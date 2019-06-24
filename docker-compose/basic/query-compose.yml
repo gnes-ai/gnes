@@ -1,42 +1,42 @@
 version: '3.4'
 services:
-  income-proxy:
+  income-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type ProxyService --port_in ${INCOME_PROXY_IN} --port_out ${INCOME_PROXY_OUT}
+      route --route_type RouteService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUSH_BIND
     networks:
       gnes-net:
         aliases:
-          - income_proxy
+          - income_route
 
-  middleman-proxy:
+  middleman-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ProxyService --port_in ${MIDDLEMAN_PROXY_IN} --port_out ${MIDDLEMAN_PROXY_OUT}
+      route --route_type=RouteService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUB_BIND
     networks:
       gnes-net:
         aliases:
-          - middleman_proxy
+          - middleman_route
 
-  outgoing-proxy:
+  outgoing-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      proxy --proxy_type=ReduceProxyService --port_in ${OUTGOING_PROXY_IN} --port_out ${OUTGOING_PROXY_OUT}
+      route --route_type=ReduceRouteService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
       --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REPLICAS
     networks:
       gnes-net:
         aliases:
-          - outgoing_proxy
+          - outgoing_route
 
   encoder:
     image: ${DOCKER_IMG_URL}
     command: >
-      encode --port_in ${INCOME_PROXY_OUT} --port_out ${MIDDLEMAN_PROXY_IN}
+      encode --port_in ${INCOME_ROUTE_OUT} --port_out ${MIDDLEMAN_ROUTE_IN}
       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
-      --host_in income-proxy --host_out middleman-proxy
-      --mode QUERY --yaml_path /encoder_config --dump_path /dump/model.bin
+      --host_in income-route --host_out middleman-route
+      --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
       - "${MODEL_DIR}:/ext_data"
       - "${OUTPUT_DIR}:/dump"
@@ -51,8 +51,8 @@ services:
         max_attempts: 3
 
     depends_on:
-      - income-proxy
-      - middleman-proxy
+      - income-route
+      - middleman-route
 
     configs:
       - encoder_config
@@ -60,10 +60,10 @@ services:
   indexer:
     image: ${DOCKER_IMG_URL}
     command: >
-      index --port_in ${MIDDLEMAN_PROXY_OUT} --port_out ${OUTGOING_PROXY_IN}
+      index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
        --socket_in SUB_CONNECT --socket_out PUB_CONNECT
-       --host_in middleman-proxy --host_out outgoing-proxy
-       --mode QUERY --yaml_path /indexer_config --dump_path /out_data/index.bin
+       --host_in middleman-route --host_out outgoing-route
+       --yaml_path /indexer_config --dump_path /out_data/index.bin
     volumes:
       - index_data:/out_data
       #- type: volume
@@ -73,7 +73,7 @@ services:
       #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
 
     deploy:
-      replicas: ${NUM_REPLICAS}
+      replicas: ${NUM_INDEXER}
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -92,8 +92,8 @@ services:
         aliases:
           - index_serviced
     depends_on:
-      - middleman-proxy
-      - outgoing-proxy
+      - middleman-route
+      - outgoing-route
 
     configs:
       - indexer_config
@@ -101,8 +101,8 @@ services:
   frontend:
     image: ${DOCKER_IMG_URL}
     command: >
-      frontend --port_in ${OUTGOING_PROXY_OUT} --port_out ${INCOME_PROXY_IN}
-       --host_in outgoing-proxy --host_out income-proxy
+      frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${PREPROCESSOR_IN}
+       --host_in outgoing-route --host_out income-route
        --grpc_port ${GRPC_PORT}
 
     networks:
@@ -111,8 +111,8 @@ services:
           - grpc_serviced
 
     depends_on:
-      - income-proxy
-      - outgoing-proxy
+      - income-route
+      - outgoing-route
 
     ports:
       - ${GRPC_PORT}:${GRPC_PORT}
