@@ -77,13 +77,13 @@ class ReduceRouterService(RouterService):
         if self.args.num_part == num_shards:
             num_queries = len(msg_parts[0].response.search.result)
             chunks = [[] for _ in range(num_queries)]
-            tk = len(msg.response.search.result[0].topk_chunks)
+            tk = len(msg.response.search.result[0].topk_results)
             for m in range(num_queries):
                 chunks_all_shards = []
                 for j in range(num_shards):
-                    chunks_all_shards.extend(msg_parts[j].response.search.result[m].topk_chunks)
+                    chunks_all_shards.extend(msg_parts[j].response.search.result[m].topk_results)
 
                 chunks_all_shards = sorted(chunks[m], key=lambda x: -x.score)[:tk]
-                msg.response.search.result[m].ClearField('topk_chunks')
-                msg.response.search.result[m].topk_chunks.extend(chunks_all_shards)
+                msg.response.search.result[m].ClearField('topk_results')
+                msg.response.search.result[m].topk_results.extend(chunks_all_shards)
             self.pending_result.pop(msg.envelope.request_id)
