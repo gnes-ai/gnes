@@ -1,9 +1,23 @@
 version: '3.4'
 services:
+  preprocess:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${INCOME_ROUTE_IN}
+      --socket_in PULL_BIND --socket_out PUSH_CONNECT
+      --host_out income-route
+      --yaml_path /preprocessor_config --dump_path /dump/preprocessor.bin
+    networks:
+      gnes-net:
+        aliases:
+          - preprocessor_serviced
+    configs:
+      - preprocessor_config
+
   income-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --route_type RouteService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
+      route --router_type RouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUSH_BIND
     networks:
       gnes-net:
@@ -13,7 +27,7 @@ services:
   middleman-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --route_type=RouteService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
+      route --router_type=RouterService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
       --socket_in PULL_BIND --socket_out PUB_BIND
     networks:
       gnes-net:
@@ -23,8 +37,8 @@ services:
   outgoing-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --route_type=ReduceRouteService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
-      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_REPLICAS
+      route --router_type=ReduceRouterService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
+      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_INDEXER
     networks:
       gnes-net:
         aliases:
@@ -102,7 +116,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${PREPROCESSOR_IN}
-       --host_in outgoing-route --host_out income-route --socket_in SUB_CONNECT
+       --host_in outgoing-route --host_out preprocess --socket_in SUB_CONNECT
        --grpc_port ${GRPC_PORT}
 
     networks:
@@ -116,6 +130,7 @@ services:
 
     ports:
       - ${GRPC_PORT}:${GRPC_PORT}
+
 
 volumes:
   index_data:
@@ -131,5 +146,5 @@ configs:
     file: "${ENCODER_YAML_PATH}"
   indexer_config:
     file: "${INDEXER_YAML_PATH}"
-  preprocess_config:
+  preprocessor_config:
     file: "${PREPROCESSOR_YAML_PATH}"
