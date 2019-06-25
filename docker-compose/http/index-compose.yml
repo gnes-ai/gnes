@@ -20,7 +20,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
-      --socket_in PULL_CONNECT --socket_out PUSH_BIND --batch_size=128
+      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=128
     networks:
       gnes-net:
         aliases:
