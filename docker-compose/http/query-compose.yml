@@ -116,7 +116,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${PREPROCESSOR_IN}
-       --host_in outgoing-route --host_out preprocess
+       --host_in outgoing-route --host_out preprocess --socket_in SUB_CONNECT
        --grpc_port ${GRPC_PORT}
 
     networks:
