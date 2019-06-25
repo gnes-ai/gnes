@@ -115,10 +115,8 @@ message Request {
     }
 
     message TrainRequest {
-        oneof body {
-            repeated Document docs = 1;
-            uint32 flush = 2;
-        }
+        repeated Document docs = 1;
+        uint32 flush = 2;
     }
 
     message IndexRequest {
