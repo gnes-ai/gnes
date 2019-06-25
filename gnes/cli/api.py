@@ -28,7 +28,7 @@ def index(args):
         es.join()
 
 
-def router(args):
+def route(args):
     from ..service import router as my_router
     if not args.router_type:
         raise ValueError(
