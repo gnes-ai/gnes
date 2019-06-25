@@ -68,7 +68,7 @@ class IndexerService(BS):
         for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
             r_topk = msg.response.search.result.add()
             for (_doc_id, _offset), _score, *args in all_topks:
-                r = r_topk.topk_chunks.add()
+                r = r_topk.topk_results.add()
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
                 r.score = _score
