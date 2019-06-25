@@ -199,11 +199,12 @@ class BaseService(threading.Thread):
                 add_route(msg.envelope, self.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
-                if msg.request and msg.request.WhichOneof('body') and \
-                        type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                    out_sock = self.ctrl_sock
-                else:
-                    out_sock = self.out_sock
+                # if msg.request and msg.request.WhichOneof('body') and \
+                #         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                #     out_sock = self.ctrl_sock
+                # else:
+                #     out_sock = self.out_sock
+                out_sock = self.out_sock
                 try:
                     # NOTE that msg is mutable object, it may be modified in fn()
                     ret = fn(self, msg)
