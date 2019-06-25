@@ -13,11 +13,13 @@ services:
           - preprocessor_serviced
     configs:
       - preprocessor_config
+    depends_on:
+      - income-route
 
   income-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT} --host_in preprocess
+      route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
       --socket_in PULL_CONNECT --socket_out PUSH_BIND --batch_size=128
     networks:
       gnes-net:
@@ -126,7 +128,7 @@ services:
           - grpc_serviced
 
     depends_on:
-      - income-route
+      - preprocess
       - outgoing-route
 
     ports:
