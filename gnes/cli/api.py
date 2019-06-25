@@ -28,7 +28,7 @@ def index(args):
         es.join()
 
 
-def router(args):
+def route(args):
     from ..service import router as my_router
     if not args.router_type:
         raise ValueError(
@@ -43,6 +43,12 @@ def frontend(args):
     with GRPCFrontend(args):
         forever = threading.Event()
         forever.wait()
+
+
+def preprocess(args):
+    from ..service.preprocessor import PreprocessorService
+    with PreprocessorService(args) as es:
+        es.join()
 
 
 def client_http(args):

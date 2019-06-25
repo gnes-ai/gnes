@@ -13,12 +13,14 @@ services:
           - preprocessor_serviced
     configs:
       - preprocessor_config
+    depends_on:
+      - income-route
 
   income-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --router_type RouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
-      --socket_in PULL_BIND --socket_out PUSH_BIND
+      route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=128
     networks:
       gnes-net:
         aliases:
@@ -28,7 +30,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       route --router_type=RouterService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
-      --socket_in PULL_BIND --socket_out PUB_BIND
+      --socket_in PULL_BIND --socket_out PUSH_BIND
     networks:
       gnes-net:
         aliases:
@@ -37,8 +39,8 @@ services:
   outgoing-route:
     image: ${DOCKER_IMG_URL}
     command: >
-      route --router_type=ReduceRouterService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
-      --socket_in SUB_BIND --socket_out PUB_BIND --num_part=$NUM_INDEXER
+      route --router_type=RouterService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUB_BIND
     networks:
       gnes-net:
         aliases:
@@ -59,7 +61,7 @@ services:
         aliases:
           - encoder_serviced
     deploy:
-      replicas: 1
+      replicas: ${NUM_ENCODER}
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -75,7 +77,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
-       --socket_in SUB_CONNECT --socket_out PUB_CONNECT
+       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
        --host_in middleman-route --host_out outgoing-route
        --yaml_path /indexer_config --dump_path /out_data/index.bin
     volumes:
@@ -116,7 +118,8 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       frontend --port_in ${OUTGOING_ROUTE_OUT} --port_out ${PREPROCESSOR_IN}
-       --host_in outgoing-route --host_out preprocess --socket_in SUB_CONNECT
+       --host_in outgoing-route --host_out preprocess
+       --socket_in SUB_CONNECT --socket_out PUSH_CONNECT
        --grpc_port ${GRPC_PORT}
 
     networks:
@@ -125,12 +128,28 @@ services:
           - grpc_serviced
 
     depends_on:
-      - income-route
+      - preprocess
       - outgoing-route
 
     ports:
       - ${GRPC_PORT}:${GRPC_PORT}
 
+  http_service:
+    image: ${DOCKER_IMG_URL}
+    command: >
+       client_http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
+        --grpc_host frontend  --max_workers=10
+    networks:
+      gnes-net:
+        aliases:
+          - http_serviced
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+    depends_on:
+      - encoder
+      - indexer
+      - outgoing-proxy
+      - income-proxy
 
 volumes:
   index_data:

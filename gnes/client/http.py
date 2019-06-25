@@ -41,14 +41,16 @@ class HttpClient:
         async def general_handler(request, parser, *args, **kwargs):
             try:
                 data = await asyncio.wait_for(request.json(), 10)
+                self.logger.info('data received, beigin processing')
                 resp = await loop.run_in_executor(executor,
                                                   stub_call,
                                                   parser(data.get('docs', data.get('query')), *args, **kwargs))
+                self.logger.info('handling finished, will send to user')
                 return web.Response(body=json.dumps({'result': resp, 'meta': None}, ensure_ascii=False),
                                     status=200,
                                     content_type='application/json')
             except Exception as ex:
-                return web.Response(body=json.dumps({'message': ex.message, 'type': type(ex)}),
+                return web.Response(body=json.dumps({'message': str(ex), 'type': type(ex)}),
                                     status=400,
                                     content_type='application/json')
 
@@ -80,7 +82,8 @@ class HttpClient:
         with grpc.insecure_channel(
                 '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
                 options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 50 * 1024 * 1024)]) as channel:
+                         ('grpc.max_receive_message_length', 50 * 1024 * 1024),
+                         ('grpc.keepalive_timeout_ms', 100*1000)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             loop.run_until_complete(init(loop))
             loop.run_forever()

@@ -112,10 +112,15 @@ message Request {
         IndexRequest index = 3;
         QueryRequest search = 4;
         ControlRequest control = 5;
+        FlushRequest flush = 6;
     }
 
     message TrainRequest {
         repeated Document docs = 1;
+    }
+
+    message FlushRequest {
+        bool flush = 1;
     }
 
     message IndexRequest {
@@ -131,7 +136,6 @@ message Request {
         enum Command {
             TERMINATE = 0;
             STATUS = 1;
-            FLUSH = 2;
         }
 
         Command command = 1;

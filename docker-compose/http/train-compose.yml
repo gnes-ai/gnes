@@ -47,6 +47,23 @@ services:
       - ${GRPC_PORT}:${GRPC_PORT}
 
 
+  http_service:
+    image: ${DOCKER_IMG_URL}
+    command: >
+       client_http --http_port=${HTTP_PORT} --grpc_port ${GRPC_PORT}  
+        --grpc_host frontend  --max_workers=10
+    networks:
+      gnes-net:
+        aliases:
+          - http_serviced
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+    depends_on:
+      - encoder
+      - indexer
+      - outgoing-proxy
+      - income-proxy
+
 networks:
   gnes-net:
     driver: overlay

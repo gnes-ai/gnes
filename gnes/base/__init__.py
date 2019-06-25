@@ -33,6 +33,14 @@ __all__ = ['TrainableBase']
 T = TypeVar('T', bound='TrainableBase')
 
 
+def register_all_class(cls2file_map: Dict):
+    for k, v in cls2file_map.items():
+        try:
+            import_class_by_str(k)
+        except Exception:
+            pass
+
+
 def import_class_by_str(name: str):
     def _import(module_name, class_name):
         import importlib

@@ -213,6 +213,7 @@ class BaseService(threading.Thread):
                     elif isinstance(ret, types.GeneratorType):
                         for r_msg in ret:
                             send_message(out_sock, r_msg, timeout=self.args.timeout)
+
                     else:
                         raise ServiceError('unknown return type from the handler: %s' % fn)
 

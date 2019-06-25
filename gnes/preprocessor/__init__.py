@@ -16,7 +16,11 @@
 # pylint: disable=low-comment-ratio
 
 # A key-value map for Class to the (module)file it located in
+from ..base import register_all_class
+
 _cls2file_map = {
     'BasePreprocessor': 'base',
     'TextPreprocessor': 'text.simple'
 }
+
+register_all_class(_cls2file_map)

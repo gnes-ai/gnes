@@ -112,8 +112,24 @@ COMPOSE_YAML_PATH=""
 case "$_COMPOSE_YAML_PATH" in
     0)
         COMPOSE_YAML_PATH=$(check_file_dialog "index-compose");;
+        NUM_ENCODER=$(TITLE="specify the number of encoders";
+                      TITLE_SHORT="number of encoders";
+                      DEFAULT_VALUE=3;
+                      ui.show_input)
+        NUM_INDEXER=$(TITLE="specify the number of indexers";
+                      TITLE_SHORT="number of indexers";
+                      DEFAULT_VALUE=3;
+                      ui.show_input)        
     1)
         COMPOSE_YAML_PATH=$(check_file_dialog "query-compose");;
+        NUM_ENCODER=$(TITLE="specify the number of encoders";
+                      TITLE_SHORT="number of encoders";
+                      DEFAULT_VALUE=3;
+                      ui.show_input)
+        NUM_INDEXER=$(TITLE="specify the number of indexers";
+                      TITLE_SHORT="number of indexers";
+                      DEFAULT_VALUE=3;
+                      ui.show_input)  
     2)
         COMPOSE_YAML_PATH=$(check_file_dialog "train-compose");;
 esac
@@ -125,6 +141,12 @@ GRPC_PORT=$(TITLE="specify the grpc port of your service, client will communicat
            DEFAULT_VALUE="$RANDOM";
            ui.show_input)
 
+HTTP_PORT=$(TITLE="specify the (optional) http port, for an (optional) http client service";
+           TITLE_SHORT="http port";
+           DEFAULT_VALUE=80;
+           ui.show_input)
+
+
 # these random port need no UI config
 INCOME_ROUTE_IN=$RANDOM
 INCOME_ROUTE_OUT=$RANDOM
@@ -132,6 +154,7 @@ MIDDLEMAN_ROUTE_IN=$RANDOM
 MIDDLEMAN_ROUTE_OUT=$RANDOM
 OUTGOING_ROUTE_IN=$RANDOM
 OUTGOING_ROUTE_OUT=$RANDOM
+PREPROCESSOR_IN=$RANDOM
 
 #### 6. Final service naming
 
