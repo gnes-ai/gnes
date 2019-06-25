@@ -87,3 +87,5 @@ class ReduceRouterService(RouterService):
                 msg.response.search.result[m].ClearField('topk_results')
                 msg.response.search.result[m].topk_results.extend(chunks_all_shards)
             self.pending_result.pop(msg.envelope.request_id)
+        else:
+            return -1

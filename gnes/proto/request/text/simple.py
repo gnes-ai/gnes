@@ -24,7 +24,7 @@ class TextRequestGenerator(BaseRequestGenerator):
                 d.raw_text = raw_text
             yield req
         req = gnes_pb2.Request()
-        req.control.command = gnes_pb2.Request.ControlRequest.FLUSH
+        req.flush = True
         yield req
 
     def query(self, query: str, top_k: int, *args, **kwargs):

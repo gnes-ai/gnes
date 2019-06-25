@@ -199,12 +199,11 @@ class BaseService(threading.Thread):
                 add_route(msg.envelope, self.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
-                # if msg.request and msg.request.WhichOneof('body') and \
-                #         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                #     out_sock = self.ctrl_sock
-                # else:
-                #     out_sock = self.out_sock
-                out_sock = self.out_sock
+                if msg.request and msg.request.WhichOneof('body') and \
+                        type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                    out_sock = self.ctrl_sock
+                else:
+                    out_sock = self.out_sock
                 try:
                     # NOTE that msg is mutable object, it may be modified in fn()
                     ret = fn(self, msg)
@@ -216,6 +215,8 @@ class BaseService(threading.Thread):
                     elif isinstance(ret, types.GeneratorType):
                         for r_msg in ret:
                             send_message(out_sock, r_msg, timeout=self.args.timeout)
+                    elif ret == -1:
+                        pass
                     else:
                         raise ServiceError('unknown return type from the handler: %s' % fn)
 
@@ -310,8 +311,6 @@ class BaseService(threading.Thread):
             raise EventLoopEnd
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
             msg.response.control.status = gnes_pb2.Response.ERROR
-        elif msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
-            pass
         else:
             raise ServiceError('dont know how to handle %s' % msg.request.control)
 

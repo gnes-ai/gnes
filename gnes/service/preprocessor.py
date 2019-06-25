@@ -51,6 +51,6 @@ class PreprocessorService(BS):
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
         self._model.apply(msg.request.search.query)
 
-    @handler.register(NotImplementedError)
+    @handler.register(gnes_pb2.Request.FlushRequest)
     def _handler_default(self, msg: 'gnes_pb2.Message'):
         pass

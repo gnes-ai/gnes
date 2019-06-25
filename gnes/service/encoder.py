@@ -64,9 +64,9 @@ class EncoderService(BS):
         self.train_data.extend(chunks)
         msg.response.train.status = gnes_pb2.Response.PENDING
 
-    @handler.register(gnes_pb2.Request.ControlRequest)
+    @handler.register(gnes_pb2.Request.FlushRequest)
     def _handler_flush(self, msg: 'gnes_pb2.Message'):
-        if msg.request.control.command == gnes_pb2.Request.ControlRequest.FLUSH:
+        if msg.request.flush:
             self._model.train(self.train_data)
             self.is_model_changed.set()
             self.logger.info("encoder has been trained and clear the training data")
