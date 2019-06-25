@@ -61,11 +61,12 @@ class ReduceRouterService(RouterService):
 
     @handler.register(gnes_pb2.Response.IndexResponse)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
-        self.pending_result[msg.envelope.request_id].append(msg)
-        len_result = len(self.pending_result[msg.msg_id])
+        req_id = msg.envelope.request_id
+        self.pending_result[req_id].append(msg)
+        len_result = len(self.pending_result[req_id])
         if len_result == msg.envelope.num_part:
             msg.response.index.status = gnes_pb2.Response.SUCCESS
-            self.pending_result.pop(msg.envelope.request_id)
+            self.pending_result.pop(req_id)
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_query(self, msg: 'gnes_pb2.Message'):
