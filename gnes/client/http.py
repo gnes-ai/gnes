@@ -50,7 +50,7 @@ class HttpClient:
                                     status=200,
                                     content_type='application/json')
             except Exception as ex:
-                return web.Response(body=json.dumps({'message': ex.message, 'type': type(ex)}),
+                return web.Response(body=json.dumps({'message': str(ex), 'type': type(ex)}),
                                     status=400,
                                     content_type='application/json')
 
