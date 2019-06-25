@@ -12,7 +12,7 @@ services:
         aliases:
           - preprocessor_serviced
     configs:
-      - preprocessor_config: preprocessor_config
+      - preprocessor_config
 
   income-route:
     image: ${DOCKER_IMG_URL}
