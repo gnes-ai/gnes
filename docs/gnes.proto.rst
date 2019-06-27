@@ -1,6 +1,13 @@
 gnes.proto package
 ==================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    gnes.proto.request
+
 Submodules
 ----------
 
@@ -12,10 +19,10 @@ gnes.proto.gnes\_pb2 module
     :undoc-members:
     :show-inheritance:
 
-gnes.proto.helper module
-------------------------
+gnes.proto.gnes\_pb2\_grpc module
+---------------------------------
 
-.. automodule:: gnes.proto.helper
+.. automodule:: gnes.proto.gnes_pb2_grpc
     :members:
     :undoc-members:
     :show-inheritance:

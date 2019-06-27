@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'GNES Documentation'
-copyright = '2019, Han Xiao, Feng Wang, Jianfeng Yan'
+copyright = '2019. Han Xiao, Jianfeng Yan, Feng Wang, Jie Fu'
 author = 'Han Xiao'
 
 

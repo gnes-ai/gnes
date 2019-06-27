@@ -1,11 +1,6 @@
 gnes.module package
 ===================
 
-.. automodule:: gnes.module
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Submodules
 ----------
 
@@ -18,3 +13,10 @@ gnes.module.gnes module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes.module
+    :members:
+    :undoc-members:
+    :show-inheritance:

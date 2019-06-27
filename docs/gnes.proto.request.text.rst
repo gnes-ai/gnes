@@ -1,13 +1,13 @@
-gnes.indexer.bindexer package
-=============================
+gnes.proto.request.text package
+===============================
 
 Submodules
 ----------
 
-gnes.indexer.bindexer.bindexer module
+gnes.proto.request.text.simple module
 -------------------------------------
 
-.. automodule:: gnes.indexer.bindexer.bindexer
+.. automodule:: gnes.proto.request.text.simple
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ gnes.indexer.bindexer.bindexer module
 Module contents
 ---------------
 
-.. automodule:: gnes.indexer.bindexer
+.. automodule:: gnes.proto.request.text
     :members:
     :undoc-members:
     :show-inheritance:

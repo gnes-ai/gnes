@@ -3,25 +3,49 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: ../.github/gnes-logo-tight.svg
-   :width: 400px
+GNES
+====
+
+GNES is a cloud-native semantic search end-to-end solution based on deep neural network. It enables indexing and searching similar texts, images, videos in large scale on the cloud infrastructure.
+
+
+.. image:: ../.github/gnes-component-overview.svg
    :align: center
 
 |
-|
 
-Welcome to GNES documentation!
-==============================
-
+View by Microservices
+---------------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+
+   microservice
+
+View by Packages
+----------------
+
+.. toctree::
+   :maxdepth: 3
+
+   gnes
+
+
+Tutorials
+=========
+
+.. toctree::
+   :maxdepth: 1
 
    chapter/overview.md
    chapter/yaml-config.md
    chapter/troubleshooting.md
    chapter/protobuf-dev.md
-   gnes
+
+
+.. argparse::
+   :ref: gnes.cli.parser.set_grpc_frontend_parser
+   :prog: gnes frontend
 
 
 Indices and tables

@@ -1,10 +1,10 @@
-gnes.base package
-=================
+gnes.encoder.image package
+==========================
 
 Module contents
 ---------------
 
-.. automodule:: gnes.base
+.. automodule:: gnes.encoder.image
     :members:
     :undoc-members:
     :show-inheritance:

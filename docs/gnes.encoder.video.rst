@@ -1,10 +1,10 @@
-gnes.base package
-=================
+gnes.encoder.video package
+==========================
 
 Module contents
 ---------------
 
-.. automodule:: gnes.base
+.. automodule:: gnes.encoder.video
     :members:
     :undoc-members:
     :show-inheritance:

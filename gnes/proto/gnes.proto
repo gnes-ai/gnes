@@ -112,15 +112,11 @@ message Request {
         IndexRequest index = 3;
         QueryRequest search = 4;
         ControlRequest control = 5;
-        FlushRequest flush = 6;
     }
 
     message TrainRequest {
         repeated Document docs = 1;
-    }
-
-    message FlushRequest {
-        bool flush = 1;
+        bool flush = 2;
     }
 
     message IndexRequest {

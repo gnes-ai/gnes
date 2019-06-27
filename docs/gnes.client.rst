@@ -1,21 +1,21 @@
-gnes.cli package
-================
+gnes.client package
+===================
 
 Submodules
 ----------
 
-gnes.cli.api module
--------------------
+gnes.client.cli module
+----------------------
 
-.. automodule:: gnes.cli.api
+.. automodule:: gnes.client.cli
     :members:
     :undoc-members:
     :show-inheritance:
 
-gnes.cli.parser module
-----------------------
+gnes.client.http module
+-----------------------
 
-.. automodule:: gnes.cli.parser
+.. automodule:: gnes.client.http
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ gnes.cli.parser module
 Module contents
 ---------------
 
-.. automodule:: gnes.cli
+.. automodule:: gnes.client
     :members:
     :undoc-members:
     :show-inheritance:

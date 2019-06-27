@@ -1,11 +1,6 @@
 gnes.service package
 ====================
 
-.. automodule:: gnes.service
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Submodules
 ----------
 
@@ -13,14 +8,6 @@ gnes.service.base module
 ------------------------
 
 .. automodule:: gnes.service.base
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-gnes.service.client module
---------------------------
-
-.. automodule:: gnes.service.client
     :members:
     :undoc-members:
     :show-inheritance:
@@ -33,6 +20,14 @@ gnes.service.encoder module
     :undoc-members:
     :show-inheritance:
 
+gnes.service.grpc module
+------------------------
+
+.. automodule:: gnes.service.grpc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 gnes.service.indexer module
 ---------------------------
 
@@ -41,12 +36,27 @@ gnes.service.indexer module
     :undoc-members:
     :show-inheritance:
 
-gnes.service.proxy module
--------------------------
+gnes.service.preprocessor module
+--------------------------------
 
-.. automodule:: gnes.service.proxy
+.. automodule:: gnes.service.preprocessor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+gnes.service.router module
+--------------------------
+
+.. automodule:: gnes.service.router
     :members:
     :undoc-members:
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes.service
+    :members:
+    :undoc-members:
+    :show-inheritance:

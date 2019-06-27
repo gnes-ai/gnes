@@ -1,11 +1,6 @@
 gnes package
 ============
 
-.. automodule:: gnes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Subpackages
 -----------
 
@@ -13,10 +8,11 @@ Subpackages
 
     gnes.base
     gnes.cli
+    gnes.client
     gnes.encoder
     gnes.indexer
-    gnes.messaging
     gnes.module
+    gnes.preprocessor
     gnes.proto
     gnes.service
 
@@ -32,3 +28,10 @@ gnes.helper module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes
+    :members:
+    :undoc-members:
+    :show-inheritance:

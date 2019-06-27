@@ -16,13 +16,14 @@
 
 <p align="center">
   <a href="#highlights">Highlights</a> •
-  <a href="#what-is-it">What is it</a> •
+  <a href="#overview">Overview</a> •
   <a href="#install">Install</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="#server-and-client-api">API</a> •
+  <a href="#usage">Usage</a> •
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a>  
 </p>
+
 
 
 
@@ -35,7 +36,23 @@
 - :100: **Best practice**: We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.
 
 
+<h2 align="center">Overview</h2>
+<p align="center">
+<img src=".github/gnes-component-overview.svg" alt="component overview">
+</p>
+
+
 <h2 align="center">Getting Started</h2>
+
+As a cloud-native application, GNES requires an orchestration engine to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+
+<p align="center">
+<img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
+</p>
+
+### Using GNES with Kubernetes
+
+TBA
 
 ### Using GNES with Docker Swarm
 
@@ -82,11 +99,19 @@ To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 </details>
 
-#### 3. Train mode: training encoders and indexers
+### Using GNES with Built-In Orchestration
 
-#### 4. Index mode: adding new documents
+TBA
 
-#### 5. Query mode: searching relevant documents of a given query  
+<h2 align="center">Usage</h2>
+
+First fact to know, GNES has **three independent runtimes**: train, index and search, each maps to a purpose. This differs from the classic machine learning system which has two runtimes i.e. train and inference; as well as the classic search system which also has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtime. 
+
+### Train mode: training encoders and indexers
+
+### Index mode: adding new documents
+
+### Query mode: searching relevant documents of a given query  
 
 
 <h2 align="center">:book: Documentation</h2>
@@ -99,8 +124,7 @@ To build the documentation by yourself, you need to first [install sphinx](http:
 
 ```bash
 git clone https://github.com/tencent/gnes.git && cd gnes
-sphinx-apidoc -o ./docs/ ./gnes
-cd docs && make html
+./shell/make-doc.sh
 ```
 
 <h2 align="center">Tutorial</h2>
@@ -121,7 +145,7 @@ TBA
 ```latex
 @misc{tencent2019GNES,
   title={GNES: Generic Neural Elastic Search},
-  author={Xiao, Han and Yan, Jianfeng and Wang, Feng},
+  author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
   howpublished={\url{https://github.com/tencent/gnes}},
   year={2019}
 }
