@@ -1,21 +1,25 @@
 gnes.indexer package
 ====================
 
-.. automodule:: gnes.indexer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Subpackages
 -----------
 
 .. toctree::
 
     gnes.indexer.bindexer
+    gnes.indexer.hbindexer
     gnes.indexer.hnsw_indexer
 
 Submodules
 ----------
+
+gnes.indexer.annoy module
+-------------------------
+
+.. automodule:: gnes.indexer.annoy
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 gnes.indexer.base module
 ------------------------
@@ -50,3 +54,10 @@ gnes.indexer.numpy module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes.indexer
+    :members:
+    :undoc-members:
+    :show-inheritance:

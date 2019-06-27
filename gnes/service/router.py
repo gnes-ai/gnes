@@ -67,6 +67,8 @@ class ReduceRouterService(RouterService):
         if len_result == msg.envelope.num_part:
             msg.response.index.status = gnes_pb2.Response.SUCCESS
             self.pending_result.pop(req_id)
+        else:
+            msg.response.index.status = gnes_pb2.Response.PENDING
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_query(self, msg: 'gnes_pb2.Message'):
@@ -88,3 +90,5 @@ class ReduceRouterService(RouterService):
                 msg.response.search.result[m].ClearField('topk_results')
                 msg.response.search.result[m].topk_results.extend(chunks_all_shards)
             self.pending_result.pop(msg.envelope.request_id)
+        else:
+            msg.response.index.status = gnes_pb2.Response.PENDING

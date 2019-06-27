@@ -19,10 +19,11 @@
   <a href="#overview">Overview</a> •
   <a href="#install">Install</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="#server-and-client-api">API</a> •
+  <a href="#usage">Usage</a> •
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a>  
 </p>
+
 
 
 
@@ -42,6 +43,16 @@
 
 
 <h2 align="center">Getting Started</h2>
+
+As a cloud-native application, GNES requires an orchestration engine to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+
+<p align="center">
+<img src=".github/gnes-orchestration.svg" alt="orchestration selection">
+</p>
+
+### Using GNES with Kubernetes
+
+TBA
 
 ### Using GNES with Docker Swarm
 
@@ -88,11 +99,17 @@ To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 </details>
 
-#### 3. Train mode: training encoders and indexers
+### Using GNES with Built-In Orchestration
 
-#### 4. Index mode: adding new documents
+TBA
 
-#### 5. Query mode: searching relevant documents of a given query  
+<h2 align="center">Usage</h2>
+
+### Train mode: training encoders and indexers
+
+### Index mode: adding new documents
+
+### Query mode: searching relevant documents of a given query  
 
 
 <h2 align="center">:book: Documentation</h2>
@@ -105,8 +122,7 @@ To build the documentation by yourself, you need to first [install sphinx](http:
 
 ```bash
 git clone https://github.com/tencent/gnes.git && cd gnes
-sphinx-apidoc -o ./docs/ ./gnes
-cd docs && make html
+./shell/make-doc.sh
 ```
 
 <h2 align="center">Tutorial</h2>
@@ -127,7 +143,7 @@ TBA
 ```latex
 @misc{tencent2019GNES,
   title={GNES: Generic Neural Elastic Search},
-  author={Xiao, Han and Yan, Jianfeng and Wang, Feng},
+  author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
   howpublished={\url{https://github.com/tencent/gnes}},
   year={2019}
 }

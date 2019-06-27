@@ -1,11 +1,6 @@
 gnes.indexer.hnsw\_indexer.cython package
 =========================================
 
-.. automodule:: gnes.indexer.hnsw_indexer.cython
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Submodules
 ----------
 
@@ -42,3 +37,10 @@ gnes.indexer.hnsw\_indexer.cython.queue module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes.indexer.hnsw_indexer.cython
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,11 +1,6 @@
 gnes.cli package
 ================
 
-.. automodule:: gnes.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Submodules
 ----------
 
@@ -26,3 +21,10 @@ gnes.cli.parser module
     :show-inheritance:
 
 
+Module contents
+---------------
+
+.. automodule:: gnes.cli
+    :members:
+    :undoc-members:
+    :show-inheritance:

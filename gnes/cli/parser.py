@@ -214,9 +214,7 @@ def set_http_service_parser(parser=None):
 def get_main_parser():
     # create the top-level parser
     parser = set_base_parser()
-    sp = parser.add_subparsers(title='please specify a supported command',
-                               description='Commands',
-                               help='Description', dest='cli')
+    sp = parser.add_subparsers(dest='cli')
 
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
