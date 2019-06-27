@@ -83,7 +83,7 @@ class HttpClient:
                 '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
                 options=[('grpc.max_send_message_length', 50 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 50 * 1024 * 1024),
-                         ('grpc.keepalive_timeout_ms', 100*1000)]) as channel:
+                         ('grpc.keepalive_timeout_ms', 100 * 1000)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             loop.run_until_complete(init(loop))
             loop.run_forever()

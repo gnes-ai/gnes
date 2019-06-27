@@ -18,6 +18,7 @@
 
 # A key-value map for Class to the (module)file it located in
 from ..base import register_all_class
+
 _cls2file_map = {
     'BertEncoder': 'text.bert',
     'BertEncoderWithServer': 'text.bert',

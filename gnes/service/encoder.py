@@ -60,20 +60,16 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
-        chunks = self.get_chunks_from_docs(msg.request.train.docs)
-        self.train_data.extend(chunks)
-        msg.response.train.status = gnes_pb2.Response.PENDING
-
-    @handler.register(gnes_pb2.Request.FlushRequest)
-    def _handler_flush(self, msg: 'gnes_pb2.Message'):
-        if msg.request.flush:
+        if msg.request.train.docs:
+            chunks = self.get_chunks_from_docs(msg.request.train.docs)
+            self.train_data.extend(chunks)
+            msg.response.train.status = gnes_pb2.Response.PENDING
+        if msg.request.train.flush:
             self._model.train(self.train_data)
+            self.logger.info('%d samples is flushed for training' % len(self.train_data))
             self.is_model_changed.set()
-            self.logger.info("encoder has been trained and clear the training data")
             self.train_data.clear()
             msg.response.control.status = gnes_pb2.Response.SUCCESS
-        else:
-            super()._handler_control(msg)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
