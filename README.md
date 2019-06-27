@@ -16,7 +16,7 @@
 
 <p align="center">
   <a href="#highlights">Highlights</a> •
-  <a href="#what-is-it">What is it</a> •
+  <a href="#overview">Overview</a> •
   <a href="#install">Install</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#server-and-client-api">API</a> •
@@ -33,6 +33,12 @@
 - :rocket: **State-of-the-art**: Taking advantage of  fast-growing research AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
 - :nut_and_bolt: **Generic and compatible**: Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. 
 - :100: **Best practice**: We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.
+
+
+<h2 align="center">Overview</h2>
+<p align="center">
+<img src=".github/gnes-component-overview.svg" alt="component overview">
+</p>
 
 
 <h2 align="center">Getting Started</h2>
