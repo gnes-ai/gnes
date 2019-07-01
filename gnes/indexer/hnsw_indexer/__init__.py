@@ -20,11 +20,11 @@
 from typing import List, Tuple
 
 from .cython.hnsw import IndexHnsw
-from ..base import BaseBinaryIndexer
+from ..base import BaseVectorIndexer
 from ...helper import touch_dir, profiling
 
 
-class HnswIndexer(BaseBinaryIndexer):
+class HnswIndexer(BaseVectorIndexer):
     def __init__(self, num_bytes: int, *args, **kwargs):
         super().__init__()
         self.num_bytes = num_bytes

@@ -21,10 +21,10 @@ from typing import List, Tuple
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseBinaryIndexer
+from ..base import BaseVectorIndexer
 
 
-class HBIndexer(BaseBinaryIndexer):
+class HBIndexer(BaseVectorIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -85,9 +85,9 @@ class HBIndexer(BaseBinaryIndexer):
         result = [{} for _ in range(n)]
 
         doc_ids, offsets, dists, q_idx = self.hbindexer.query(
-            vectors, clusters, n, top_k*self.n_idx)
+            vectors, clusters, n, top_k * self.n_idx)
         for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
-            result[q][(i, o)] = (1. - d / self.n_bytes*8) if normalized_score else self.n_bytes*8 - d
+            result[q][(i, o)] = (1. - d / self.n_bytes * 8) if normalized_score else self.n_bytes * 8 - d
 
         return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
 

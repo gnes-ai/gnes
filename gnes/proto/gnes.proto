@@ -71,6 +71,8 @@ message Document {
         NdArray raw_video = 8;
         bytes raw_bytes = 9;  // for other types
     }
+
+    float weight = 10;
 }
 
 message Envelope {

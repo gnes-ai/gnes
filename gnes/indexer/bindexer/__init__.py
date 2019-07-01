@@ -21,10 +21,10 @@ from typing import List, Tuple
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseBinaryIndexer
+from ..base import BaseVectorIndexer
 
 
-class BIndexer(BaseBinaryIndexer):
+class BIndexer(BaseVectorIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -55,10 +55,10 @@ class BIndexer(BaseBinaryIndexer):
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args,
             **kwargs):
         if len(vectors) != len(keys):
-            raise ValueError("vectors length should be equal to doc_ids")
+            raise ValueError('vectors length should be equal to doc_ids')
 
         if vectors.dtype != np.uint8:
-            raise ValueError("vectors should be ndarray of uint8")
+            raise ValueError('vectors should be ndarray of uint8')
 
         num_rows = len(keys)
         keys, offsets = zip(*keys)

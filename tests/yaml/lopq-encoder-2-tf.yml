@@ -9,4 +9,3 @@ component:
   - !TFPQEncoder
     parameter:
       num_bytes: 8
-  - !BaseBinaryEncoder {}

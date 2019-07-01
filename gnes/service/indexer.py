@@ -45,17 +45,19 @@ class IndexerService(BS):
         all_vecs = []
         doc_ids = []
         offsets = []
+        weights = []
 
         for d in msg.request.index.docs:
             all_vecs.append(blob2array(d.chunk_embeddings))
             doc_ids += [d.doc_id] * len(d.chunks)
             offsets += [c.offset_1d for c in d.chunks]
+            weights += [c.weight for c in d.chunks]
 
-        from ..indexer.base import JointIndexer, BaseBinaryIndexer, BaseTextIndexer
-        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseBinaryIndexer):
-            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0))
+        from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
+        if isinstance(self._model, BaseVectorIndexer):
+            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0), weights)
 
-        if isinstance(self._model, JointIndexer) or isinstance(self._model, BaseTextIndexer):
+        if isinstance(self._model, BaseTextIndexer):
             self._model.add([d.doc_id for d in msg.request.index.docs], [d for d in msg.request.index.docs])
 
         msg.response.index.status = gnes_pb2.Response.SUCCESS
@@ -65,13 +67,11 @@ class IndexerService(BS):
     def _handler_search(self, msg: 'gnes_pb2.Message'):
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
-        for q_chunk, all_topks in zip(msg.request.search.query.chunks, results):
+        for all_topks in results:
             r_topk = msg.response.search.result.add()
-            for (_doc_id, _offset), _score, *args in all_topks:
+            for _doc_id, _offset, _score, _weight in all_topks:
                 r = r_topk.topk_results.add()
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
-                r.score = _score
-                # if args is not empty, then it must come from a multiheadindexer
-                if args:
-                    r.chunk.CopyFrom(args[0])
+                r.chunk.weight = _weight
+                r.chunk.relevance = _score

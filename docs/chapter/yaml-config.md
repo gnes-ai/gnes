@@ -56,7 +56,7 @@ component:
     parameter:
       cluster_per_byte: 20
       num_bytes: 10
-  - !BaseBinaryEncoder {}
+
 ```
 
 

@@ -22,9 +22,6 @@
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 from cpython cimport array
-from libc.stdlib cimport qsort
-from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
-
 
 cdef extern from "limits.h":
     cdef int USHRT_MAX
