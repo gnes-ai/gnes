@@ -26,7 +26,7 @@ from ..encoder.base import CompositionalEncoder
 class BaseIndexer(TrainableBase):
     internal_index_path = 'int.indexer.bin'  # this is used when pickle dump is not enough for storing all info
 
-    def add(self, keys: Any, docs: Any, *args, **kwargs):
+    def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
 
     def query(self, keys: Any, top_k: int, *args,
@@ -34,22 +34,32 @@ class BaseIndexer(TrainableBase):
         pass
 
 
-class BaseBinaryIndexer(BaseIndexer):
+class BaseVectorIndexer(BaseIndexer):
 
-    def add(self, keys: Any, docs: np.ndarray, *args, **kwargs):
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         pass
 
-    def query(self, keys: bytes, top_k: int, *args,
+    def query(self, keys: np.ndarray, top_k: int, *args,
               **kwargs) -> List[List[Tuple]]:
         pass
 
 
 class BaseTextIndexer(BaseIndexer):
 
-    def add(self, keys: List[int], docs: Any, *args, **kwargs):
+    def add(self, keys: List[int], docs: Any, weights: List[float], *args, **kwargs):
         pass
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
+        pass
+
+
+class BaseKeyIndexer(BaseIndexer):
+
+    def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
+        pass
+
+    def query(self, keys: List[int], *args,
+              **kwargs) -> List[Tuple[int, int, float]]:
         pass
 
 
@@ -73,7 +83,7 @@ class JointIndexer(CompositionalEncoder):
         self._binary_indexer = None
         self._doc_indexer = None
         for c in self.component:
-            if isinstance(c, BaseBinaryIndexer):
+            if isinstance(c, BaseVectorIndexer):
                 self._binary_indexer = c
             elif isinstance(c, BaseTextIndexer):
                 self._doc_indexer = c
@@ -99,9 +109,9 @@ class JointIndexer(CompositionalEncoder):
         topk_results_with_docs = []
         for topk in topk_results:
             topk_wd = []
-            for (doc_id, offset), score in topk:
+            for doc_id, offset, weight, score in topk:
                 doc = doc_caches.get(doc_id, self._doc_indexer.query([doc_id])[0])
                 doc_caches[doc_id] = doc
-                topk_wd.append(((doc_id, offset), score, doc.chunks[offset]))
+                topk_wd.append((doc_id, offset, weight, score, doc.chunks[offset]))
             topk_results_with_docs.append(topk_wd)
         return topk_results_with_docs

@@ -19,20 +19,21 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .base import BaseBinaryIndexer
+from .base import BaseVectorIndexer
+from ..indexer.key_only import ListKeyIndexer
 
 
-class NumpyIndexer(BaseBinaryIndexer):
+class NumpyIndexer(BaseVectorIndexer):
 
     def __init__(self, num_bytes: int = None, *args, **kwargs):
         super().__init__()
         self.num_bytes = num_bytes
         self._vectors = None  # type: np.ndarray
-        self._doc_ids = []
+        self._key_info_indexer = ListKeyIndexer()
 
-    def add(self, doc_ids: List[Tuple[int, int]], vectors: np.ndarray, *args,
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
-        if len(vectors) % len(doc_ids) != 0:
+        if len(vectors) % len(keys) != 0:
             raise ValueError('vectors bytes should be divided by doc_ids')
 
         if not self.num_bytes:
@@ -46,17 +47,18 @@ class NumpyIndexer(BaseBinaryIndexer):
             self._vectors = np.concatenate([self._vectors, vectors], axis=0)
         else:
             self._vectors = vectors
-        self._doc_ids.extend(doc_ids)
+        self._key_info_indexer.add(keys, weights)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs
               ) -> List[List[Tuple]]:
         keys = np.expand_dims(keys, axis=1)
         dist = keys - np.expand_dims(self._vectors, axis=0)
-        dist = np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
+        score = 1 - np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
 
         ret = []
-        for ids in dist:
-            rk = sorted(enumerate(ids), key=lambda x: x[1])
-            ret.append(
-                [(self._doc_ids[rk[i][0]], 1 - rk[i][1]) for i in range(top_k)])
+        for ids in score:
+            rk = sorted(enumerate(ids), key=lambda x: -x[1])
+            chunk_info = self._key_info_indexer.query([j[0] for j in rk])
+
+            ret.append([(*r, s) for r, s in zip(chunk_info, [j[1] for j in rk])])
         return ret

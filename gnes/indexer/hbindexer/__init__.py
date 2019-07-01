@@ -21,10 +21,10 @@ from typing import List, Tuple
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseBinaryIndexer
+from ..base import BaseVectorIndexer
 
 
-class HBIndexer(BaseBinaryIndexer):
+class HBIndexer(BaseVectorIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -42,7 +42,7 @@ class HBIndexer(BaseBinaryIndexer):
         self.work_dir = data_path
         self.indexer_bin_path = os.path.join(self.work_dir,
                                              self.internal_index_path)
-
+        self._weight_norm = 2 ** 16 - 1
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
 
@@ -51,7 +51,7 @@ class HBIndexer(BaseBinaryIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.hbindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args, **kwargs):
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
@@ -62,17 +62,17 @@ class HBIndexer(BaseBinaryIndexer):
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
+        weights = np.array(weights * self._weight_norm, dtype=np.uint16).tobytes()
         clusters = vectors[:, :self.n_idx].tobytes()
         vectors = vectors[:, self.n_idx:].astype(np.uint8).tobytes()
-        self.hbindexer.index_trie(vectors, clusters, keys, offsets, n)
+        self.hbindexer.index_trie(vectors, clusters, keys, offsets, weights, n)
 
-    def query(
-            self,
-            vectors: np.ndarray,
-            top_k: int,
-            normalized_score: bool = True,
-            *args,
-            **kwargs) -> List[List[Tuple]]:
+    def query(self,
+              vectors: np.ndarray,
+              top_k: int,
+              normalized_score: bool = True,
+              *args,
+              **kwargs) -> List[List[Tuple]]:
 
         if vectors.dtype != np.uint32:
             raise ValueError("vectors should be ndarray of uint32")
@@ -84,10 +84,11 @@ class HBIndexer(BaseBinaryIndexer):
 
         result = [{} for _ in range(n)]
 
-        doc_ids, offsets, dists, q_idx = self.hbindexer.query(
-            vectors, clusters, n, top_k*self.n_idx)
-        for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
-            result[q][(i, o)] = (1. - d / self.n_bytes*8) if normalized_score else self.n_bytes*8 - d
+        doc_ids, offsets, weights, dists, q_idx = self.hbindexer.query(
+            vectors, clusters, n, top_k * self.n_idx)
+        for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
+            result[q][(i, o, w / self._weight_norm)] = (
+                        1. - d / self.n_bytes * 8) if normalized_score else self.n_bytes * 8 - d
 
         return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
 

@@ -23,7 +23,7 @@ class TestAnnoyIndexer(unittest.TestCase):
 
     def test_search(self):
         a = AnnoyIndexer(5, self.data_path)
-        a.add(list(range(10)), self.toy_data)
+        a.add(list(zip(list(range(10)), list(range(10)))), self.toy_data, [1.] * 10)
         self.assertEqual(a.size, 10)
         top_1 = [i[0][0] for i in a.query(self.toy_data, top_k=1)]
         self.assertEqual(top_1, list(range(10)))

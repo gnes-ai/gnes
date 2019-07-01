@@ -21,10 +21,10 @@ from typing import List, Tuple
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseBinaryIndexer
+from ..base import BaseVectorIndexer
 
 
-class BIndexer(BaseBinaryIndexer):
+class BIndexer(BaseVectorIndexer):
     lock_work_dir = True
 
     def __init__(self,
@@ -44,6 +44,7 @@ class BIndexer(BaseBinaryIndexer):
         self.work_dir = data_path
         self.indexer_bin_path = os.path.join(self.work_dir,
                                              self.internal_index_path)
+        self._weight_norm = 2 ** 16 - 1
 
     def _post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -52,28 +53,28 @@ class BIndexer(BaseBinaryIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args,
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) != len(keys):
-            raise ValueError("vectors length should be equal to doc_ids")
+            raise ValueError('vectors length should be equal to doc_ids')
 
         if vectors.dtype != np.uint8:
-            raise ValueError("vectors should be ndarray of uint8")
+            raise ValueError('vectors should be ndarray of uint8')
 
         num_rows = len(keys)
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets)
+        weights = np.array([w * self._weight_norm for w in weights], dtype=np.uint16).tobytes()
+        self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
 
-    def query(
-            self,
-            keys: np.ndarray,
-            top_k: int,
-            normalized_score: bool = True,
-            method: str = 'force',
-            *args,
-            **kwargs) -> List[List[Tuple]]:
+    def query(self,
+              keys: np.ndarray,
+              top_k: int,
+              normalized_score: bool = True,
+              method: str = 'nsw',
+              *args,
+              **kwargs) -> List[List[Tuple]]:
 
         if keys.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
@@ -86,30 +87,30 @@ class BIndexer(BaseBinaryIndexer):
 
         if method == 'nsw':
             # find the indexed items with same value
-            q_idx, doc_ids, offsets = self.bindexer.find_batch_trie(
+            q_idx, doc_ids, offsets, weights = self.bindexer.find_batch_trie(
                 keys, num_rows)
-            for (i, q, o) in zip(doc_ids, q_idx, offsets):
-                result[q].append(((i, o), 1 if normalized_score else self.num_bytes))
+            for (i, q, o, w) in zip(doc_ids, q_idx, offsets, weights):
+                result[q].append((i, o, w / self._weight_norm, 1 if normalized_score else self.num_bytes))
 
             # search the indexed items with similar value
-            doc_ids, offsets, dists, q_idx = self.bindexer.nsw_search(
+            doc_ids, offsets, weights, dists, q_idx = self.bindexer.nsw_search(
                 keys, num_rows, top_k)
-            for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
+            for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 if d == 0:
                     continue
                 result[q].append(
-                    ((i, o),
+                    (i, o, w / self._weight_norm,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
             for q in range(num_rows):
                 result[q] = result[q][:top_k]
         elif method == 'force':
-            doc_ids, offsets, dists, q_idx = self.bindexer.force_search(
+            doc_ids, offsets, weights, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
-            for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
+            for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append(
-                    ((i, o),
+                    (i, o, w / self._weight_norm,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
         return result
 
