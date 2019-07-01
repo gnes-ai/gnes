@@ -37,7 +37,7 @@ class TestBIndexer(unittest.TestCase):
 
     def test_nsw_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_1")
-        fd.add(self.toy_label, self.toy_data)
+        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
 
         rs = fd.query(self.toy_query, 2, method='nsw', normalized_score=False)
         for i in range(len(rs)):

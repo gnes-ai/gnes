@@ -10,9 +10,9 @@ from gnes.indexer.faiss import FaissIndexer
 class TestEUIndexer(unittest.TestCase):
     def setUp(self):
         self.toy_query = np.random.random([1000, 20]).astype(np.float32)
-        self.toy_label = np.random.randint(0, 1e9, [1000]).tolist()
+        self.toy_label = np.random.randint(0, 1e9, [1000, 2]).tolist()
         self.add_query = np.random.random([1000, 20]).astype(np.float32)
-        self.add_label = np.random.randint(0, 1e9, [1000]).tolist()
+        self.add_label = np.random.randint(0, 1e9, [1000, 2]).tolist()
 
         self.sub_query = self.toy_query[:10]
         self.data_path = './test_eu_indexer'
