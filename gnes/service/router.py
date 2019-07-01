@@ -91,4 +91,4 @@ class ReduceRouterService(RouterService):
                 msg.response.search.result[m].topk_results.extend(chunks_all_shards)
             self.pending_result.pop(msg.envelope.request_id)
         else:
-            msg.response.index.status = gnes_pb2.Response.PENDING
+            msg.response.search.status = gnes_pb2.Response.PENDING
