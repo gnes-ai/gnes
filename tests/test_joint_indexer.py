@@ -28,10 +28,10 @@ class TestJointIndexer(unittest.TestCase):
         for doc in self.pb_docs:
             if len(doc.chunks) == 0:
                 continue
-            mhi.add([doc.doc_id], [doc])
+            mhi.add([doc.doc_id], [doc], [1])
             vecs = np.random.randint(
                 0, 255, [len(doc.chunks), self.n_bytes]).astype(np.uint8)
-            mhi.add([(doc.doc_id, j) for j in range(len(doc.chunks))], vecs)
+            mhi.add([(doc.doc_id, j) for j in range(len(doc.chunks))], vecs, [1.] * len(doc.chunks))
             if len(self.querys) < self.query_num:
                 self.querys.append(vecs)
 

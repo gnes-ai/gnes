@@ -17,13 +17,14 @@ class TestBIndexer(unittest.TestCase):
                                   [2, 1, 3, 4],
                                   [23, 32, 21, 33],
                                   [123, 132, 1, 1]]).astype(np.uint8)
-        self.toy_label = [(234, 0, 0), (432, 0, 1), (123, 1, 2), (321, 0, 3), (1, 0, 4), (2, 0, 5), (6, 0, 6)]
+        self.toy_label = [(234, 0), (432, 0), (123, 1), (321, 0), (1, 0), (2, 0), (6, 0)]
 
         self.toy_query = np.array([[1, 2, 1, 2],
                                    [2, 1, 3, 4],
                                    [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[((234, 0, 0), 4), ((123, 1, 2), 4)], [((432, 0, 1), 4), ((1, 0, 4), 4)], [((234, 0, 0), 3), ((123, 1, 2), 3)]]
+        self.toy_exp = [[(234, 0, 4, 1.), (123, 1, 4, 1.)], [(432, 0, 4, 1.), (1, 0, 4, 1.)],
+                        [(234, 0, 3, 1.), (123, 1, 3, 1.)]]
 
         self.data_path = './test_bindexer_data'
         touch_dir(self.data_path)
@@ -47,7 +48,7 @@ class TestBIndexer(unittest.TestCase):
 
     def test_force_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_2")
-        fd.add(self.toy_label, self.toy_data)
+        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
         rs = fd.query(self.toy_query, 2, method='force', normalized_score=False)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[1], -x[0][0]))
@@ -57,7 +58,7 @@ class TestBIndexer(unittest.TestCase):
 
     def test_dump_load(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_3")
-        fd.add(self.toy_label, self.toy_data)
+        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
         fd.dump(self.dump_path)
         fd.close()
         # shutil.rmtree(self.data_path + "_3")
