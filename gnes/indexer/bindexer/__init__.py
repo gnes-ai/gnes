@@ -106,9 +106,9 @@ class BIndexer(BaseBinaryIndexer):
             for q in range(num_rows):
                 result[q] = result[q][:top_k]
         elif method == 'force':
-            doc_ids, offsets, dists, q_idx = self.bindexer.force_search(
+            doc_ids, offsets, weights, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
-            for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
+            for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append(
                     ((i, o),
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
