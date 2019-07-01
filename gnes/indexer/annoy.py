@@ -28,7 +28,7 @@ class AnnoyIndexer(BaseVectorIndexer):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.indexer_file_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
-        last_idx = self._key_info_indexer.add(keys, weights)
+        last_idx = self._key_info_indexer.size
 
         if len(vectors) != len(keys):
             raise ValueError('vectors length should be equal to doc_ids')
@@ -38,6 +38,8 @@ class AnnoyIndexer(BaseVectorIndexer):
 
         for idx, vec in enumerate(vectors):
             self._index.add_item(last_idx + idx, vec)
+
+        self._key_info_indexer.add(keys, weights)
 
     def query(self, keys: 'np.ndarray', top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         self._index.build(self.n_trees)
