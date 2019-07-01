@@ -52,7 +52,7 @@ class BIndexer(BaseVectorIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int, int]], vectors: np.ndarray, *args,
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) != len(keys):
             raise ValueError('vectors length should be equal to doc_ids')
@@ -61,20 +61,19 @@ class BIndexer(BaseVectorIndexer):
             raise ValueError('vectors should be ndarray of uint8')
 
         num_rows = len(keys)
-        keys, offsets, weights = zip(*keys)
+        keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
         weights = np.array(weights, dtype=np.uint16).tobytes()
         self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
 
-    def query(
-            self,
-            keys: np.ndarray,
-            top_k: int,
-            normalized_score: bool = True,
-            method: str = 'nsw',
-            *args,
-            **kwargs) -> List[List[Tuple]]:
+    def query(self,
+              keys: np.ndarray,
+              top_k: int,
+              normalized_score: bool = True,
+              method: str = 'nsw',
+              *args,
+              **kwargs) -> List[List[Tuple]]:
 
         if keys.dtype != np.uint8:
             raise ValueError("vectors should be ndarray of uint8")
@@ -99,7 +98,7 @@ class BIndexer(BaseVectorIndexer):
                 if d == 0:
                     continue
                 result[q].append(
-                    ((i, o, w),
+                    (i, o, w,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
@@ -110,7 +109,7 @@ class BIndexer(BaseVectorIndexer):
                 keys, num_rows, top_k)
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append(
-                    ((i, o),
+                    (i, o, w,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
         return result
 

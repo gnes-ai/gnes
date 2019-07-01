@@ -51,7 +51,7 @@ class HBIndexer(BaseVectorIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.hbindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int, int]], vectors: np.ndarray, *args, **kwargs):
+    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
@@ -59,7 +59,7 @@ class HBIndexer(BaseVectorIndexer):
             raise ValueError("vectors should be ndarray of uint32")
 
         n = len(keys)
-        keys, offsets, weights = zip(*keys)
+        keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
         weights = np.array(weights, dtype=np.uint16).tobytes()
@@ -67,13 +67,12 @@ class HBIndexer(BaseVectorIndexer):
         vectors = vectors[:, self.n_idx:].astype(np.uint8).tobytes()
         self.hbindexer.index_trie(vectors, clusters, keys, offsets, weights, n)
 
-    def query(
-            self,
-            vectors: np.ndarray,
-            top_k: int,
-            normalized_score: bool = True,
-            *args,
-            **kwargs) -> List[List[Tuple]]:
+    def query(self,
+              vectors: np.ndarray,
+              top_k: int,
+              normalized_score: bool = True,
+              *args,
+              **kwargs) -> List[List[Tuple]]:
 
         if vectors.dtype != np.uint32:
             raise ValueError("vectors should be ndarray of uint32")
@@ -86,9 +85,9 @@ class HBIndexer(BaseVectorIndexer):
         result = [{} for _ in range(n)]
 
         doc_ids, offsets, weights, dists, q_idx = self.hbindexer.query(
-            vectors, clusters, n, top_k*self.n_idx)
+            vectors, clusters, n, top_k * self.n_idx)
         for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-            result[q][(i, o, w)] = (1. - d / self.n_bytes*8) if normalized_score else self.n_bytes*8 - d
+            result[q][(i, o, w)] = (1. - d / self.n_bytes * 8) if normalized_score else self.n_bytes * 8 - d
 
         return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
 
