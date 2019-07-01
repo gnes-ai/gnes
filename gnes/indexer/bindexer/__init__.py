@@ -65,7 +65,7 @@ class BIndexer(BaseVectorIndexer):
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        weights = np.array(weights * self._weight_norm, dtype=np.uint16).tobytes()
+        weights = np.array([w * self._weight_norm for w in weights], dtype=np.uint16).tobytes()
         self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
 
     def query(self,
