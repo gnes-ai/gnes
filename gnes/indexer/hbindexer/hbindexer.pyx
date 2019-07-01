@@ -66,13 +66,14 @@ cdef ushort vec_distance(uchar*va, uchar*vb, ushort bytes_per_vector):
 cdef struct res_node:
     uint doc_id
     ushort off_set
+    ushort weight
     uint dist
 
 
 cdef void max_heapify(res_node* ret, int loc, int count):
     cdef int left, right, largest
     cdef uint temp
-    cdef ushort temp2
+    cdef ushort temp2, temp3
     left = 2*(loc) + 1
     right = left + 1
     largest = loc
@@ -98,16 +99,21 @@ cdef void max_heapify(res_node* ret, int loc, int count):
         ret[loc].off_set = ret[largest].off_set
         ret[largest].off_set = temp2
 
+        temp3 = ret[loc].weight
+        ret[loc].weight = ret[largest].weight
+        ret[largest].weight = temp3
+
         max_heapify(ret, largest, count)
 
 
-cdef void heap_push(res_node* ret, uint value, uint doc_id, ushort off_set, int count):
+cdef void heap_push(res_node* ret, uint value, uint doc_id, ushort off_set, ushort weight, int count):
     cdef int index, parent
     index = count
     if index == 0:
         ret[0].dist = value
         ret[0].doc_id = doc_id
         ret[0].off_set = off_set
+        ret[0].weight = weight
     else:
         parent = (index - 1)/2
         while (ret[parent].dist < value):
@@ -116,11 +122,13 @@ cdef void heap_push(res_node* ret, uint value, uint doc_id, ushort off_set, int 
             ret[index].dist = ret[parent].dist
             ret[index].doc_id = ret[parent].doc_id
             ret[index].off_set = ret[parent].off_set
+            ret[index].weight = ret[parent].weight
             index = parent
             parent = (index - 1)/2
         ret[index].dist = value
         ret[index].doc_id = doc_id
         ret[index].off_set = off_set
+        ret[index].weight = weight
 
 
 cdef class IndexCore:
@@ -147,13 +155,13 @@ cdef class IndexCore:
         cdef uint i, j
         for i in range(self.n_idx):
             for j in range(self.n_clusters):
-                self.core[i][j] = <uchar*> PyMem_Malloc(sizeof(uchar)*(self.n_bytes+6)*Increase)
+                self.core[i][j] = <uchar*> PyMem_Malloc(sizeof(uchar)*(self.n_bytes+8)*Increase)
             # initialized the default value of num of data in each array
             self.data_num[i] = <uint*> PyMem_Malloc(sizeof(uint)*self.n_clusters)
             for j in range(self.n_clusters):
                 self.data_num[i][j] = 0
 
-    cpdef void index_trie(self, uchar*data, uchar*clusters, uchar*doc_ids, uchar*off_sets, uint n):
+    cpdef void index_trie(self, uchar*data, uchar*clusters, uchar*doc_ids, uchar*off_sets, uchar* weights, uint n):
         cdef uint i, clus, num, cur_num
         cdef ushort j, k
         cdef uchar*vec
@@ -165,11 +173,11 @@ cdef class IndexCore:
             for j in range(self.n_idx):
                 clus = bytes_to_uint(clusters)
                 num = self.data_num[j][clus]
-                cur_num = num * (self.n_bytes + 6)
+                cur_num = num * (self.n_bytes + 8)
                 if (num + 1) % Increase == 0:
                     self.core[j][clus] = <uchar*> PyMem_Realloc(
                             self.core[j][clus],
-                            sizeof(uchar)*(self.n_bytes+6)*(num+1+Increase))
+                            sizeof(uchar)*(self.n_bytes+8)*(num+1+Increase))
                 # record doc id
                 for k in range(4):
                     self.core[j][clus][cur_num+k] = doc_ids[k]
@@ -177,6 +185,9 @@ cdef class IndexCore:
                 # record offset
                 for k in range(2):
                     self.core[j][clus][cur_num+k] = off_sets[k]
+                cur_num += 2
+                for k in range(2):
+                    self.core[j][clus][cur_num+k] = weights[k]
                 cur_num += 2
                 for k in range(self.n_bytes):
                     self.core[j][clus][cur_num+k] = data[k]
@@ -186,11 +197,13 @@ cdef class IndexCore:
             data += self.n_bytes
             doc_ids += 4
             off_sets += 2
+            weights += 2
 
     cpdef query(self, uchar*data, uchar*clusters, uint n, uint top_k):
         cdef array.array res_dist = array.array('L')
         cdef array.array res_docs = array.array('L')
         cdef array.array res_offset = array.array('L')
+        cdef array.array res_weight = array.array('L')
         cdef array.array res_idx = array.array('L')
 
         cdef uint _0, _1, i
@@ -198,7 +211,8 @@ cdef class IndexCore:
         cdef uchar*vec
         cdef uchar*id_offset
         cdef uint*res
-        cdef uint doc_id, off_set, dist
+        cdef uint doc_id, dist
+        cdef ushort off_set, weight
         cdef int count
 
         ret = <res_node*> PyMem_Malloc(sizeof(res_node)*top_k)
@@ -210,31 +224,35 @@ cdef class IndexCore:
                 vec = self.core[_1][clus]
                 for i in range(self.data_num[_1][clus]):
                     # dynamic update result list
-                    dist = vec_distance(vec + 6, data, self.n_bytes)
+                    dist = vec_distance(vec + 8, data, self.n_bytes)
                     if count < top_k:
                         doc_id = bytes_to_uint(vec)
                         off_set = bytes_to_ushort(vec+4)
-                        heap_push(ret, dist, doc_id, off_set, count)
+                        weight = bytes_to_ushort(vec+6)
+                        heap_push(ret, dist, doc_id, off_set, weight, count)
                         count += 1
                     elif dist < ret[0].dist:
                         doc_id = bytes_to_uint(vec)
                         off_set = bytes_to_ushort(vec+4)
+                        weight = bytes_to_ushort(vec+6)
                         ret[0].dist = dist
                         ret[0].doc_id = doc_id
                         ret[0].off_set = off_set
+                        ret[0].weight = weight
                         max_heapify(ret, 0, count)
-                    vec += self.n_bytes + 6
+                    vec += self.n_bytes + 8
                 clusters += 4
             for _1 in range(top_k):
                 res_dist.append(ret[_1].dist)
                 res_docs.append(ret[_1].doc_id)
                 res_offset.append(ret[_1].off_set)
+                res_weight.append(ret[_1].weight)
                 res_idx.append(_0)
 
             data += self.n_bytes
         PyMem_Free(ret)
 
-        return res_docs, res_offset, res_dist, res_idx
+        return res_docs, res_offset, res_weight, res_dist, res_idx
 
     cdef void _save(self, char*save_path):
         cdef FILE*save_file
@@ -248,7 +266,7 @@ cdef class IndexCore:
         for i in range(self.n_idx):
             for j in range(self.n_clusters):
                 num = ((self.data_num[i][j] + 1) / Increase + 1)*Increase
-                fwrite(self.core[i][j], sizeof(uchar), (self.n_bytes+6)*num, save_file)
+                fwrite(self.core[i][j], sizeof(uchar), (self.n_bytes+8)*num, save_file)
 
     cdef void _load(self, char*load_path):
         cdef FILE*load_file
@@ -264,8 +282,8 @@ cdef class IndexCore:
         for i in range(self.n_idx):
             for j in range(self.n_clusters):
                 num = ((self.data_num[i][j] + 1) / Increase + 1)*Increase
-                tmp2 = <uchar*> PyMem_Malloc(sizeof(uchar)*(self.n_bytes+6)*num)
-                fread(tmp2, sizeof(uchar), (self.n_bytes+6)*num, load_file)
+                tmp2 = <uchar*> PyMem_Malloc(sizeof(uchar)*(self.n_bytes+8)*num)
+                fread(tmp2, sizeof(uchar), (self.n_bytes+8)*num, load_file)
                 self.core[i][j] = tmp2
         self.initialized = 1
 

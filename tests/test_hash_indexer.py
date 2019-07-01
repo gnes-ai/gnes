@@ -12,7 +12,7 @@ class TestMHIndexer(unittest.TestCase):
         self.n_idx = 1
         self.n = 100
 
-        self.test_label = [(_, 1) for _ in range(self.n)]
+        self.test_label = [(_, 1, 1) for _ in range(self.n)]
         t = np.random.randint(0, 100, size=[self.n, self.n_idx+self.num_bytes])
         self.test_data = t.astype(np.uint32)
         self.data_path = 'test_path'
