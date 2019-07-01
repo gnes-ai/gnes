@@ -23,8 +23,9 @@ class TestBIndexer(unittest.TestCase):
                                    [2, 1, 3, 4],
                                    [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[(234, 0, 4, 1.), (123, 1, 4, 1.)], [(432, 0, 4, 1.), (1, 0, 4, 1.)],
-                        [(234, 0, 3, 1.), (123, 1, 3, 1.)]]
+        self.toy_exp = [[(234, 0, 1., 4,), (123, 1, 1., 4)], [(432, 0, 1., 4), (1, 0, 1., 4)],
+                        [(234, 0, 1., 3), (123, 1, 1., 3)]]
+        self.weights = [1.] * len(self.toy_label)
 
         self.data_path = './test_bindexer_data'
         touch_dir(self.data_path)
@@ -37,28 +38,28 @@ class TestBIndexer(unittest.TestCase):
 
     def test_nsw_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_1")
-        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
+        fd.add(self.toy_label, self.toy_data, self.weights)
 
         rs = fd.query(self.toy_query, 2, method='nsw', normalized_score=False)
         for i in range(len(rs)):
-            rs[i] = sorted(rs[i], key=lambda x: (x[2], -x[0]))
+            rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
         shutil.rmtree(self.data_path + "_1")
         self.assertEqual(rs, self.toy_exp)
 
     def test_force_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_2")
-        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
+        fd.add(self.toy_label, self.toy_data, self.weights)
         rs = fd.query(self.toy_query, 2, method='force', normalized_score=False)
         for i in range(len(rs)):
-            rs[i] = sorted(rs[i], key=lambda x: (x[2], -x[0]))
+            rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
         shutil.rmtree(self.data_path + "_2")
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_3")
-        fd.add(self.toy_label, self.toy_data, [1.] * len(self.toy_label))
+        fd.add(self.toy_label, self.toy_data, self.weights)
         fd.dump(self.dump_path)
         fd.close()
         # shutil.rmtree(self.data_path + "_3")
@@ -66,7 +67,7 @@ class TestBIndexer(unittest.TestCase):
         fd2 = BIndexer.load(self.dump_path)
         rs = fd2.query(self.toy_query, 2, normalized_score=False)
         for i in range(len(rs)):
-            rs[i] = sorted(rs[i], key=lambda x: (x[2], -x[0]))
+            rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd2.close()
 
         shutil.rmtree(self.data_path + "_3")
