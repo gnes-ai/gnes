@@ -39,7 +39,8 @@ class TestJointIndexer(unittest.TestCase):
             results = mhi.query(q, top_k=1)
             for topk in results:
                 print(topk)
-                d, s, *_ = topk[0]
+                d, o, w, s, *_ = topk[0]
                 self.assertEqual(1.0, s)
+                self.assertEqual(1.0, w)
 
         mhi.close()
