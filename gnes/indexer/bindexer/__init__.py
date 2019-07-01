@@ -44,6 +44,7 @@ class BIndexer(BaseVectorIndexer):
         self.work_dir = data_path
         self.indexer_bin_path = os.path.join(self.work_dir,
                                              self.internal_index_path)
+        self._weight_norm = 2 ** 16 - 1
 
     def _post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -64,7 +65,7 @@ class BIndexer(BaseVectorIndexer):
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        weights = np.array(weights, dtype=np.uint16).tobytes()
+        weights = np.array(weights * self._weight_norm, dtype=np.uint16).tobytes()
         self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
 
     def query(self,
@@ -89,7 +90,7 @@ class BIndexer(BaseVectorIndexer):
             q_idx, doc_ids, offsets, weights = self.bindexer.find_batch_trie(
                 keys, num_rows)
             for (i, q, o, w) in zip(doc_ids, q_idx, offsets, weights):
-                result[q].append(((i, o, w), 1 if normalized_score else self.num_bytes))
+                result[q].append((i, o, w / self._weight_norm, 1 if normalized_score else self.num_bytes))
 
             # search the indexed items with similar value
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.nsw_search(
@@ -98,7 +99,7 @@ class BIndexer(BaseVectorIndexer):
                 if d == 0:
                     continue
                 result[q].append(
-                    (i, o, w,
+                    (i, o, w / self._weight_norm,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
@@ -109,7 +110,7 @@ class BIndexer(BaseVectorIndexer):
                 keys, num_rows, top_k)
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append(
-                    (i, o, w,
+                    (i, o, w / self._weight_norm,
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
         return result
 
