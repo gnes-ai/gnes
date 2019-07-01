@@ -52,7 +52,7 @@ class BIndexer(BaseBinaryIndexer):
         if os.path.exists(self.indexer_bin_path):
             self.bindexer.load(self.indexer_bin_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, *args,
+    def add(self, keys: List[Tuple[int, int, int]], vectors: np.ndarray, *args,
             **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
@@ -61,17 +61,18 @@ class BIndexer(BaseBinaryIndexer):
             raise ValueError("vectors should be ndarray of uint8")
 
         num_rows = len(keys)
-        keys, offsets = zip(*keys)
+        keys, offsets, weights = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets)
+        weights = np.array(weights, dtype=np.uint16).tobytes()
+        self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
 
     def query(
             self,
             keys: np.ndarray,
             top_k: int,
             normalized_score: bool = True,
-            method: str = 'force',
+            method: str = 'nsw',
             *args,
             **kwargs) -> List[List[Tuple]]:
 
@@ -86,19 +87,19 @@ class BIndexer(BaseBinaryIndexer):
 
         if method == 'nsw':
             # find the indexed items with same value
-            q_idx, doc_ids, offsets = self.bindexer.find_batch_trie(
+            q_idx, doc_ids, offsets, weights = self.bindexer.find_batch_trie(
                 keys, num_rows)
-            for (i, q, o) in zip(doc_ids, q_idx, offsets):
-                result[q].append(((i, o), 1 if normalized_score else self.num_bytes))
+            for (i, q, o, w) in zip(doc_ids, q_idx, offsets, weights):
+                result[q].append(((i, o, w), 1 if normalized_score else self.num_bytes))
 
             # search the indexed items with similar value
-            doc_ids, offsets, dists, q_idx = self.bindexer.nsw_search(
+            doc_ids, offsets, weights, dists, q_idx = self.bindexer.nsw_search(
                 keys, num_rows, top_k)
-            for (i, o, d, q) in zip(doc_ids, offsets, dists, q_idx):
+            for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 if d == 0:
                     continue
                 result[q].append(
-                    ((i, o),
+                    ((i, o, w),
                      (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
 
             # get the top-k
