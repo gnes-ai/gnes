@@ -57,6 +57,9 @@ env_dict = {
         'GPT2_CI_MODEL': '/ext_data/openai_gpt2',
         'XL_CI_MODEL': '/ext_data/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/ext_data/sgns.wiki.bigram-char.sample',
+        'VGG_MODEL': '/ext_data/image_encoder',
+        'RESNET_MODEL': '/ext_data/image_encoder',
+        'INCEPTION_MODEL': '/ext_data/image_encoder',
         'GNES_PROFILING': 1
     }
 

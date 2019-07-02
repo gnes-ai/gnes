@@ -1,0 +1,17 @@
+!PipelineEncoder
+component:
+  - !ResNetEncoder
+    parameter:
+      model_dir: /ext_data/image_encoder
+    property:
+      is_trained: true
+  - !PCALocalEncoder
+    parameter:
+      output_dim: 200
+      num_locals: 10
+    property:
+      batch_size: 2048
+  - !PQEncoder
+    parameter:
+      cluster_per_byte: 20
+      num_bytes: 10

@@ -191,6 +191,15 @@ def set_grpc_client_parser(parser=None):
     parser.add_argument('--mode', choices=['index', 'query', 'train'], type=str,
                         required=True,
                         help='the mode of the client and the server')
+    parser.add_argument('--data_type', choices=['text', 'image', 'video'], type=str,
+                        required=True,
+                        help='type of data, available choice: text, image, vedio')
+    parser.add_argument('--image_folder', type=str,
+                        default='',
+                        help='image folder to be used, each file is a image')
+    parser.add_argument('--top_k', type=int,
+                        default=10,
+                        help='default top_k for query mode')
     return parser
 
 
