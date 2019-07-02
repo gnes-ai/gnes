@@ -147,7 +147,9 @@ networks:
 configs:
   encoder_config:
     file: "${ENCODER_YAML_PATH}"
-  indexer_config:
-    file: "${INDEXER_YAML_PATH}"
+  indexer_vector_config:
+    file: "${INDEXER_VECTOR_YAML_PATH}"
+  indexer_fulltext_config:
+    file: "${INDEXER_FULLTEXT_YAML_PATH}"
   preprocessor_config:
     file: "${PREPROCESSOR_YAML_PATH}"

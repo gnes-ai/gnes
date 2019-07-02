@@ -1,0 +1,4 @@
+!BIndexer
+parameter:
+  num_bytes: 8
+  data_path: /out_data/idx.binary
