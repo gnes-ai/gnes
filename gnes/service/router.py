@@ -20,7 +20,8 @@ from typing import Dict, List
 
 from .base import BaseService as BS, MessageHandler, ServiceError
 from ..helper import batch_iterator
-from ..proto import gnes_pb2, merge_routes
+from ..postprocessor.base import BaseChunkPostprocessor, BaseDocPostprocessor, BasePostprocessor
+from ..proto import gnes_pb2
 
 
 class RouterService(BS):
@@ -64,6 +65,9 @@ class ReduceRouterService(RouterService):
     def _post_init(self):
         self.pending_resp_index = defaultdict(list)  # type: Dict[str, List]
         self.pending_resp_query = defaultdict(list)  # type: Dict[str, List]
+        self.chunk_postprocessor = BaseChunkPostprocessor()
+        self.doc_postprocessor = BaseDocPostprocessor()
+        self.base_postprocessor = BasePostprocessor()
 
     @handler.register(gnes_pb2.Response.IndexResponse)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
@@ -72,7 +76,7 @@ class ReduceRouterService(RouterService):
         len_resp = len(self.pending_resp_index[req_id])
 
         if len_resp == msg.envelope.num_part:
-            merge_routes(msg, self.pending_resp_index.pop(req_id))
+            self.base_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
         else:
             msg.response.index.status = gnes_pb2.Response.PENDING
             yield  # stop propagate "pending" signal
@@ -86,43 +90,9 @@ class ReduceRouterService(RouterService):
 
         if self.args.num_part == num_shards:
             if msg.response.search.level == gnes_pb2.Response.QueryResponse.CHUNK:
-                prev_msgs = self.pending_resp_index.pop(req_id)
-                all_chunks = [r for m in prev_msgs for r in m.response.search.topk_results]
-                doc_score = defaultdict(float)
-                doc_score_explained = defaultdict(str)
-
-                # count score by iterating over chunks
-                for c in all_chunks:
-                    doc_score[c.chunk.doc_id] += c.score
-                    doc_score_explained += '%s\n' % c.score_explained
-
-                # now convert chunk results to doc results
-                msg.response.search.level = gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED
-                msg.response.search.ClearField('topk_results')
-
-                # sort and add docs
-                for k, v in sorted(doc_score.items(), key=lambda kv: -kv[1]):
-                    r = msg.response.search.topk_results.add()
-                    r.doc = gnes_pb2.Document()
-                    r.doc.doc_id = k
-                    r.score = v
-                    r.score_explained = doc_score_explained[k]
-
-                merge_routes(msg, prev_msgs)
+                self.chunk_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
             elif msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT:
-                prev_msgs = self.pending_resp_index.pop(req_id)
-                final_docs = []
-                for r, idx in enumerate(msg.response.search.topk_results):
-                    # get result from all shards, some may return None, we only take the first non-None doc
-                    final_docs.append([r for m in prev_msgs if
-                                       m.response.search.topk_results[idx].doc.WhichOneOf('raw_data') is not None][0])
-
-                # resort all doc result as the doc_weight has been applied
-                final_docs = sorted(final_docs, key=lambda x: x.score, reverse=True)
-                msg.response.search.ClearField('topk_results')
-                msg.response.search.topk_results.extend(final_docs[:msg.response.search.top_k])
-
-                merge_routes(msg, prev_msgs)
+                self.doc_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
             else:
                 raise ServiceError('i dont know how to handle QueryResponse at level %s' % msg.response.search.level)
         else:
