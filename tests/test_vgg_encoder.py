@@ -9,7 +9,7 @@ class TestVggEncoder(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'vgg_encoder.bin')
-        
+
         imagePreprocessor = ImagePreprocessor()
         self.test_img = imagePreprocessor.img_process_for_test(dirname)
         self.vgg_encoder = VggEncoder('/ext_data/image_encoder')
