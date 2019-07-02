@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer.faiss import FaissIndexer
+from gnes.indexer.vector.faiss import FaissIndexer
 
 
 class TestEUIndexer(unittest.TestCase):

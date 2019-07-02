@@ -16,11 +16,11 @@
 # pylint: disable=low-comment-ratio
 
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, List
 
-from .base import BaseService as BS, MessageHandler
+from .base import BaseService as BS, MessageHandler, ServiceError
 from ..helper import batch_iterator
-from ..proto import gnes_pb2
+from ..proto import gnes_pb2, merge_routes
 
 
 class RouterService(BS):
@@ -33,6 +33,8 @@ class RouterService(BS):
 
 class MapRouterService(RouterService):
     handler = MessageHandler(BS.handler)
+
+    # MapRouterService dont support distributed training for now
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_query_req(self, msg: 'gnes_pb2.Message'):
@@ -56,39 +58,73 @@ class MapRouterService(RouterService):
 class ReduceRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
+    # as MapRouterService dont support distributed training for now,
+    # there is no need for ReduceRouterService to collected reduced training message
+
     def _post_init(self):
-        self.pending_result = defaultdict(list)  # type: Dict[str, list]
+        self.pending_resp_index = defaultdict(list)  # type: Dict[str, List]
+        self.pending_resp_query = defaultdict(list)  # type: Dict[str, List]
 
     @handler.register(gnes_pb2.Response.IndexResponse)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
         req_id = msg.envelope.request_id
-        self.pending_result[req_id].append(msg)
-        len_result = len(self.pending_result[req_id])
-        if len_result == msg.envelope.num_part:
-            msg.response.index.status = gnes_pb2.Response.SUCCESS
-            self.pending_result.pop(req_id)
+        self.pending_resp_index[req_id].append(msg)
+        len_resp = len(self.pending_resp_index[req_id])
+
+        if len_resp == msg.envelope.num_part:
+            merge_routes(msg, self.pending_resp_index.pop(req_id))
         else:
             msg.response.index.status = gnes_pb2.Response.PENDING
+            yield  # stop propagate "pending" signal
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_query(self, msg: 'gnes_pb2.Message'):
         req_id = msg.envelope.request_id
-        self.pending_result[req_id].append(msg)
-        msg_parts = self.pending_result[req_id]
+        self.pending_resp_query[req_id].append(msg)
+        msg_parts = self.pending_resp_index[req_id]
         num_shards = len(msg_parts)
 
         if self.args.num_part == num_shards:
-            num_queries = len(msg_parts[0].response.search.result)
-            chunks = [[] for _ in range(num_queries)]
-            tk = len(msg.response.search.result[0].topk_results)
-            for m in range(num_queries):
-                chunks_all_shards = []
-                for j in range(num_shards):
-                    chunks_all_shards.extend(msg_parts[j].response.search.result[m].topk_results)
+            if msg.response.search.level == gnes_pb2.Response.QueryResponse.CHUNK:
+                prev_msgs = self.pending_resp_index.pop(req_id)
+                all_chunks = [r for m in prev_msgs for r in m.response.search.topk_results]
+                doc_score = defaultdict(float)
+                doc_score_explained = defaultdict(str)
 
-                chunks_all_shards = sorted(chunks[m], key=lambda x: -x.score)[:tk]
-                msg.response.search.result[m].ClearField('topk_results')
-                msg.response.search.result[m].topk_results.extend(chunks_all_shards)
-            self.pending_result.pop(msg.envelope.request_id)
+                # count score by iterating over chunks
+                for c in all_chunks:
+                    doc_score[c.chunk.doc_id] += c.score
+                    doc_score_explained += '%s\n' % c.score_explained
+
+                # now convert chunk results to doc results
+                msg.response.search.level = gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED
+                msg.response.search.ClearField('topk_results')
+
+                # sort and add docs
+                for k, v in sorted(doc_score.items(), key=lambda kv: -kv[1]):
+                    r = msg.response.search.topk_results.add()
+                    r.doc = gnes_pb2.Document()
+                    r.doc.doc_id = k
+                    r.score = v
+                    r.score_explained = doc_score_explained[k]
+
+                merge_routes(msg, prev_msgs)
+            elif msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT:
+                prev_msgs = self.pending_resp_index.pop(req_id)
+                final_docs = []
+                for r, idx in enumerate(msg.response.search.topk_results):
+                    # get result from all shards, some may return None, we only take the first non-None doc
+                    final_docs.append([r for m in prev_msgs if
+                                       m.response.search.topk_results[idx].doc.WhichOneOf('raw_data') is not None][0])
+
+                # resort all doc result as the doc_weight has been applied
+                final_docs = sorted(final_docs, key=lambda x: x.score, reverse=True)
+                msg.response.search.ClearField('topk_results')
+                msg.response.search.topk_results.extend(final_docs[:msg.response.search.top_k])
+
+                merge_routes(msg, prev_msgs)
+            else:
+                raise ServiceError('i dont know how to handle QueryResponse at level %s' % msg.response.search.level)
         else:
             msg.response.search.status = gnes_pb2.Response.PENDING
+            yield  # stop propagate "pending" signal

@@ -20,8 +20,8 @@
 from typing import List, Tuple
 
 from .cython.hnsw import IndexHnsw
-from ..base import BaseVectorIndexer
-from ...helper import touch_dir, profiling
+from ....indexer.base import BaseVectorIndexer
+from ....helper import touch_dir, profiling
 
 
 class HnswIndexer(BaseVectorIndexer):
