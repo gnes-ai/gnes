@@ -37,20 +37,17 @@ extensions = [
     Extension(
         'gnes.indexer.hnsw_indexer.cython.heappq',
         ['gnes/indexer/vector/hnsw_indexer/cython/heappq.pyx'],
-        extra_compile_args=[
-            '-O3'],
+        extra_compile_args=['-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.queue',
         ['gnes/indexer/vector/hnsw_indexer/cython/queue.pyx'],
-        extra_compile_args=[
-            '-O3'],
+        extra_compile_args=['-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.prehash',
         ['gnes/indexer/vector/hnsw_indexer/cython/prehash.pyx'],
-        extra_compile_args=[
-            '-O3'],
+        extra_compile_args=['-O3'],
     ),
 ]
 
@@ -62,9 +59,9 @@ setup(
     description='GNES is Generic Neural Elastic Search,'
                 ' a highly scalable semantic search system based on deep neural network.',
     author='GNES team',
-    author_email='artex.xh@gmail.com',
+    author_email='contact@gnes.ai',
     license='Apache',
-    url='https://github.com/tencent/gnes',
+    url='https://github.com/gnes-ai',
     long_description=_long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
