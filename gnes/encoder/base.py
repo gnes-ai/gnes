@@ -21,6 +21,7 @@ from typing import List, Any, Union, Dict, Callable
 import numpy as np
 
 from ..base import TrainableBase
+from ..proto import gnes_pb2
 
 
 class BaseEncoder(TrainableBase):
@@ -29,6 +30,12 @@ class BaseEncoder(TrainableBase):
         pass
 
     def _copy_from(self, x: 'BaseEncoder') -> None:
+        pass
+
+
+class BaseImageEncoder(BaseEncoder):
+
+    def encode(self, img: List['gnes_pb2.blob'], *args, **kwargs) -> np.ndarray:
         pass
 
 

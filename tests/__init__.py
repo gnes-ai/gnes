@@ -45,6 +45,9 @@ env_dict = {
         'GPT2_CI_MODEL': '/openai_gpt2',
         'XL_CI_MODEL': '/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/sgns.wiki.bigram-char.sample',
+        'VGG_MODEL': '/vgg16-397923af.pth',
+        'RESNET_MODEL': '/resnet50-19c8e357.pth',
+        'INCEPTION_MODEL': '/inception_v3_google-1a9a5a14.pth',
         'GNES_PROFILING': 1
     },
     'idc-165': {
@@ -57,6 +60,9 @@ env_dict = {
         'GPT2_CI_MODEL': '/ext_data/openai_gpt2',
         'XL_CI_MODEL': '/ext_data/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/ext_data/sgns.wiki.bigram-char.sample',
+        'VGG_MODEL': '/ext_data/image_encoder',
+        'RESNET_MODEL': '/ext_data/image_encoder',
+        'INCEPTION_MODEL': '/ext_data/image_encoder',
         'GNES_PROFILING': 1
     }
 
