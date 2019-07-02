@@ -95,7 +95,6 @@ setup(
         'aiohttp==3.5.4',
         'annoy==1.15.2',
         'torchvision==0.3.0',
-        'torch==1.1.0',
         'scipy==1.3.0'
     ],
     extras_require={
