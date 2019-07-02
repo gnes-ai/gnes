@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='gnes',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\ngnes.proto\x12\x04gnes\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n\x07NdArray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\r\n\x05\x64type\x18\x03 \x01(\t\"\xcf\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x0e\n\x04text\x18\x02 \x01(\tH\x00\x12\x1d\n\x04\x62lob\x18\x03 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x11\n\toffset_1d\x18\x04 \x01(\r\x12)\n\toffset_nd\x18\x05 \x01(\x0b\x32\x16.gnes.Chunk.Coordinate\x12\x0e\n\x06weight\x18\x06 \x01(\x02\x12\x11\n\trelevance\x18\x07 \x01(\x02\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\x42\t\n\x07\x63ontent\"\xd2\x02\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x1b\n\x06\x63hunks\x18\x02 \x03(\x0b\x32\x0b.gnes.Chunk\x12\'\n\x10\x63hunk_embeddings\x18\x03 \x01(\x0b\x32\r.gnes.NdArray\x12(\n\x08\x64oc_type\x18\x04 \x01(\x0e\x32\x16.gnes.Document.DocType\x12\x11\n\tmeta_info\x18\x05 \x01(\x0c\x12\x12\n\x08raw_text\x18\x06 \x01(\tH\x00\x12\"\n\traw_image\x18\x07 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\"\n\traw_video\x18\x08 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x13\n\traw_bytes\x18\t \x01(\x0cH\x00\"6\n\x07\x44ocType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04TEXT\x10\x01\x12\t\n\x05IMAGE\x10\x02\x12\t\n\x05VIDEO\x10\x03\x42\n\n\x08raw_data\"\xd4\x01\n\x08\x45nvelope\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x0f\n\x07part_id\x18\x03 \x01(\r\x12\x10\n\x08num_part\x18\x04 \x01(\r\x12\x0f\n\x07timeout\x18\x05 \x01(\r\x12$\n\x06routes\x18\x06 \x03(\x0b\x32\x14.gnes.Envelope.route\x1aG\n\x05route\x12\x0f\n\x07service\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"y\n\x07Message\x12 \n\x08\x65nvelope\x18\x01 \x01(\x0b\x32\x0e.gnes.Envelope\x12 \n\x07request\x18\x02 \x01(\x0b\x32\r.gnes.RequestH\x00\x12\"\n\x08response\x18\x03 \x01(\x0b\x32\x0e.gnes.ResponseH\x00\x42\x06\n\x04\x62ody\"\xf6\x03\n\x07Request\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12+\n\x05train\x18\x02 \x01(\x0b\x32\x1a.gnes.Request.TrainRequestH\x00\x12+\n\x05index\x18\x03 \x01(\x0b\x32\x1a.gnes.Request.IndexRequestH\x00\x12,\n\x06search\x18\x04 \x01(\x0b\x32\x1a.gnes.Request.QueryRequestH\x00\x12/\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1c.gnes.Request.ControlRequestH\x00\x1a;\n\x0cTrainRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x12\r\n\x05\x66lush\x18\x02 \x01(\x08\x1a,\n\x0cIndexRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a<\n\x0cQueryRequest\x12\x1d\n\x05query\x18\x01 \x01(\x0b\x32\x0e.gnes.Document\x12\r\n\x05top_k\x18\x02 \x01(\r\x1am\n\x0e\x43ontrolRequest\x12\x35\n\x07\x63ommand\x18\x01 \x01(\x0e\x32$.gnes.Request.ControlRequest.Command\"$\n\x07\x43ommand\x12\r\n\tTERMINATE\x10\x00\x12\n\n\x06STATUS\x10\x01\x42\x06\n\x04\x62ody\"\xf4\x05\n\x08Response\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12-\n\x05train\x18\x02 \x01(\x0b\x32\x1c.gnes.Response.TrainResponseH\x00\x12-\n\x05index\x18\x03 \x01(\x0b\x32\x1c.gnes.Response.IndexResponseH\x00\x12.\n\x06search\x18\x04 \x01(\x0b\x32\x1c.gnes.Response.QueryResponseH\x00\x12\x31\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1e.gnes.Response.ControlResponseH\x00\x1a\x36\n\rTrainResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x36\n\rIndexResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x38\n\x0f\x43ontrolResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\xb1\x02\n\rQueryResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x12\x38\n\x06result\x18\x02 \x03(\x0b\x32(.gnes.Response.QueryResponse.TopKResults\x1a\xbe\x01\n\x0bTopKResults\x12K\n\x0ctopk_results\x18\x01 \x03(\x0b\x32\x35.gnes.Response.QueryResponse.TopKResults.ScoredResult\x1a\x62\n\x0cScoredResult\x12\x1c\n\x05\x63hunk\x18\x01 \x01(\x0b\x32\x0b.gnes.ChunkH\x00\x12\x1d\n\x03\x64oc\x18\x02 \x01(\x0b\x32\x0e.gnes.DocumentH\x00\x12\r\n\x05score\x18\x03 \x01(\x02\x42\x06\n\x04\x62ody\"-\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x42\x06\n\x04\x62ody2\xb1\x01\n\x07GnesRPC\x12(\n\x05Train\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Index\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Query\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05_Call\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\ngnes.proto\x12\x04gnes\x1a\x1fgoogle/protobuf/timestamp.proto\"9\n\x07NdArray\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\x05shape\x18\x02 \x03(\rB\x02\x10\x01\x12\r\n\x05\x64type\x18\x03 \x01(\t\"\xbc\x01\n\x05\x43hunk\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x0e\n\x04text\x18\x02 \x01(\tH\x00\x12\x1d\n\x04\x62lob\x18\x03 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x11\n\toffset_1d\x18\x04 \x01(\r\x12)\n\toffset_nd\x18\x05 \x01(\x0b\x32\x16.gnes.Chunk.Coordinate\x12\x0e\n\x06weight\x18\x06 \x01(\x02\x1a\x1b\n\nCoordinate\x12\r\n\x01x\x18\x01 \x03(\rB\x02\x10\x01\x42\t\n\x07\x63ontent\"\xe2\x02\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\x04\x12\x1b\n\x06\x63hunks\x18\x02 \x03(\x0b\x32\x0b.gnes.Chunk\x12\'\n\x10\x63hunk_embeddings\x18\x03 \x01(\x0b\x32\r.gnes.NdArray\x12(\n\x08\x64oc_type\x18\x04 \x01(\x0e\x32\x16.gnes.Document.DocType\x12\x11\n\tmeta_info\x18\x05 \x01(\x0c\x12\x12\n\x08raw_text\x18\x06 \x01(\tH\x00\x12\"\n\traw_image\x18\x07 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\"\n\traw_video\x18\x08 \x01(\x0b\x32\r.gnes.NdArrayH\x00\x12\x13\n\traw_bytes\x18\t \x01(\x0cH\x00\x12\x0e\n\x06weight\x18\n \x01(\x02\"6\n\x07\x44ocType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04TEXT\x10\x01\x12\t\n\x05IMAGE\x10\x02\x12\t\n\x05VIDEO\x10\x03\x42\n\n\x08raw_data\"\xd4\x01\n\x08\x45nvelope\x12\x11\n\tclient_id\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x0f\n\x07part_id\x18\x03 \x01(\r\x12\x10\n\x08num_part\x18\x04 \x01(\r\x12\x0f\n\x07timeout\x18\x05 \x01(\r\x12$\n\x06routes\x18\x06 \x03(\x0b\x32\x14.gnes.Envelope.route\x1aG\n\x05route\x12\x0f\n\x07service\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"y\n\x07Message\x12 \n\x08\x65nvelope\x18\x01 \x01(\x0b\x32\x0e.gnes.Envelope\x12 \n\x07request\x18\x02 \x01(\x0b\x32\r.gnes.RequestH\x00\x12\"\n\x08response\x18\x03 \x01(\x0b\x32\x0e.gnes.ResponseH\x00\x42\x06\n\x04\x62ody\"\xf6\x03\n\x07Request\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12+\n\x05train\x18\x02 \x01(\x0b\x32\x1a.gnes.Request.TrainRequestH\x00\x12+\n\x05index\x18\x03 \x01(\x0b\x32\x1a.gnes.Request.IndexRequestH\x00\x12,\n\x06search\x18\x04 \x01(\x0b\x32\x1a.gnes.Request.QueryRequestH\x00\x12/\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1c.gnes.Request.ControlRequestH\x00\x1a;\n\x0cTrainRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x12\r\n\x05\x66lush\x18\x02 \x01(\x08\x1a,\n\x0cIndexRequest\x12\x1c\n\x04\x64ocs\x18\x01 \x03(\x0b\x32\x0e.gnes.Document\x1a<\n\x0cQueryRequest\x12\x1d\n\x05query\x18\x01 \x01(\x0b\x32\x0e.gnes.Document\x12\r\n\x05top_k\x18\x02 \x01(\r\x1am\n\x0e\x43ontrolRequest\x12\x35\n\x07\x63ommand\x18\x01 \x01(\x0e\x32$.gnes.Request.ControlRequest.Command\"$\n\x07\x43ommand\x12\r\n\tTERMINATE\x10\x00\x12\n\n\x06STATUS\x10\x01\x42\x06\n\x04\x62ody\"\xc4\x06\n\x08Response\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12-\n\x05train\x18\x02 \x01(\x0b\x32\x1c.gnes.Response.TrainResponseH\x00\x12-\n\x05index\x18\x03 \x01(\x0b\x32\x1c.gnes.Response.IndexResponseH\x00\x12.\n\x06search\x18\x04 \x01(\x0b\x32\x1c.gnes.Response.QueryResponseH\x00\x12\x31\n\x07\x63ontrol\x18\x05 \x01(\x0b\x32\x1e.gnes.Response.ControlResponseH\x00\x1a\x36\n\rTrainResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x36\n\rIndexResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x38\n\x0f\x43ontrolResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x1a\x81\x03\n\rQueryResponse\x12%\n\x06status\x18\x01 \x01(\x0e\x32\x15.gnes.Response.Status\x12\r\n\x05top_k\x18\x02 \x01(\r\x12?\n\x0ctopk_results\x18\x03 \x03(\x0b\x32).gnes.Response.QueryResponse.ScoredResult\x12\x39\n\x05level\x18\x04 \x01(\x0e\x32*.gnes.Response.QueryResponse.ResponseLevel\x1a{\n\x0cScoredResult\x12\x1c\n\x05\x63hunk\x18\x01 \x01(\x0b\x32\x0b.gnes.ChunkH\x00\x12\x1d\n\x03\x64oc\x18\x02 \x01(\x0b\x32\x0e.gnes.DocumentH\x00\x12\r\n\x05score\x18\x03 \x01(\x02\x12\x17\n\x0fscore_explained\x18\x04 \x01(\tB\x06\n\x04\x62ody\"A\n\rResponseLevel\x12\t\n\x05\x43HUNK\x10\x00\x12\x17\n\x13\x44OCUMENT_NOT_FILLED\x10\x01\x12\x0c\n\x08\x44OCUMENT\x10\x02\"-\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x12\x0b\n\x07PENDING\x10\x02\x42\x06\n\x04\x62ody2\xb1\x01\n\x07GnesRPC\x12(\n\x05Train\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Index\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05Query\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x12(\n\x05_Call\x12\r.gnes.Request\x1a\x0e.gnes.Response\"\x00\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -52,8 +52,8 @@ _DOCUMENT_DOCTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=595,
-  serialized_end=649,
+  serialized_start=592,
+  serialized_end=646,
 )
 _sym_db.RegisterEnumDescriptor(_DOCUMENT_DOCTYPE)
 
@@ -74,10 +74,36 @@ _REQUEST_CONTROLREQUEST_COMMAND = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1460,
-  serialized_end=1496,
+  serialized_start=1457,
+  serialized_end=1493,
 )
 _sym_db.RegisterEnumDescriptor(_REQUEST_CONTROLREQUEST_COMMAND)
+
+_RESPONSE_QUERYRESPONSE_RESPONSELEVEL = _descriptor.EnumDescriptor(
+  name='ResponseLevel',
+  full_name='gnes.Response.QueryResponse.ResponseLevel',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='CHUNK', index=0, number=0,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='DOCUMENT_NOT_FILLED', index=1, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='DOCUMENT', index=2, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=2220,
+  serialized_end=2285,
+)
+_sym_db.RegisterEnumDescriptor(_RESPONSE_QUERYRESPONSE_RESPONSELEVEL)
 
 _RESPONSE_STATUS = _descriptor.EnumDescriptor(
   name='Status',
@@ -100,8 +126,8 @@ _RESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2210,
-  serialized_end=2255,
+  serialized_start=2287,
+  serialized_end=2332,
 )
 _sym_db.RegisterEnumDescriptor(_RESPONSE_STATUS)
 
@@ -177,8 +203,8 @@ _CHUNK_COORDINATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=282,
-  serialized_end=309,
+  serialized_start=263,
+  serialized_end=290,
 )
 
 _CHUNK = _descriptor.Descriptor(
@@ -230,13 +256,6 @@ _CHUNK = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='relevance', full_name='gnes.Chunk.relevance', index=6,
-      number=7, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -253,7 +272,7 @@ _CHUNK = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=113,
-  serialized_end=320,
+  serialized_end=301,
 )
 
 
@@ -327,6 +346,13 @@ _DOCUMENT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='weight', full_name='gnes.Document.weight', index=9,
+      number=10, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -343,8 +369,8 @@ _DOCUMENT = _descriptor.Descriptor(
       name='raw_data', full_name='gnes.Document.raw_data',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=323,
-  serialized_end=661,
+  serialized_start=304,
+  serialized_end=658,
 )
 
 
@@ -381,8 +407,8 @@ _ENVELOPE_ROUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=805,
-  serialized_end=876,
+  serialized_start=802,
+  serialized_end=873,
 )
 
 _ENVELOPE = _descriptor.Descriptor(
@@ -446,8 +472,8 @@ _ENVELOPE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=664,
-  serialized_end=876,
+  serialized_start=661,
+  serialized_end=873,
 )
 
 
@@ -494,8 +520,8 @@ _MESSAGE = _descriptor.Descriptor(
       name='body', full_name='gnes.Message.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=878,
-  serialized_end=999,
+  serialized_start=875,
+  serialized_end=996,
 )
 
 
@@ -532,8 +558,8 @@ _REQUEST_TRAINREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1218,
-  serialized_end=1277,
+  serialized_start=1215,
+  serialized_end=1274,
 )
 
 _REQUEST_INDEXREQUEST = _descriptor.Descriptor(
@@ -562,8 +588,8 @@ _REQUEST_INDEXREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1279,
-  serialized_end=1323,
+  serialized_start=1276,
+  serialized_end=1320,
 )
 
 _REQUEST_QUERYREQUEST = _descriptor.Descriptor(
@@ -599,8 +625,8 @@ _REQUEST_QUERYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1325,
-  serialized_end=1385,
+  serialized_start=1322,
+  serialized_end=1382,
 )
 
 _REQUEST_CONTROLREQUEST = _descriptor.Descriptor(
@@ -630,8 +656,8 @@ _REQUEST_CONTROLREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1387,
-  serialized_end=1496,
+  serialized_start=1384,
+  serialized_end=1493,
 )
 
 _REQUEST = _descriptor.Descriptor(
@@ -691,8 +717,8 @@ _REQUEST = _descriptor.Descriptor(
       name='body', full_name='gnes.Request.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1002,
-  serialized_end=1504,
+  serialized_start=999,
+  serialized_end=1501,
 )
 
 
@@ -722,8 +748,8 @@ _RESPONSE_TRAINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1732,
-  serialized_end=1786,
+  serialized_start=1729,
+  serialized_end=1783,
 )
 
 _RESPONSE_INDEXRESPONSE = _descriptor.Descriptor(
@@ -752,8 +778,8 @@ _RESPONSE_INDEXRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1788,
-  serialized_end=1842,
+  serialized_start=1785,
+  serialized_end=1839,
 )
 
 _RESPONSE_CONTROLRESPONSE = _descriptor.Descriptor(
@@ -782,35 +808,42 @@ _RESPONSE_CONTROLRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1844,
-  serialized_end=1900,
+  serialized_start=1841,
+  serialized_end=1897,
 )
 
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT = _descriptor.Descriptor(
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT = _descriptor.Descriptor(
   name='ScoredResult',
-  full_name='gnes.Response.QueryResponse.TopKResults.ScoredResult',
+  full_name='gnes.Response.QueryResponse.ScoredResult',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='chunk', full_name='gnes.Response.QueryResponse.TopKResults.ScoredResult.chunk', index=0,
+      name='chunk', full_name='gnes.Response.QueryResponse.ScoredResult.chunk', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='doc', full_name='gnes.Response.QueryResponse.TopKResults.ScoredResult.doc', index=1,
+      name='doc', full_name='gnes.Response.QueryResponse.ScoredResult.doc', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='score', full_name='gnes.Response.QueryResponse.TopKResults.ScoredResult.score', index=2,
+      name='score', full_name='gnes.Response.QueryResponse.ScoredResult.score', index=2,
       number=3, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='score_explained', full_name='gnes.Response.QueryResponse.ScoredResult.score_explained', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -826,41 +859,11 @@ _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='body', full_name='gnes.Response.QueryResponse.TopKResults.ScoredResult.body',
+      name='body', full_name='gnes.Response.QueryResponse.ScoredResult.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=2110,
-  serialized_end=2208,
-)
-
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS = _descriptor.Descriptor(
-  name='TopKResults',
-  full_name='gnes.Response.QueryResponse.TopKResults',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='topk_results', full_name='gnes.Response.QueryResponse.TopKResults.topk_results', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT, ],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=2018,
-  serialized_end=2208,
+  serialized_start=2095,
+  serialized_end=2218,
 )
 
 _RESPONSE_QUERYRESPONSE = _descriptor.Descriptor(
@@ -878,17 +881,32 @@ _RESPONSE_QUERYRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='result', full_name='gnes.Response.QueryResponse.result', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      name='top_k', full_name='gnes.Response.QueryResponse.top_k', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='topk_results', full_name='gnes.Response.QueryResponse.topk_results', index=2,
+      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='level', full_name='gnes.Response.QueryResponse.level', index=3,
+      number=4, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_RESPONSE_QUERYRESPONSE_TOPKRESULTS, ],
+  nested_types=[_RESPONSE_QUERYRESPONSE_SCOREDRESULT, ],
   enum_types=[
+    _RESPONSE_QUERYRESPONSE_RESPONSELEVEL,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -896,8 +914,8 @@ _RESPONSE_QUERYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1903,
-  serialized_end=2208,
+  serialized_start=1900,
+  serialized_end=2285,
 )
 
 _RESPONSE = _descriptor.Descriptor(
@@ -958,8 +976,8 @@ _RESPONSE = _descriptor.Descriptor(
       name='body', full_name='gnes.Response.body',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1507,
-  serialized_end=2263,
+  serialized_start=1504,
+  serialized_end=2340,
 )
 
 _CHUNK_COORDINATE.containing_type = _CHUNK
@@ -1032,20 +1050,20 @@ _RESPONSE_INDEXRESPONSE.fields_by_name['status'].enum_type = _RESPONSE_STATUS
 _RESPONSE_INDEXRESPONSE.containing_type = _RESPONSE
 _RESPONSE_CONTROLRESPONSE.fields_by_name['status'].enum_type = _RESPONSE_STATUS
 _RESPONSE_CONTROLRESPONSE.containing_type = _RESPONSE
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['chunk'].message_type = _CHUNK
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['doc'].message_type = _DOCUMENT
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.containing_type = _RESPONSE_QUERYRESPONSE_TOPKRESULTS
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.oneofs_by_name['body'].fields.append(
-  _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['chunk'])
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['chunk'].containing_oneof = _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.oneofs_by_name['body']
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.oneofs_by_name['body'].fields.append(
-  _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['doc'])
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.fields_by_name['doc'].containing_oneof = _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT.oneofs_by_name['body']
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS.fields_by_name['topk_results'].message_type = _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT
-_RESPONSE_QUERYRESPONSE_TOPKRESULTS.containing_type = _RESPONSE_QUERYRESPONSE
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['chunk'].message_type = _CHUNK
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['doc'].message_type = _DOCUMENT
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.containing_type = _RESPONSE_QUERYRESPONSE
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.oneofs_by_name['body'].fields.append(
+  _RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['chunk'])
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['chunk'].containing_oneof = _RESPONSE_QUERYRESPONSE_SCOREDRESULT.oneofs_by_name['body']
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.oneofs_by_name['body'].fields.append(
+  _RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['doc'])
+_RESPONSE_QUERYRESPONSE_SCOREDRESULT.fields_by_name['doc'].containing_oneof = _RESPONSE_QUERYRESPONSE_SCOREDRESULT.oneofs_by_name['body']
 _RESPONSE_QUERYRESPONSE.fields_by_name['status'].enum_type = _RESPONSE_STATUS
-_RESPONSE_QUERYRESPONSE.fields_by_name['result'].message_type = _RESPONSE_QUERYRESPONSE_TOPKRESULTS
+_RESPONSE_QUERYRESPONSE.fields_by_name['topk_results'].message_type = _RESPONSE_QUERYRESPONSE_SCOREDRESULT
+_RESPONSE_QUERYRESPONSE.fields_by_name['level'].enum_type = _RESPONSE_QUERYRESPONSE_RESPONSELEVEL
 _RESPONSE_QUERYRESPONSE.containing_type = _RESPONSE
+_RESPONSE_QUERYRESPONSE_RESPONSELEVEL.containing_type = _RESPONSE_QUERYRESPONSE
 _RESPONSE.fields_by_name['train'].message_type = _RESPONSE_TRAINRESPONSE
 _RESPONSE.fields_by_name['index'].message_type = _RESPONSE_INDEXRESPONSE
 _RESPONSE.fields_by_name['search'].message_type = _RESPONSE_QUERYRESPONSE
@@ -1187,17 +1205,10 @@ Response = _reflection.GeneratedProtocolMessageType('Response', (_message.Messag
 
   QueryResponse = _reflection.GeneratedProtocolMessageType('QueryResponse', (_message.Message,), dict(
 
-    TopKResults = _reflection.GeneratedProtocolMessageType('TopKResults', (_message.Message,), dict(
-
-      ScoredResult = _reflection.GeneratedProtocolMessageType('ScoredResult', (_message.Message,), dict(
-        DESCRIPTOR = _RESPONSE_QUERYRESPONSE_TOPKRESULTS_SCOREDRESULT,
-        __module__ = 'gnes_pb2'
-        # @@protoc_insertion_point(class_scope:gnes.Response.QueryResponse.TopKResults.ScoredResult)
-        ))
-      ,
-      DESCRIPTOR = _RESPONSE_QUERYRESPONSE_TOPKRESULTS,
+    ScoredResult = _reflection.GeneratedProtocolMessageType('ScoredResult', (_message.Message,), dict(
+      DESCRIPTOR = _RESPONSE_QUERYRESPONSE_SCOREDRESULT,
       __module__ = 'gnes_pb2'
-      # @@protoc_insertion_point(class_scope:gnes.Response.QueryResponse.TopKResults)
+      # @@protoc_insertion_point(class_scope:gnes.Response.QueryResponse.ScoredResult)
       ))
     ,
     DESCRIPTOR = _RESPONSE_QUERYRESPONSE,
@@ -1214,8 +1225,7 @@ _sym_db.RegisterMessage(Response.TrainResponse)
 _sym_db.RegisterMessage(Response.IndexResponse)
 _sym_db.RegisterMessage(Response.ControlResponse)
 _sym_db.RegisterMessage(Response.QueryResponse)
-_sym_db.RegisterMessage(Response.QueryResponse.TopKResults)
-_sym_db.RegisterMessage(Response.QueryResponse.TopKResults.ScoredResult)
+_sym_db.RegisterMessage(Response.QueryResponse.ScoredResult)
 
 
 _NDARRAY.fields_by_name['shape']._options = None
@@ -1227,8 +1237,8 @@ _GNESRPC = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=2266,
-  serialized_end=2443,
+  serialized_start=2343,
+  serialized_end=2520,
   methods=[
   _descriptor.MethodDescriptor(
     name='Train',
