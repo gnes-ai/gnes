@@ -21,34 +21,34 @@ except FileNotFoundError:
 extensions = [
     Extension(
         'gnes.indexer.bindexer.cython',
-        ['gnes/indexer/bindexer/bindexer.pyx'],
+        ['gnes/indexer/fulltext/bindexer/bindexer.pyx'],
         extra_compile_args=['-O3'],
     ),
     Extension(
         'gnes.indexer.hbindexer.cython',
-        ['gnes/indexer/hbindexer/hbindexer.pyx'],
+        ['gnes/indexer/vector/hbindexer/hbindexer.pyx'],
         extra_compile_args=['-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.hnsw',
-        ['gnes/indexer/hnsw_indexer/cython/hnsw.pyx'],
+        ['gnes/indexer/vector/hnsw_indexer/cython/hnsw.pyx'],
         extra_compile_args=['-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.heappq',
-        ['gnes/indexer/hnsw_indexer/cython/heappq.pyx'],
+        ['gnes/indexer/vector/hnsw_indexer/cython/heappq.pyx'],
         extra_compile_args=[
             '-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.queue',
-        ['gnes/indexer/hnsw_indexer/cython/queue.pyx'],
+        ['gnes/indexer/vector/hnsw_indexer/cython/queue.pyx'],
         extra_compile_args=[
             '-O3'],
     ),
     Extension(
         'gnes.indexer.hnsw_indexer.cython.prehash',
-        ['gnes/indexer/hnsw_indexer/cython/prehash.pyx'],
+        ['gnes/indexer/vector/hnsw_indexer/cython/prehash.pyx'],
         extra_compile_args=[
             '-O3'],
     ),
