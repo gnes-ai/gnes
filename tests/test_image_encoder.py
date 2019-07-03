@@ -10,7 +10,7 @@ from gnes.preprocessor.image.simple import ImagePreprocessor
 from gnes.proto import gnes_pb2
 
 
-def img_process_for_test(target_img_size, dirname: str):
+def img_process_for_test(target_img_size, dirname):
     zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'), "r")
     test_img = []
     for img_file in zipfile_.namelist():
@@ -28,7 +28,7 @@ class TestVggEncoder(unittest.TestCase):
 
     def setUp(self):
         dirname = os.path.dirname(__file__)
-        self.dump_path = os.path.join(dirname, 'vgg_encoder.bin')
+        self.dump_path = os.path.join(dirname, 'model.bin')
         im_proc = ImagePreprocessor()
         self.test_img = img_process_for_test(im_proc.target_img_size, dirname)
         self.vgg_yaml = os.path.join(dirname, 'yaml', 'vgg-encoder.yml')
