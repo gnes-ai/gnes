@@ -45,9 +45,9 @@ env_dict = {
         'GPT2_CI_MODEL': '/openai_gpt2',
         'XL_CI_MODEL': '/transformer_xl_wt103',
         'WORD2VEC_MODEL': '/sgns.wiki.bigram-char.sample',
-        'VGG_MODEL': '/checkpoints',
-        'RESNET_MODEL': '/checkpoints',
-        'INCEPTION_MODEL': '/checkpoints',
+        'VGG_MODEL': '/',
+        'RESNET_MODEL': '/',
+        'INCEPTION_MODEL': '/',
         'GNES_PROFILING': 1
     },
     'idc-165': {
