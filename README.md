@@ -48,11 +48,13 @@ As a cloud-native application, GNES requires an orchestration engine to coordina
 
 <p align="center">
 <img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
+</p>
+<p align="center">
 <table>
   <tr>
-    <th><a href="#using-gnes-with-kubernetes">▶️ I want to use GNES with Kubernetes.</a></th>
-    <th><a href="#using-gnes-with-docker-swarm">▶️ I want to use GNES with Docker Swarm.</a></th>
-    <th><a href="#using-gnes-with-built-in-orchestration">▶️ I want to use GNES on a single machine.</a></th>
+    <th><a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a></th>
+    <th><a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a></th>
+    <th><a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a></th>
   </tr>
 </table>
 </p>
