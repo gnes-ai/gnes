@@ -3,7 +3,7 @@ services:
   preprocess:
     image: ${DOCKER_IMG_URL}
     command: >
-      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${PREPROCESSOR_OUT}
+      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${INCOME_ROUTE_IN}
       --socket_in PULL_BIND --socket_out PUSH_CONNECT
       --host_out income-route
       --yaml_path /preprocessor_config --dump_path /dump/preprocessor.bin
@@ -16,11 +16,41 @@ services:
     depends_on:
       - income-route
 
+  income-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=128
+    networks:
+      gnes-net:
+        aliases:
+          - income_route
+
+  middleman-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type=RouterService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUSH_BIND
+    networks:
+      gnes-net:
+        aliases:
+          - middleman_route
+
+  outgoing-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type=RouterService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUB_BIND
+    networks:
+      gnes-net:
+        aliases:
+          - outgoing_route
+
   encoder:
     image: ${DOCKER_IMG_URL}
     command: >
-      encode --port_in ${PREPROCESSOR_OUT} --port_out ${ENCODER_OUT}
-      --socket_in PULL_CONNECT --socket_out PUB_BIND
+      encode --port_in ${INCOME_ROUTE_OUT} --port_out ${MIDDLEMAN_ROUTE_IN}
+      --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
       --host_in income-route --host_out middleman-route
       --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
@@ -47,7 +77,7 @@ services:
     image: ${DOCKER_IMG_URL}
     command: >
       index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
-       --socket_in SUB_CONNECT --socket_out PUSH_CONNECT
+       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
        --host_in middleman-route --host_out outgoing-route
        --yaml_path /indexer_config --dump_path /out_data/index.bin
     volumes:
