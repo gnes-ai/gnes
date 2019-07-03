@@ -20,7 +20,8 @@ from ..base import register_all_class
 
 _cls2file_map = {
     'BasePreprocessor': 'base',
-    'TextPreprocessor': 'text.simple'
+    'TextPreprocessor': 'text.simple',
+    'ImagePreprocessor': 'image.simple'
 }
 
 register_all_class(_cls2file_map)
