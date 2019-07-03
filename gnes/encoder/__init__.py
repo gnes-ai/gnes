@@ -38,9 +38,7 @@ _cls2file_map = {
     'CompositionalEncoder': 'base',
     'PipelineEncoder': 'base',
     'HashEncoder': 'numeric.hash',
-    'VggEncoder': 'image.vgg',
-    'ResNetEncoder': 'image.resnet',
-    'InceptionEncoder': 'image.inception'
+    'BasePytorchEncoder': 'image.base',
 }
 
 register_all_class(_cls2file_map)

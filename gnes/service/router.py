@@ -32,6 +32,14 @@ class RouterService(BS):
         pass
 
 
+class PublishRouterService(BS):
+    handler = MessageHandler(BS.handler)
+
+    @handler.register(NotImplementedError)
+    def _handler_default(self, msg: 'gnes_pb2.Message'):
+        msg.envelope.num_part = self.args.num_part
+
+
 class MapRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
