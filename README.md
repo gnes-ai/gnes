@@ -48,11 +48,15 @@ As a cloud-native application, GNES requires an orchestration engine to coordina
 
 <p align="center">
 <img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
+<table>
+  <tr>
+    <th><a href="#using-gnes-with-kubernetes">I want to use GNES with Kubernetes.</a></th>
+    <th><a href="#using-gnes-with-docker-swarm">I want to use GNES with Docker Swarm.</a></th>
+    <th><a href="#using-gnes-with-built-in-orchestration">I want to use GNES on a single machine (i.e. not on cloud) with built-in orchestration.</a></th>
+  </tr>
+</table>
 </p>
 
-### Using GNES with Kubernetes
-
-TBA
 
 ### Using GNES with Docker Swarm
 
@@ -99,13 +103,19 @@ To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 </details>
 
+### Using GNES with Kubernetes
+
+TBA
+
 ### Using GNES with Built-In Orchestration
 
 TBA
 
 <h2 align="center">Usage</h2>
 
-First fact to know, GNES has **three independent runtimes**: train, index and search, each maps to a purpose. This differs from the classic machine learning system which has two runtimes i.e. train and inference; as well as the classic search system which also has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtime. 
+First thing to know, GNES has **three independent runtimes**: train, index and search. This differs from the classic machine learning system which has two runtimes i.e. train and inference; also differs from the classic search system that has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtimes. 
+
+Note, to switch between runtimee you need to shutdown the current runtime and start a new GNES.
 
 ### Train mode: training encoders and indexers
 
