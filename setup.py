@@ -29,26 +29,6 @@ extensions = [
         ['gnes/indexer/vector/hbindexer/hbindexer.pyx'],
         extra_compile_args=['-O3'],
     ),
-    Extension(
-        'gnes.indexer.vector.hnsw_indexer.cython.hnsw',
-        ['gnes/indexer/vector/hnsw_indexer/cython/hnsw.pyx'],
-        extra_compile_args=['-O3'],
-    ),
-    Extension(
-        'gnes.indexer.vector.hnsw_indexer.cython.heappq',
-        ['gnes/indexer/vector/hnsw_indexer/cython/heappq.pyx'],
-        extra_compile_args=['-O3'],
-    ),
-    Extension(
-        'gnes.indexer.vector.hnsw_indexer.cython.queue',
-        ['gnes/indexer/vector/hnsw_indexer/cython/queue.pyx'],
-        extra_compile_args=['-O3'],
-    ),
-    Extension(
-        'gnes.indexer.vector.hnsw_indexer.cython.prehash',
-        ['gnes/indexer/vector/hnsw_indexer/cython/prehash.pyx'],
-        extra_compile_args=['-O3'],
-    ),
 ]
 
 setup(
