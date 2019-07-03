@@ -2,7 +2,7 @@ import os
 import unittest
 from shutil import rmtree
 
-from gnes.indexer.leveldb import LVDBIndexer
+from gnes.indexer.fulltext.leveldb import LVDBIndexer
 from tests import txt_file2pb_docs
 
 

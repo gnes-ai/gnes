@@ -21,8 +21,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .base import BaseVectorIndexer
-from ..indexer.key_only import ListKeyIndexer
+from ...indexer.base import BaseVectorIndexer
+from ...indexer.key_only import ListKeyIndexer
 
 
 class FaissIndexer(BaseVectorIndexer):

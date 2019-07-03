@@ -1,8 +1,14 @@
 !PipelineEncoder
 component:
-  - !VggEncoder
+  - !BasePytorchEncoder
     parameter:
       model_dir: /ext_data/image_encoder
+      model_name: vgg
+      layers:
+        - features
+        - avg_pool
+        - x.view(x.size(0), -1)
+        - classifier[0]
     property:
       is_trained: true
   - !PCALocalEncoder

@@ -17,7 +17,7 @@
 
 import numpy as np
 
-from .base import BaseService as BS, ComponentNotLoad, MessageHandler
+from .base import BaseService as BS, ComponentNotLoad, MessageHandler, ServiceError
 from ..proto import gnes_pb2, blob2array
 
 
@@ -55,23 +55,49 @@ class IndexerService(BS):
 
         from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
         if isinstance(self._model, BaseVectorIndexer):
-            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(all_vecs, 0), weights)
-
-        if isinstance(self._model, BaseTextIndexer):
-            self._model.add([d.doc_id for d in msg.request.index.docs], [d for d in msg.request.index.docs])
+            self._model.add(list(zip(doc_ids, offsets)),
+                            np.concatenate(all_vecs, 0),
+                            weights)
+        elif isinstance(self._model, BaseTextIndexer):
+            self._model.add([d.doc_id for d in msg.request.index.docs],
+                            [d for d in msg.request.index.docs],
+                            [d.weight for d in msg.request.index.docs])
 
         msg.response.index.status = gnes_pb2.Response.SUCCESS
         self.is_model_changed.set()
 
     @handler.register(gnes_pb2.Request.QueryRequest)
-    def _handler_search(self, msg: 'gnes_pb2.Message'):
+    def _handler_chunk_search(self, msg: 'gnes_pb2.Message'):
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
+        topk = msg.request.search.top_k
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
-        for all_topks in results:
-            r_topk = msg.response.search.result.add()
-            for _doc_id, _offset, _score, _weight in all_topks:
-                r = r_topk.topk_results.add()
+        q_weights = [qc.weight for qc in msg.request.search.query.chunks]
+        for all_topks, qc_weight in zip(results, q_weights):
+            for _doc_id, _offset, _relevance, _weight in all_topks:
+                r = msg.response.search.topk_results.add()
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
                 r.chunk.weight = _weight
-                r.chunk.relevance = _score
+                r.score = _weight * _relevance * qc_weight
+                r.score_explained = '[chunk_score at doc: %d, offset: %d] = ' \
+                                    '(doc_chunk_weight: %.6f) * ' \
+                                    '(query_doc_chunk_relevance: %.6f) * ' \
+                                    '(query_chunk_weight: %.6f)' % (
+                                        _doc_id, _offset, _weight, _relevance, qc_weight)
+            msg.response.search.top_k = topk
+
+    @handler.register(gnes_pb2.Request.QueryResponse)
+    def _handler_doc_search(self, msg: 'gnes_pb2.Message'):
+        if msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED:
+            doc_ids = [r.doc.doc_id for r in msg.response.topk_results]
+            docs = self._model.query(doc_ids)
+            for r, d in zip(msg.response.topk_results, docs):
+                if d is not None:
+                    # fill in the doc if this shard returns non-empty
+                    r.doc.CopyFrom(d)
+                    r.score *= d.weight
+                    r.score_explained = '{%s} * [doc: %d] (doc_weight: %.6f)' % (
+                        r.score_explained, d.doc_id, d.weight)
+            msg.response.search.level = gnes_pb2.Response.QueryResponse.DOCUMENT
+        else:
+            raise ServiceError('i dont know how to handle QueryResponse with %s level' % msg.response.search.level)

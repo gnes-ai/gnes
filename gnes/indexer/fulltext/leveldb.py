@@ -20,16 +20,17 @@ import pickle
 from threading import Thread, Event
 from typing import List, Any
 
-from .base import BaseTextIndexer
-from ..proto import gnes_pb2
+from ...indexer.base import BaseTextIndexer
+from ...proto import gnes_pb2
 
 
 class LVDBIndexer(BaseTextIndexer):
 
-    def __init__(self, data_path: str, *args, **kwargs):
+    def __init__(self, data_path: str, keep_na_doc: bool = True, *args, **kwargs):
         super().__init__()
         self.data_path = data_path
-        self._NOT_FOUND = {}
+        self.keep_na_doc = keep_na_doc
+        self._NOT_FOUND = None
 
     def _post_init(self):
         import plyvel
@@ -55,8 +56,9 @@ class LVDBIndexer(BaseTextIndexer):
             doc = gnes_pb2.Document()
             if v is not None:
                 doc.ParseFromString(v)
-            res.append(doc if v else self._NOT_FOUND)
-            # res.append(pickle.loads(v) if v else self._NOT_FOUND)
+                res.append(doc)
+            elif self.keep_na_doc:
+                res.append(self._NOT_FOUND)
         return res
 
     def close(self):

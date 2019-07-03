@@ -19,18 +19,17 @@
 from ..base import register_all_class
 
 _cls2file_map = {
-    'FaissIndexer': 'faiss',
-    'LVDBIndexer': 'leveldb',
-    'AsyncLVDBIndexer': 'leveldb',
-    'NumpyIndexer': 'numpy',
-    'HnswIndexer': 'hnsw_indexer',
-    'BIndexer': 'bindexer',
-    'HBIndexer': 'hbindexer',
+    'FaissIndexer': 'vector.faiss',
+    'LVDBIndexer': 'fulltext.leveldb',
+    'AsyncLVDBIndexer': 'fulltext.leveldb',
+    'NumpyIndexer': 'vector.numpy',
+    'BIndexer': 'vector.bindexer',
+    'HBIndexer': 'vector.hbindexer',
     'JointIndexer': 'base',
     'BaseIndexer': 'base',
     'BaseBinaryIndexer': 'base',
     'BaseTextIndexer': 'base',
-    'AnnoyIndexer': 'annoy'
+    'AnnoyIndexer': 'vector.annoy'
 }
 
 register_all_class(_cls2file_map)

@@ -35,7 +35,7 @@ class BaseEncoder(TrainableBase):
 
 class BaseImageEncoder(BaseEncoder):
 
-    def encode(self, img: List['gnes_pb2.blob'], *args, **kwargs) -> np.ndarray:
+    def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         pass
 
 

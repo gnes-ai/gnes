@@ -16,10 +16,11 @@
 # pylint: disable=low-comment-ratio
 
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, List
 
-from .base import BaseService as BS, MessageHandler
+from .base import BaseService as BS, MessageHandler, ServiceError
 from ..helper import batch_iterator
+from ..postprocessor.base import BaseChunkPostprocessor, BaseDocPostprocessor, BasePostprocessor
 from ..proto import gnes_pb2
 
 
@@ -31,8 +32,18 @@ class RouterService(BS):
         pass
 
 
+class PublishRouterService(BS):
+    handler = MessageHandler(BS.handler)
+
+    @handler.register(NotImplementedError)
+    def _handler_default(self, msg: 'gnes_pb2.Message'):
+        msg.envelope.num_part = self.args.num_part
+
+
 class MapRouterService(RouterService):
     handler = MessageHandler(BS.handler)
+
+    # MapRouterService dont support distributed training for now
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_query_req(self, msg: 'gnes_pb2.Message'):
@@ -56,39 +67,42 @@ class MapRouterService(RouterService):
 class ReduceRouterService(RouterService):
     handler = MessageHandler(BS.handler)
 
+    # as MapRouterService dont support distributed training for now,
+    # there is no need for ReduceRouterService to collected reduced training message
+
     def _post_init(self):
-        self.pending_result = defaultdict(list)  # type: Dict[str, list]
+        self.pending_resp_index = defaultdict(list)  # type: Dict[str, List]
+        self.pending_resp_query = defaultdict(list)  # type: Dict[str, List]
+        self.chunk_postprocessor = BaseChunkPostprocessor()
+        self.doc_postprocessor = BaseDocPostprocessor()
+        self.base_postprocessor = BasePostprocessor()
 
     @handler.register(gnes_pb2.Response.IndexResponse)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
         req_id = msg.envelope.request_id
-        self.pending_result[req_id].append(msg)
-        len_result = len(self.pending_result[req_id])
-        if len_result == msg.envelope.num_part:
-            msg.response.index.status = gnes_pb2.Response.SUCCESS
-            self.pending_result.pop(req_id)
+        self.pending_resp_index[req_id].append(msg)
+        len_resp = len(self.pending_resp_index[req_id])
+
+        if len_resp == msg.envelope.num_part:
+            self.base_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
         else:
             msg.response.index.status = gnes_pb2.Response.PENDING
+            yield  # stop propagate "pending" signal
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_query(self, msg: 'gnes_pb2.Message'):
         req_id = msg.envelope.request_id
-        self.pending_result[req_id].append(msg)
-        msg_parts = self.pending_result[req_id]
+        self.pending_resp_query[req_id].append(msg)
+        msg_parts = self.pending_resp_index[req_id]
         num_shards = len(msg_parts)
 
         if self.args.num_part == num_shards:
-            num_queries = len(msg_parts[0].response.search.result)
-            chunks = [[] for _ in range(num_queries)]
-            tk = len(msg.response.search.result[0].topk_results)
-            for m in range(num_queries):
-                chunks_all_shards = []
-                for j in range(num_shards):
-                    chunks_all_shards.extend(msg_parts[j].response.search.result[m].topk_results)
-
-                chunks_all_shards = sorted(chunks[m], key=lambda x: -x.score)[:tk]
-                msg.response.search.result[m].ClearField('topk_results')
-                msg.response.search.result[m].topk_results.extend(chunks_all_shards)
-            self.pending_result.pop(msg.envelope.request_id)
+            if msg.response.search.level == gnes_pb2.Response.QueryResponse.CHUNK:
+                self.chunk_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
+            elif msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT:
+                self.doc_postprocessor.apply(msg, self.pending_resp_index.pop(req_id))
+            else:
+                raise ServiceError('i dont know how to handle QueryResponse at level %s' % msg.response.search.level)
         else:
             msg.response.search.status = gnes_pb2.Response.PENDING
+            yield  # stop propagate "pending" signal

@@ -14,15 +14,13 @@ class ImagePreprocessor(BasePreprocessor):
     def __init__(self, start_doc_id: int = 0,
                  random_doc_id: bool = True,
                  target_img_size: int = 224,
-                 use_split: bool = True,
-                 split_method: str = 'stride',
+                 segmentation: str = 'stride',
                  is_rgb: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start_doc_id = start_doc_id
         self.random_doc_id = random_doc_id
         self.target_img_size = target_img_size
-        self.use_split = use_split
-        self.split_method = split_method
+        self.segmentation = segmentation
         self.is_rgb = is_rgb
 
     def apply(self, doc: 'gnes_pb2.Document'):
@@ -36,8 +34,8 @@ class ImagePreprocessor(BasePreprocessor):
                                                                                         doc.raw_image.shape[1], 1)
 
         raw_img = Image.fromarray(np.uint8(image_asarray))
-        if self.use_split:
-            image_set = self.split_image(raw_img)
+        if self.segmentation:
+            image_set = self._segment_image(raw_img)
             for ci, chunk in enumerate(image_set):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
@@ -52,16 +50,16 @@ class ImagePreprocessor(BasePreprocessor):
             c.weight = 1.
         return doc
 
-    def split_image(self, img: Image):
-        if self.split_method == 'stride':
-            return self.crop_imgs(img)
-        elif self.split_method == 'segmentation':
-            return self.seg_imgs(img)
+    def _segment_image(self, img: Image):
+        if self.segmentation == 'stride':
+            return self._crop_img(img)
+        elif self.segmentation == 'bounding-box':
+            return self._seg_img(img)
         else:
             raise ValueError(
-                'split_method: %s has not been implemented' % self.split_method)
+                'split_method: %s has not been implemented' % self.segmentation)
 
-    def crop_imgs(self, img: Image):
+    def _crop_img(self, img: Image):
         chunk_list = []
         wide, height = img.size
 
@@ -104,19 +102,7 @@ class ImagePreprocessor(BasePreprocessor):
             bottom += stride_height
         return chunk_list
 
-    def seg_imgs(self, img):
+    def _seg_img(self, img):
         pass
 
-    def img_process_for_test(self, dirname: str):
-        zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'), "r")
-        test_img = []
-        for img_file in zipfile_.namelist():
-            image = Image.open(zipfile_.open(img_file, 'r')).resize((self.target_img_size, self.target_img_size))
-            image_asarray = np.asarray(image, dtype=np.float32)
-            blob = gnes_pb2.NdArray()
-            blob.data = image_asarray.tobytes()
-            blob.shape.extend(image_asarray.shape)
-            blob.dtype = image_asarray.dtype.name
-            test_img.append(blob)
-        return test_img
 
