@@ -20,7 +20,7 @@ except FileNotFoundError:
 
 extensions = [
     Extension(
-        'gnes.indexer.vector.vectbindexer.cython',
+        'gnes.indexer.vector.bindexer.cython',
         ['gnes/indexer/vector/bindexer/bindexer.pyx'],
         extra_compile_args=['-O3'],
     ),
