@@ -21,7 +21,7 @@ from typing import List, Tuple
 import numpy as np
 
 from .cython import IndexCore
-from ..base import BaseVectorIndexer
+from ....indexer.base import BaseVectorIndexer
 
 
 class BIndexer(BaseVectorIndexer):

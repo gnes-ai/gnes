@@ -58,7 +58,7 @@ class ListNumpyKeyIndexer(ListKeyIndexer):
 
     def add(self, *args, **kwargs) -> int:
         self._data_updated = True
-        super().add(*args, **kwargs)
+        return super().add(*args, **kwargs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         self._build_np_buffer()

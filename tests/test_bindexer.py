@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from gnes.helper import touch_dir
-from gnes.indexer.bindexer import BIndexer
+from gnes.indexer.vector.bindexer import BIndexer
 
 
 class TestBIndexer(unittest.TestCase):

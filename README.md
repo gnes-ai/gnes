@@ -2,8 +2,6 @@
     <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </p>
 
-<p align="center">GNES [<i>jee-nes</i>] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. <br>It enables indexing and searching similar texts, images, videos in large scale on the cloud infrastructure.</p>
-
 <p align="center">
 <a href="#">
     <img src="http://badge.orange-ci.oa.com/ai-innersource/nes.svg" alt="building status">
@@ -24,7 +22,12 @@
   <a href="#speech_balloon-faq">FAQ</a>  
 </p>
 
+<h2 align="center">What is it</h2>
 
+GNES [<i>jee-nes</i>] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. 
+
+
+Leveraging the cloud infrastructure, GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
 
 
 <h2 align="center">Highlights</h2>
@@ -49,10 +52,16 @@ As a cloud-native application, GNES requires an orchestration engine to coordina
 <p align="center">
 <img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
 </p>
+<p align="center">
+<table>
+  <tr>
+    <th><a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a></th>
+    <th><a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a></th>
+    <th><a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a></th>
+  </tr>
+</table>
+</p>
 
-### Using GNES with Kubernetes
-
-TBA
 
 ### Using GNES with Docker Swarm
 
@@ -99,13 +108,19 @@ To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 </details>
 
+### Using GNES with Kubernetes
+
+TBA
+
 ### Using GNES with Built-In Orchestration
 
 TBA
 
 <h2 align="center">Usage</h2>
 
-First fact to know, GNES has **three independent runtimes**: train, index and search, each maps to a purpose. This differs from the classic machine learning system which has two runtimes i.e. train and inference; as well as the classic search system which also has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtime. 
+First thing to know, GNES has **three independent runtimes**: train, index and search. This differs from the classic machine learning system which has two runtimes i.e. train and inference; also differs from the classic search system that has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtimes. 
+
+Note, to switch between runtimee you need to shutdown the current runtime and start a new GNES.
 
 ### Train mode: training encoders and indexers
 

@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 import uuid
-from typing import Optional
+from typing import Optional, List
 
 import numpy as np
 import zmq
@@ -60,6 +60,10 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str):
     r = evlp.routes.add()
     r.service = name
     r.timestamp.GetCurrentTime()
+
+
+def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message'], idx: int = -1):
+    msg.envelope.routes.extend([m.envelope.routes[idx] for m in prev_msgs[:-1]])
 
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:

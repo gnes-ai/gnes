@@ -1,7 +1,3 @@
-# cython: language_level=3
-
-# pylint: disable=low-comment-ratio, missing-license
-
 #  Tencent is pleased to support the open source community by making GNES available.
 #
 #  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
@@ -19,33 +15,13 @@
 
 # pylint: disable=low-comment-ratio
 
+# A key-value map for Class to the (module)file it located in
+from ..base import register_all_class
 
-ctypedef void*queue_value
+_cls2file_map = {
+    'BasePostprocessor': 'base',
+    'BaseChunkPostprocessor': 'base',
+    'BaseDocPostprocessor': 'base',
+}
 
-cdef struct queue_entry:
-    queue_value data
-    queue_entry *prev
-    queue_entry *next
-
-cdef struct queue:
-    queue_entry *head
-    queue_entry *tail
-    unsigned int size
-
-cdef queue*init_queue()
-
-cdef void queue_free(queue*q_ptr)
-
-cdef void queue_push_head(queue*q_ptr, queue_value data)
-
-cdef queue_value queue_pop_head(queue*q_ptr)
-
-cdef queue_value queue_peak_head(queue*q_ptr)
-
-cdef void queue_push_tail(queue*q_ptr, queue_value data)
-
-cdef queue_value queue_pop_tail(queue*q_ptr)
-
-cdef queue_value queue_peak_tail(queue*q_ptr)
-
-cdef bint queue_is_empty(queue*q_ptr)
+register_all_class(_cls2file_map)

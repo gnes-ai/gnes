@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from gnes.helper import touch_dir
-from gnes.indexer.annoy import AnnoyIndexer
+from gnes.indexer.vector.annoy import AnnoyIndexer
 
 
 class TestAnnoyIndexer(unittest.TestCase):

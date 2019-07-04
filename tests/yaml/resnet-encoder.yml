@@ -1,0 +1,17 @@
+!BasePytorchEncoder
+parameter:
+  model_dir: ${RESNET_MODEL}
+  model_name: resnet50
+  layers:
+    - conv1
+    - bn1
+    - relu
+    - maxpool
+    - layer1
+    - layer2
+    - layer3
+    - layer4
+    - avgpool
+    - x.reshape(x.size(0), -1)
+property:
+  is_trained: true

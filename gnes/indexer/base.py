@@ -29,8 +29,7 @@ class BaseIndexer(TrainableBase):
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
 
-    def query(self, keys: Any, top_k: int, *args,
-              **kwargs) -> List[List[Tuple]]:
+    def query(self, keys: Any, *args, **kwargs) -> List[Any]:
         pass
 
 
@@ -39,8 +38,7 @@ class BaseVectorIndexer(BaseIndexer):
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         pass
 
-    def query(self, keys: np.ndarray, top_k: int, *args,
-              **kwargs) -> List[List[Tuple]]:
+    def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         pass
 
 
@@ -58,8 +56,7 @@ class BaseKeyIndexer(BaseIndexer):
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         pass
 
-    def query(self, keys: List[int], *args,
-              **kwargs) -> List[Tuple[int, int, float]]:
+    def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         pass
 
 

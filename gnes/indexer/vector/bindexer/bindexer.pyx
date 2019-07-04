@@ -306,7 +306,7 @@ cdef class IndexCore:
             data_block = <Data*> PyMem_Malloc(sizeof(Data)*data_size_per_time)
             n_block = int(self.data_capacity / data_size_per_time)
             neigh_block = <coordi*> PyMem_Malloc(
-                            sizeof(coordi) * data_size_per_time * self.ef * 2)
+                sizeof(coordi) * data_size_per_time * self.ef * 2)
             # NOTE: initialized all neighbors to NULL
             for _i in range(data_size_per_time*self.ef*2):
                 neigh_block[_i] = self.NULL_coordi

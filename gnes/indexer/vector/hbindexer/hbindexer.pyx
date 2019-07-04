@@ -179,8 +179,8 @@ cdef class IndexCore:
                 cur_num = num * (self.n_bytes + 8)
                 if (num + 1) % Increase == 0:
                     self.core[j][clus] = <uchar*> PyMem_Realloc(
-                            self.core[j][clus],
-                            sizeof(uchar)*(self.n_bytes+8)*(num+1+Increase))
+                        self.core[j][clus],
+                        sizeof(uchar)*(self.n_bytes+8)*(num+1+Increase))
                 # record doc id
                 for k in range(4):
                     self.core[j][clus][cur_num+k] = doc_ids[k]

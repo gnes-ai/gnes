@@ -1,8 +1,31 @@
 !PipelineEncoder
 component:
-  - !InceptionEncoder
+  - !BasePytorchEncoder
     parameter:
       model_dir: /ext_data/image_encoder
+      model_name: inception_v3
+      layers:
+        - Conv2d_1a_3x3
+        - Conv2d_2a_3x3
+        - Conv2d_2b_3x3
+        - torch.nn.functional.max_pool2d(x, kernel_size=3, stride=2)
+        - Conv2d_3b_1x1
+        - Conv2d_4a_3x3
+        - torch.nn.functional.max_pool2d(x, kernel_size=3, stride=2)
+        - Mixed_5b
+        - Mixed_5c
+        - Mixed_5d
+        - Mixed_6a
+        - Mixed_6b
+        - Mixed_6c
+        - Mixed_6d
+        - Mixed_6e
+        - Mixed_7a
+        - Mixed_7b
+        - Mixed_7c
+        - torch.nn.functional.adaptive_avg_pool2d(x, (1, 1))
+        - torch.nn.functional.dropout(x, training=False)
+        - x.view(x.size(0), -1)
     property:
       is_trained: true
   - !PCALocalEncoder

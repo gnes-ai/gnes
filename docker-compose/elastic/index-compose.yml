@@ -3,9 +3,9 @@ services:
   preprocess:
     image: ${DOCKER_IMG_URL}
     command: >
-      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${PREPROCESSOR_OUT}
+      preprocess --port_in ${PREPROCESSOR_IN} --port_out ${INCOME_ROUTE_IN}
       --socket_in PULL_BIND --socket_out PUSH_CONNECT
-      --host_out encoder_serviced
+      --host_out income-route
       --yaml_path /preprocessor_config --dump_path /dump/preprocessor.bin
     networks:
       gnes-net:
@@ -13,13 +13,45 @@ services:
           - preprocessor_serviced
     configs:
       - preprocessor_config
+    depends_on:
+      - income-route
+
+  income-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type MapRouterService --port_in ${INCOME_ROUTE_IN} --port_out ${INCOME_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUSH_BIND --batch_size=128
+    networks:
+      gnes-net:
+        aliases:
+          - income_route
+
+  middleman-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type=RouterService --port_in ${MIDDLEMAN_ROUTE_IN} --port_out ${MIDDLEMAN_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUSH_BIND
+    networks:
+      gnes-net:
+        aliases:
+          - middleman_route
+
+  outgoing-route:
+    image: ${DOCKER_IMG_URL}
+    command: >
+      route --router_type=RouterService --port_in ${OUTGOING_ROUTE_IN} --port_out ${OUTGOING_ROUTE_OUT}
+      --socket_in PULL_BIND --socket_out PUB_BIND
+    networks:
+      gnes-net:
+        aliases:
+          - outgoing_route
 
   encoder:
     image: ${DOCKER_IMG_URL}
     command: >
-      encode --port_in ${PREPROCESSOR_OUT} --port_out ${ENCODER_OUT}
-      --socket_in PULL_CONNECT --socket_out PUB_BIND
-      --host_in preprocessor_serviced --host_out middleman-route
+      encode --port_in ${INCOME_ROUTE_OUT} --port_out ${MIDDLEMAN_ROUTE_IN}
+      --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
+      --host_in income-route --host_out middleman-route
       --yaml_path /encoder_config --dump_path /dump/model.bin
     volumes:
       - "${MODEL_DIR}:/ext_data"
@@ -41,41 +73,46 @@ services:
     configs:
       - encoder_config
 
-  vector_indexer:
+  indexer:
     image: ${DOCKER_IMG_URL}
     command: >
       index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
-       --socket_in SUB_CONNECT --socket_out PUSH_CONNECT
+       --socket_in PULL_CONNECT --socket_out PUSH_CONNECT
        --host_in middleman-route --host_out outgoing-route
        --yaml_path /indexer_config --dump_path /out_data/index.bin
     volumes:
       - index_data:/out_data
+      #- type: volume
+      #  source: "index_data"
+      #  target: "/out_data"
+
+      #- "${OUTPUT_DIR}/indexer_dump.{{.Task.Slot}}:/out_data"
+
+    deploy:
+      replicas: ${NUM_INDEXER}
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
+    environment:
+      - NODE_ID={{.Node.ID}}
+      - SERVICE_ID={{.Service.ID}}
+      - SERVICE_NAME={{.Service.Name}}
+      - SERVICE_LABELS={{.Service.Labels}}
+      - TASK_ID={{.Task.ID}}
+      - TASK_NAME={{.Task.Name}}
+      - TASK_SLOT={{.Task.Slot}}
 
     networks:
       gnes-net:
         aliases:
-          - indexer_vector_serviced
+          - index_serviced
+    depends_on:
+      - middleman-route
+      - outgoing-route
 
     configs:
-      - indexer_vector_config
-
-  fulltext_indexer:
-    image: ${DOCKER_IMG_URL}
-    command: >
-      index --port_in ${MIDDLEMAN_ROUTE_OUT} --port_out ${OUTGOING_ROUTE_IN}
-       --socket_in SUB_CONNECT --socket_out PUSH_CONNECT
-       --host_in middleman-route --host_out outgoing-route
-       --yaml_path /indexer_config --dump_path /out_data/index.bin
-    volumes:
-      - index_data:/out_data
-
-    networks:
-      gnes-net:
-        aliases:
-          - indexer_fulltext_serviced
-
-    configs:
-      - indexer_fulltext_config
+      - indexer_config
 
   frontend:
     image: ${DOCKER_IMG_URL}
