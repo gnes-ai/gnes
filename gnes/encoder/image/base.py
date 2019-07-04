@@ -71,7 +71,7 @@ class BasePytorchEncoder(BaseImageEncoder):
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         import torch
         self._model.eval()
-
+        print("shape is : ...................", np.stack(img).shape)
         img_ = np.stack(img).transpose([0, 3, 1, 2])
 
         img_tensor = torch.from_numpy(img_)
