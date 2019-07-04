@@ -30,7 +30,7 @@ from itertools import islice
 from logging import Formatter
 from typing import Iterator, Any, Union, List, Callable
 
-# import jieba
+import jieba
 import numpy as np
 from memory_profiler import memory_usage
 from psutil import virtual_memory
