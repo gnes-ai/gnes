@@ -71,7 +71,7 @@ class BasePytorchEncoder(BaseImageEncoder):
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         import torch
         self._model.eval()
-        img_ = np.stack([im for im in img]).transpose([0, 3, 1, 2])
+        img_ = np.array(img).transpose([0, 3, 1, 2])
 
         img_tensor = torch.from_numpy(img_)
         if self._use_cuda:
@@ -85,3 +85,8 @@ class BasePytorchEncoder(BaseImageEncoder):
             result_npy.append(encodes.data.cpu().numpy())
 
         return np.asarray(result_npy, dtype=np.float32)
+
+    def __getstate__(self):
+        d = super().__getstate__()
+        del d['_model']
+        return d
