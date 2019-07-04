@@ -20,12 +20,13 @@ import threading
 import time
 import types
 from enum import Enum
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Type
 
 import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
 
+from ..base import TrainableBase, T
 from ..helper import set_logger
 from ..proto import gnes_pb2, add_route, send_message, recv_message
 
@@ -295,6 +296,20 @@ class BaseService(threading.Thread):
 
     def _post_init(self):
         pass
+
+    def load_model(self, base_class: Type[TrainableBase]) -> T:
+        try:
+            model = base_class.load(self.args.dump_path)
+            self.logger.info(
+                'load a trained %s from a binary file: %s' % (model.__class__.__name__, self.args.dump_path))
+        except FileNotFoundError:
+            self.logger.warning('fail to load the model from %s' % self.args.dump_path)
+            try:
+                model = base_class.load_yaml(self.args.yaml_path)
+                self.logger.warning('load an empty %s from %s' % (model.__class__.__name__, self.args.yaml_path))
+            except FileNotFoundError:
+                raise ComponentNotLoad
+        return model
 
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):

@@ -18,7 +18,7 @@ from typing import List, Callable
 
 import numpy as np
 
-from ...encoder.base import BaseImageEncoder
+from ..base import BaseImageEncoder
 
 
 class BasePytorchEncoder(BaseImageEncoder):

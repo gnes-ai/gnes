@@ -77,12 +77,13 @@ def _set_client_parser(parser=None):
     return parser
 
 
-def set_encoder_service_parser(parser=None):
+def set_loadable_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     import pkg_resources
     from ..service.base import SocketType
     set_service_parser(parser)
+
     parser.add_argument('--dump_path', type=str, default=None,
                         help='binary dump of the service')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
@@ -99,38 +100,28 @@ def set_preprocessor_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     import pkg_resources
-    from ..service.base import SocketType
-    set_service_parser(parser)
-    parser.add_argument('--dump_path', type=str, default=None,
-                        help='binary dump of the service')
-    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=pkg_resources.resource_stream(
-                            'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))),
-                        help='yaml config of the service')
+    set_loadable_service_parser(parser)
+    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+        'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))))
 
-    parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUSH_BIND,
-                        read_only=True)
+    parser.set_defaults(read_only=True)
     return parser
 
 
 def set_router_service_parser(parser=None):
-    from ..service.base import SocketType
     from inspect import isclass
     from ..service import router as my_router
+    import pkg_resources
     if not parser:
         parser = set_base_parser()
-    set_service_parser(parser)
+    set_loadable_service_parser(parser)
+    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+        'gnes', '/'.join(('resources', 'config', 'router', 'default.yml'))))
+
     parser.add_argument('--router_type', type=str, default='RouterService',
                         choices=[x for x in dir(my_router) if isclass(getattr(my_router, x))],
                         help='type of router')
-    parser.add_argument('--batch_size', type=int, default=None,
-                        help='the size of the request to split')
-    parser.add_argument('--num_part', type=int, default=1,
-                        help='the number of partial result to collect')
-    parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUB_BIND,
-                        read_only=True)
+    parser.set_defaults(read_only=True)
     return parser
 
 
@@ -140,7 +131,7 @@ def set_indexer_service_parser(parser=None):
 
     if not parser:
         parser = set_base_parser()
-    set_encoder_service_parser(parser)
+    set_loadable_service_parser(parser)
     parser.add_argument('--top_k', type=int, default=10,
                         help='number of top results to retrieve')
     parser.set_defaults(yaml_path=pkg_resources.resource_stream(
@@ -227,7 +218,7 @@ def get_main_parser():
 
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
-    set_encoder_service_parser(sp.add_parser('encode', help='start an encoder service'))
+    set_loadable_service_parser(sp.add_parser('encode', help='start an encoder service'))
     set_router_service_parser(sp.add_parser('route', help='start a router service'))
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))

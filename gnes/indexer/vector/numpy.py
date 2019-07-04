@@ -19,8 +19,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from ...indexer.base import BaseVectorIndexer
-from ...indexer.key_only import ListKeyIndexer
+from ..base import BaseVectorIndexer
+from ..key_only import ListKeyIndexer
 
 
 class NumpyIndexer(BaseVectorIndexer):

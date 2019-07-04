@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 import uuid
-from typing import Optional, List
+from typing import Optional, List, TypeVar
 
 import numpy as np
 import zmq
@@ -22,6 +22,15 @@ import zmq
 from . import gnes_pb2
 
 __all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
+
+
+def image2blob(img):
+    image_asarray = np.asarray(img, dtype=np.float32)
+    blob = gnes_pb2.NdArray()
+    blob.data = image_asarray.tobytes()
+    blob.shape.extend(image_asarray.shape)
+    blob.dtype = image_asarray.dtype.name
+    return blob
 
 
 def blob2array(blob: 'gnes_pb2.NdArray') -> np.ndarray:

@@ -26,19 +26,7 @@ class IndexerService(BS):
 
     def _post_init(self):
         from ..indexer.base import BaseIndexer
-
-        self._model = None
-        try:
-            self._model = BaseIndexer.load(self.args.dump_path)
-            self.logger.info('load an indexer')
-        except FileNotFoundError:
-            try:
-                self._model = BaseIndexer.load_yaml(
-                    self.args.yaml_path)
-                self.logger.warining(
-                    'load an uninitialized indexer, indexing is needed!')
-            except FileNotFoundError:
-                raise ComponentNotLoad
+        self._model = self.load_model(BaseIndexer)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):

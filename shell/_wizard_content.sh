@@ -111,7 +111,7 @@ _COMPOSE_YAML_PATH=$(TITLE="which mode do you want to run GNES in";
 COMPOSE_YAML_PATH=""
 case "$_COMPOSE_YAML_PATH" in
     0)
-        COMPOSE_YAML_PATH=$(check_file_dialog "index-compose");;
+        COMPOSE_YAML_PATH=$(check_file_dialog "index-compose")
         NUM_ENCODER=$(TITLE="specify the number of encoders";
                       TITLE_SHORT="number of encoders";
                       DEFAULT_VALUE=3;
@@ -119,9 +119,10 @@ case "$_COMPOSE_YAML_PATH" in
         NUM_INDEXER=$(TITLE="specify the number of indexers";
                       TITLE_SHORT="number of indexers";
                       DEFAULT_VALUE=3;
-                      ui.show_input)        
+                      ui.show_input)
+        ;;
     1)
-        COMPOSE_YAML_PATH=$(check_file_dialog "query-compose");;
+        COMPOSE_YAML_PATH=$(check_file_dialog "query-compose")
         NUM_ENCODER=$(TITLE="specify the number of encoders";
                       TITLE_SHORT="number of encoders";
                       DEFAULT_VALUE=3;
@@ -129,7 +130,8 @@ case "$_COMPOSE_YAML_PATH" in
         NUM_INDEXER=$(TITLE="specify the number of indexers";
                       TITLE_SHORT="number of indexers";
                       DEFAULT_VALUE=3;
-                      ui.show_input)  
+                      ui.show_input)
+        ;;
     2)
         COMPOSE_YAML_PATH=$(check_file_dialog "train-compose");;
 esac
