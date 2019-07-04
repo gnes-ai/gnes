@@ -15,12 +15,7 @@ def img_process_for_test(target_img_size, dirname):
     test_img = []
     for img_file in zipfile_.namelist():
         image = Image.open(zipfile_.open(img_file, 'r')).resize((target_img_size, target_img_size))
-        image_asarray = np.asarray(image, dtype=np.float32)
-        blob = gnes_pb2.NdArray()
-        blob.data = image_asarray.tobytes()
-        blob.shape.extend(image_asarray.shape)
-        blob.dtype = image_asarray.dtype.name
-        test_img.append(blob)
+        test_img.append(np.asarray(image, dtype=np.float32))
     return test_img
 
 

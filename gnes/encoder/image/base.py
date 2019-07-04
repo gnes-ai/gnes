@@ -45,16 +45,20 @@ class BasePytorchEncoder(BaseImageEncoder):
             def __init__(self, model_name: str, layers: List[str]):
                 super().__init__()
 
-                m = getattr(models, model_name)(pretrained=True)
+                self.m = getattr(models, model_name)(pretrained=True)
                 self.layers = [self.fn_parser(l) for l in layers]
 
             def fn_parser(self, layer: str) -> Callable:
+
                 if '(' not in layer and ')' not in layer:
                     # this is a shorthand syntax we need to add "(x)" at the end
-                    suffix = '(x)'
+                    layer = 'm.%s(x)'%layer
                 else:
-                    suffix = ''
-                return lambda x: eval(layer + suffix)
+                    pass
+
+                def layer_fn(x, l, m, torch):
+                    return eval(l)
+                return lambda x: layer_fn(x, layer, self.m, torch)
 
             def forward(self, x):
                 for l in self.layers:
