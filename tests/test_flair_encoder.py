@@ -1,5 +1,11 @@
 # import os
-# import unittest
+import unittest
+
+
+@unittest.SkipTest
+def test_foo():
+    print("This is foo test case")
+
 #
 # from gnes.encoder.text.flair import FlairEncoder
 #
@@ -37,3 +43,4 @@
 #     def tearDown(self):
 #         if os.path.exists(self.dump_path):
 #             os.remove(self.dump_path)
+
