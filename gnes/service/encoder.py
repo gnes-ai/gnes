@@ -16,7 +16,7 @@
 # pylint: disable=low-comment-ratio
 from typing import List, Union
 
-from .base import BaseService as BS, ComponentNotLoad, MessageHandler
+from .base import BaseService as BS, MessageHandler
 from ..proto import gnes_pb2, array2blob, blob2array
 
 
@@ -25,21 +25,7 @@ class EncoderService(BS):
 
     def _post_init(self):
         from ..encoder.base import BaseEncoder
-
-        self._model = None
-        try:
-            self._model = BaseEncoder.load(self.args.dump_path)
-            self.logger.info('load a trained encoder')
-        except FileNotFoundError:
-            self.logger.warning('fail to load the model from %s' % self.args.dump_path)
-            try:
-                self._model = BaseEncoder.load_yaml(
-                    self.args.yaml_path)
-                self.logger.warning(
-                    'load an uninitialized encoder, training is needed!')
-            except FileNotFoundError:
-                raise ComponentNotLoad
-
+        self._model = self.load_model(BaseEncoder)
         self.train_data = []
 
     @staticmethod

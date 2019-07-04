@@ -19,9 +19,14 @@
 from ..base import register_all_class
 
 _cls2file_map = {
-    'BasePostprocessor': 'base',
-    'BaseChunkPostprocessor': 'base',
-    'BaseDocPostprocessor': 'base',
+    'BaseRouter': 'base',
+    'BaseMapRouter': 'base',
+    'BaseReduceRouter': 'base',
+    'ChunkReduceRouter': 'reduce.chunk',
+    'DocumentReduceRouter': 'reduce.document',
+    'PublishRouter': 'map.simple',
+    'BatchDocRouter': 'map.simple',
+
 }
 
 register_all_class(_cls2file_map)

@@ -24,18 +24,7 @@ class PreprocessorService(BS):
 
     def _post_init(self):
         from ..preprocessor.base import BasePreprocessor
-
-        self._model = None
-        try:
-            self._model = BasePreprocessor.load(self.args.dump_path)
-            self.logger.info('load a trained preprocessor')
-        except FileNotFoundError:
-            self.logger.warning('fail to load the model from %s' % self.args.dump_path)
-            try:
-                self._model = BasePreprocessor.load_yaml(self.args.yaml_path)
-                self.logger.warning('load an empty model from %s' % self.args.yaml_path)
-            except FileNotFoundError:
-                raise ComponentNotLoad
+        self._model = self.load_model(BasePreprocessor)
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train_index(self, msg: 'gnes_pb2.Message'):
