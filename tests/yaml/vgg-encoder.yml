@@ -1,10 +1,10 @@
 !BasePytorchEncoder
 parameter:
   model_dir: ${VGG_MODEL}
-  model_name: vgg
+  model_name: vgg16
   layers:
     - features
-    - avg_pool
+    - avgpool
     - x.view(x.size(0), -1)
     - classifier[0]
 property:
