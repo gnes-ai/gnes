@@ -24,23 +24,18 @@ class CLIClient:
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
-            if all_bytes:
-                if args.mode == 'train':
-                    for req in RequestGenerator.train(all_bytes, args.batch_size):
+            if args.mode == 'train':
+                for req in RequestGenerator.train(all_bytes, args.batch_size):
+                    resp = stub._Call(req)
+                    print(resp)
+            elif args.mode == 'index':
+                for req in RequestGenerator.index(all_bytes, args.batch_size):
+                    resp = stub._Call(req)
+                    print(resp)
+            elif args.mode == 'query':
+                for idx, q in enumerate(all_bytes):
+                    for req in RequestGenerator.query(q, args.top_k):
                         resp = stub._Call(req)
                         print(resp)
-                elif args.mode == 'index':
-                    for req in RequestGenerator.index(all_bytes, args.batch_size):
-                        resp = stub._Call(req)
-                        print(resp)
-                elif args.mode == 'query':
-                    for idx, q in enumerate(all_bytes):
-                        for req in RequestGenerator.query(q, args.top_k):
-                            resp = stub._Call(req)
-                            print(resp)
-                            print('query %d result: %s' % (idx, resp))
-                            input('press any key to continue...')
-            else:
-                raise ValueError(
-                    '--do not support videos now'
-                )
+                        print('query %d result: %s' % (idx, resp))
+                        input('press any key to continue...')

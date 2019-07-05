@@ -25,8 +25,7 @@ from aiohttp import web
 from google.protobuf.json_format import MessageToJson
 
 from ..helper import set_logger
-from ..proto import gnes_pb2_grpc
-from ..proto.request.text.simple import TextRequestGenerator
+from ..proto import gnes_pb2_grpc, RequestGenerator
 
 
 class HttpClient:
@@ -42,9 +41,11 @@ class HttpClient:
             try:
                 data = await asyncio.wait_for(request.json(), 10)
                 self.logger.info('data received, beigin processing')
-                resp = await loop.run_in_executor(executor,
-                                                  stub_call,
-                                                  parser(data.get('docs', data.get('query')), *args, **kwargs))
+                resp = await loop.run_in_executor(
+                    executor,
+                    stub_call,
+                    parser([d.encode() for d in data.get('docs')] if hasattr(data, 'docs')
+                           else data.get('query').encode(), *args, **kwargs))
                 self.logger.info('handling finished, will send to user')
                 return web.Response(body=json.dumps({'result': resp, 'meta': None}, ensure_ascii=False),
                                     status=200,
@@ -60,13 +61,12 @@ class HttpClient:
             app = web.Application(loop=loop,
                                   client_max_size=10 ** 10,
                                   handler_args=handler_args)
-            req_gen = TextRequestGenerator()
             app.router.add_route('post', '/train',
-                                 lambda x: general_handler(x, req_gen.train, batch_size=self.args.batch_size))
+                                 lambda x: general_handler(x, RequestGenerator.train, batch_size=self.args.batch_size))
             app.router.add_route('post', '/index',
-                                 lambda x: general_handler(x, req_gen.index, batch_size=self.args.batch_size))
+                                 lambda x: general_handler(x, RequestGenerator.index, batch_size=self.args.batch_size))
             app.router.add_route('post', '/query',
-                                 lambda x: general_handler(x, req_gen.query, top_k=self.args.top_k))
+                                 lambda x: general_handler(x, RequestGenerator.query, top_k=self.args.top_k))
             srv = await loop.create_server(app.make_handler(),
                                            self.args.http_host,
                                            self.args.http_port)
