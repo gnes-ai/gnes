@@ -65,6 +65,10 @@ class SocketType(BetterEnum):
         return self.value % 2 == 0
 
 
+class BlockMessage(Exception):
+    pass
+
+
 class ComponentNotLoad(Exception):
     pass
 
@@ -197,7 +201,7 @@ class BaseService(threading.Thread):
         try:
             fn = self.handler.serve(msg)
             if fn:
-                add_route(msg.envelope, self.__class__.__name__)
+                add_route(msg.envelope, '%s:%s' % (self.__class__.__name__, self._model.__class__.__name__))
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
                 if msg.request and msg.request.WhichOneof('body') and \
@@ -214,11 +218,12 @@ class BaseService(threading.Thread):
                     elif isinstance(ret, types.GeneratorType):
                         for r_msg in ret:
                             send_message(out_sock, r_msg, timeout=self.args.timeout)
-
                     else:
                         raise ServiceError('unknown return type from the handler: %s' % fn)
 
-                    self.logger.info('handler %s is done' % fn)
+                    self.logger.info('handler %s is done' % fn.__name__)
+                except BlockMessage:
+                    pass
                 except EventLoopEnd:
                     send_message(out_sock, msg, timeout=self.args.timeout)
                     raise EventLoopEnd

@@ -1,0 +1,3 @@
+!DocBatchRouter
+parameter:
+  batch_size: 2
