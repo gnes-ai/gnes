@@ -15,7 +15,7 @@ class ChunkReduceRouter(BaseReduceRouter):
         # count score by iterating over chunks
         for c in all_chunks:
             doc_score[c.chunk.doc_id] += c.score
-            doc_score_explained += '%s\n' % c.score_explained
+            doc_score_explained[c.chunk.doc_id] += '%s\n' % c.score_explained
 
         # now convert chunk results to doc results
         msg.response.search.level = gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED
@@ -24,7 +24,6 @@ class ChunkReduceRouter(BaseReduceRouter):
         # sort and add docs
         for k, v in sorted(doc_score.items(), key=lambda kv: -kv[1]):
             r = msg.response.search.topk_results.add()
-            r.doc = gnes_pb2.Document()
             r.doc.doc_id = k
             r.score = v
             r.score_explained = doc_score_explained[k]
