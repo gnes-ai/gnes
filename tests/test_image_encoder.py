@@ -13,7 +13,9 @@ def img_process_for_test(dirname):
     test_img = []
     for img_file in zipfile_.namelist():
         image = Image.open(zipfile_.open(img_file, 'r'))
-        test_img.append(np.asarray(image, dtype=np.float32))
+        img = np.array(image)
+        img.resize([224, 224, 3])
+        test_img.append(img)
     return test_img
 
 

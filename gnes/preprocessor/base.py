@@ -60,7 +60,9 @@ class BaseSingletonPreprocessor(BasePreprocessor):
         if self.doc_type == gnes_pb2.Document.TEXT:
             chunk.text = raw_bytes.decode()
         elif self.doc_type == gnes_pb2.Document.IMAGE:
-            chunk.blob.CopyFrom(array2blob(np.array(Image.open(io.BytesIO(raw_bytes)))))
+            img = np.array(Image.open(io.BytesIO(raw_bytes)))
+            img.resize([224, 224, 3])
+            chunk.blob.CopyFrom(array2blob(img))
         elif self.doc_type == gnes_pb2.Document.VIDEO:
             raise NotImplementedError
         else:
