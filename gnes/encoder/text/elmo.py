@@ -63,7 +63,7 @@ class ElmoEncoder(BaseTextEncoder):
 
             _pooled = pooling_np(_layer_data, self.pooling_strategy)
             pooled_data.append(_pooled)
-        return np.asarray(pooled_data, dtype=np.float32)
+        return np.array(pooled_data, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()

@@ -89,7 +89,7 @@ class BasePytorchEncoder(BaseImageEncoder):
             encodes = torch.squeeze(encodes, 0)
             result_npy.append(encodes.data.cpu().numpy())
 
-        return np.asarray(result_npy, dtype=np.float32)
+        return np.array(result_npy, dtype=np.float32)
 
     def __getstate__(self):
         d = super().__getstate__()

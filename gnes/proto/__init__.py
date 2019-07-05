@@ -14,23 +14,49 @@
 #  limitations under the License.
 
 import uuid
-from typing import Optional, List, TypeVar
+from typing import List
+from typing import Optional
 
 import numpy as np
 import zmq
 
 from . import gnes_pb2
+from ..helper import batch_iterator
 
 __all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
 
 
-def image2blob(img):
-    image_asarray = np.asarray(img, dtype=np.float32)
-    blob = gnes_pb2.NdArray()
-    blob.data = image_asarray.tobytes()
-    blob.shape.extend(image_asarray.shape)
-    blob.dtype = image_asarray.dtype.name
-    return blob
+class RequestGenerator:
+    @staticmethod
+    def index(data: List[bytes], batch_size: int = 0, *args, **kwargs):
+        for pi in batch_iterator(data, batch_size):
+            req = gnes_pb2.Request()
+            for raw_bytes in pi:
+                d = req.index.docs.add()
+                d.raw_bytes = raw_bytes
+            yield req
+
+    @staticmethod
+    def train(data: List[bytes], batch_size: int = 0, *args, **kwargs):
+        for pi in batch_iterator(data, batch_size):
+            req = gnes_pb2.Request()
+            for raw_bytes in pi:
+                d = req.train.docs.add()
+                d.raw_bytes = raw_bytes
+            yield req
+        req = gnes_pb2.Request()
+        req.train.flush = True
+        yield req
+
+    @staticmethod
+    def query(query: bytes, top_k: int, *args, **kwargs):
+        if top_k <= 0:
+            raise ValueError('"top_k: %d" is not a valid number' % top_k)
+
+        req = gnes_pb2.Request()
+        req.search.query.raw_bytes = query
+        req.search.top_k = top_k
+        yield req
 
 
 def blob2array(blob: 'gnes_pb2.NdArray') -> np.ndarray:
