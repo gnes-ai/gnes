@@ -13,19 +13,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
+from ..base import BasePreprocessor
+from ...proto import gnes_pb2
 
-# A key-value map for Class to the (module)file it located in
-from ..base import register_all_class
 
-_cls2file_map = {
-    'BasePreprocessor': 'base',
-    'TextPreprocessor': 'text.simple',
-    'BaseImagePreprocessor': 'image.base',
-    'BaseTextPreprocessor': 'text.base',
-    'SlidingPreprocessor': 'image.simple',
-    'BaseSingletonPreprocessor': 'base'
-
-}
-
-register_all_class(_cls2file_map)
+class BaseTextPreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.TEXT

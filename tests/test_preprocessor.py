@@ -5,7 +5,6 @@ from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
 from gnes.proto import gnes_pb2
 from gnes.service.grpc import ZmqClient
 from gnes.service.preprocessor import PreprocessorService
-from gnes.preprocessor.text.simple import TextPreprocessor
 
 
 class TestProto(unittest.TestCase):

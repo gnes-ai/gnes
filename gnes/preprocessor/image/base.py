@@ -13,19 +13,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
+from ..base import BasePreprocessor
+from ...proto import gnes_pb2
 
-# A key-value map for Class to the (module)file it located in
-from ..base import register_all_class
 
-_cls2file_map = {
-    'BasePreprocessor': 'base',
-    'TextPreprocessor': 'text.simple',
-    'BaseImagePreprocessor': 'image.base',
-    'BaseTextPreprocessor': 'text.base',
-    'SlidingPreprocessor': 'image.simple',
-    'BaseSingletonPreprocessor': 'base'
+class BaseImagePreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.IMAGE
 
-}
-
-register_all_class(_cls2file_map)
+    def __init__(self,
+                 target_img_size: int = 224,
+                 is_rgb: bool = True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_img_size = target_img_size
+        self.is_rgb = is_rgb

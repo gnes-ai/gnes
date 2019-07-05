@@ -6,16 +6,16 @@ import numpy as np
 from PIL import Image
 
 from gnes.encoder.image.base import BasePytorchEncoder
-from gnes.preprocessor.image.simple import ImagePreprocessor
-from gnes.proto import gnes_pb2
 
 
-def img_process_for_test(target_img_size, dirname):
-    zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'), "r")
+def img_process_for_test(dirname):
+    zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'))
     test_img = []
     for img_file in zipfile_.namelist():
-        image = Image.open(zipfile_.open(img_file, 'r')).resize((target_img_size, target_img_size))
-        test_img.append(np.asarray(image, dtype=np.float32))
+        image = Image.open(zipfile_.open(img_file, 'r'))
+        img = np.array(image)
+        img.resize([224, 224, 3])
+        test_img.append(img)
     return test_img
 
 
@@ -24,8 +24,7 @@ class TestVggEncoder(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
         self.dump_path = os.path.join(dirname, 'model.bin')
-        im_proc = ImagePreprocessor()
-        self.test_img = img_process_for_test(im_proc.target_img_size, dirname)
+        self.test_img = img_process_for_test(dirname)
         self.vgg_yaml = os.path.join(dirname, 'yaml', 'vgg-encoder.yml')
         self.res_yaml = os.path.join(dirname, 'yaml', 'resnet-encoder.yml')
         self.inception_yaml = os.path.join(dirname, 'yaml', 'inception-encoder.yml')
