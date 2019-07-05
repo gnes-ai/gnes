@@ -1,13 +1,26 @@
+#  Tencent is pleased to support the open source community by making GNES available.
+#
+#  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import ctypes
 import random
 
-from ..base import BasePreprocessor
-from ...proto import gnes_pb2
-
 import numpy as np
 from PIL import Image
-import zipfile
-import os
+
+from ..base import BasePreprocessor
+from ...proto import gnes_pb2
 
 
 class ImagePreprocessor(BasePreprocessor):
@@ -28,7 +41,7 @@ class ImagePreprocessor(BasePreprocessor):
         doc.doc_type = gnes_pb2.Document.IMAGE
         if self.is_rgb:
             image_asarray = np.frombuffer(doc.raw_image.data, dtype=np.float32).reshape(doc.raw_image.shape[0],
-                                                                        doc.raw_image.shape[1], 3)
+                                                                                        doc.raw_image.shape[1], 3)
         else:
             image_asarray = np.frombuffer(doc.raw_image.data, dtype=np.float32).reshape(doc.raw_image.shape[0],
                                                                                         doc.raw_image.shape[1], 1)
@@ -86,7 +99,7 @@ class ImagePreprocessor(BasePreprocessor):
             for j in range(wide_time + 1):
                 area = (left, top, right, bottom)
                 cropped_img = np.asarray(img.crop(area).resize((self.target_img_size, self.target_img_size)),
-                                            dtype=np.float32)
+                                         dtype=np.float32)
 
                 blob_cropped_img = gnes_pb2.NdArray()
                 blob_cropped_img.data = cropped_img.tobytes()
@@ -104,5 +117,3 @@ class ImagePreprocessor(BasePreprocessor):
 
     def _seg_img(self, img):
         pass
-
-

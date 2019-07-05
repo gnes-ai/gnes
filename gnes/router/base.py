@@ -26,7 +26,7 @@ class BaseRouter(TrainableBase):
 
 
 class BaseMapRouter(BaseRouter):
-    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Optional[Generator]:
+    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         pass
 
 

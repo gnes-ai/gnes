@@ -23,9 +23,9 @@ _cls2file_map = {
     'BaseMapRouter': 'base',
     'BaseReduceRouter': 'base',
     'ChunkReduceRouter': 'reduce.chunk',
-    'DocumentReduceRouter': 'reduce.document',
+    'DocReduceRouter': 'reduce.document',
     'PublishRouter': 'map.simple',
-    'BatchDocRouter': 'map.simple',
+    'DocBatchRouter': 'map.simple',
 
 }
 

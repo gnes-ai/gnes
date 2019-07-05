@@ -18,8 +18,9 @@
 from collections import defaultdict
 from typing import Dict, List
 
-from .base import BaseService as BS, MessageHandler
+from .base import BaseService as BS, MessageHandler, BlockMessage
 from ..proto import gnes_pb2
+from ..router.base import BaseReduceRouter
 
 
 class RouterService(BS):
@@ -28,31 +29,22 @@ class RouterService(BS):
     def _post_init(self):
         from ..router.base import BaseRouter
         self._model = self.load_model(BaseRouter)
-
-    @handler.register(NotImplementedError)
-    def _handler_default(self, msg: 'gnes_pb2.Message'):
-        self._model.apply(msg)
-
-
-class ReduceRouterService(RouterService):
-    handler = MessageHandler(BS.handler)
-
-    def _post_init(self):
-        from ..router.base import BaseReduceRouter
-        self._model = self.load_model(BaseReduceRouter)
         self._pending = defaultdict(list)  # type: Dict[str, List]
 
-    def _is_complete(self, msg: 'gnes_pb2.Message', num_req: int) -> bool:
-        return (self.args.num_part and num_req == self.args.num_part) or (num_req == msg.envelope.num_part)
+    def _is_msg_complete(self, msg: 'gnes_pb2.Message', num_req: int) -> bool:
+        return (hasattr(self.args, 'num_part') and num_req == self.args.num_part) or (num_req == msg.envelope.num_part)
 
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):
-        req_id = msg.envelope.request_id
-        self._pending[req_id].append(msg)
-        num_req = len(self._pending[req_id])
+        if isinstance(self._model, BaseReduceRouter):
+            req_id = msg.envelope.request_id
+            self._pending[req_id].append(msg)
+            num_req = len(self._pending[req_id])
 
-        if self._is_complete(msg, num_req):
-            prev_msgs = self._pending.pop(req_id)
-            self._model.apply(msg, prev_msgs)
+            if self._is_msg_complete(msg, num_req):
+                prev_msgs = self._pending.pop(req_id)
+                return self._model.apply(msg, prev_msgs)
+            else:
+                raise BlockMessage
         else:
-            yield
+            return self._model.apply(msg)

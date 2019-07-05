@@ -118,9 +118,6 @@ def set_router_service_parser(parser=None):
     parser.set_defaults(yaml_path=pkg_resources.resource_stream(
         'gnes', '/'.join(('resources', 'config', 'router', 'default.yml'))))
 
-    parser.add_argument('--router_type', type=str, default='RouterService',
-                        choices=[x for x in dir(my_router) if isclass(getattr(my_router, x))],
-                        help='type of router')
     parser.set_defaults(read_only=True)
     return parser
 

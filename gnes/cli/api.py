@@ -30,9 +30,6 @@ def index(args):
 
 def route(args):
     from ..service import router as my_router
-    if not args.router_type:
-        raise ValueError(
-            '--router_type is required when starting a router from CLI')
     with getattr(my_router, args.router_type)(args) as es:
         es.join()
 

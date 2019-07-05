@@ -16,7 +16,7 @@
 # pylint: disable=low-comment-ratio
 from typing import List, Union
 
-from .base import BaseService as BS, MessageHandler
+from .base import BaseService as BS, MessageHandler, BlockMessage
 from ..proto import gnes_pb2, array2blob, blob2array
 
 
@@ -50,7 +50,7 @@ class EncoderService(BS):
             chunks = self.get_chunks_from_docs(msg.request.train.docs)
             self.train_data.extend(chunks)
             msg.response.train.status = gnes_pb2.Response.PENDING
-            yield
+            raise BlockMessage
         if msg.request.train.flush:
             self._model.train(self.train_data)
             self.logger.info('%d samples is flushed for training' % len(self.train_data))
