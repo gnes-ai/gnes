@@ -1,7 +1,6 @@
 !BasePytorchEncoder
 parameter:
-#  model_dir: ${VGG_MODEL}
-  model_dir: /ext_data/image_encoder
+  model_dir: ${VGG_MODEL}
   model_name: vgg16
   layers:
     - features
