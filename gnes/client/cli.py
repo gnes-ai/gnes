@@ -10,7 +10,7 @@ class CLIClient:
         if args.data_type == 'text':
             all_bytes = [v.encode() for v in args.txt_file]
         elif args.data_type == 'image':
-            zipfile_ = zipfile.ZipFile(args.image_zip_file)
+            zipfile_ = zipfile.ZipFile(args.image_zip_file, "r")
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
         elif args.data_type == 'video':
             raise NotImplementedError

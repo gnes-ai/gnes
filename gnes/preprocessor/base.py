@@ -42,6 +42,7 @@ class BaseSingletonPreprocessor(BasePreprocessor):
 
     def __init__(self, doc_type: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.target_img_size = 224
         self.is_trained = True
         self.doc_type = doc_type
 
@@ -61,7 +62,7 @@ class BaseSingletonPreprocessor(BasePreprocessor):
             chunk.text = raw_bytes.decode()
         elif self.doc_type == gnes_pb2.Document.IMAGE:
             img = np.array(Image.open(io.BytesIO(raw_bytes)))
-            img.resize([224, 224, 3])
+            img = np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size)))
             chunk.blob.CopyFrom(array2blob(img))
         elif self.doc_type == gnes_pb2.Document.VIDEO:
             raise NotImplementedError

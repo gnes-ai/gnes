@@ -1,6 +1,7 @@
 !BasePytorchEncoder
 parameter:
-  model_dir: ${RESNET_MODEL}
+#  model_dir: ${RESNET_MODEL}
+  model_dir: /ext_data/image_encoder
   model_name: resnet50
   layers:
     - conv1

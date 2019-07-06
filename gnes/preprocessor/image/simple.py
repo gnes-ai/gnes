@@ -24,66 +24,57 @@ from ...proto import gnes_pb2, array2blob
 
 class SlidingPreprocessor(BaseImagePreprocessor):
 
-    def __init__(self, slide_window_ratio: float = 2 / 3,
-                 num_hwindow: int = 1,
-                 num_vwindow: int = 1,
+    def __init__(self, window_size: int = 64,
+                 stride_height: int = 64,
+                 stride_wide: int = 64,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.slide_window_ratio = slide_window_ratio
-        self.num_hwindow = num_hwindow
-        self.num_vwindow = num_vwindow
+        self.window_size = window_size
+        self.stride_height = stride_height
+        self.stride_wide = stride_wide
 
     def apply(self, doc: 'gnes_pb2.Document'):
         super().apply(doc)
-        img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
-        image_set = self._get_all_sliding_window(img)
-        for ci, chunk in enumerate(image_set):
-            c = doc.chunks.add()
-            c.doc_id = doc.doc_id
-            c.blob.CopyFrom(array2blob(chunk))
-            c.offset_1d = ci
-            c.weight = 1 / len(image_set)
+        if doc.raw_bytes:
+            img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
+            image_set = self._get_all_sliding_window(img)
+            for ci, chunk in enumerate(image_set):
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.blob.CopyFrom(array2blob(chunk))
+                c.offset_1d = ci
+                c.weight = 1 / len(image_set)
+        else:
+            self.logger.error('bad document: "raw_bytes" is empty!')
 
     def _get_all_sliding_window(self, img: 'np.ndarray') -> List['np.ndarray']:
-        chunk_list = []
-        wide, height = img.size
+        extend_height = self.window_size - (img.shape[0]) % self.stride_height
+        extend_wide = self.window_size - (img.shape[1]) % self.stride_wide
 
-        # area of cropped image
-        box_wide = self.slide_window_ratio * wide
-        box_height = self.slide_window_ratio * height
-
-        # stride for two directions
-        # number of chunks after cropping: (wide_time + 1) * (height_time + 1)
-
-        stride_wide = (wide - box_wide) / self.num_hwindow
-        stride_height = (height - box_height) / self.num_vwindow
-
-        # initialization
-        left = 0
-        right = box_wide
-        top = 0
-        bottom = box_height
-
-        for i in range(self.num_vwindow + 1):
-            for j in range(self.num_hwindow + 1):
-                area = (left, top, right, bottom)
-                cropped_img = np.asarray(img.crop(area).resize((self.target_img_size, self.target_img_size)),
-                                         dtype=np.float32)
-
-                blob_cropped_img = gnes_pb2.NdArray()
-                blob_cropped_img.data = cropped_img.tobytes()
-                blob_cropped_img.shape.extend(cropped_img.shape)
-                blob_cropped_img.dtype = cropped_img.dtype.name
-
-                chunk_list.append(blob_cropped_img)
-                left += stride_wide
-                right += stride_wide
-            left = 0
-            right = box_wide
-            top += stride_height
-            bottom += stride_height
-        return chunk_list
-
+        input = np.pad(img, ((0, extend_height),
+                             (0, extend_wide),
+                             (0, 0)),
+                       mode='constant', constant_values=0)
+        expanded_input = np.lib.stride_tricks.as_strided(
+            input,
+            shape=(
+                1 + int((input.shape[0] - self.window_size) / self.stride_height),
+                1 + int((input.shape[1] - self.window_size) / self.stride_wide),
+                self.window_size,
+                self.window_size,
+                3
+            ),
+            strides=(
+                input.strides[0] * self.stride_height,
+                input.strides[1] * self.stride_wide,
+                input.strides[0],
+                input.strides[1],
+                1
+            ),
+            writeable=False
+        )
+        expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
+        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in expanded_input]
 
 class SegmentPreprocessor(BaseImagePreprocessor):
     def apply(self, doc: 'gnes_pb2.Document'):
