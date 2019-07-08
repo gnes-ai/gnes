@@ -74,7 +74,9 @@ class SlidingPreprocessor(BaseImagePreprocessor):
             writeable=False
         )
         expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
-        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in expanded_input]
+        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
+                expanded_input]
+
 
 class SegmentPreprocessor(BaseImagePreprocessor):
     def apply(self, doc: 'gnes_pb2.Document'):
