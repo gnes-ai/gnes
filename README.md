@@ -6,9 +6,6 @@
 <a href="#">
     <img src="https://travis-ci.com/gnes-ai/gnes.svg?branch=master" alt="travis ci status">
 </a>
-<a href="#">
-    <img src="http://badge.orange-ci.oa.com/ai-innersource/nes.svg" alt="building status">
-</a>
 <a href='https://gnes.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
