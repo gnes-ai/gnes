@@ -6,7 +6,7 @@
 <a href="#">
     <img src="https://travis-ci.com/gnes-ai/gnes.svg?branch=master" alt="travis ci status">
 </a>
-<a href='https://gnes.readthedocs.io/en/latest/?badge=latest'>
+<a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
 </p>
@@ -130,7 +130,7 @@ Note, to switch between runtimee you need to shutdown the current runtime and st
 
 <h2 align="center">:book: Documentation</h2>
 
-The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
+The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release. 
 
 ### Building the documentation from scratch
 
@@ -156,7 +156,7 @@ For contributors looking to get deeper into the API we suggest cloning the repos
 TBA
 
 <h2 align="center">Citing GNES</h2>
-```latex
+```tex
 @misc{tencent2019GNES,
   title={GNES: Generic Neural Elastic Search},
   author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},

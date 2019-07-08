@@ -75,7 +75,7 @@ script:
 
 branches:
   only:
-    - master
+    - travis
 
 notifications:
   email: false
