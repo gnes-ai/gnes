@@ -48,7 +48,7 @@ before_install:
   # Install Faiss
   - ./.travis/source_install.sh
 
-  - pip install -U pylint
+#  - pip install -U pylint
 
 
   # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
@@ -56,7 +56,7 @@ before_install:
 
 install:
   # Test install with current version of setuptools
-  - pip install -e . --progress-bar off
+  - pip install . --progress-bar off
 
 before_script:
   # - mkdir ${MODEL_DIR}
@@ -67,7 +67,7 @@ before_script:
 
 # command to run tests
 script:
-  - pylint gnes/**/*.py --exit-zero
+#  - pylint gnes/**/*.py --exit-zero
   - python -m unittest tests/*.py
 
 # after_script:
@@ -75,7 +75,8 @@ script:
 
 branches:
   only:
-    - travis
+    - master
 
 notifications:
-  email: false
+  email:
+    - team@gnes.ai
