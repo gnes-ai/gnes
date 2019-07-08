@@ -6,7 +6,7 @@ set -e  # fail and exit on any command erroring
 : "${MODEL_DIR:?}"
 
 function donwload_models() {
-    cd ${MODEL_DIR}
+    cd /ext_data
 
     if [ ! -f chinese_L-12_H-768_A-12.zip ]; then
         echo "download pretrained bert-chinese_L-12_H-768_A-12 model ..."
