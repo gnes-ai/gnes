@@ -17,13 +17,13 @@ addons:
 cache:
   bundler: true
   directories:
-    - /ext_data
+    - $HOME/ext_data
     - $HOME/.cache/pip
 
 env:
   global:
     # model path
-    - MODEL_DIR=/ext_data
+    - MODEL_DIR=${HOME}/ext_data
     - BERT_CI_MODEL=${MODEL_DIR}/chinese_L-12_H-768_A-12
     - ELMO_CI_MODEL=${MODEL_DIR}/zhs.model
     - FLAIR_CI_MODEL=${MODEL_DIR}/multi-forward-fast
