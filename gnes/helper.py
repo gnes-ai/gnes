@@ -49,12 +49,19 @@ __all__ = ['get_sys_info', 'get_optimal_sample_size',
 def get_first_available_gpu():
     try:
         import GPUtil
-        return GPUtil.getAvailable(order='random',
+        r = GPUtil.getAvailable(order='random',
                                    maxMemory=0.1,
                                    maxLoad=0.1,
-                                   limit=1)[0]
+                                   limit=1)
+        if r:
+            return r[0]
+        else:
+            raise ValueError
     except ImportError:
         return 0
+    except ValueError:
+        return 0
+
 
 
 class FileLock(object):
