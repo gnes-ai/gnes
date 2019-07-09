@@ -22,7 +22,6 @@ steps:
             }
        }' > /dev/null
 
-steps:
 - name: setup ci environment
   image: gnes/ci-base
   commands:
@@ -32,19 +31,16 @@ steps:
   - cat /proc/cpuinfo | grep flags
   - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
-steps:
 - name: pip-install gnes
   image: gnes/ci-base
   commands:
   - pip install -e .[all]
 
-steps:
 - name: check code style
   image: gnes/ci-base
   commands:
   - pylint gnes/**/*.py --exit-zero
 
-steps:
 - name: run unit test
   image: gnes/ci-base
   environment:
@@ -52,7 +48,6 @@ steps:
   commands:
   - python -m unittest tests/*.py
 
-steps:
 - name: notify the sucess on wechat work
   image: gnes/ci-base
   environment:
