@@ -6,7 +6,7 @@ clone:
 
 steps:
 - name: notify the start on wechat work
-  image: ubuntu
+  image: gnes/ci-base
   environment:
     BOT_ID:
       from_secret: gnes-wechat-botid
@@ -47,6 +47,23 @@ steps:
     GNES_ENV_SET: orange-ci
   commands:
   - python -m unittest tests/*.py
+
+- name: notify the sucess on wechat work
+  image: gnes/ci-base
+  environment:
+    BOT_ID:
+      from_secret: gnes-wechat-botid
+  commands:
+  - >
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+       -H 'Content-Type: application/json' \
+       -d '
+       {
+            "msgtype": "markdown",
+            "markdown": {
+                "content": "✅ Looks good to me. All tests passed!\n > Author: $DRONE_COMMIT_AUTHOR \n > Branch: $DRONE_SOURCE_BRANCH \n > [点击查看]($DRONE_REPO_LINK)"
+            }
+       }' > /dev/null
 
 - name: notify the sucess on wechat work
   image: gnes/ci-base
