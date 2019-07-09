@@ -22,14 +22,14 @@ from ...proto import gnes_pb2, array2blob
 import subprocess as sp
 
 
-class FfmpegPreprocessor(BaseVideoPreprocessor):
+class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
                  duplicate_rm=True,
                  use_phash_weight=False,
                  phash_thresh=5,
                  *args, **kwargs):
-
+        super().__init__(*args, **kwargs)
         # (-i, -) input from stdin pipeline
         # (-f, image2pipe) output format is image pipeline
         self.cmd = ['ffmpeg',

@@ -1,5 +1,7 @@
 !FFmpegPreprocessor
 parameter:
+  start_doc_id: 0
+  random_doc_id: True
   duplicate_rm: True
   use_phash_weight: False
   phash_thresh: 5
