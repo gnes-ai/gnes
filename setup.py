@@ -66,12 +66,12 @@ setup(
     ext_modules=extensions,
     install_requires=[
         'numpy',
+        'scipy',
         'termcolor',
         'protobuf',
         'grpcio',
         'ruamel.yaml>=0.15.89',
         'aiohttp==3.5.4',
-        'scipy==1.3.0'
         'pyzmq>=17.1.0',
     ],
     extras_require={
