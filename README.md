@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://gnes.ai">
-    <img src=".github/gnes-github-banner.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
+    <img src=".github/gnes-github-banner.png?raw=true" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </a>
 </p>
 
