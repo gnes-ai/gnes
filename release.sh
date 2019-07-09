@@ -2,8 +2,10 @@
 
 set -e
 
+SOURCE_DIR='gnes/'
 CODE_BASE='gnes/__init__.py'
 VER_TAG='__version__ = '
+SOURCE_ORIGIN='github'
 
 function escape_slashes {
     sed 's/\//\\\//g'
@@ -17,6 +19,23 @@ function change_line {
     local NEW=$(echo "${NEW_LINE}" | escape_slashes)
     sed -i .bak '/'"${OLD_LINE_PATTERN}"'/s/.*/'"${NEW}"'/' "${FILE}"
     mv "${FILE}.bak" /tmp/
+}
+
+
+function clean_build {
+    rm -rf dist
+    rm -rf *.egg-info
+    rm -rf build
+}
+
+function pub_pypi {
+    # publish to pypi
+    cd $1
+    clean_build
+    python setup.py sdist bdist_wheel
+    twine upload dist/*
+    clean_build
+    cd -
 }
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -41,8 +60,11 @@ then
     VER_VAL=$VER_TAG"'"${VER#"v"}"'"
     change_line "$VER_TAG" "$VER_VAL" $CODE_BASE
     git commit -m "bumping version to $VER"
-    git push origin master
+    git push $SOURCE_ORIGIN master
     git tag $VER
-    git push origin $VER
+    git push $SOURCE_ORIGIN $VER
 fi
 
+
+
+pub_pypi $SOURCE_DIR
