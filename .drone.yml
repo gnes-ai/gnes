@@ -1,0 +1,72 @@
+kind: pipeline
+name: default
+
+clone:
+  depth: 50
+
+steps:
+- name: notify the start on wechat work
+  image: gnes/ci-base
+  environment:
+    BOT_ID:
+      from_secret: gnes-wechat-botid
+  commands:
+  - "export MSG_CONTENT=\"🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submit by $DRONE_COMMIT_AUTHOR \\n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
+  - >
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+       -H 'Content-Type: application/json' \
+       --data-binary "@notify.md" > /dev/null
+
+- name: setup ci environment
+  image: gnes/ci-base
+  commands:
+  - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
+  - export PIP_DOWNLOAD_CACHE=${pwd}.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}.cache/pip
+  - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
+  - cat /proc/cpuinfo | grep flags
+  - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+
+- name: pip-install gnes
+  image: gnes/ci-base
+  environment:
+    GNES_ENV_SET: orange-ci
+  commands:
+  - pip install -e .[all]
+  - pylint gnes/**/*.py --exit-zero
+  - python -m unittest tests/*.py
+
+- name: notify the sucess on wechat work
+  image: gnes/ci-base
+  environment:
+    BOT_ID:
+      from_secret: gnes-wechat-botid
+  commands:
+  - "export MSG_CONTENT=\"✅ Looks good to me. All tests passed!\\n > Author: $DRONE_COMMIT_AUTHOR \\n > Branch: $DRONE_SOURCE_BRANCH \\n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
+  - >
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+       -H 'Content-Type: application/json' \
+       --data-binary "@notify.md" > /dev/null
+
+- name: notify the failure on wechat work
+  image: gnes/ci-base
+  environment:
+    BOT_ID:
+      from_secret: gnes-wechat-botid
+  commands:
+  - "export MSG_CONTENT=\"❌ CI pipeline failed!\\n > Author: $DRONE_COMMIT_AUTHOR \\n > Branch: $DRONE_SOURCE_BRANCH \\n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
+  - >
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+       -H 'Content-Type: application/json' \
+       --data-binary "@notify.md" > /dev/null
+  when:
+    status:
+    - failure
+
+trigger:
+  branch:
+  - master
+  event:
+  - push

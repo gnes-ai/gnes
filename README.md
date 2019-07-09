@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-<a href="https://travis-ci.com/gnes-ai/gnes">
-    <img src="https://travis-ci.com/gnes-ai/gnes.svg?branch=master" alt="travis ci status">
+<a href="https://cloud.drone.io/gnes-ai/gnes">
+    <img src="https://cloud.drone.io/api/badges/gnes-ai/gnes/status.svg" />
 </a>
 <a href="https://pypi.org/project/gnes/">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
