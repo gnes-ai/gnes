@@ -1,4 +1,4 @@
-FROM docker.oa.com:8080/public/ailab-py3-torch:latest AS dependency
+FROM docker.oa.com:8080/public/ailab-py3-torch-video:latest AS dependency
 
 WORKDIR /nes/
 
