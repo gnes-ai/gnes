@@ -12,7 +12,7 @@ steps:
       from_secret: gnes-wechat-botid
   commands:
   - >
-    curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
        -d '
        {
@@ -21,7 +21,7 @@ steps:
                 "content": "🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n
                 > [View]($DRONE_REPO_LINK)"
             }
-       }'
+       }' > /dev/null
 
 steps:
 - name: setup ci environment
@@ -61,7 +61,7 @@ steps:
       from_secret: gnes-wechat-botid
   commands:
   - >
-    curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
        -d '
        {
@@ -72,7 +72,7 @@ steps:
                 > Branch: $DRONE_SOURCE_BRANCH \n
                 > [点击查看]($DRONE_REPO_LINK)"
             }
-       }'
+       }' > /dev/null
 
 trigger:
   branch:
