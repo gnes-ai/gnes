@@ -6,7 +6,7 @@ clone:
 
 steps:
 - name: notify on wechat work
-  image: gnes/ci-base
+  image: ubuntu
   environment:
     BOT_ID:
       from_secret: gnes-wechat-botid
@@ -17,8 +17,8 @@ steps:
        -d '
        {
             "msgtype": "markdown",
-            "text": {
-                "content": "🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR\n
+            "markdown": {
+                "content": "🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n
                 > [View]($DRONE_REPO_LINK)"
             }
        }'
@@ -66,7 +66,7 @@ steps:
        -d '
        {
             "msgtype": "markdown",
-            "text": {
+            "markdown": {
                 "content": "✅ Looks good to me. All tests passed!\n
                 > Author: $DRONE_COMMIT_AUTHOR \n
                 > Branch: $DRONE_SOURCE_BRANCH \n
