@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://gnes.ai">
-    <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
+    <img src=".github/gnes-github-banner.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </a>
 </p>
 
@@ -34,7 +34,7 @@
 GNES [<i>jee-nes</i>] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. 
 
 
-Leveraging the cloud infrastructure, GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
+GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
 
 
 <h2 align="center">Highlights</h2>
@@ -54,7 +54,7 @@ Leveraging the cloud infrastructure, GNES enables large-scale index and semantic
 
 <h2 align="center">Getting Started</h2>
 
-As a cloud-native application, GNES requires an orchestration engine to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 
 <p align="center">
 <img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
@@ -131,23 +131,23 @@ Note, to switch between runtimee you need to shutdown the current runtime and st
 
 ### Train mode: training encoders and indexers
 
+TBA
+
 ### Index mode: adding new documents
 
-### Query mode: searching relevant documents of a given query  
+TBA
+
+### Query mode: searching relevant documents of a given query
+
+TBA  
 
 
 <h2 align="center">:book: Documentation</h2>
 
-The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release. 
 
-### Building the documentation from scratch
+The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release.
 
-To build the documentation by yourself, you need to first [install sphinx](http://www.sphinx-doc.org/en/master/usage/installation.html).
-
-```bash
-git clone https://github.com/tencent/gnes.git && cd gnes
-./shell/make-doc.sh
-```
+[![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai) 
 
 <h2 align="center">Tutorial</h2>
 
