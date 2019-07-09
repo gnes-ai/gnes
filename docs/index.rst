@@ -43,11 +43,6 @@ Tutorials
    chapter/protobuf-dev.md
 
 
-.. argparse::
-   :ref: gnes.cli.parser.set_grpc_frontend_parser
-   :prog: gnes frontend
-
-
 Indices and tables
 ==================
 

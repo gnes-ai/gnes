@@ -42,6 +42,7 @@ class TestProto(unittest.TestCase):
             r = c1.recv_message()
             self.assertEqual(len(r.request.index.docs), 1)
 
+
     def test_publish_router(self):
         args = set_router_service_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,

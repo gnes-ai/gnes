@@ -4,6 +4,7 @@ import unittest
 from gnes.encoder.text.elmo import ElmoEncoder
 
 
+@unittest.SkipTest
 class TestElmoEncoder(unittest.TestCase):
 
     def setUp(self):

@@ -5,7 +5,7 @@ set -e  # fail and exit on any command erroring
 
 function install_swig() {
     # Need SWIG >= 3.0.8
-    cd /tmp/ &&
+    cd ${HOME}/ext_data &&
         wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz &&
         tar zxf rel-3.0.12.tar.gz && cd swig-rel-3.0.12 &&
         ./autogen.sh && ./configure 1>/dev/null &&
@@ -14,7 +14,7 @@ function install_swig() {
 }
 
 function install_faiss() {
-    cd /tmp/ &&
+    cd ${HOME}/ext_data &&
         # install faiss from source
         wget https://github.com/facebookresearch/faiss/archive/master.zip  -O temp.zip &&
         unzip temp.zip && rm temp.zip &&

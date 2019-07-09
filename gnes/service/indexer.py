@@ -74,7 +74,7 @@ class IndexerService(BS):
                                         _doc_id, _offset, _weight, _relevance, qc_weight)
             msg.response.search.top_k = topk
 
-    @handler.register(gnes_pb2.Request.QueryResponse)
+    @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_doc_search(self, msg: 'gnes_pb2.Message'):
         if msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED:
             doc_ids = [r.doc.doc_id for r in msg.response.topk_results]

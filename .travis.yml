@@ -17,16 +17,16 @@ addons:
 cache:
   bundler: true
   directories:
-    - $MODEL_DIR
-    - pip
+    - $HOME/ext_data
+    - $HOME/.cache/pip
 
 env:
   global:
     # model path
-    - MODEL_DIR=${TRAVIS_HOME}/ext_data
+    - MODEL_DIR=${HOME}/ext_data
     - BERT_CI_MODEL=${MODEL_DIR}/chinese_L-12_H-768_A-12
     - ELMO_CI_MODEL=${MODEL_DIR}/zhs.model
-    - FLAIR_CI_MODEL=multi-forward-fast
+    - FLAIR_CI_MODEL=${MODEL_DIR}/multi-forward-fast
     - GPT_CI_MODEL=${MODEL_DIR}/openai_gpt
     - GPT2_CI_MODEL=${MODEL_DIR}/openai_gpt2
     - XL_CI_MODEL=${MODEL_DIR}/transformer_xl_wt103
@@ -48,7 +48,7 @@ before_install:
   # Install Faiss
   - ./.travis/source_install.sh
 
-  - pip install -U pylint
+#  - pip install -U pylint
 
 
   # - export TRAVIS_TAG="$(git rev-parse --short ${TRAVIS_COMMIT})"
@@ -56,7 +56,7 @@ before_install:
 
 install:
   # Test install with current version of setuptools
-  - pip install -e . --progress-bar off
+  - pip install . --progress-bar off
 
 before_script:
   # - mkdir ${MODEL_DIR}
@@ -67,7 +67,7 @@ before_script:
 
 # command to run tests
 script:
-  - pylint gnes/**/*.py --exit-zero
+#  - pylint gnes/**/*.py --exit-zero
   - python -m unittest tests/*.py
 
 # after_script:
@@ -75,7 +75,8 @@ script:
 
 branches:
   only:
-    - travis
+    - master
 
 notifications:
-  email: false
+  email:
+    - team@gnes.ai

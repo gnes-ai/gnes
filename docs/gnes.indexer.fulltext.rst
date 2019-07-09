@@ -1,13 +1,13 @@
-gnes.indexer.bindexer package
+gnes.indexer.fulltext package
 =============================
 
 Submodules
 ----------
 
-gnes.indexer.bindexer.bindexer module
--------------------------------------
+gnes.indexer.fulltext.leveldb module
+------------------------------------
 
-.. automodule:: gnes.indexer.bindexer.bindexer
+.. automodule:: gnes.indexer.fulltext.leveldb
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ gnes.indexer.bindexer.bindexer module
 Module contents
 ---------------
 
-.. automodule:: gnes.indexer.bindexer
+.. automodule:: gnes.indexer.fulltext
     :members:
     :undoc-members:
     :show-inheritance:

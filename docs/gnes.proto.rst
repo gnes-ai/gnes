@@ -1,13 +1,6 @@
 gnes.proto package
 ==================
 
-Subpackages
------------
-
-.. toctree::
-
-    gnes.proto.request
-
 Submodules
 ----------
 

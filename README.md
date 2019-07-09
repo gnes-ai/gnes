@@ -1,14 +1,21 @@
 <p align="center">
+<a href="https://gnes.ai">
     <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
+</a>
 </p>
 
 <p align="center">
-<a href="#">
-    <img src="http://badge.orange-ci.oa.com/ai-innersource/nes.svg" alt="building status">
+<a href="https://travis-ci.com/gnes-ai/gnes">
+    <img src="https://travis-ci.com/gnes-ai/gnes.svg?branch=master" alt="travis ci status">
 </a>
-<a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/tensorflow/tensorflow.svg"
-         alt="GitHub license">
+<a href="https://pypi.org/project/gnes/">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
+</a>
+<a href='https://doc.gnes.ai/'>
+    <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
+</a>
+<a href='https://github.com/gnes-ai/gnes/blob/master/LICENSE'>
+    <img alt="PyPI - License" src="https://img.shields.io/pypi/l/gnes.svg">
 </a>
 </p>
 
@@ -79,7 +86,7 @@ The easiest and the recommended way to use GNES is via Docker, which uses contai
 If you are new to GNES, it is recommended to use the wizard to config and start GNES.
 
 ```bash
-bash <(curl -s https://transfer.sh/yVeBa/gnes-wizard.sh)
+bash <(curl -s https://raw.githubusercontent.com/gnes-ai/wizard/build/wizard.sh)
 ```
 
 At the last step, the wizard will generate a random name for the service, say `my-gnes-0531`. Keep that name in mind. If you miss that name, you can always use `docker stack ls` to checkout the name of your service.
@@ -131,7 +138,7 @@ Note, to switch between runtimee you need to shutdown the current runtime and st
 
 <h2 align="center">:book: Documentation</h2>
 
-The official documentation of GNES is hosted on Read the Docs. It is automatically built, updated and archived on every new release. 
+The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release. 
 
 ### Building the documentation from scratch
 
@@ -157,11 +164,12 @@ For contributors looking to get deeper into the API we suggest cloning the repos
 TBA
 
 <h2 align="center">Citing GNES</h2>
+
 ```latex
 @misc{tencent2019GNES,
   title={GNES: Generic Neural Elastic Search},
   author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
-  howpublished={\url{https://github.com/tencent/gnes}},
+  howpublished={\url{https://github.com/gnes-ai}},
   year={2019}
 }
 ```

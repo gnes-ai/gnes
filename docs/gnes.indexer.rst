@@ -6,20 +6,11 @@ Subpackages
 
 .. toctree::
 
-    gnes.indexer.bindexer
-    gnes.indexer.hbindexer
-    gnes.indexer.hnsw_indexer
+    gnes.indexer.fulltext
+    gnes.indexer.vector
 
 Submodules
 ----------
-
-gnes.indexer.annoy module
--------------------------
-
-.. automodule:: gnes.indexer.annoy
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 gnes.indexer.base module
 ------------------------
@@ -29,26 +20,10 @@ gnes.indexer.base module
     :undoc-members:
     :show-inheritance:
 
-gnes.indexer.faiss module
--------------------------
+gnes.indexer.key\_only module
+-----------------------------
 
-.. automodule:: gnes.indexer.faiss
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-gnes.indexer.leveldb module
----------------------------
-
-.. automodule:: gnes.indexer.leveldb
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-gnes.indexer.numpy module
--------------------------
-
-.. automodule:: gnes.indexer.numpy
+.. automodule:: gnes.indexer.key_only
     :members:
     :undoc-members:
     :show-inheritance:
