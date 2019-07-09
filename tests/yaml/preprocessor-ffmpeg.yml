@@ -1,0 +1,11 @@
+!FFmpegPreprocessor
+parameter:
+  duplicate_rm: True
+  use_phash_weight: False
+  phash_thresh: 5
+  kwargs:
+    s: "420*360"
+    vsync: vfr
+    vf: select=eq(pict_type\,I)
+property:
+  is_trained: true
