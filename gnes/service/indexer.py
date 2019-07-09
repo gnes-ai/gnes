@@ -24,7 +24,7 @@ from ..proto import gnes_pb2, blob2array
 class IndexerService(BS):
     handler = MessageHandler(BS.handler)
 
-    def _post_init(self):
+    def post_init(self):
         from ..indexer.base import BaseIndexer
         self._model = self.load_model(BaseIndexer)
 

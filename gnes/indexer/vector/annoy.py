@@ -19,7 +19,7 @@ class AnnoyIndexer(BaseVectorIndexer):
         self.n_trees = n_trees
         self._key_info_indexer = ListKeyIndexer()
 
-    def _post_init(self):
+    def post_init(self):
         from annoy import AnnoyIndex
         self._index = AnnoyIndex(self.num_dim, self.metric)
         try:
@@ -59,5 +59,4 @@ class AnnoyIndexer(BaseVectorIndexer):
     def __getstate__(self):
         d = super().__getstate__()
         self._index.save(self.indexer_file_path)
-        del d['_index']
         return d

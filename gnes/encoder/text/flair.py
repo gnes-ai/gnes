@@ -37,7 +37,7 @@ class FlairEncoder(BaseTextEncoder):
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
 
-    def _post_init(self):
+    def post_init(self):
         from flair.embeddings import FlairEmbeddings
         self._flair = FlairEmbeddings(self.model_name)
 
@@ -55,8 +55,3 @@ class FlairEncoder(BaseTextEncoder):
             _pooled = pooling_np(_layer_data, self.pooling_strategy)
             pooled_data.append(_pooled)
         return np.array(pooled_data, dtype=np.float32)
-
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_flair']
-        return d

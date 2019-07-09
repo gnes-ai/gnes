@@ -26,7 +26,7 @@ from ..router.base import BaseReduceRouter
 class RouterService(BS):
     handler = MessageHandler(BS.handler)
 
-    def _post_init(self):
+    def post_init(self):
         from ..router.base import BaseRouter
         self._model = self.load_model(BaseRouter)
         self._pending = defaultdict(list)  # type: Dict[str, List]

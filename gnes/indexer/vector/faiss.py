@@ -36,7 +36,7 @@ class FaissIndexer(BaseVectorIndexer):
         self.index_key = index_key
         self._key_info_indexer = ListKeyIndexer()
 
-    def _post_init(self):
+    def post_init(self):
         import faiss
         try:
             self._faiss_index = faiss.read_index(self.indexer_file_path)
@@ -77,5 +77,4 @@ class FaissIndexer(BaseVectorIndexer):
         import faiss
         d = super().__getstate__()
         faiss.write_index(self._faiss_index, self.indexer_file_path)
-        del d['_faiss_index']
         return d

@@ -33,7 +33,7 @@ class BertEncoder(BaseTextEncoder):
         self._bc_encoder_args = args
         self._bc_encoder_kwargs = kwargs
 
-    def _post_init(self):
+    def post_init(self):
         from bert_serving.client import BertClient
         self.bc_encoder = BertClient(*self._bc_encoder_args, **self._bc_encoder_kwargs)
 
@@ -41,10 +41,6 @@ class BertEncoder(BaseTextEncoder):
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['bc_encoder']
-        return d
 
     def close(self):
         self.bc_encoder.close()
@@ -67,17 +63,13 @@ class BertEncoderServer(BaseTextEncoder):
         self._bert_args = bert_args
         self.is_trained = True
 
-    def _post_init(self):
+    def post_init(self):
         from bert_serving.server import BertServer
         from bert_serving.server import get_args_parser
         self.bert_server = BertServer(get_args_parser().parse_args(self._bert_args))
         self.bert_server.start()
         self.bert_server.is_ready.wait()
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['bert_server']
-        return d
 
     def close(self):
         self.bert_server.close()

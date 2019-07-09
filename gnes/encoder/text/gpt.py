@@ -40,7 +40,7 @@ class GPTEncoder(BaseTextEncoder):
         self._use_cuda = use_cuda
         self.is_trained = True
 
-    def _post_init(self):
+    def post_init(self):
         import torch
         # Load pre-trained model tokenizer (vocabulary)
         self._init_model_tokenizer()
@@ -108,11 +108,6 @@ class GPTEncoder(BaseTextEncoder):
             output_tensor = output_tensor.cpu()
         return output_tensor.numpy()
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_tokenizer']
-        del d['_model']
-        return d
 
 
 class GPT2Encoder(GPTEncoder):

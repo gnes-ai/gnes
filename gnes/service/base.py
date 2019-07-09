@@ -260,7 +260,7 @@ class BaseService(threading.Thread):
         poller.register(ctrl_sock, zmq.POLLIN)
 
         try:
-            self._post_init()
+            self.post_init()
             self.is_ready.set()
             self.is_event_loop.set()
             self._start_auto_dump()
@@ -299,7 +299,7 @@ class BaseService(threading.Thread):
             self.ctrl_sock.close()
         self.logger.info('terminated')
 
-    def _post_init(self):
+    def post_init(self):
         pass
 
     def load_model(self, base_class: Type[TrainableBase]) -> T:

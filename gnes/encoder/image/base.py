@@ -37,7 +37,7 @@ class BasePytorchEncoder(BaseImageEncoder):
         self.is_trained = True
         self._use_cuda = False
 
-    def _post_init(self):
+    def post_init(self):
         import torch
         import torchvision.models as models
 
@@ -91,7 +91,3 @@ class BasePytorchEncoder(BaseImageEncoder):
 
         return np.array(result_npy, dtype=np.float32)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_model']
-        return d

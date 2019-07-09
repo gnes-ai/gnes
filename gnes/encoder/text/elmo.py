@@ -40,7 +40,7 @@ class ElmoEncoder(BaseTextEncoder):
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
 
-    def _post_init(self):
+    def post_init(self):
         from elmoformanylangs import Embedder
         from ...helper import Tokenizer
         self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
@@ -67,8 +67,3 @@ class ElmoEncoder(BaseTextEncoder):
             pooled_data.append(_pooled)
         return np.array(pooled_data, dtype=np.float32)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_elmo']
-        del d['cn_tokenizer']
-        return d

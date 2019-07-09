@@ -26,7 +26,7 @@ from ...helper import batching, train_required, get_first_available_gpu
 
 class TFPQEncoder(PQEncoder):
     @classmethod
-    def _pre_init(cls):
+    def pre_init(cls):
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
 
@@ -34,7 +34,7 @@ class TFPQEncoder(PQEncoder):
         super().__init__(*args, **kwargs)
         self.batch_size = 8192
 
-    def _post_init(self):
+    def post_init(self):
         import tensorflow as tf
         self._graph = self._get_graph()
         self._sess = tf.Session()
@@ -70,11 +70,6 @@ class TFPQEncoder(PQEncoder):
                                         self._graph['ph_centroids']: self.centroids})
         return tmp.astype(np.uint8)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_sess']
-        del d['_graph']
-        return d
 
     def close(self):
         self._sess.close()

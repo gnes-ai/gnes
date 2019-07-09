@@ -38,7 +38,7 @@ class Word2VecEncoder(BaseTextEncoder):
         self.is_trained = True
         self.dimension = dimension
 
-    def _post_init(self):
+    def post_init(self):
         from ...helper import Tokenizer
         count = 0
         self.word2vec_df = {}
@@ -66,9 +66,3 @@ class Word2VecEncoder(BaseTextEncoder):
 
         return np.array(pooled_data).astype(np.float32)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['word2vec_df']
-        del d['empty']
-        del d['cn_tokenizer']
-        return d
