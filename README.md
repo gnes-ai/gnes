@@ -8,11 +8,14 @@
 <a href="https://travis-ci.com/gnes-ai/gnes">
     <img src="https://travis-ci.com/gnes-ai/gnes.svg?branch=master" alt="travis ci status">
 </a>
+<a href="https://pypi.org/project/gnes/">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
+</a>
 <a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
 <a href='https://github.com/gnes-ai/gnes/blob/master/LICENSE'>
-    <img src='https://img.shields.io/badge/License-Apache%202.0-blue.svg' alt='License' />
+    <img alt="PyPI - License" src="https://img.shields.io/pypi/l/gnes.svg">
 </a>
 </p>
 

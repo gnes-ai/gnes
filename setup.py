@@ -31,6 +31,19 @@ extensions = [
     ),
 ]
 
+bert_dep = ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6']
+elmo_dep = ['elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
+            'paramiko', 'pattern3']
+flair_dep = ['flair>=0.4.1']
+nlp_dep = list(set(bert_dep + elmo_dep + flair_dep))
+annoy_dep = ['annoy==1.15.2']
+chinese_dep = ['jieba']
+cn_nlp_dep = list(set(chinese_dep + nlp_dep))
+vision_dep = ['torchvision==0.3.0']
+leveldb_dep = ['plyvel>=1.0.5']
+test_dep = ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0']
+all_dep = list(set(cn_nlp_dep + vision_dep + leveldb_dep + test_dep))
+
 setup(
     name=pkg_name,
     packages=find_packages(),
@@ -40,8 +53,9 @@ setup(
                 ' a cloud-native semantic search system based on deep neural network.',
     author='GNES team',
     author_email='team@gnes.ai',
-    license='Apache',
+    license='Apache 2.0',
     url='https://gnes.ai',
+    download_url='https://github.com/gnes-ai/gnes/tags',
     long_description=_long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
@@ -51,48 +65,53 @@ setup(
     ],
     ext_modules=extensions,
     install_requires=[
-        'attrs>=17.4.0',
         'numpy',
         'termcolor',
-        'jieba',
         'protobuf',
         'grpcio',
-        'bert-serving-server>=1.8.6',
-        'bert-serving-client>=1.8.6',
-        'plyvel>=1.0.5',
         'ruamel.yaml>=0.15.89',
-        'psutil>=5.6.1',
-        'memory_profiler>=0.55.0',
-        'gputil>=1.4.0',
-        'elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
-        'flair>=0.4.1',
-        'pandas',
-        'paramiko',
-        'pattern3',
         'aiohttp==3.5.4',
-        'annoy==1.15.2',
-        'torchvision==0.3.0',
         'scipy==1.3.0'
+        'pyzmq>=17.1.0',
     ],
     extras_require={
-        'test': ['pylint'],
+        'bert': bert_dep,
+        'emlo': elmo_dep,
+        'flair': flair_dep,
+        'nlp': nlp_dep,
+        'annoy': annoy_dep,
+        'chinese': chinese_dep,
+        'cn_nlp': cn_nlp_dep,
+        'vision': vision_dep,
+        'leveldb': leveldb_dep,
+        'test': test_dep,
+        'all': all_dep,
     },
     entry_points={
         'console_scripts': ['gnes=gnes.cli:main'],
     },
     classifiers=(
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Cython',
         'Programming Language :: Unix Shell',
         'Environment :: Console',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-        'Topic :: Database :: Database Engines/Servers'
+        'Topic :: Database :: Database Engines/Servers',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
         'Topic :: Scientific/Engineering :: Image Recognition',
-        'Topic :: Multimedia :: Video'
-
+        'Topic :: Multimedia :: Video',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ),
-    keywords='semantic search elastic neural-network encoding embedding serving',
+    keywords='gnes cloud-native semantic search elastic neural-network encoding embedding serving',
 )

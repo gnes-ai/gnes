@@ -203,7 +203,11 @@ class TrainableBase(metaclass=TrainableType):
         if self.lock_work_dir:
             # trigger the lock again
             self.work_dir = self._work_dir
-        self._post_init()
+        try:
+            self._post_init()
+        except ImportError:
+            self.logger.info('ImportError is often caused by a missing component, '
+                             'which often can be solved by "pip install" relevant package.')
 
     def train(self, *args, **kwargs):
         pass
