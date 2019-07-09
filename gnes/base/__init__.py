@@ -81,7 +81,7 @@ class TrainableType(type):
                 setattr(obj, k, v)
 
         # do _post_init()
-        getattr(obj, '_post_init', lambda *x: None)()
+        getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
 
     @staticmethod
@@ -159,12 +159,18 @@ class TrainableBase(metaclass=TrainableType):
         self._work_dir = os.getcwd()
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
+        self._post_init_vars = set()
 
-    def _post_init(self):
+    def _post_init_wrapper(self):
+        _before = set(list(self.__dict__.keys()))
+        self.post_init()
+        self._post_init_vars = {k for k in self.__dict__.keys() if k not in _before}
+
+    def post_init(self):
         pass
 
     @classmethod
-    def _pre_init(cls):
+    def pre_init(cls):
         pass
 
     @property
@@ -195,6 +201,8 @@ class TrainableBase(metaclass=TrainableType):
         del d['logger']
         if '_file_lock' in d:
             del d['_file_lock']
+        for k in self._post_init_vars:
+            del d[k]
         return d
 
     def __setstate__(self, d):
@@ -204,7 +212,7 @@ class TrainableBase(metaclass=TrainableType):
             # trigger the lock again
             self.work_dir = self._work_dir
         try:
-            self._post_init()
+            self._post_init_wrapper()
         except ImportError:
             self.logger.info('ImportError is often caused by a missing component, '
                              'which often can be solved by "pip install" relevant package.')

@@ -46,7 +46,7 @@ class HBIndexer(BaseVectorIndexer):
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
 
-    def _post_init(self):
+    def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
         if os.path.exists(self.indexer_bin_path):
             self.hbindexer.load(self.indexer_bin_path)
@@ -95,5 +95,4 @@ class HBIndexer(BaseVectorIndexer):
     def __getstate__(self):
         self.hbindexer.save(self.indexer_bin_path)
         d = super().__getstate__()
-        del d['hbindexer']
         return d

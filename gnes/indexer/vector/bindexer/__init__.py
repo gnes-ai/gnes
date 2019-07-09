@@ -46,7 +46,7 @@ class BIndexer(BaseVectorIndexer):
                                              self.internal_index_path)
         self._weight_norm = 2 ** 16 - 1
 
-    def _post_init(self):
+    def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
@@ -117,5 +117,4 @@ class BIndexer(BaseVectorIndexer):
     def __getstate__(self):
         self.bindexer.save(self.indexer_bin_path)
         d = super().__getstate__()
-        del d['bindexer']
         return d

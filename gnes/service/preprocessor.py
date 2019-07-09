@@ -22,7 +22,7 @@ from ..proto import gnes_pb2
 class PreprocessorService(BS):
     handler = MessageHandler(BS.handler)
 
-    def _post_init(self):
+    def post_init(self):
         from ..preprocessor.base import BasePreprocessor
         self._model = self.load_model(BasePreprocessor)
 

@@ -32,14 +32,9 @@ class LVDBIndexer(BaseTextIndexer):
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
 
-    def _post_init(self):
+    def post_init(self):
         import plyvel
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
-
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_db']
-        return d
 
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         with self._db.write_batch() as wb:
@@ -67,8 +62,8 @@ class LVDBIndexer(BaseTextIndexer):
 
 
 class AsyncLVDBIndexer(LVDBIndexer):
-    def _post_init(self):
-        super()._post_init()
+    def post_init(self):
+        super().post_init()
         self._is_listening = Event()
         self._is_listening.set()
         self._is_idle = Event()
@@ -92,13 +87,6 @@ class AsyncLVDBIndexer(LVDBIndexer):
                 keys, docs = self._jobs.pop()
                 super().add(keys, docs)
             self._is_idle.set()
-
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_thread']
-        del d['_is_idle']
-        del d['_is_listening']
-        return d
 
     def close(self):
         self._jobs.clear()

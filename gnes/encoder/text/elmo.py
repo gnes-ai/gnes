@@ -21,7 +21,7 @@ from typing import List
 import numpy as np
 
 from ..base import BaseTextEncoder
-from ...helper import batching, cn_tokenizer, pooling_np
+from ...helper import batching, pooling_np
 
 
 class ElmoEncoder(BaseTextEncoder):
@@ -40,14 +40,16 @@ class ElmoEncoder(BaseTextEncoder):
         self.pooling_strategy = pooling_strategy
         self.is_trained = True
 
-    def _post_init(self):
+    def post_init(self):
         from elmoformanylangs import Embedder
+        from ...helper import Tokenizer
         self._elmo = Embedder(model_dir=self.model_dir, batch_size=self.batch_size)
+        self.cn_tokenizer = Tokenizer()
 
     @batching
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
-        batch_tokens = [cn_tokenizer.tokenize(sent) for sent in text]
+        batch_tokens = [self.cn_tokenizer.tokenize(sent) for sent in text]
 
         elmo_encodes = self._elmo.sents2elmo(batch_tokens, output_layer=-2)
 
@@ -65,7 +67,3 @@ class ElmoEncoder(BaseTextEncoder):
             pooled_data.append(_pooled)
         return np.array(pooled_data, dtype=np.float32)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_elmo']
-        return d
