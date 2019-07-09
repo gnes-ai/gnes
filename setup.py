@@ -31,6 +31,16 @@ extensions = [
     ),
 ]
 
+base_dep = [
+    'numpy',
+    'scipy',
+    'termcolor',
+    'protobuf',
+    'grpcio',
+    'ruamel.yaml>=0.15.89',
+    'aiohttp==3.5.4',
+    'pyzmq>=17.1.0',
+]
 bert_dep = ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6']
 elmo_dep = ['elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
             'paramiko', 'pattern3']
@@ -42,7 +52,7 @@ cn_nlp_dep = list(set(chinese_dep + nlp_dep))
 vision_dep = ['torchvision==0.3.0']
 leveldb_dep = ['plyvel>=1.0.5']
 test_dep = ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0']
-all_dep = list(set(cn_nlp_dep + vision_dep + leveldb_dep + test_dep + annoy_dep))
+all_dep = list(set(base_dep + cn_nlp_dep + vision_dep + leveldb_dep + test_dep + annoy_dep))
 
 setup(
     name=pkg_name,
@@ -64,16 +74,7 @@ setup(
         'cython',
     ],
     ext_modules=extensions,
-    install_requires=[
-        'numpy',
-        'scipy',
-        'termcolor',
-        'protobuf',
-        'grpcio',
-        'ruamel.yaml>=0.15.89',
-        'aiohttp==3.5.4',
-        'pyzmq>=17.1.0',
-    ],
+    install_requires=base_dep,
     extras_require={
         'bert': bert_dep,
         # 'elmo': elmo_dep,   # not welcome by pip

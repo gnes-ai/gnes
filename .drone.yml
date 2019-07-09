@@ -57,6 +57,22 @@ steps:
        -H 'Content-Type: application/json' \
        -d "@notify.md" > /dev/null
 
+- name: notify the failure on wechat work
+  image: gnes/ci-base
+  environment:
+    BOT_ID:
+      from_secret: gnes-wechat-botid
+  commands:
+  - "export MSG_CONTENT=\"❌ CI pipeline failed!\n > Author: $DRONE_COMMIT_AUTHOR \n > Branch: $DRONE_SOURCE_BRANCH \n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
+  - >
+    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
+       -H 'Content-Type: application/json' \
+       -d "@notify.md" > /dev/null
+  when:
+    status:
+    - failure
+
 trigger:
   branch:
   - master
