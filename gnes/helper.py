@@ -41,7 +41,7 @@ from termcolor import colored
 
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
-           'batch_iterator', 'batching', 'yaml', 'cn_sent_splitter',
+           'batch_iterator', 'batching', 'yaml',
            'profile_logger', 'doc_logger',
            'parse_arg', 'profiling', 'FileLock', 'train_required', 'get_first_available_gpu']
 
@@ -50,9 +50,9 @@ def get_first_available_gpu():
     try:
         import GPUtil
         r = GPUtil.getAvailable(order='random',
-                                   maxMemory=0.1,
-                                   maxLoad=0.1,
-                                   limit=1)
+                                maxMemory=0.1,
+                                maxLoad=0.1,
+                                limit=1)
         if r:
             return r[0]
         else:
@@ -61,7 +61,6 @@ def get_first_available_gpu():
         return 0
     except ValueError:
         return 0
-
 
 
 class FileLock(object):
@@ -548,8 +547,6 @@ def train_required(func):
     return arg_wrapper
 
 
-cn_sent_splitter = SentenceSplitter(max_len=5)
-cn_tokenizer = Tokenizer()
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
 profiling = time_profile

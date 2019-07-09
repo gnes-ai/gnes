@@ -36,7 +36,7 @@ function pub_pypi {
 }
 
 function pub_gittag {
-    git add $CODE_BASE
+    git add -u
     git commit -m "bumping version to $VER"
     git push $SOURCE_ORIGIN master
     git tag $VER
