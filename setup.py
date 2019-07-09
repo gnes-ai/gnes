@@ -73,6 +73,7 @@ setup(
         'ruamel.yaml>=0.15.89',
         'aiohttp==3.5.4',
         'pyzmq>=17.1.0',
+        'imagehash>=4.0',
     ],
     extras_require={
         'bert': bert_dep,
