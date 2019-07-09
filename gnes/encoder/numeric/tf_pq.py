@@ -21,26 +21,20 @@ from typing import Dict, Any
 import numpy as np
 
 from .pq import PQEncoder
-from ...helper import batching, train_required
+from ...helper import batching, train_required, get_first_available_gpu
 
 
 class TFPQEncoder(PQEncoder):
     @classmethod
-    def _pre_init(cls):
-        import GPUtil
+    def pre_init(cls):
         import os
-        DEVICE_ID_LIST = GPUtil.getAvailable(order='random',
-                                             maxMemory=0.1,
-                                             maxLoad=0.1,
-                                             limit=1)
-        if DEVICE_ID_LIST:
-            os.environ['CUDA_VISIBLE_DEVICES'] = str(DEVICE_ID_LIST[0])
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch_size = 8192
 
-    def _post_init(self):
+    def post_init(self):
         import tensorflow as tf
         self._graph = self._get_graph()
         self._sess = tf.Session()
@@ -76,11 +70,6 @@ class TFPQEncoder(PQEncoder):
                                         self._graph['ph_centroids']: self.centroids})
         return tmp.astype(np.uint8)
 
-    def __getstate__(self):
-        d = super().__getstate__()
-        del d['_sess']
-        del d['_graph']
-        return d
 
     def close(self):
         self._sess.close()

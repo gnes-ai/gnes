@@ -11,9 +11,9 @@ Subpackages
     gnes.client
     gnes.encoder
     gnes.indexer
-    gnes.module
     gnes.preprocessor
     gnes.proto
+    gnes.router
     gnes.service
 
 Submodules

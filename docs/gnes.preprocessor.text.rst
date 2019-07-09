@@ -4,6 +4,14 @@ gnes.preprocessor.text package
 Submodules
 ----------
 
+gnes.preprocessor.text.base module
+----------------------------------
+
+.. automodule:: gnes.preprocessor.text.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 gnes.preprocessor.text.simple module
 ------------------------------------
 

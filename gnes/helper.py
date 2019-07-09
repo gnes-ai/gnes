@@ -18,7 +18,6 @@
 
 import fcntl
 import html
-import inspect
 import logging
 import os
 import re
@@ -30,18 +29,38 @@ from itertools import islice
 from logging import Formatter
 from typing import Iterator, Any, Union, List, Callable
 
-import jieba
 import numpy as np
-from memory_profiler import memory_usage
-from psutil import virtual_memory
+
+try:
+    from memory_profiler import memory_usage
+except ImportError:
+    memory_usage = lambda: [0]
+
 from ruamel.yaml import YAML
 from termcolor import colored
 
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
-           'batch_iterator', 'batching', 'yaml', 'cn_sent_splitter',
+           'batch_iterator', 'batching', 'yaml',
            'profile_logger', 'doc_logger',
-           'parse_arg', 'profiling', 'FileLock']
+           'parse_arg', 'profiling', 'FileLock', 'train_required', 'get_first_available_gpu']
+
+
+def get_first_available_gpu():
+    try:
+        import GPUtil
+        r = GPUtil.getAvailable(order='random',
+                                maxMemory=0.1,
+                                maxLoad=0.1,
+                                limit=1)
+        if r:
+            return r[0]
+        else:
+            raise ValueError
+    except ImportError:
+        return 0
+    except ValueError:
+        return 0
 
 
 class FileLock(object):
@@ -78,6 +97,7 @@ class FileLock(object):
 
 
 def get_sys_info():
+    from psutil import virtual_memory
     mem = virtual_memory()
     # get available memory in (M)
     avai = mem.available / 1e6
@@ -157,7 +177,7 @@ def time_profile(func):
             elapsed = time.perf_counter() - start_t
             if os.environ.get('GNES_PROFILING_MEM', False):
                 end_mem = memory_usage()[0]
-            #level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
+            # level_prefix = ''.join('-' for v in inspect.stack() if v and v.index is not None and v.index >= 0)
             level_prefix = ''
             if os.environ.get('GNES_PROFILING_MEM', False):
                 mem_status = 'memory: %4.2fM -> %4.2fM' % (start_mem, end_mem)
@@ -251,6 +271,7 @@ class TimeContext:
 
 class Tokenizer:
     def __init__(self, dict_path: str = None):
+        import jieba
         self._jieba = jieba.Tokenizer()
         self._jieba.cache_file = "gnes.jieba_wrapper.cache"
 
@@ -342,13 +363,13 @@ def get_size(data: Union[Iterator[Any], List[Any], np.ndarray], axis: int = 0) -
 
 def pooling_simple(data_array, pooling_strategy):
     if pooling_strategy == 'REDUCE_MEAN':
-        _pooled_data = sum(data_array)/(len(data_array)+1e-10)
+        _pooled_data = sum(data_array) / (len(data_array) + 1e-10)
     elif pooling_strategy == 'REDUCE_MAX':
-        _pooled_data = max(data_array)/(len(data_array)+1e-10)
+        _pooled_data = max(data_array) / (len(data_array) + 1e-10)
     elif pooling_strategy == 'REDUCE_MEAN_MAX':
         _pooled_data = np.concatenate(
-            (sum(data_array)/(len(data_array)+1e-10),
-             max(data_array)/(len(data_array)+1e-10)), axis=0)
+            (sum(data_array) / (len(data_array) + 1e-10),
+             max(data_array) / (len(data_array) + 1e-10)), axis=0)
     else:
         raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
     return _pooled_data
@@ -526,8 +547,6 @@ def train_required(func):
     return arg_wrapper
 
 
-cn_sent_splitter = SentenceSplitter(max_len=5)
-cn_tokenizer = Tokenizer()
 profile_logger = set_logger('PROFILE')
 doc_logger = set_logger('DOC')
 profiling = time_profile

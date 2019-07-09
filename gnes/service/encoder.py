@@ -23,7 +23,7 @@ from ..proto import gnes_pb2, array2blob, blob2array
 class EncoderService(BS):
     handler = MessageHandler(BS.handler)
 
-    def _post_init(self):
+    def post_init(self):
         from ..encoder.base import BaseEncoder
         self._model = self.load_model(BaseEncoder)
         self.train_data = []

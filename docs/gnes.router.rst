@@ -1,13 +1,21 @@
-gnes.module package
+gnes.router package
 ===================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    gnes.router.map
+    gnes.router.reduce
 
 Submodules
 ----------
 
-gnes.module.gnes module
+gnes.router.base module
 -----------------------
 
-.. automodule:: gnes.module.gnes
+.. automodule:: gnes.router.base
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +24,7 @@ gnes.module.gnes module
 Module contents
 ---------------
 
-.. automodule:: gnes.module
+.. automodule:: gnes.router
     :members:
     :undoc-members:
     :show-inheritance:
