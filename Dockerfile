@@ -12,7 +12,7 @@ FROM dependency as base
 
 ADD . ./
 
-RUN pip install .
+RUN pip install .[all]
 
 WORKDIR /
 
