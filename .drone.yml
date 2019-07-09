@@ -11,8 +11,8 @@ steps:
     BOT_ID:
       from_secret: gnes-wechat-botid
   commands:
-  - export MSG_CONTENT="🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n > [View]($DRONE_REPO_LINK)"
-  - echo '{"msgtype": "markdown", "markdown": {"content": "'$MSG_CONTENT'"}}' > notify.md
+  - "export MSG_CONTENT=\"🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
   - >
     curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
@@ -50,8 +50,8 @@ steps:
     BOT_ID:
       from_secret: gnes-wechat-botid
   commands:
-  - export MSG_CONTENT="✅ Looks good to me. All tests passed!\n > Author: $DRONE_COMMIT_AUTHOR \n > Branch: $DRONE_SOURCE_BRANCH \n > [View]($DRONE_REPO_LINK)"
-  - echo '{"msgtype": "markdown", "markdown": {"content": "'$MSG_CONTENT'"}}' > notify.md
+  - "export MSG_CONTENT=\"✅ Looks good to me. All tests passed!\n > Author: $DRONE_COMMIT_AUTHOR \n > Branch: $DRONE_SOURCE_BRANCH \n > [View]($DRONE_REPO_LINK)\""
+  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
   - >
     curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
