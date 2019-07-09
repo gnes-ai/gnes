@@ -18,8 +18,7 @@ steps:
        {
             "msgtype": "markdown",
             "markdown": {
-                "content": "🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n
-                > [View]($DRONE_REPO_LINK)"
+                "content": "🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submitted by $DRONE_COMMIT_AUTHOR \n > [View]($DRONE_REPO_LINK)"
             }
        }' > /dev/null
 
@@ -67,10 +66,7 @@ steps:
        {
             "msgtype": "markdown",
             "markdown": {
-                "content": "✅ Looks good to me. All tests passed!\n
-                > Author: $DRONE_COMMIT_AUTHOR \n
-                > Branch: $DRONE_SOURCE_BRANCH \n
-                > [点击查看]($DRONE_REPO_LINK)"
+                "content": "✅ Looks good to me. All tests passed!\n > Author: $DRONE_COMMIT_AUTHOR \n > Branch: $DRONE_SOURCE_BRANCH \n > [点击查看]($DRONE_REPO_LINK)"
             }
        }' > /dev/null
 
