@@ -1,6 +1,5 @@
 import os
 import unittest
-import zipfile
 
 from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
 from gnes.proto import gnes_pb2, RequestGenerator, blob2array
@@ -22,7 +21,7 @@ class TestFFmpeg(unittest.TestCase):
         with PreprocessorService(args):
             pass
 
-    def test_singleton_preprocessor_service_realdata(self):
+    def test_video_preprocessor_service_realdata(self):
         args = set_preprocessor_service_parser().parse_args([
             '--yaml_path', self.yml_path
         ])
@@ -39,3 +38,8 @@ class TestFFmpeg(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
+                for d in r.request.index.docs:
+                    self.assertGreater(len(d.chunks), 0)
+                    for _ in range(len(d.chunks)):
+                        shape = blob2array(d.chunks[_].blob).shape
+                        self.assertEqual(shape, (168, 192, 3))
