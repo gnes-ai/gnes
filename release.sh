@@ -2,7 +2,6 @@
 
 set -e
 
-SOURCE_DIR='gnes/'
 CODE_BASE='gnes/__init__.py'
 VER_TAG='__version__ = '
 SOURCE_ORIGIN='github'
@@ -30,12 +29,10 @@ function clean_build {
 
 function pub_pypi {
     # publish to pypi
-    cd $1
     clean_build
     python setup.py sdist bdist_wheel
     twine upload dist/*
     clean_build
-    cd -
 }
 
 function pub_gittag {
@@ -67,7 +64,7 @@ then
     # write back tag to client and server code
     VER_VAL=$VER_TAG"'"${VER#"v"}"'"
     change_line "$VER_TAG" "$VER_VAL" $CODE_BASE
-    pub_pypi $SOURCE_DIR
+    pub_pypi
     pub_gittag
 fi
 
