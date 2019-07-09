@@ -51,7 +51,7 @@ fi
 
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
-VER=$(git tag -l |tail -n1)
+VER=$(git tag -l | sort -V |tail -n1)
 printf "current version:\t\e[1;33m$VER\e[0m\n"
 
 VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{$NF=sprintf("%0*d", length($NF), ($NF+1)); print}')
