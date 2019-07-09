@@ -38,6 +38,14 @@ function pub_pypi {
     cd -
 }
 
+function pub_gittag {
+    git add $CODE_BASE
+    git commit -m "bumping version to $VER"
+    git push $SOURCE_ORIGIN master
+    git tag $VER
+    git push $SOURCE_ORIGIN $VER
+}
+
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [[ "$BRANCH" != "master" ]]; then
   printf "You are not at master branch, exit\n";
@@ -59,12 +67,9 @@ then
     # write back tag to client and server code
     VER_VAL=$VER_TAG"'"${VER#"v"}"'"
     change_line "$VER_TAG" "$VER_VAL" $CODE_BASE
-    git commit -m "bumping version to $VER"
-    git push $SOURCE_ORIGIN master
-    git tag $VER
-    git push $SOURCE_ORIGIN $VER
+    pub_pypi $SOURCE_DIR
+    pub_gittag
 fi
 
 
 
-pub_pypi $SOURCE_DIR
