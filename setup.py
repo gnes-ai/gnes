@@ -35,7 +35,7 @@ bert_dep = ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6']
 elmo_dep = ['elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
             'paramiko', 'pattern3']
 flair_dep = ['flair>=0.4.1']
-nlp_dep = list(set(bert_dep + elmo_dep + flair_dep))
+nlp_dep = list(set(bert_dep + flair_dep))
 annoy_dep = ['annoy==1.15.2']
 chinese_dep = ['jieba']
 cn_nlp_dep = list(set(chinese_dep + nlp_dep))
@@ -76,7 +76,7 @@ setup(
     ],
     extras_require={
         'bert': bert_dep,
-        'emlo': elmo_dep,
+        # 'elmo': elmo_dep,   # not welcome by pip
         'flair': flair_dep,
         'nlp': nlp_dep,
         'annoy': annoy_dep,
