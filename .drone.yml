@@ -16,7 +16,7 @@ steps:
   - >
     curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
-       -d "@notify.md" > /dev/null
+       --data-binary "@notify.md" > /dev/null
 
 - name: setup ci environment
   image: gnes/ci-base
@@ -31,17 +31,7 @@ steps:
   image: gnes/ci-base
   commands:
   - pip install -e .[all]
-
-- name: check code style
-  image: gnes/ci-base
-  commands:
   - pylint gnes/**/*.py --exit-zero
-
-- name: run unit test
-  image: gnes/ci-base
-  environment:
-    GNES_ENV_SET: orange-ci
-  commands:
   - python -m unittest tests/*.py
 
 - name: notify the sucess on wechat work
@@ -55,7 +45,7 @@ steps:
   - >
     curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
-       -d "@notify.md" > /dev/null
+       --data-binary "@notify.md" > /dev/null
 
 - name: notify the failure on wechat work
   image: gnes/ci-base
@@ -68,7 +58,7 @@ steps:
   - >
     curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
        -H 'Content-Type: application/json' \
-       -d "@notify.md" > /dev/null
+       --data-binary "@notify.md" > /dev/null
   when:
     status:
     - failure
