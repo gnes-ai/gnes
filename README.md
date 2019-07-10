@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://gnes.ai">
-    <img src=".github/gnes-logo-tight.png?raw=true" width="300" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
+    <img src=".github/gnes-github-banner.png?raw=true" alt="GNES Generic Neural Elastic Search, logo made by Han Xiao">
 </a>
 </p>
 
@@ -10,6 +10,9 @@
 </a>
 <a href="https://pypi.org/project/gnes/">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
+</a>
+<a href="https://cloud.docker.com/u/gnes/">
+    <img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/gnes/gnes.svg">
 </a>
 <a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
@@ -34,7 +37,7 @@
 GNES [<i>jee-nes</i>] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. 
 
 
-Leveraging the cloud infrastructure, GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
+GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
 
 
 <h2 align="center">Highlights</h2>
@@ -54,21 +57,33 @@ Leveraging the cloud infrastructure, GNES enables large-scale index and semantic
 
 <h2 align="center">Getting Started</h2>
 
-As a cloud-native application, GNES requires an orchestration engine to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 
-<p align="center">
-<img src=".github/gnes-orchestration.svg" width="70%" alt="orchestration selection">
-</p>
 <p align="center">
 <table>
   <tr>
-    <th><a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a></th>
-    <th><a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a></th>
-    <th><a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a></th>
+    <th>
+    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="100px">
+    <br>
+    <a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a>
+    </th>
+    <th>
+    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="100px">
+    <br>
+    <a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a>
+    </th>
+    <th>
+    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="100px">
+    <br>
+    <a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a>
+    </th>
   </tr>
 </table>
 </p>
 
+### Using GNES with Kubernetes
+
+TBA
 
 ### Using GNES with Docker Swarm
 
@@ -115,9 +130,7 @@ To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
 
 </details>
 
-### Using GNES with Kubernetes
 
-TBA
 
 ### Using GNES with Built-In Orchestration
 
@@ -131,23 +144,23 @@ Note, to switch between runtimee you need to shutdown the current runtime and st
 
 ### Train mode: training encoders and indexers
 
+TBA
+
 ### Index mode: adding new documents
 
-### Query mode: searching relevant documents of a given query  
+TBA
+
+### Query mode: searching relevant documents of a given query
+
+TBA  
 
 
 <h2 align="center">:book: Documentation</h2>
 
-The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release. 
+[![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai)
 
-### Building the documentation from scratch
+The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release.
 
-To build the documentation by yourself, you need to first [install sphinx](http://www.sphinx-doc.org/en/master/usage/installation.html).
-
-```bash
-git clone https://github.com/tencent/gnes.git && cd gnes
-./shell/make-doc.sh
-```
 
 <h2 align="center">Tutorial</h2>
 
@@ -176,4 +189,9 @@ TBA
 
 <h2 align="center">License</h2>
 
-[Apache License 2.0](./LICENSE)
+Tencent is pleased to support the open source community by making GNES
+available.
+
+Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+
+If you have downloaded a copy of the GNES binary or source code, please note that the GNES binary and source code are both licensed under the [Apache License, Version 2.0](./LICENSE).

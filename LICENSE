@@ -23,6 +23,12 @@ Copyright 2013-2019 Nikolay Kim and Andrew Svetlov.
 3. grpc  1.21.2
 Copyright Copyright 2014 gRPC authors.
 
+Open Source Software Licensed Under the BSD 2-Clause License:
+-------------------------------------------------------------------------
+
+1. imagehash 4.0
+Copyright (c) 2013-2016, Johannes Buchner
+
 Open Source Software Licensed Under the BSD 3-Clause License:
 -------------------------------------------------------------------------
 1. pandas  0.24.2
@@ -65,6 +71,10 @@ Johnny Mariethoz)
 
 8. protobuf 3.7.1
 Copyright 2008 Google Inc.
+All rights reserved.
+
+9. torchvision 0.3.0
+Copyright (c) Soumith Chintala 2016,
 All rights reserved.
 
 Open Source Software Licensed Under the MIT License:

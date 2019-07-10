@@ -27,7 +27,6 @@ _cls2file_map = {
     'HBIndexer': 'vector.hbindexer',
     'JointIndexer': 'base',
     'BaseIndexer': 'base',
-    'BaseBinaryIndexer': 'base',
     'BaseTextIndexer': 'base',
     'AnnoyIndexer': 'vector.annoy'
 }

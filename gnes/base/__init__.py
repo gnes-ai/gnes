@@ -34,10 +34,10 @@ T = TypeVar('T', bound='TrainableBase')
 
 
 def register_all_class(cls2file_map: Dict):
-    for k, v in cls2file_map.items():
+    for k in cls2file_map:
         try:
             import_class_by_str(k)
-        except Exception:
+        except ImportError:
             pass
 
 
@@ -65,9 +65,9 @@ class TrainableType(type):
         'batch_size': None,
     }
 
-    def __new__(meta, *args, **kwargs):
-        cls = super().__new__(meta, *args, **kwargs)
-        return meta.register_class(cls)
+    def __new__(cls, *args, **kwargs):
+        _cls = super().__new__(cls, *args, **kwargs)
+        return cls.register_class(_cls)
 
     def __call__(cls, *args, **kwargs):
         # do _preload_package
@@ -164,7 +164,7 @@ class TrainableBase(metaclass=TrainableType):
     def _post_init_wrapper(self):
         _before = set(list(self.__dict__.keys()))
         self.post_init()
-        self._post_init_vars = {k for k in self.__dict__.keys() if k not in _before}
+        self._post_init_vars = {k for k in self.__dict__ if k not in _before}
 
     def post_init(self):
         pass
