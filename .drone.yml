@@ -70,3 +70,4 @@ trigger:
   - master
   event:
   - pull_request
+  - push
