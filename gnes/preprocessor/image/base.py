@@ -15,6 +15,7 @@
 
 from ..base import BasePreprocessor
 from ...proto import gnes_pb2
+from typing import List
 
 
 class BaseImagePreprocessor(BasePreprocessor):
