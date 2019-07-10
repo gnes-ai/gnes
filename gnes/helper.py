@@ -17,10 +17,8 @@
 
 
 import fcntl
-import html
 import logging
 import os
-import re
 import sys
 import time
 from copy import copy
@@ -55,15 +53,14 @@ def get_first_available_gpu():
                                 limit=1)
         if r:
             return r[0]
-        else:
-            raise ValueError
+        raise ValueError
     except ImportError:
         return 0
     except ValueError:
         return 0
 
 
-class FileLock(object):
+class FileLock:
     """
     Implements the Posix based file locking (Linux, Ubuntu, MacOS, etc.)
     """
@@ -104,7 +101,7 @@ def get_sys_info():
 
     def timer(x, y):
         stime = time.time()
-        c = np.matmul(x, y)
+        np.matmul(x, y)
         return time.time() - stime
 
     x = np.random.random([1000, 1000])
@@ -123,8 +120,7 @@ def ralloc_estimator(n_lines, num_dim, unit_time, max_mem, max_time=60):
     est_mem = 60 + 30 * (n_lines * num_dim / 768 / 10000)
     if (est_time < max_time) and (est_mem < max_mem * 0.5):
         return n_lines
-    else:
-        return ralloc_estimator(int(n_lines * 0.9), num_dim, unit_time, max_mem, max_time)
+    return ralloc_estimator(int(n_lines * 0.9), num_dim, unit_time, max_mem, max_time)
 
 
 def get_optimal_sample_size(x):
@@ -283,43 +279,6 @@ class Tokenizer:
             return self._jieba.lcut(text)  # resulted token list
         else:
             return self._jieba.tokenize(text)  # triple data consisting of (token, start_pos, end_pos)
-
-
-class SentenceSplitter:
-    def __init__(self, min_len=2, max_len=20):
-        self.min_len = min_len
-        self.max_len = max_len
-        self.must_split = r"[.。！？!?]+"
-        self.maybe_split = r"[,，、.。:：;；(（)）\s]+"
-
-    def _is_ascii(self, s):
-        return len(s) == len(s.encode())
-
-    def _get_printable(self, p):
-        p = html.unescape(p)  # decode html entity
-        p = ''.join(c for c in p if c.isprintable())  # remove unprintable char
-        p = ''.join(p.split())  # remove space
-        return p
-
-    def _check_p(self, p):
-        if (len(p) > self.min_len and  # must longer
-                not self._is_ascii(p) and  # must not all english
-                # len(re.findall('\s', p)) == 0 and  # must not contain spaces -> likely spam
-                '\\x' not in p):  # must not contain bad unicode char
-            return True
-
-    def _split(self, p, reg):
-        sent = [s for s in re.split(reg, self._get_printable(p)) if s.strip()]
-        for s in sent:
-            if self._check_p(s):
-                if len(s) > self.max_len and reg != self.maybe_split:
-                    for ss in self._split(s, self.maybe_split):
-                        yield ss
-                else:
-                    yield s
-
-    def split(self, p):
-        return self._split(p, self.must_split)
 
 
 def batch_iterator(data: Union[Iterator[Any], List[Any], np.ndarray], batch_size: int, axis: int = 0) -> Iterator[Any]:
@@ -496,7 +455,7 @@ def parse_arg(v: str):
     if v.startswith('[') and v.endswith(']'):
         # function args must be immutable tuples not list
         tmp = v.replace('[', '').replace(']', '').strip().split(',')
-        if len(tmp) > 0:
+        if tmp:
             return [parse_arg(vv.strip()) for vv in tmp]
         else:
             return []
@@ -506,7 +465,7 @@ def parse_arg(v: str):
         try:
             v = float(v)  # parse float parameter
         except ValueError:
-            if len(v) == 0:
+            if v:
                 # ignore it when the parameter is empty
                 v = None
             elif v.lower() == 'true':  # parse boolean parameter
