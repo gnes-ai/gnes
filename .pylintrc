@@ -152,9 +152,11 @@ disable=print-statement,
         too-many-locals,
         inconsistent-return-statements,
         import-error,
-        protected-access,
         too-few-public-methods,
-        import-error,
+        protected-access,
+        useless-else-on-loop,
+        arguments-differ,
+        no-name-in-module
 
 
 # Enable the message, report, category or checker with the given id(s). You can
