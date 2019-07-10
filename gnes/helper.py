@@ -455,7 +455,7 @@ def parse_arg(v: str):
     if v.startswith('[') and v.endswith(']'):
         # function args must be immutable tuples not list
         tmp = v.replace('[', '').replace(']', '').strip().split(',')
-        if tmp:
+        if len(tmp) > 0:
             return [parse_arg(vv.strip()) for vv in tmp]
         else:
             return []
@@ -465,7 +465,7 @@ def parse_arg(v: str):
         try:
             v = float(v)  # parse float parameter
         except ValueError:
-            if v:
+            if len(v) == 0:
                 # ignore it when the parameter is empty
                 v = None
             elif v.lower() == 'true':  # parse boolean parameter
