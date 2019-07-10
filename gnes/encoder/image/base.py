@@ -33,7 +33,6 @@ class BasePytorchEncoder(BaseImageEncoder):
         self.model_dir = model_dir
         self.model_name = model_name
         self.layers = layers
-        os.environ['TORCH_HOME'] = self.model_dir
         self.is_trained = True
         self._use_cuda = False
 
@@ -65,6 +64,7 @@ class BasePytorchEncoder(BaseImageEncoder):
                     x = l(x)
                 return x
 
+        os.environ['TORCH_HOME'] = self.model_dir
         self._model = _Model(self.model_name, self.layers)
         self._model = self._model.eval()
         if self._use_cuda:
