@@ -109,8 +109,6 @@ def set_preprocessor_service_parser(parser=None):
 
 
 def set_router_service_parser(parser=None):
-    from inspect import isclass
-    from ..service import router as my_router
     import pkg_resources
     if not parser:
         parser = set_base_parser()

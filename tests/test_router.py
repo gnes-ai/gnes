@@ -1,8 +1,10 @@
 import os
 import unittest
 
+import numpy as np
+
 from gnes.cli.parser import set_router_service_parser, _set_client_parser
-from gnes.proto import gnes_pb2
+from gnes.proto import gnes_pb2, array2blob
 from gnes.service.base import SocketType
 from gnes.service.grpc import ZmqClient
 from gnes.service.router import RouterService
@@ -17,6 +19,7 @@ class TestProto(unittest.TestCase):
         self.reduce_router_yaml = os.path.join(self.dirname, 'yaml', 'router-reduce.yml')
         self.chunk_router_yaml = os.path.join(self.dirname, 'yaml', 'router-chunk-reduce.yml')
         self.doc_router_yaml = os.path.join(self.dirname, 'yaml', 'router-doc-reduce.yml')
+        self.concat_router_yaml = os.path.join(self.dirname, 'yaml', 'router-concat.yml')
 
     def test_service_empty(self):
         args = set_router_service_parser().parse_args([])
@@ -41,7 +44,6 @@ class TestProto(unittest.TestCase):
             self.assertEqual(len(r.request.index.docs), 2)
             r = c1.recv_message()
             self.assertEqual(len(r.request.index.docs), 1)
-
 
     def test_publish_router(self):
         args = set_router_service_parser().parse_args([
@@ -200,3 +202,38 @@ class TestProto(unittest.TestCase):
             self.assertEqual(r.envelope.num_part, 1)
             self.assertEqual(len(r.response.search.topk_results), 3)
             self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
+
+    def test_concat_router(self):
+        args = set_router_service_parser().parse_args([
+            '--yaml_path', self.concat_router_yaml,
+            '--socket_out', str(SocketType.PUSH_BIND)
+        ])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.PULL_CONNECT)
+        ])
+        with RouterService(args), ZmqClient(c_args) as c1:
+            msg = gnes_pb2.Message()
+            msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2])))
+            msg.envelope.num_part = 3
+            c1.send_message(msg)
+            c1.send_message(msg)
+            c1.send_message(msg)
+            r = c1.recv_message()
+            self.assertEqual(r.envelope.num_part, 1)
+            print(r.envelope.routes)
+            self.assertEqual(r.request.search.query.chunk_embeddings.shape, [5, 6])
+
+            for j in range(1, 4):
+                d = msg.request.index.docs.add()
+                d.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2 * j])))
+
+            msg.envelope.num_part = 3
+            c1.send_message(msg)
+            c1.send_message(msg)
+            c1.send_message(msg)
+            r = c1.recv_message()
+            self.assertEqual(r.envelope.num_part, 1)
+            for j in range(1, 4):
+                self.assertEqual(r.request.index.docs[j - 1].chunk_embeddings.shape, [5, 6 * j])

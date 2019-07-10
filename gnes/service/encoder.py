@@ -40,7 +40,7 @@ class EncoderService(BS):
         chunks = self.get_chunks_from_docs(msg.request.index.docs)
         vecs = self._model.encode(chunks)
         s = 0
-        for i, d in enumerate(msg.request.index.docs):
+        for d in msg.request.index.docs:
             d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
             s += len(d.chunks)
 

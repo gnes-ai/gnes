@@ -29,8 +29,8 @@ def index(args):
 
 
 def route(args):
-    from ..service import router as my_router
-    with getattr(my_router, args.router_type)(args) as es:
+    from ..service.router import RouterService
+    with RouterService(args) as es:
         es.join()
 
 
