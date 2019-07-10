@@ -60,17 +60,17 @@ As a cloud-native application, GNES requires an **orchestration engine** to coor
 <table>
   <tr>
     <th>
-    <img src=".github/orch-kubernetes.png" alt="GNES on Kubernetes" width="100px">
+    <img src=".github/orch-kubernetes.png" alt="GNES on Kubernetes" height="100px">
     <br>
     <a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a>
     </th>
     <th>
-    <img src=".github/orch-dockerswarm.png" alt="GNES on Docker Swarm" width="100px">
+    <img src=".github/orch-dockerswarm.png" alt="GNES on Docker Swarm" height="100px">
     <br>
     <a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a>
     </th>
     <th>
-    <img src=".github/orch-cli.png" alt="GNES with built-in orchestration" width="100px">
+    <img src=".github/orch-cli.png" alt="GNES with built-in orchestration" height="100px">
     <br>
     <a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a>
     </th>
@@ -154,7 +154,7 @@ TBA
 
 <h2 align="center">:book: Documentation</h2>
 
-Documentation status: [![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai)
+[![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai)
 
 The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release.
 
