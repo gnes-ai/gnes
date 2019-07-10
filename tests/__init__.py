@@ -72,4 +72,4 @@ for k, v in env_dict[os.environ.get('GNES_ENV_SET', 'idc-165')].items():
     if k not in os.environ:
         os.environ[k] = str(v)
     else:
-        print('os.environ["%s"]=%s exists already, i wont setting it to %s' % (k, os.environ[k], str(v)))
+        print('os.environ["%s"]=%s exists already, i wont set it to %s' % (k, os.environ[k], str(v)))
