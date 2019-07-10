@@ -75,12 +75,18 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
                 stream = [np.array(Image.open(io.BytesIO(chunk)), dtype=np.uint8)
                           for chunk in stream]
+
+                if self.use_phash_weight:
+                    weight = FFmpegPreprocessor.pic_weight(stream)
+                else:
+                    weight = [1 / len(stream)] * len(stream)
+
                 for ci, chunk in enumerate(stream):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
                     c.blob.CopyFrom(array2blob(chunk))
                     c.offset_1d = ci
-                    c.weight = 1 / len(stream)
+                    c.weight = weight[ci]
             # close the stdout stream
             pipe.stdout.close()
         else:
@@ -89,6 +95,21 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
     @staticmethod
     def phash(image_bytes: bytes):
         return imagehash.phash(Image.open(io.BytesIO(image_bytes)))
+
+    @staticmethod
+    def pic_weight(image_array: List[np.ndarray]) -> List[float]:
+        weight = np.zeros([len(image_array)])
+        # n_channel is usually 3 for RGB images
+        n_channel = image_array[0].shape[-1]
+        for i in range(len(image_array)):
+            # calcualte the variance of histgram of pixels
+            weight[i] = sum([np.histogram(image_array[i][:,:,_])[0].var()
+                             for _ in range(n_channel)])
+        weight = weight / weight.sum()
+
+        # normalized result
+        weight = np.exp(- weight * 10)
+        return weight / weight.sum()
 
     def duplicate_rm_hash(self, image_list: List[bytes]) -> List[bytes]:
         hash_list = [FFmpegPreprocessor.phash(_) for _ in image_list]
