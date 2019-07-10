@@ -102,9 +102,11 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         # n_channel is usually 3 for RGB images
         n_channel = image_array[0].shape[-1]
         for i in range(len(image_array)):
+            # calcualte the variance of histgram of pixels
             weight[i] = sum([np.histogram(image_array[i][:,:,_])[0].var()
                              for _ in range(n_channel)])
         weight = weight / weight.sum()
+
         # normalized result
         weight = np.exp(- weight * 10)
         return weight / weight.sum()
