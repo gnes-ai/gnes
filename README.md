@@ -191,4 +191,4 @@ available.
 
 Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
 
-If you have downloaded a copy of the GNES binary or source code, please note that the GNES binary and source code are both licensed under the [Apache License, Version 2.0](./LICENSE), except for the third-party components listed below which are subject to different license terms.  Your integration of GNES into your own projects may require compliance with the Apache License, Version 2.0, as well as the other licenses applicable to the third-party components included within GNES. A copy of the Apache License, Version 2.0 is included in this file.
+If you have downloaded a copy of the GNES binary or source code, please note that the GNES binary and source code are both licensed under the [Apache License, Version 2.0](./LICENSE).
