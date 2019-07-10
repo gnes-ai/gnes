@@ -13,7 +13,7 @@ class TestProto(unittest.TestCase):
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
         self.singleton_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-singleton-image-prep.yml')
-        self.slidingwindow_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-slidingwindow-image-prep.yml')
+        self.slidingwindow_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-vanilla_sldwin-image-prep.yml')
 
     def test_singleton_preprocessor_service_empty(self):
         args = set_preprocessor_service_parser().parse_args([
@@ -111,7 +111,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:SlidingPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:VanillaSlidingPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[-1], 3)

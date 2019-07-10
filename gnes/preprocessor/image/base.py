@@ -26,3 +26,6 @@ class BaseImagePreprocessor(BasePreprocessor):
         super().__init__(*args, **kwargs)
         self.target_img_size = target_img_size
         self.is_rgb = is_rgb
+
+    def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
+        pass

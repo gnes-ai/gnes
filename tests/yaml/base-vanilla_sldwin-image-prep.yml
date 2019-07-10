@@ -1,4 +1,4 @@
-!SlidingPreprocessor
+!VanillaSlidingPreprocessor
 parameter:
   window_size: 64
   stride_height: 64
