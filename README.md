@@ -11,6 +11,9 @@
 <a href="https://pypi.org/project/gnes/">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
 </a>
+<a href="https://cloud.docker.com/u/gnes/">
+    <img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/gnes/gnes.svg">
+</a>
 <a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
