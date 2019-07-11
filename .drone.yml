@@ -91,8 +91,8 @@ steps:
       from_secret: BOT_URL
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
-  - export MSG_TITLE="⌛🏗 Start to generate  \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
-  - export MSG_CONTENT="submit by [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL), click the link below to see the status"
+  - export MSG_TITLE="⌛🏗 Start to generate the coverage report \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
 - name: setup ci environment
@@ -113,7 +113,7 @@ steps:
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
-  - coverage run tests/*.py
+  - coverage run --source tests/*.py
   - codecov --token $CODECOV_TOKEN_PR
 
 trigger:
