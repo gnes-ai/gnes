@@ -16,8 +16,8 @@ steps:
 - name: notify the start on wechat work
   image: byrnedo/alpine-curl
   environment:
-    BOT_ID:
-      from_secret: gnes-wechat-botid
+    BOT_URL:
+      from_secret: BOT_URL
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
   - export MSG_TITLE="🍽 Start a CI pipeline (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
@@ -46,8 +46,8 @@ steps:
 - name: notify the sucess on wechat work
   image: byrnedo/alpine-curl
   environment:
-    BOT_ID:
-      from_secret: gnes-wechat-botid
+    BOT_URL:
+      from_secret: BOT_URL
   commands:
   - export MSG_LINK=$DRONE_REPO_LINK
   - export MSG_TITLE="✅ Looks good to me. All tests passed! (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
@@ -58,8 +58,8 @@ steps:
 - name: notify the failure on wechat work
   image: byrnedo/alpine-curl
   environment:
-    BOT_ID:
-      from_secret: gnes-wechat-botid
+    BOT_URL:
+      from_secret: BOT_URL
   commands:
   - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="❌ CI pipeline (${DRONE_BUILD_NUMBER}) failed!"
