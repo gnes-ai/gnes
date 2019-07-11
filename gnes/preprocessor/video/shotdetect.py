@@ -76,7 +76,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                     shots.append((prev_shot, i + 2))
                     prev_shot = i + 2
 
-            for ci, start, end in enumerate(shots):
+            for ci, (start, end) in enumerate(shots):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 chunk_pos = start + (end - start) // 2

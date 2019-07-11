@@ -39,7 +39,7 @@ def get_video_frames(buffer_data, image_format="cv2", **kwargs):
     # (-) output to stdout pipeline
     ffmpeg_cmd += ['-c:v', 'png', '-an', '-sn', '-']
 
-    pipe = sp.Popen(ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, bufsize=-1)
+    pipe = sp.Popen(ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, bufsize=-1, shell=False)
 
     stream, _ = pipe.communicate(buffer_data)
 
