@@ -83,7 +83,7 @@ def pyramid_descriptor(image, descriptor_fn, max_level):
 def rgb_histogram(image):
     _, _, c = image.shape
     hist = [
-        cv2.calcHist([image], [i], None, [256], [0.0, 256]) for i in range(c)
+        cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
     ]
     # normalize hist
     hist = np.array([h / np.sum(h) for h in hist]).flatten()
@@ -94,11 +94,14 @@ def hsv_histogram(image):
     _, _, c = image.shape
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
-    sizes = [180, 256, 256]
-    ranges = [(0, 180), (0, 256), (0, 256)]
+    # sizes = [180, 256, 256]
+    # ranges = [(0, 180), (0, 256), (0, 256)]
 
+    # hist = [
+    #     cv2.calcHist([hsv], [i], None, [sizes[i]], ranges[i]) for i in range(c)
+    # ]
     hist = [
-        cv2.calcHist([hsv], [i], None, [sizes[i]], ranges[i]) for i in range(c)
+        cv2.calcHist([hsv], [i], None, [256], [0, 256]) for i in range(c)
     ]
     # normalize hist
     hist = np.array([h / np.sum(h) for h in hist]).flatten()
