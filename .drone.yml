@@ -17,14 +17,11 @@ steps:
   - export MSG_CONTENT="submit by **$DRONE_COMMIT_AUTHOR**($DRONE_COMMIT_AUTHOR_EMAIL), click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
-
 - name: check commit style
   image: node:alpine
   commands:
   - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli
   - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
-  - echo "(ds) dsad" | commitlint
-  - echo "bad commit" | commitlint
   - echo $DRONE_COMMIT_MESSAGE | commitlint
 
 - name: setup ci environment
@@ -66,7 +63,7 @@ steps:
   commands:
   - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="❌😥 CI pipeline (${DRONE_BUILD_NUMBER}) failed!"
-  - export MSG_CONTENT="please inform **$DRONE_COMMIT_AUTHOR**($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix this branch. click the link below to see the details."
+  - export MSG_CONTENT="please inform **$DRONE_COMMIT_AUTHOR**($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [$DRONE_SOURCE_BRANCH]($DRONE_COMMIT_LINK). click the link below to see the details."
   - ./shell/push-wechatwork.sh
   when:
     status:
