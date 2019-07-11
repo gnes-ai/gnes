@@ -16,10 +16,11 @@
 # pylint: disable=low-comment-ratio
 
 import io
+import subprocess as sp
+
 import cv2
 import numpy as np
 from PIL import Image
-import subprocess as sp
 
 
 def get_video_frames(buffer_data, image_format="cv2", **kwargs):
@@ -102,9 +103,7 @@ def hsv_histogram(image):
     # hist = [
     #     cv2.calcHist([hsv], [i], None, [sizes[i]], ranges[i]) for i in range(c)
     # ]
-    hist = [
-        cv2.calcHist([hsv], [i], None, [256], [0, 256]) for i in range(c)
-    ]
+    hist = [cv2.calcHist([hsv], [i], None, [256], [0, 256]) for i in range(c)]
     # normalize hist
     hist = np.array([h / np.sum(h) for h in hist]).flatten()
     return hist
