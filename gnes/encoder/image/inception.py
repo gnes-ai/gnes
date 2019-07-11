@@ -15,9 +15,7 @@
 
 import os
 from typing import List, Callable
-
 import numpy as np
-import tensorflow as tf
 from gnes.helper import batch_iterator
 from ..base import BaseImageEncoder
 
@@ -41,8 +39,10 @@ class TFInceptionEncoder(BaseImageEncoder):
         self.use_gpu = use_gpu
 
     def post_init(self):
-        from .inception_v4.inception_v4 import inception_v4, inception_utils
+        import tensorflow as tf
+        from gnes.encoder.image.nets.inception_v4 import inception_v4, inception_utils
         arg_scope = inception_utils.inception_arg_scope()
+        inception_v4.default_image_size = 229
         self.inputs = tf.placeholder(tf.float32, (None,
                                                   self.image_height,
                                                   self.image_width,
@@ -55,10 +55,6 @@ class TFInceptionEncoder(BaseImageEncoder):
 
         config = tf.ConfigProto(log_device_placement=True)
         if self.use_gpu:
-            import GPUtil
-            os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getAvailable(limit=1,
-                                                     maxLoad=0.5,
-                                                     maxMemory=0.5)[0])
             config.gpu_options.allow_growth = True
         self.sess = tf.Session(config=config)
         self.saver = tf.train.Saver()
