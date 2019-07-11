@@ -17,11 +17,13 @@ import io
 import cv2
 import numpy as np
 from sklearn.cluster import KMeans
-
+from .base import BaseVideoPreprocessor
+from ...proto import gnes_pb2, array2blob
 from ..helper import get_video_frames, compute_descriptor, compare_descriptor
 
 
 class ShotDetectPreprocessor(BaseVideoPreprocessor):
+    store_args_kwargs = True
 
     def __init__(self,
                  frame_size="192*168",
