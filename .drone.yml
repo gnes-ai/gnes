@@ -83,6 +83,7 @@ name: master-coverity
 clone:
   depth: 50
 
+steps:
 - name: notify the start on wechat work
   image: byrnedo/alpine-curl
   environment:
