@@ -14,7 +14,7 @@ steps:
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
   - export MSG_TITLE="⌛🏗 Start a CI pipeline \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
-  - export MSG_CONTENT="submit by **$DRONE_COMMIT_AUTHOR**(\`$DRONE_COMMIT_AUTHOR_EMAIL\`), click the link below to see the status"
+  - export MSG_CONTENT="submit by [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL), click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
 - name: check commit style
@@ -51,7 +51,7 @@ steps:
   commands:
   - export MSG_LINK=$DRONE_REPO_LINK
   - export MSG_TITLE="✅😃 All tests passed, good job! \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
-  - export MSG_CONTENT="the branch \`$DRONE_SOURCE_BRANCH\` submit by **$DRONE_COMMIT_AUTHOR**(\`$DRONE_COMMIT_AUTHOR_EMAIL\`) is ready to merge to \`master\`"
+  - export MSG_CONTENT="the branch \`$DRONE_SOURCE_BRANCH\` submit by [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) is ready to merge to master"
   - ./shell/push-wechatwork.sh
 
 
@@ -63,7 +63,7 @@ steps:
   commands:
   - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="❌😥 CI pipeline \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`) is failed!"
-  - export MSG_CONTENT="please inform **$DRONE_COMMIT_AUTHOR**(\`$DRONE_COMMIT_AUTHOR_EMAIL\`) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
   - ./shell/push-wechatwork.sh
   when:
     status:
