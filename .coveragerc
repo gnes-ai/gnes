@@ -1,7 +1,6 @@
 [run]
 branch = True
 source = gnes
-include = tests/*.py
 
 [report]
 exclude_lines =

@@ -104,7 +104,6 @@ steps:
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
-  - python -m unittest discover tests/
   - coverage run -m unittest discover -s tests/
   - coverage report -m
   - codecov --token $CODECOV_TOKEN_PR
