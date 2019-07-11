@@ -19,6 +19,3 @@ from ...proto import gnes_pb2
 
 class BaseVideoPreprocessor(BasePreprocessor):
     doc_type = gnes_pb2.Document.VIDEO
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
