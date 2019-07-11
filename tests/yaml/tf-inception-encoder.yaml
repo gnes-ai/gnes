@@ -1,0 +1,7 @@
+!TFInceptionEncoder
+parameter:
+  model_dir: /ext/inception_v4/inception_v4.ckpt
+  batch_size: 64
+  image_height: 229
+  image_width: 229
+  select_layer: PreLogitsFlatten
