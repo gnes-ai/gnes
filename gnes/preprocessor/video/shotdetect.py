@@ -26,9 +26,15 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
     store_args_kwargs = True
 
     def __init__(self,
+<<<<<<< HEAD
                  frame_size: str = "192*168",
                  descriptor: str = "block_hsv_histogram",
                  distance_metric: str = "bhattacharya",
+=======
+                 frame_size="192*168",
+                 descriptor="block_hsv_histogram",
+                 distance_metric="bhattacharya",
+>>>>>>> 0af8ca96f2d6a646a3e0a8378098a94c67c0667c
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)

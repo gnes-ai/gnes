@@ -103,7 +103,10 @@ def hsv_histogram(image):
     # hist = [
     #     cv2.calcHist([hsv], [i], None, [sizes[i]], ranges[i]) for i in range(c)
     # ]
-    hist = [cv2.calcHist([hsv], [i], None, [256], [0, 256]) for i in range(c)]
+
+    hist = [
+        cv2.calcHist([hsv], [i], None, [256], [0, 256]) for i in range(c)
+    ]
     # normalize hist
     hist = np.array([h / np.sum(h) for h in hist]).flatten()
     return hist
