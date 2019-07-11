@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# pylint: disable=low-comment-ratio
+
 import io
 import cv2
 import numpy as np
@@ -53,12 +55,12 @@ def get_video_frames(buffer_data, image_format="cv2", **kwargs):
             for _ in stream[1:]
         ]
     else:
-        raise NotImplemented
+        raise NotImplementedError
     return frames
 
 
 def block_descriptor(image, descriptor_fn, num_blocks):
-    h, w, c = image.shape    # find shape of image and channel
+    h, w, _ = image.shape    # find shape of image and channel
     block_h = int(np.ceil(h / num_blocks))
     block_w = int(np.ceil(w / num_blocks))
 

@@ -13,8 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import io
-import cv2
+# pylint: disable=low-comment-ratio
+
 import numpy as np
 from sklearn.cluster import KMeans
 from .base import BaseVideoPreprocessor
@@ -35,6 +35,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
         self.frame_size = frame_size
         self.descriptor = descriptor
         self.distance_metric = distance_metric
+        self._detector_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
@@ -52,7 +53,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             shots = []
             for frame in frames:
                 descriptor = compute_descriptor(
-                    frame, method=self.descriptor, **self._init_kwargs_dict)
+                    frame, method=self.descriptor, **self._detector_kwargs)
                 descriptors.append(descriptor)
 
             # compute distances between frames
@@ -71,7 +72,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             shots = []
             prev_shot = 0
             for i in range(0, len(clt.labels_)):
-                if (big_center == clt.labels_[i]):
+                if big_center == clt.labels_[i]:
                     shots.append((prev_shot, i + 2))
                     prev_shot = i + 2
 
