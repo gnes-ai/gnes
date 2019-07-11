@@ -36,6 +36,7 @@ class TestBaseLVDB(unittest.TestCase):
         self.assertLess(0, len(os.listdir(self.db_path)))
         db.close()
 
+    @unittest.SkipTest
     def test_query(self):
         db = AsyncLVDBIndexer(self.db_path)
         db.add(range(len(self.test_docs)), self.test_docs)
