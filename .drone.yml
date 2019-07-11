@@ -91,18 +91,9 @@ steps:
       from_secret: BOT_URL
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
-  - export MSG_TITLE="⌛🏗 Start to generate the coverage report \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_TITLE="⌛📜 Start to generate the coverage report \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
   - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
-
-- name: setup ci environment
-  image: gnes/ci-base
-  commands:
-  - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
-  - export PIP_DOWNLOAD_CACHE=${pwd}.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}.cache/pip
-  - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
-  - cat /proc/cpuinfo | grep flags
-  - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
 - name: pip-install gnes
   image: gnes/ci-base
@@ -113,7 +104,7 @@ steps:
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
-  - coverage run
+  - coverage run --include tests/*.py
   - codecov --token $CODECOV_TOKEN_PR
 
 trigger:
