@@ -113,7 +113,7 @@ steps:
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
-  - coverage run --source tests/*.py
+  - coverage run
   - codecov --token $CODECOV_TOKEN_PR
 
 trigger:
