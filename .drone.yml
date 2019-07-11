@@ -141,7 +141,7 @@ trigger:
 
 ---
 kind: pipeline
-name: default
+name: cron job auto release
 
 clone:
   depth: 50
@@ -195,3 +195,6 @@ steps:
   when:
     status:
     - failure
+
+trigger:
+  cron: [ nightly ]
