@@ -104,8 +104,35 @@ steps:
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
-  - coverage run --include tests/*.py
+  - python -m unittest discover tests/
+  - coverage run -m unittest discover -s tests/
+  - coverage report -m
   - codecov --token $CODECOV_TOKEN_PR
+
+- name: notify the sucess on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_REPO_LINK
+  - export MSG_TITLE="✅😃 Report is successfully updated!"
+  - export MSG_CONTENT="new test coverage score is available"
+  - ./shell/push-wechatwork.sh
+
+- name: notify the failure on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_BUILD_LINK
+  - export MSG_TITLE="❌😥 Test-coverage is failed!"
+  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - ./shell/push-wechatwork.sh
+  when:
+    status:
+    - failure
 
 trigger:
   branch:
