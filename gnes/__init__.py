@@ -15,4 +15,6 @@
 
 # pylint: disable=low-comment-ratio
 
-__version__ = '0.0.16'
+# do not change this line
+# this is managed by git tag and replaced on every release
+__version__ = '0.0.0-dev'
