@@ -17,6 +17,9 @@
 <a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
+<a href="https://www.codacy.com/app/gnes-ai/gnes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gnes-ai/gnes&amp;utm_campaign=Badge_Grade">
+    <img src="https://api.codacy.com/project/badge/Grade/a9ce545b9f3846ba954bcd449e090984"/>
+</a>
 <a href='https://github.com/gnes-ai/gnes/blob/master/LICENSE'>
     <img alt="PyPI - License" src="https://img.shields.io/pypi/l/gnes.svg">
 </a>
