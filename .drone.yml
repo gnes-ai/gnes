@@ -11,12 +11,10 @@ steps:
     BOT_ID:
       from_secret: gnes-wechat-botid
   commands:
-  - "export MSG_CONTENT=\"🍽 Start a CI pipeline for $DRONE_SOURCE_BRANCH submit by $DRONE_COMMIT_AUTHOR \\n > [View]($DRONE_REPO_LINK)\""
-  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
-  - >
-    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
-       -H 'Content-Type: application/json' \
-       --data-binary "@notify.md" > /dev/null
+  - export MSG_LINK=${DRONE_BUILD_LINK}
+  - export MSG_TITLE="🍽 Start a CI pipeline (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
+  - export MSG_CONTENT="submit by $DRONE_COMMIT_AUTHOR, click the link below to see the status"
+  - bash ./push-wechatwork.sh
 
 - name: setup ci environment
   image: gnes/ci-base
@@ -36,18 +34,18 @@ steps:
   - pylint gnes/**/*.py --exit-zero
   - python -m unittest tests/*.py
 
+
 - name: notify the sucess on wechat work
   image: gnes/ci-base
   environment:
     BOT_ID:
       from_secret: gnes-wechat-botid
   commands:
-  - "export MSG_CONTENT=\"✅ Looks good to me. All tests passed!\\n > Author: $DRONE_COMMIT_AUTHOR \\n > Branch: $DRONE_SOURCE_BRANCH \\n > [View]($DRONE_REPO_LINK)\""
-  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
-  - >
-    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
-       -H 'Content-Type: application/json' \
-       --data-binary "@notify.md" > /dev/null
+  - export MSG_LINK=$DRONE_REPO_LINK
+  - export MSG_TITLE="✅ Looks good to me. All tests passed! (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
+  - export MSG_CONTENT="the commit submit by $DRONE_COMMIT_AUTHOR is ready to merge to branch $DRONE_SOURCE_BRANCH"
+  - bash ./push-wechatwork.sh
+
 
 - name: notify the failure on wechat work
   image: gnes/ci-base
@@ -55,12 +53,10 @@ steps:
     BOT_ID:
       from_secret: gnes-wechat-botid
   commands:
-  - "export MSG_CONTENT=\"❌ CI pipeline failed!\\n > Author: $DRONE_COMMIT_AUTHOR \\n > Branch: $DRONE_SOURCE_BRANCH \\n > [View]($DRONE_REPO_LINK)\""
-  - "echo '{\"msgtype\": \"markdown\", \"markdown\": {\"content\": \"'$MSG_CONTENT'\"}}' > notify.md"
-  - >
-    curl -s 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key='$BOT_ID \
-       -H 'Content-Type: application/json' \
-       --data-binary "@notify.md" > /dev/null
+  - export MSG_LINK=$DRONE_BUILD_LINK
+  - export MSG_TITLE="❌ CI pipeline (${DRONE_BUILD_NUMBER}) failed!"
+  - export MSG_CONTENT="please inform $DRONE_COMMIT_AUTHOR to modify and fix this branch. click the link below to see the details."
+  - bash ./push-wechatwork.sh
   when:
     status:
     - failure

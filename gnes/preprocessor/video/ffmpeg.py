@@ -13,21 +13,22 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import io
+import subprocess as sp
 from typing import List
+
 import numpy as np
 from PIL import Image
-import imagehash
+
 from .base import BaseVideoPreprocessor
 from ...proto import gnes_pb2, array2blob
-import subprocess as sp
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
-                 duplicate_rm=True,
-                 use_phash_weight=False,
-                 phash_thresh=5,
+                 duplicate_rm: bool = True,
+                 use_phash_weight: bool = False,
+                 phash_thresh: int = 5,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.phash_thresh = phash_thresh
@@ -94,6 +95,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     @staticmethod
     def phash(image_bytes: bytes):
+        import imagehash
         return imagehash.phash(Image.open(io.BytesIO(image_bytes)))
 
     @staticmethod
@@ -103,7 +105,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         n_channel = image_array[0].shape[-1]
         for i in range(len(image_array)):
             # calcualte the variance of histgram of pixels
-            weight[i] = sum([np.histogram(image_array[i][:,:,_])[0].var()
+            weight[i] = sum([np.histogram(image_array[i][:, :, _])[0].var()
                              for _ in range(n_channel)])
         weight = weight / weight.sum()
 
@@ -119,7 +121,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
             if len(ret) >= 1:
                 # only keep images with high phash diff
                 # comparing only last kept 9 pics
-                for j in range(1, min(len(ret)+1, 9)):
+                for j in range(1, min(len(ret) + 1, 9)):
                     dist = abs(ret[-j][1] - h)
                     if dist < self.phash_thresh:
                         flag = 0
