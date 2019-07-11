@@ -105,7 +105,7 @@ steps:
   - pip install -e .[all]
   - pip install coverage codecov
   - coverage run -m unittest discover -s tests/
-  - coverage report -m
+  - coverage report --skip-covered
   - codecov --token $CODECOV_TOKEN_PR
 
 - name: notify the sucess on wechat work
