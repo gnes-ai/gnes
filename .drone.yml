@@ -14,7 +14,7 @@ steps:
   - export MSG_LINK=${DRONE_BUILD_LINK}
   - export MSG_TITLE="🍽 Start a CI pipeline (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
   - export MSG_CONTENT="submit by $DRONE_COMMIT_AUTHOR, click the link below to see the status"
-  - bash ./shell/push-wechatwork.sh
+  - ./shell/push-wechatwork.sh
 
 - name: setup ci environment
   image: gnes/ci-base
@@ -44,7 +44,7 @@ steps:
   - export MSG_LINK=$DRONE_REPO_LINK
   - export MSG_TITLE="✅ Looks good to me. All tests passed! (${DRONE_BUILD_NUMBER}) for $DRONE_SOURCE_BRANCH"
   - export MSG_CONTENT="the commit submit by $DRONE_COMMIT_AUTHOR is ready to merge to branch $DRONE_SOURCE_BRANCH"
-  - bash ./shell/push-wechatwork.sh
+  - ./shell/push-wechatwork.sh
 
 
 - name: notify the failure on wechat work
@@ -56,7 +56,7 @@ steps:
   - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="❌ CI pipeline (${DRONE_BUILD_NUMBER}) failed!"
   - export MSG_CONTENT="please inform $DRONE_COMMIT_AUTHOR to modify and fix this branch. click the link below to see the details."
-  - bash ./shell/push-wechatwork.sh
+  - ./shell/push-wechatwork.sh
   when:
     status:
     - failure
