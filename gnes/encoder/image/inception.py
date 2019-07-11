@@ -55,6 +55,10 @@ class TFInceptionEncoder(BaseImageEncoder):
 
         config = tf.ConfigProto(log_device_placement=True)
         if self.use_gpu:
+            import GPUtil
+            os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getAvailable(limit=1,
+                                                     maxLoad=0.5,
+                                                     maxMemory=0.5)[0])
             config.gpu_options.allow_growth = True
         self.sess = tf.Session(config=config)
         self.saver = tf.train.Saver()
