@@ -99,14 +99,14 @@ steps:
   image: gnes/ci-base
   environment:
     GNES_ENV_SET: orange-ci
-    CODECOV_TOKEN_PR:
-      from_secret: CODECOV_TOKEN_PR
+    CODECOV_TOKEN:
+      from_secret: CODECOV_TOKEN
   commands:
   - pip install -e .[all]
   - pip install coverage codecov
   - coverage run -m unittest discover -s tests/
   - coverage report --skip-covered
-  - codecov --token $CODECOV_TOKEN_PR
+  - codecov --token $CODECOV_TOKEN
 
 - name: notify the sucess on wechat work
   image: byrnedo/alpine-curl
@@ -138,3 +138,63 @@ trigger:
   - master
   event:
   - push
+
+---
+kind: pipeline
+name: cron job auto release
+
+clone:
+  depth: 50
+
+steps:
+- name: notify the start on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=${DRONE_BUILD_LINK}
+  - export MSG_TITLE="⌛📜 Auto-bumping version \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_CONTENT="click the link below to see the status"
+  - ./shell/push-wechatwork.sh
+
+- name: pip-install gnes
+  image: gnes/ci-base
+  environment:
+    GNES_ENV_SET: orange-ci
+    GITHUB_ACCESS_TOKEN:
+      from_secret: GITHUB_ACCESS_TOKEN
+    TWINE_USERNAME:
+      from_secret: TWINE_USERNAME
+    TWINE_PASSWORD:
+      from_secret: TWINE_PASSWORD
+  commands:
+  - ./release.sh
+
+- name: notify the sucess on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_REPO_LINK
+  - export MSG_TITLE="✅😃 A new version is generated!"
+  - export MSG_CONTENT="Github Release, Docker, PyPi will be all updated!"
+  - ./shell/push-wechatwork.sh
+
+- name: notify the failure on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_BUILD_LINK
+  - export MSG_TITLE="❌😥 Fail to generate new version!"
+  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - ./shell/push-wechatwork.sh
+  when:
+    status:
+    - failure
+
+trigger:
+  cron: [ nightly ]

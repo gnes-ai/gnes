@@ -1,0 +1,132 @@
+<%
+
+var groupCommits = [{
+    name: 'feat',
+    show: true,
+    list: []
+}, {
+    name: 'fix',
+    show: true,
+    list: []
+}, {
+    name: 'refactor',
+    show: true,
+    list: []
+}, {
+    name: 'docs',
+    show: true,
+    list: []
+}, {
+    name: 'other',
+    show: true,
+    list: []
+}]
+
+var all_titles = {};
+
+commits.forEach(function (commit) {
+
+    var result = (commit.title).match(/^(\w*)(\((.*)\))?\: (.*)$/);
+
+    var type = result && result[1];
+    var scope = result && result[3];
+    var title = result && result[4];
+
+    if (!(title in all_titles)) {
+        all_titles[title] = 1
+
+        if(type == 'fix' || type == 'fixed'){
+            groupCommits.find(item => item.name === 'fix').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        } else if(type == 'feat' || type == 'feature'){
+            groupCommits.find(item => item.name === 'feat').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        } else if(type == 'refactor'){
+            groupCommits.find(item => item.name === 'refactor').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        } else if(type == 'docs' || type == 'doc'){
+            groupCommits.find(item => item.name === 'docs').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        } else {
+            groupCommits.find(item => item.name === 'other').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        }
+    }
+
+
+});
+
+
+var listCommits = function(list, key){
+
+list.forEach(function (ct) {
+
+    var type = ct.type;
+    var scope = ct.scope;
+    var title = '';
+    var commit = ct.commit;
+
+    if(type){
+        if(key != 'other'){
+            title = (scope? '__'+scope+'__: ':'') + ct.title;
+        }else{
+            title = '__' + type + (scope? '('+scope+')':'') + '__ : ' + ct.title;
+        }
+    }else{
+        title = commit.title;
+    }
+%> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (<%= commit.authorName %>)
+<% })}
+%>
+
+# Release Notes
+
+<%
+
+
+        for(var i of groupCommits){
+    if(i.list.length == 0) continue;
+
+if (i.name === 'fix' && i.show) { %>
+
+### Bug fixes
+
+<%	} else if( i.name === 'feat' && i.show) { %>
+
+### New Features
+
+<%	} else if(i.name === 'refactor' && i.show) { %>
+
+### Code Refactoring
+
+<%	} else if(i.name === 'docs' && i.show) { %>
+
+### Documentation
+
+<%	} else if (i.name === 'other' && i.show) { %>
+
+### Other Improvements
+
+<%	}
+    i.show && listCommits(i.list, i);
+} %>
