@@ -18,14 +18,13 @@ from typing import List, Callable
 import numpy as np
 from gnes.helper import batch_iterator
 from ..base import BaseImageEncoder
+from PIL import Image
 
 
 class TFInceptionEncoder(BaseImageEncoder):
 
     def __init__(self, model_dir: str,
                  batch_size: int = 64,
-                 image_height: int = 299,
-                 image_width: int = 299,
                  select_layer: str = 'PreLogitsFlatten',
                  use_gpu: bool = True,
                  *args, **kwargs):
@@ -33,18 +32,21 @@ class TFInceptionEncoder(BaseImageEncoder):
 
         self.model_dir = model_dir
         self.batch_size = batch_size
-        self.image_height = image_height
-        self.image_width = image_width
         self.select_layer = select_layer
         self.use_gpu = use_gpu
+        self.inception_size_x = 299
+        self.inception_size_y = 299
 
     def post_init(self):
         import tensorflow as tf
         from gnes.encoder.image.inception_cores.inception_v4 import inception_v4
         from gnes.encoder.image.inception_cores.inception_utils import inception_arg_scope
+
         arg_scope = inception_arg_scope()
-        inception_v4.default_image_size = 299
-        self.inputs = tf.placeholder(tf.float32, (None, 299, 299, 3))
+        inception_v4.default_image_size = self.inception_size_x
+        self.inputs = tf.placeholder(tf.float32, (None,
+                                                  self.inception_size_x,
+                                                  self.inception_size_y, 3))
 
         with tf.contrib.slim.arg_scope(arg_scope):
             self.logits, self.end_points = inception_v4(self.inputs,
@@ -60,6 +62,8 @@ class TFInceptionEncoder(BaseImageEncoder):
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
+        img = [(np.array(Image.fromarray(im).resize(self.inception_size_x,
+                         self.inception_size_y), dtype=np.float32) * 2 / 255. - 1.) for im in img]
         for _im in batch_iterator(img, self.batch_size):
             _, end_points_ = self.sess.run((self.logits, self.end_points),
                                            feed_dict={self.inputs: _im})
