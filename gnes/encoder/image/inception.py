@@ -40,20 +40,18 @@ class TFInceptionEncoder(BaseImageEncoder):
 
     def post_init(self):
         import tensorflow as tf
-        from gnes.encoder.image.nets.inception_v4 import inception_v4, inception_utils
-        arg_scope = inception_utils.inception_arg_scope()
-        inception_v4.default_image_size = 229
-        self.inputs = tf.placeholder(tf.float32, (None,
-                                                  self.image_height,
-                                                  self.image_width,
-                                                  3))
-        slim = tf.contrib.slim
-        with slim.arg_scope(arg_scope):
+        from gnes.encoder.image.inception_cores.inception_v4 import inception_v4
+        from gnes.encoder.image.inception_cores.inception_utils import inception_arg_scope
+        arg_scope = inception_arg_scope()
+        inception_v4.default_image_size = 299
+        self.inputs = tf.placeholder(tf.float32, (None, 299, 299, 3))
+
+        with tf.contrib.slim.arg_scope(arg_scope):
             self.logits, self.end_points = inception_v4(self.inputs,
                                                         is_training=False,
                                                         dropout_keep_prob=1.0)
 
-        config = tf.ConfigProto(log_device_placement=True)
+        config = tf.ConfigProto(log_device_placement=False)
         if self.use_gpu:
             config.gpu_options.allow_growth = True
         self.sess = tf.Session(config=config)
