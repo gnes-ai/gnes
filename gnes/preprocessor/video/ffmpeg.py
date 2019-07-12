@@ -15,13 +15,12 @@
 import io
 import subprocess as sp
 from typing import List
-
+import cv2
 import numpy as np
-from PIL import Image
 
 from .base import BaseVideoPreprocessor
 from ...proto import gnes_pb2, array2blob
-from ..helper import get_video_frames, pil_to_array
+from ..helper import get_video_frames, phash_descriptor
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
@@ -49,7 +48,6 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         if doc.raw_bytes:
             frames = get_video_frames(
                 doc.raw_bytes,
-                image_format="pil",
                 s=self.frame_size,
                 vsync=self._ffmpeg_kwargs.get("vsync", "vfr"),
                 vf=self._ffmpeg_kwargs.get("vf", "select=eq(pict_type\\,I)"))
@@ -66,7 +64,6 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
             for ci, chunk in enumerate(frames):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
-                chunk = pil_to_array(chunk)
                 c.blob.CopyFrom(array2blob(chunk))
                 c.offset_1d = ci
                 c.weight = weight[ci]
@@ -75,20 +72,13 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
             self.logger.error('bad document: "raw_bytes" is empty!')
 
     @staticmethod
-    def phash(image: 'PIL.Image'):
-        import imagehash
-        return imagehash.phash(image)
-
-    @staticmethod
-    def pic_weight(images: List['PIL.Image']) -> List[float]:
+    def pic_weight(images: List['np.ndarray']) -> List[float]:
         weight = np.zeros([len(images)])
         # n_channel is usually 3 for RGB images
         n_channel = images[0].shape[-1]
         for i in range(len(images)):
-            image_array = pil_to_array(images[i])
-            # calcualte the variance of histgram of pixels
             weight[i] = sum([
-                np.histogram(image_array[:, :, _])[0].var()
+                cv2.calcHist([image], [_], None, [256], [0, 256]).var()
                 for _ in range(n_channel)
             ])
         weight = weight / weight.sum()
@@ -97,8 +87,9 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         weight = np.exp(-weight * 10)
         return weight / weight.sum()
 
-    def duplicate_rm_hash(self, images: List['PIL.Image']) -> List['PIL.Image']:
-        hash_list = [FFmpegPreprocessor.phash(_) for _ in images]
+    def duplicate_rm_hash(self,
+                          images: List['np.ndarray']) -> List['np.ndarray']:
+        hash_list = [phash_descriptor(_) for _ in images]
         ret = []
         for i, h in enumerate(hash_list):
             flag = 1
