@@ -39,6 +39,7 @@ _cls2file_map = {
     'PipelineEncoder': 'base',
     'HashEncoder': 'numeric.hash',
     'BasePytorchEncoder': 'image.base',
+    'TFInceptionEncoder': 'image.inception',
 }
 
 register_all_class(_cls2file_map)
