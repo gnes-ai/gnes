@@ -49,7 +49,7 @@ nlp_dep = list(set(bert_dep + flair_dep))
 annoy_dep = ['annoy==1.15.2']
 chinese_dep = ['jieba']
 cn_nlp_dep = list(set(chinese_dep + nlp_dep))
-vision_dep = ['torchvision==0.3.0', 'imagehash>=4.0']
+vision_dep = ['opencv-python>=4.0.0', 'torchvision==0.3.0', 'imagehash>=4.0']
 leveldb_dep = ['plyvel>=1.0.5']
 test_dep = ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0']
 all_dep = list(set(base_dep + cn_nlp_dep + vision_dep + leveldb_dep + test_dep + annoy_dep))
