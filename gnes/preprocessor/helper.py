@@ -17,13 +17,16 @@
 
 import io
 import subprocess as sp
+from typing import Callable
 
 import cv2
 import numpy as np
 from PIL import Image
+import imagehash
 
 
-def get_video_frames(buffer_data, image_format="cv2", **kwargs):
+def get_video_frames(buffer_data: bytes, image_format: str = "cv2",
+                     **kwargs) -> List["np.ndarray"]:
     ffmpeg_cmd = ['ffmpeg', '-i', '-', '-f', 'image2pipe']
 
     # example k,v pair:
@@ -67,7 +70,9 @@ def get_video_frames(buffer_data, image_format="cv2", **kwargs):
     return frames
 
 
-def block_descriptor(image, descriptor_fn, num_blocks):
+def block_descriptor(image: "np.ndarray",
+                     descriptor_fn: Callable,
+                     num_blocks: int = 3) -> "np.ndarray":
     h, w, _ = image.shape    # find shape of image and channel
     block_h = int(np.ceil(h / num_blocks))
     block_w = int(np.ceil(w / num_blocks))
@@ -81,7 +86,9 @@ def block_descriptor(image, descriptor_fn, num_blocks):
     return np.array(descriptors)
 
 
-def pyramid_descriptor(image, descriptor_fn, max_level):
+def pyramid_descriptor(image: "np.ndarray",
+                       descriptor_fn: Callable,
+                       max_level: int = 2) -> "np.ndarray":
     descriptors = []
     for level in range(max_level + 1):
         num_blocks = 2**level
@@ -90,7 +97,7 @@ def pyramid_descriptor(image, descriptor_fn, max_level):
     return np.array(descriptors)
 
 
-def rgb_histogram(image):
+def rgb_histogram(image: "np.ndarray") -> "np.ndarray":
     _, _, c = image.shape
     hist = [
         cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
@@ -100,7 +107,7 @@ def rgb_histogram(image):
     return hist
 
 
-def hsv_histogram(image):
+def hsv_histogram(image: "np.ndarray") -> "np.ndarray":
     _, _, c = image.shape
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
@@ -117,17 +124,17 @@ def hsv_histogram(image):
     return hist
 
 
-def phash_descriptor(image):
-    import imagehash
+def phash_descriptor(image: "np.ndarray") -> "imagehash.ImageHash":
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     return imagehash.phash(image)
 
 
-def compute_descriptor(image, method="rgb_histogram", **kwargs):
+def compute_descriptor(image: "np.ndarray",
+                       method: str = "rgb_histogram",
+                       **kwargs) -> "np.array":
     funcs = {
         'rgb_histogram': rgb_histogram,
         'hsv_histogram': hsv_histogram,
-        'phash': phash_descriptor,
         'block_rgb_histogram': lambda image: block_descriptor(image, rgb_histogram, kwargs.get("num_blocks", 3)),
         'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get("num_blocks", 3)),
         'pyramid_rgb_histogram': lambda image: pyramid_descriptor(image, rgb_histogram, kwargs.get("max_level", 2)),
@@ -136,7 +143,9 @@ def compute_descriptor(image, method="rgb_histogram", **kwargs):
     return funcs[method](image)
 
 
-def compare_descriptor(descriptor1, descriptor2, metric="chisqr"):
+def compare_descriptor(descriptor1: "np.ndarray",
+                       descriptor2: "np.ndarray",
+                       metric: str = "chisqr") -> float:
     dist_metric = {
         "correlation": cv2.HISTCMP_CORREL,
         "chisqr": cv2.HISTCMP_CHISQR,
