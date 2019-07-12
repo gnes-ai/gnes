@@ -14,7 +14,6 @@
 #  limitations under the License.
 
 from typing import List
-import cv2
 import numpy as np
 
 from .base import BaseVideoPreprocessor
@@ -72,6 +71,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     @staticmethod
     def pic_weight(images: List['np.ndarray']) -> List[float]:
+        import cv2
         weight = np.zeros([len(images)])
         # n_channel is usually 3 for RGB images
         n_channel = images[0].shape[-1]
