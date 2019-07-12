@@ -13,8 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-from typing import List, Callable
+from typing import List
 import numpy as np
 from gnes.helper import batch_iterator
 from ..base import BaseImageEncoder
