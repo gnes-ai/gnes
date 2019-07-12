@@ -34,6 +34,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         self.stride_wide = stride_wide
 
     def apply(self, doc: 'gnes_pb2.Document'):
+        super().apply(doc)
         if doc.raw_bytes:
             img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
             image_set = self._get_all_sliding_window(img)
@@ -87,7 +88,18 @@ class VanillaSlidingPreprocessor(BaseSlidingPreprocessor):
 class WeightedSlidingPreprocessor(BaseSlidingPreprocessor):
 
     def _get_all_chunks_weight(self, image_set) -> List[float]:
-        raise NotImplementedError
+        weight = np.zeros([len(image_set)])
+        # n_channel is usually 3 for RGB images
+        n_channel = image_set[0].shape[-1]
+        for i in range(len(image_set)):
+            # calcualte the variance of histgram of pixels
+            weight[i] = sum([np.histogram(image_set[i][:, :, _])[0].var()
+                             for _ in range(n_channel)])
+        weight = weight / weight.sum()
+
+        # normalized result
+        weight = np.exp(- weight * 10)
+        return weight / weight.sum()
 
 
 class SegmentPreprocessor(BaseImagePreprocessor):
