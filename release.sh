@@ -2,9 +2,10 @@
 
 set -e
 
-CODE_BASE='gnes/__init__.py'
+INIT_FILE='gnes/__init__.py'
+TMP_INIT_FILE='.__init__.py.tmp'
 VER_TAG='__version__ = '
-SOURCE_ORIGIN='github'
+SOURCE_ORIGIN='origin'
 
 function escape_slashes {
     sed 's/\//\\\//g'
@@ -17,7 +18,7 @@ function change_line {
 
     local NEW=$(echo "${NEW_LINE}" | escape_slashes)
     sed -i .bak '/'"${OLD_LINE_PATTERN}"'/s/.*/'"${NEW}"'/' "${FILE}"
-    mv "${FILE}.bak" /tmp/
+    mv "${FILE}.bak" ${TMP_INIT_FILE}
 }
 
 
@@ -36,10 +37,8 @@ function pub_pypi {
 }
 
 function pub_gittag {
-    git add -u
-    git commit -m "bumping version to $VER"
-    git push $SOURCE_ORIGIN master
-    git tag $VER
+    git tag $VER -m "$(cat ./CHANGELOG.md)"
+    git remote add $SOURCE_ORIGIN https://hanxiao:${GITHUB_ACCESS_TOKEN}@github.com/gnes-ai/gnes.git
     git push $SOURCE_ORIGIN $VER
 }
 
@@ -54,19 +53,22 @@ fi
 VER=$(git tag -l | sort -V |tail -n1)
 printf "current version:\t\e[1;33m$VER\e[0m\n"
 
+git-release-notes v$VER..HEAD .github/release-template.ejs > ./CHANGELOG.md
+
 VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{$NF=sprintf("%0*d", length($NF), ($NF+1)); print}')
 printf "bump version to:\t\e[1;32m$VER\e[0m\n"
 
 read -p "release this version? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-    # write back tag to client and server code
-    VER_VAL=$VER_TAG"'"${VER#"v"}"'"
-    change_line "$VER_TAG" "$VER_VAL" $CODE_BASE
-    pub_pypi
-    pub_gittag
-fi
+#echo    # (optional) move to a new line
+#if [[ $REPLY =~ ^[Yy]$ ]]
+#then
+# write back tag to client and server code
+VER_VAL=$VER_TAG"'"${VER#"v"}"'"
+change_line "$VER_TAG" "$VER_VAL" $INIT_FILE
+pub_pypi
+pub_gittag
+mv ${TMP_INIT_FILE} $INIT_FILE
+#fi
 
 
 
