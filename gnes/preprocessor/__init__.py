@@ -29,7 +29,7 @@ _cls2file_map = {
     'BaseSingletonPreprocessor': 'base',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
-
+    'ShotDetectPreprocessor': 'video.shotdetect',
 }
 
 register_all_class(_cls2file_map)

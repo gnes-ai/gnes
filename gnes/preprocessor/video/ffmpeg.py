@@ -12,45 +12,31 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import io
-import subprocess as sp
-from typing import List
 
+from typing import List
 import numpy as np
-from PIL import Image
 
 from .base import BaseVideoPreprocessor
 from ...proto import gnes_pb2, array2blob
+from ..helper import get_video_frames, phash_descriptor
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
+                 frame_size: str = "192*168",
                  duplicate_rm: bool = True,
                  use_phash_weight: bool = False,
                  phash_thresh: int = 5,
-                 *args, **kwargs):
+                 *args,
+                 **kwargs):
         super().__init__(*args, **kwargs)
+        self.frame_size = frame_size
         self.phash_thresh = phash_thresh
         self.duplicate_rm = duplicate_rm
         self.use_phash_weight = use_phash_weight
-        # (-i, -) input from stdin pipeline
-        # (-f, image2pipe) output format is image pipeline
-        self.cmd = ['ffmpeg',
-                    '-i', '-',
-                    '-f', 'image2pipe']
 
-        # example k,v pair:
-        #    (-s, 420*360)
-        #    (-vsync, vfr)
-        #    (-vf, select=eq(pict_type\,I))
-        for k, v in kwargs.items():
-            self.cmd.append('-' + k)
-            self.cmd.append(v)
-
-        # (-c:v, png) output bytes in png format
-        # (-) output to stdout pipeline
-        self.cmd += ['-c:v', 'png', '-']
+        self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
@@ -58,63 +44,51 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         # video could't be processed from ndarray!
         # only bytes can be passed into ffmpeg pipeline
         if doc.raw_bytes:
-            pipe = sp.Popen(self.cmd, stdin=sp.PIPE, stdout=sp.PIPE, bufsize=-1)
-            stream, _ = pipe.communicate(doc.raw_bytes)
+            frames = get_video_frames(
+                doc.raw_bytes,
+                s=self.frame_size,
+                vsync=self._ffmpeg_kwargs.get("vsync", "vfr"),
+                vf=self._ffmpeg_kwargs.get("vf", "select=eq(pict_type\\,I)"))
 
-            # raw bytes for multiple PNGs.
-            # split by PNG EOF b'\x89PNG'
-            stream = stream.split(b'\x89PNG')
-            if len(stream) <= 1:
-                self.logger.info('no image extracted from video!')
+            # remove dupliated key frames by phash value
+            if self.duplicate_rm:
+                frames = self.duplicate_rm_hash(frames)
+
+            if self.use_phash_weight:
+                weight = FFmpegPreprocessor.pic_weight(frames)
             else:
-                # reformulate the full pngs for feature processings.
-                stream = [b'\x89PNG' + _ for _ in stream[1:]]
+                weight = [1 / len(frames)] * len(frames)
 
-                # remove dupliated key frames by phash value
-                if self.duplicate_rm:
-                    stream = self.duplicate_rm_hash(stream)
+            for ci, chunk in enumerate(frames):
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.blob.CopyFrom(array2blob(chunk))
+                c.offset_1d = ci
+                c.weight = weight[ci]
 
-                stream = [np.array(Image.open(io.BytesIO(chunk)), dtype=np.uint8)
-                          for chunk in stream]
-
-                if self.use_phash_weight:
-                    weight = FFmpegPreprocessor.pic_weight(stream)
-                else:
-                    weight = [1 / len(stream)] * len(stream)
-
-                for ci, chunk in enumerate(stream):
-                    c = doc.chunks.add()
-                    c.doc_id = doc.doc_id
-                    c.blob.CopyFrom(array2blob(chunk))
-                    c.offset_1d = ci
-                    c.weight = weight[ci]
-            # close the stdout stream
-            pipe.stdout.close()
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
     @staticmethod
-    def phash(image_bytes: bytes):
-        import imagehash
-        return imagehash.phash(Image.open(io.BytesIO(image_bytes)))
-
-    @staticmethod
-    def pic_weight(image_array: List[np.ndarray]) -> List[float]:
-        weight = np.zeros([len(image_array)])
+    def pic_weight(images: List['np.ndarray']) -> List[float]:
+        import cv2
+        weight = np.zeros([len(images)])
         # n_channel is usually 3 for RGB images
-        n_channel = image_array[0].shape[-1]
-        for i in range(len(image_array)):
-            # calcualte the variance of histgram of pixels
-            weight[i] = sum([np.histogram(image_array[i][:, :, _])[0].var()
-                             for _ in range(n_channel)])
+        n_channel = images[0].shape[-1]
+        for i, image in enumerate(images):
+            weight[i] = sum([
+                cv2.calcHist([image], [_], None, [256], [0, 256]).var()
+                for _ in range(n_channel)
+            ])
         weight = weight / weight.sum()
 
         # normalized result
-        weight = np.exp(- weight * 10)
+        weight = np.exp(-weight * 10)
         return weight / weight.sum()
 
-    def duplicate_rm_hash(self, image_list: List[bytes]) -> List[bytes]:
-        hash_list = [FFmpegPreprocessor.phash(_) for _ in image_list]
+    def duplicate_rm_hash(self,
+                          images: List['np.ndarray']) -> List['np.ndarray']:
+        hash_list = [phash_descriptor(_) for _ in images]
         ret = []
         for i, h in enumerate(hash_list):
             flag = 1
@@ -129,4 +103,4 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
             if flag:
                 ret.append((i, h))
 
-        return [image_list[_[0]] for _ in ret]
+        return [images[_[0]] for _ in ret]
