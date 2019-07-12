@@ -16,7 +16,6 @@
 # pylint: disable=low-comment-ratio
 
 import numpy as np
-from sklearn.cluster import KMeans
 from .base import BaseVideoPreprocessor
 from ...proto import gnes_pb2, array2blob
 from ..helper import get_video_frames, compute_descriptor, compare_descriptor
@@ -39,6 +38,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
+        from sklearn.cluster import KMeans
 
         if doc.raw_bytes:
             # stream_data = io.BytesIO(doc.raw_bytes)
