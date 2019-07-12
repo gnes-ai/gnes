@@ -76,7 +76,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         weight = np.zeros([len(images)])
         # n_channel is usually 3 for RGB images
         n_channel = images[0].shape[-1]
-        for i in range(len(images)):
+        for i, image in enumerate(images):
             weight[i] = sum([
                 cv2.calcHist([image], [_], None, [256], [0, 256]).var()
                 for _ in range(n_channel)
