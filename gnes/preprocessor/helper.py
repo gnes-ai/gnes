@@ -17,7 +17,7 @@
 
 import io
 import subprocess as sp
-from typing import Callable
+from typing import List, Callable
 
 import cv2
 import numpy as np
