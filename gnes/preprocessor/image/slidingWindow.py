@@ -19,6 +19,7 @@ import numpy as np
 from PIL import Image
 
 from .base import BaseImagePreprocessor
+from ..video.ffmpeg import FFmpegPreprocessor
 from ...proto import gnes_pb2, array2blob
 
 
@@ -27,19 +28,23 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
     def __init__(self, window_size: int = 64,
                  stride_height: int = 64,
                  stride_wide: int = 64,
+                 target_img_size: int = 224,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.window_size = window_size
         self.stride_height = stride_height
         self.stride_wide = stride_wide
+        self.target_img_size = target_img_size
 
     def apply(self, doc: 'gnes_pb2.Document'):
         super().apply(doc)
         if doc.raw_bytes:
             img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
             image_set = self._get_all_sliding_window(img)
-            weight = self._get_all_chunks_weight(image_set)
-            for ci, ele in enumerate(zip(image_set, weight)):
+            normalizaed_image_set = [np.array(self._torch_transform(img)).transpose(1, 2, 0)
+                                     for img in image_set]
+            weight = self._get_all_chunks_weight(normalizaed_image_set)
+            for ci, ele in enumerate(zip(normalizaed_image_set, weight)):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(ele[0]))
@@ -88,23 +93,5 @@ class VanillaSlidingPreprocessor(BaseSlidingPreprocessor):
 class WeightedSlidingPreprocessor(BaseSlidingPreprocessor):
 
     def _get_all_chunks_weight(self, image_set) -> List[float]:
-        weight = np.zeros([len(image_set)])
-        # n_channel is usually 3 for RGB images
-        n_channel = image_set[0].shape[-1]
-        for i in range(len(image_set)):
-            # calcualte the variance of histgram of pixels
-            weight[i] = sum([np.histogram(image_set[i][:, :, _])[0].var()
-                             for _ in range(n_channel)])
-        weight = weight / weight.sum()
+        return FFmpegPreprocessor.pic_weight(image_set)
 
-        # normalized result
-        weight = np.exp(- weight * 10)
-        return weight / weight.sum()
-
-
-class SegmentPreprocessor(BaseImagePreprocessor):
-    def apply(self, doc: 'gnes_pb2.Document'):
-        raise NotImplementedError
-
-    def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
-        raise NotImplementedError
