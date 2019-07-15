@@ -161,6 +161,10 @@ def set_grpc_frontend_parser(parser=None):
     _set_grpc_parser(parser)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent client allowed')
+    parser.add_argument('--max_send_size', type=int, default=100,
+                        help='maximum send size for grpc server in (M)')
+    parser.add_argument('--max_receive_size', type=int, default=100,
+                        help='maximum receive size for grpc server in (M)')
     return parser
 
 
