@@ -239,5 +239,5 @@ def get_main_parser():
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
     set_cli_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
-    set_composer_parser(sp.add_parser('compose', help='start a GNES composer'))
+    set_composer_parser(sp.add_parser('compose', help='start a GNES composer to simplify config generation'))
     return parser
