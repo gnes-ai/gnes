@@ -34,6 +34,11 @@ def route(args):
         es.join()
 
 
+def compose(args):
+    from ..composer.base import YamlGraph
+    YamlGraph(args).build_all()
+
+
 def frontend(args):
     from ..service.grpc import GRPCFrontend
     import threading

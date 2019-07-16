@@ -1,0 +1,6 @@
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
+  replicas: 2
+- name: Indexer

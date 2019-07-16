@@ -1,0 +1,13 @@
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 2
+- name: Encoder
+  replicas: 3
+-
+  - name: Indexer
+    yaml_path: indexer-binary.yml
+    replicas: 4
+  - name: Indexer
+    yaml_path: indexer-fulltext.yml
+    replicas: 3

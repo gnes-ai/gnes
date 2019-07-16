@@ -1,0 +1,9 @@
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 2
+- name: Encoder
+  replicas: 3
+- name: Indexer
+  replicas: 4
+  income: sub

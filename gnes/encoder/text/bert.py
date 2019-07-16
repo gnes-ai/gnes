@@ -41,7 +41,6 @@ class BertEncoder(BaseTextEncoder):
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.bc_encoder.encode(text, *args, **kwargs)  # type: np.ndarray
 
-
     def close(self):
         self.bc_encoder.close()
 
@@ -69,7 +68,6 @@ class BertEncoderServer(BaseTextEncoder):
         self.bert_server = BertServer(get_args_parser().parse_args(self._bert_args))
         self.bert_server.start()
         self.bert_server.is_ready.wait()
-
 
     def close(self):
         self.bert_server.close()

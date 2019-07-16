@@ -1,0 +1,4 @@
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
