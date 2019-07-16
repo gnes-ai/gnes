@@ -1,4 +1,4 @@
-FROM gnes/build-base:dev AS dependency
+FROM gnes/build-base:latest AS dependency
 
 WORKDIR /nes/
 
@@ -15,7 +15,5 @@ ADD . ./
 
 RUN pip --no-cache-dir install .[all] \
     && rm -rf /tmp/*
-
-WORKDIR /
 
 ENTRYPOINT ["gnes"]
