@@ -47,7 +47,7 @@ def set_composer_parser(parser=None):
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
-                        help='render the network graph in HTML with mermaid.js')
+                        help='output path of the HTML file, will contain all possible generations')
     parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the shell-based starting script')
     parser.add_argument('--swarm_path', type=argparse.FileType('w', encoding='utf8'),

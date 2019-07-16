@@ -32,6 +32,6 @@ class TestCompose(unittest.TestCase):
         os.path.exists(self.html_path)
         print(a.build_dockerswarm(r))
 
-    # def tearDown(self):
-    #     if os.path.exists(self.html_path):
-    #         os.remove(self.html_path)
+    def tearDown(self):
+        if os.path.exists(self.html_path):
+            os.remove(self.html_path)
