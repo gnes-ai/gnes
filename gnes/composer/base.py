@@ -1,7 +1,7 @@
 import copy
 import random
 from collections import defaultdict
-from typing import Dict, List, Set
+from typing import Dict, List
 
 import pkg_resources
 from ruamel.yaml import YAML, StringIO
@@ -234,7 +234,7 @@ class YamlGraph:
     @staticmethod
     def build_mermaid(all_layers: List['YamlGraph.Layer'], show_topdown: bool = True) -> str:
         mermaid_graph = []
-        cls_dict = defaultdict(set)  # type: Dict[str, Set]
+        cls_dict = defaultdict(set)
         for l_idx, layer in enumerate(all_layers[1:] + [all_layers[0]], 1):
             last_layer = all_layers[l_idx - 1]
 
