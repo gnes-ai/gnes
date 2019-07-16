@@ -1,0 +1,9 @@
+!ShotDetectPreprocessor
+parameter:
+  descriptor: "block_hsv_histogram"
+  distance_metric: "bhattacharya"
+  frame_size: "192*168"
+  kwargs:
+    num_blocks: 3
+property:
+  is_trained: true

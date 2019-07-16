@@ -77,9 +77,9 @@ class IndexerService(BS):
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_doc_search(self, msg: 'gnes_pb2.Message'):
         if msg.response.search.level == gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED:
-            doc_ids = [r.doc.doc_id for r in msg.response.topk_results]
+            doc_ids = [r.doc.doc_id for r in msg.response.search.topk_results]
             docs = self._model.query(doc_ids)
-            for r, d in zip(msg.response.topk_results, docs):
+            for r, d in zip(msg.response.search.topk_results, docs):
                 if d is not None:
                     # fill in the doc if this shard returns non-empty
                     r.doc.CopyFrom(d)

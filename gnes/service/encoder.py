@@ -50,7 +50,7 @@ class EncoderService(BS):
             chunks = self.get_chunks_from_docs(msg.request.train.docs)
             self.train_data.extend(chunks)
             msg.response.train.status = gnes_pb2.Response.PENDING
-            raise BlockMessage
+            # raise BlockMessage
         if msg.request.train.flush:
             self._model.train(self.train_data)
             self.logger.info('%d samples is flushed for training' % len(self.train_data))
