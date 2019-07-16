@@ -275,7 +275,7 @@ class YamlGraph:
 
     @staticmethod
     def build_html(generate_dict: Dict[str, str]) -> str:
-        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-graph.html')))
+        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-board.html')))
         with r:
             html = r.read().decode()
             for k, v in generate_dict.items():
