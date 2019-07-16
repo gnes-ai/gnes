@@ -1,3 +1,4 @@
+.git/
 .pyre/
 .idea/
 docker-push.sh
