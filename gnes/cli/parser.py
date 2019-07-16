@@ -33,6 +33,24 @@ def set_base_parser():
     return parser
 
 
+def set_composer_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    parser.add_argument('--port',
+                        type=int,
+                        default=8800,
+                        help='host port of the grpc service')
+    parser.add_argument('--name',
+                        type=str,
+                        default='GNES instance',
+                        help='name of the instance')
+    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
+                        help='yaml config of the service')
+    parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
+                        help='render the network graph in HTML with mermaid.js')
+    return parser
+
+
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService
     if not parser:
@@ -127,8 +145,6 @@ def set_indexer_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.add_argument('--top_k', type=int, default=10,
-                        help='number of top results to retrieve')
     parser.set_defaults(yaml_path=pkg_resources.resource_stream(
         'gnes', '/'.join(('resources', 'config', 'indexer', 'default.yml'))))
 
@@ -148,8 +164,8 @@ def _set_grpc_parser(parser=None):
                         default='0.0.0.0',
                         help='host address of the grpc service')
     parser.add_argument('--grpc_port',
-                        type=str,
-                        default='8800',
+                        type=int,
+                        default=8800,
                         help='host port of the grpc service')
     return parser
 
@@ -164,7 +180,7 @@ def set_grpc_frontend_parser(parser=None):
     return parser
 
 
-def set_grpc_client_parser(parser=None):
+def set_cli_client_parser(parser=None):
     import sys
     if not parser:
         parser = set_base_parser()
@@ -216,5 +232,6 @@ def get_main_parser():
     set_router_service_parser(sp.add_parser('route', help='start a router service'))
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
-    set_grpc_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
+    set_cli_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
+    set_composer_parser(sp.add_parser('compose', help='start a GNES composer'))
     return parser

@@ -49,7 +49,7 @@ def import_class_by_str(name: str):
         if class_name in cls2file:
             return getattr(importlib.import_module('gnes.%s.%s' % (module_name, cls2file[class_name])), class_name)
 
-    search_modules = ['encoder', 'indexer', 'preprocessor', 'router', 'module']
+    search_modules = ['encoder', 'indexer', 'preprocessor', 'router']
 
     for m in search_modules:
         r = _import(m, name)
@@ -245,7 +245,8 @@ class TrainableBase(metaclass=TrainableType):
             with open(filename) as fp:
                 return yaml.load(fp)
         else:
-            return yaml.load(filename)
+            with filename:
+                return yaml.load(filename)
 
     @staticmethod
     @profiling

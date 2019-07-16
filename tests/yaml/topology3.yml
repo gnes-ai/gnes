@@ -1,0 +1,7 @@
+port: 5566
+component:
+- name: Preprocessor
+  replicas: 2
+- name: Encoder
+  replicas: 3
+- name: Indexer
