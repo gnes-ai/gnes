@@ -1,5 +1,5 @@
 port: 5566
-component:
+services:
 - name: Preprocessor
 - name: Encoder
   replicas: 2

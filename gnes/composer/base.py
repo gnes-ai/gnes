@@ -1,9 +1,10 @@
 import copy
 import random
-from typing import Dict, List
+from collections import defaultdict
+from typing import Dict, List, Set
 
 import pkg_resources
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
 from termcolor import colored
 
@@ -73,15 +74,18 @@ class YamlGraph:
         self._layers = []  # type: List['YamlGraph.Layer']
         self.logger = set_logger(self.__class__.__name__)
         tmp = _yaml.load(args.yaml_path)
+        stream = StringIO()
+        _yaml.dump(tmp, stream)
+        self.original_yaml = stream.getvalue()
         self.name = tmp.get('name', args.name)
         self.port = tmp.get('port', args.port)
         self.args = args
         self._num_layer = 0
 
-        if 'component' in tmp:
+        if 'services' in tmp:
             self.add_layer()
-            self.add_comp(CommentedMap({'name': 'Frontend'}))
-            for comp in tmp['component']:
+            self.add_comp(CommentedMap({'name': 'Frontend', 'grpc_port': self.port}))
+            for comp in tmp['services']:
                 self.add_layer()
                 if isinstance(comp, list):
                     for c in comp:
@@ -128,7 +132,86 @@ class YamlGraph:
         return all_layers
 
     @staticmethod
-    def build_shell(all_layers: List['YamlGraph.Layer'], log_fn: str = None, job_background: bool = False):
+    def build_dockerswarm(all_layers: List['YamlGraph.Layer'], docker_img: str = 'gnes/gnes:latest',
+                          volumes: Dict = None) -> str:
+        swarm_lines = {'version': '3.4', 'services': {}}
+        taboo = {'name', 'replicas', 'yaml_path', 'dump_path'}
+        config_dict = {}
+        network_dict = {'gnes-network': {'driver': 'overlay', 'attachable': True}}
+        for l_idx, layer in enumerate(all_layers):
+            for c_idx, c in enumerate(layer.components):
+                c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
+                args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
+                        a not in taboo and v]
+                if 'yaml_path' in c and c['yaml_path'] is not None:
+                    args.append('--yaml_path /%s_yaml' % c_name)
+                    config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
+
+                if l_idx + 1 < len(all_layers):
+                    next_layer = all_layers[l_idx + 1]
+                    _l_idx = l_idx + 1
+                else:
+                    next_layer = all_layers[0]
+                    _l_idx = 0
+
+                host_out_name = ''
+                for _c_idx, _c in enumerate(next_layer.components):
+                    if _c['port_in'] == c['port_out']:
+                        host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
+                        break
+
+                if l_idx - 1 >= 0:
+                    last_layer = all_layers[l_idx - 1]
+                    _l_idx = l_idx - 1
+                else:
+                    last_layer = all_layers[-1]
+                    _l_idx = len(all_layers) - 1
+
+                host_in_name = ''
+                for _c_idx, _c in enumerate(last_layer.components):
+                    if _c['port_out'] == c['port_in']:
+                        host_in_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
+                        break
+
+                args += ['--host_in %s' % host_in_name,
+                         '--host_out %s' % host_out_name]
+
+                cmd = '%s %s' % (YamlGraph.comp2file[c['name']], ' '.join(args))
+                swarm_lines['services'][c_name] = {
+                    'image': docker_img,
+                    'command': cmd,
+                }
+
+                rep_c = YamlGraph.Layer.get_value(c, 'replicas')
+                if rep_c > 1:
+                    swarm_lines['services'][c_name]['deploy'] = {
+                        'replicas': YamlGraph.Layer.get_value(c, 'replicas'),
+                        'restart_policy': {
+                            'condition': 'on-failure',
+                            'max_attempts': 3,
+                        }
+                    }
+
+                if 'yaml_path' in c and c['yaml_path'] is not None:
+                    swarm_lines['services'][c_name]['configs'] = ['%s_yaml' % c_name]
+
+                if c['name'] == 'Frontend':
+                    swarm_lines['services'][c_name]['ports'] = ['%d:%d' % (c['grpc_port'], c['grpc_port'])]
+
+        if volumes:
+            swarm_lines['volumes'] = volumes
+        swarm_lines['configs'] = config_dict
+        swarm_lines['networks'] = network_dict
+        stream = StringIO()
+        _yaml.dump(swarm_lines, stream)
+        return stream.getvalue()
+
+    @staticmethod
+    def build_kubernetes(all_layers: List['YamlGraph.Layer'], *args, **kwargs):
+        pass
+
+    @staticmethod
+    def build_shell(all_layers: List['YamlGraph.Layer'], log_fn: str = None, job_background: bool = False) -> str:
         shell_lines = []
         taboo = {'name', 'replicas'}
         for layer in all_layers:
@@ -138,9 +221,9 @@ class YamlGraph:
                     colored(c['name'], 'green'), colored(rep_c, 'yellow')))
                 for _ in range(rep_c):
                     cmd = YamlGraph.comp2file[c['name']]
-                    print(c)
-                    args = ' '.join(['--%s %s' % (a, v if ' ' not in v else ('"%s"' % v)) for a, v in c.items() if
-                                     a not in taboo and v])
+                    args = ' '.join(
+                        ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
+                         a not in taboo and v])
                     shell_lines.append('gnes %s %s %s %s' % (
                         cmd, args, '>> %s 2>&1' % log_fn if log_fn else '', '&' if job_background else ''))
 
@@ -149,8 +232,9 @@ class YamlGraph:
             return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
 
     @staticmethod
-    def build_mermaid(all_layers: List['YamlGraph.Layer'], show_topdown: bool = True):
+    def build_mermaid(all_layers: List['YamlGraph.Layer'], show_topdown: bool = True) -> str:
         mermaid_graph = []
+        cls_dict = defaultdict(set)  # type: Dict[str, Set]
         for l_idx, layer in enumerate(all_layers[1:] + [all_layers[0]], 1):
             last_layer = all_layers[l_idx - 1]
 
@@ -163,7 +247,8 @@ class YamlGraph:
                             p = '((%s%s))' if c['name'] == 'Router' else '[%s%s]'
                             p1 = '((%s%s))' if c1['name'] == 'Router' else '[%s%s]'
                             for j1 in range(YamlGraph.Layer.get_value(c1, 'replicas')):
-                                id, id1 = '%s%s%s' % (last_layer.layer_id, c_idx, j), '%s%s%s' % (layer.layer_id, c1_idx, j1)
+                                _id, _id1 = '%s%s%s' % (last_layer.layer_id, c_idx, j), '%s%s%s' % (
+                                    layer.layer_id, c1_idx, j1)
                                 conn_type = (
                                         c['socket_out'].split('_')[0] + '/' + c1['socket_in'].split('_')[0]).lower()
                                 s_id = '%s%s' % (c_idx if len(last_layer.components) > 1 else '',
@@ -172,32 +257,63 @@ class YamlGraph:
                                                   j1 if YamlGraph.Layer.get_value(c1, 'replicas') > 1 else '')
                                 mermaid_graph.append(
                                     '\t%s%s%s-- %s -->%s%s%s' % (
-                                        c['name'], id, p % (c['name'], s_id), conn_type, c1['name'], id1,
+                                        c['name'], _id, p % (c['name'], s_id), conn_type, c1['name'], _id1,
                                         p1 % (c1['name'], s1_id)))
+                                cls_dict[c['name'] + 'CLS'].add('%s%s' % (c['name'], _id))
+                                cls_dict[c1['name'] + 'CLS'].add('%s%s' % (c1['name'], _id1))
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef FrontendCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px,stroke-dasharray:5;',
-                 'classDef EncoderCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
-                 'classDef IndexerCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
-                 'classDef RouterCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
-                 'classDef PreprocessorCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;']
-
-        mermaid_str = '\n'.join(['graph TD' if show_topdown else 'graph LR'] + style + mermaid_graph)
+        style = ['classDef FrontendCLS fill:#FFFFCB,stroke:#277CE8,stroke-width:1px,stroke-dasharray:5;',
+                 'classDef EncoderCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
+                 'classDef IndexerCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
+                 'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',
+                 'classDef PreprocessorCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;']
+        class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
+        mermaid_str = '\n'.join(['graph %s' % 'TD' if show_topdown else 'LR'] + mermaid_graph + style + class_def)
         return mermaid_str
 
-    def build_html(self, mermaid_str: str):
-        if not self.args.html_path:
-            print(mermaid_str)
-        else:
-            r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-graph.html')))
-            with r, self.args.html_path as fp:
-                html = r.read().decode().replace('{{gnes-template}}', mermaid_str)
-                fp.write(html)
+    @staticmethod
+    def build_html(generate_dict: Dict[str, str]) -> str:
+        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-graph.html')))
+        with r:
+            html = r.read().decode()
+            for k, v in generate_dict.items():
+                if v:
+                    html = html.replace('{{gnes-%s}}' % k, v)
+        return html
+
+    def build_all(self):
+        def std_or_print(f, content):
+            if content:
+                if f:
+                    with f as fp:
+                        fp.write(content)
+                        self.logger.info('generated content is written to %s' % f)
+                else:
+                    self.logger.warning('no file path is defined, i will just print it to stdout')
+                    print(content)
+
+        all_layers = self.build_layers()
+        rep_dict = {
+            'mermaid': self.build_mermaid(all_layers),
+            'shell': self.build_shell(all_layers),
+            'yaml': self.original_yaml,
+            'docker': self.build_dockerswarm(all_layers),
+            'k8s': self.build_kubernetes(all_layers),
+        }
+        std_or_print(self.args.shell_path, rep_dict['shell'])
+        std_or_print(self.args.swarm_path, rep_dict['docker'])
+        std_or_print(self.args.k8s_path, rep_dict['k8s'])
+        std_or_print(self.args.html_path, self.build_html(rep_dict))
 
     @staticmethod
     def _get_random_port(min_port: int = 49152, max_port: int = 65536) -> str:
         return str(random.randrange(min_port, max_port))
+
+    @staticmethod
+    def _get_random_host(comp_name: str) -> str:
+        return str(comp_name + str(random.randrange(0, 100)))
 
     def _add_router(self, last_layer: 'YamlGraph.Layer', layer: 'YamlGraph.Layer') -> List['YamlGraph.Layer']:
         def rule1():
@@ -294,17 +410,16 @@ class YamlGraph:
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': self._get_random_port(),
                               'port_out': self._get_random_port()})
-            router_layer.append(r)
 
             for c in last_layer.components:
                 c['socket_out'] = str(SocketType.PUSH_CONNECT)
-                c['port_out'] = self._get_random_port()
                 r_c = CommentedMap({'name': 'Router',
                                     'yaml_path': None,
                                     'socket_in': str(SocketType.PULL_BIND),
-                                    'socket_out': str(SocketType.PUSH_BIND),
-                                    'port_in': c['port_out'],
+                                    'socket_out': str(SocketType.PUSH_CONNECT),
+                                    'port_in': self._get_random_port(),
                                     'port_out': r['port_in']})
+                c['port_out'] = r_c['port_in']
                 router_layer.append(r_c)
 
             for c in layer.components:

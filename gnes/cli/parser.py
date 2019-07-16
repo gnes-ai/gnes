@@ -48,6 +48,12 @@ def set_composer_parser(parser=None):
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
                         help='render the network graph in HTML with mermaid.js')
+    parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
+                        help='output path of the shell-based starting script')
+    parser.add_argument('--swarm_path', type=argparse.FileType('w', encoding='utf8'),
+                        help='output path of the docker-compose file for Docker Swarm')
+    parser.add_argument('--k8s_path', type=argparse.FileType('w', encoding='utf8'),
+                        help='output path of the docker-compose file for Docker Swarm')
     return parser
 
 

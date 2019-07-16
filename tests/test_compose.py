@@ -27,9 +27,10 @@ class TestCompose(unittest.TestCase):
         self.assertEqual(len(r), num_layer_after)
         for c in r:
             print(c)
-        a.build_html(a.build_mermaid(r))
+        a.build_all()
         print(a.build_shell(r))
         os.path.exists(self.html_path)
+        print(a.build_dockerswarm(r))
 
     # def tearDown(self):
     #     if os.path.exists(self.html_path):
