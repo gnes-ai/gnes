@@ -28,6 +28,7 @@ class TestCompose(unittest.TestCase):
         for c in r:
             print(c)
         a.build_html(a.build_mermaid(r))
+        print(a.build_shell(r))
         os.path.exists(self.html_path)
 
     # def tearDown(self):

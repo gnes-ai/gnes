@@ -5,6 +5,7 @@ from typing import Dict, List
 import pkg_resources
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
+from termcolor import colored
 
 from ..helper import set_logger
 from ..service.base import SocketType
@@ -14,11 +15,11 @@ _yaml = YAML()
 
 class YamlGraph:
     comp2file = {
-        'Encoder': 'service.encoder.EncoderService',
-        'Router': 'service.router.RouterService',
-        'Indexer': 'service.indexer.IndexerService',
-        'Frontend': 'service.grpc.GRPCFrontend',
-        'Preprocessor': 'service.preprocessor.PreprocessorService'
+        'Encoder': 'encode',
+        'Router': 'route',
+        'Indexer': 'index',
+        'Frontend': 'frontend',
+        'Preprocessor': 'preprocess'
     }
 
     class Layer:
@@ -99,8 +100,8 @@ class YamlGraph:
                 'a component must be one of: %s, but given %s' % (', '.join(self.comp2file.keys()), comp['name']))
         if 'yaml_path' not in comp and 'dump_path' not in comp:
             self.logger.warning(
-                'you did not specify "yaml_path" and "dump_path", '
-                'will use a default config and would probably result in an empty model')
+                'found empty "yaml_path" and "dump_path", '
+                'i will use a default config and would probably result in an empty model')
         for k in comp:
             if k not in self.Layer.default_values:
                 self.logger.warning('your yaml contains an unrecognized key named "%s"' % k)
@@ -124,6 +125,25 @@ class YamlGraph:
         #     all_layers.append(copy.deepcopy(l))
         all_layers[0] = copy.deepcopy(self._layers[0])
         return all_layers
+
+    @staticmethod
+    def build_shell(all_layers: List['YamlGraph.Layer']):
+        shell_lines = []
+        taboo = {'name', 'replicas'}
+        for layer in all_layers:
+            for c in layer.components:
+                rep_c = YamlGraph.Layer.get_value(c, 'replicas')
+                shell_lines.append('printf "starting service %s with %s replicas...\\n"' % (
+                    colored(c['name'], 'green'), colored(rep_c, 'yellow')))
+                for j in range(rep_c):
+                    cmd = YamlGraph.comp2file[c['name']]
+                    print(c)
+                    args = ' '.join(['--%s %s' % (a, v if ' ' not in v else ('"%s"' % v)) for a, v in c.items() if a not in taboo and v])
+                    shell_lines.append('gnes %s %s &' % (cmd, args))
+
+        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh')))
+        with r:
+            return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
 
     @staticmethod
     def build_mermaid(all_layers: List['YamlGraph.Layer'], show_topdown: bool = True):
@@ -164,7 +184,7 @@ class YamlGraph:
         else:
             r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-graph.html')))
             with r, self.args.html_path as fp:
-                html = r.read().decode().replace('@mermaid-graph', mermaid_str)
+                html = r.read().decode().replace('{{gnes-template}}', mermaid_str)
                 fp.write(html)
 
     @staticmethod
