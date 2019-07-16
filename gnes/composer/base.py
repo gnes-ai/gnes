@@ -31,8 +31,8 @@ class YamlGraph:
             'income': 'pull'
         }
 
-        def __init__(self, id: int = 0):
-            self.id = id
+        def __init__(self, layer_id: int = 0):
+            self.layer_id = layer_id
             self.components = []
 
         @staticmethod
@@ -84,7 +84,8 @@ class YamlGraph:
             for comp in tmp['component']:
                 self.add_layer()
                 if isinstance(comp, list):
-                    [self.add_comp(c) for c in comp if self.add_comp(c)]
+                    for c in comp:
+                        self.add_comp(c)
                 elif self.check_fields(comp):
                     self.add_comp(comp)
                 else:
@@ -108,7 +109,7 @@ class YamlGraph:
         return True
 
     def add_layer(self, layer: 'Layer' = None) -> None:
-        self._layers.append(copy.deepcopy(layer) or self.Layer(id=self._num_layer))
+        self._layers.append(copy.deepcopy(layer) or self.Layer(layer_id=self._num_layer))
         self._num_layer += 1
 
     def add_comp(self, comp: Dict) -> None:
@@ -127,7 +128,7 @@ class YamlGraph:
         return all_layers
 
     @staticmethod
-    def build_shell(all_layers: List['YamlGraph.Layer']):
+    def build_shell(all_layers: List['YamlGraph.Layer'], log_fn: str = None, job_background: bool = False):
         shell_lines = []
         taboo = {'name', 'replicas'}
         for layer in all_layers:
@@ -135,11 +136,13 @@ class YamlGraph:
                 rep_c = YamlGraph.Layer.get_value(c, 'replicas')
                 shell_lines.append('printf "starting service %s with %s replicas...\\n"' % (
                     colored(c['name'], 'green'), colored(rep_c, 'yellow')))
-                for j in range(rep_c):
+                for _ in range(rep_c):
                     cmd = YamlGraph.comp2file[c['name']]
                     print(c)
-                    args = ' '.join(['--%s %s' % (a, v if ' ' not in v else ('"%s"' % v)) for a, v in c.items() if a not in taboo and v])
-                    shell_lines.append('gnes %s %s &' % (cmd, args))
+                    args = ' '.join(['--%s %s' % (a, v if ' ' not in v else ('"%s"' % v)) for a, v in c.items() if
+                                     a not in taboo and v])
+                    shell_lines.append('gnes %s %s %s %s' % (
+                        cmd, args, '>> %s 2>&1' % log_fn if log_fn else '', '&' if job_background else ''))
 
         r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh')))
         with r:
@@ -160,7 +163,7 @@ class YamlGraph:
                             p = '((%s%s))' if c['name'] == 'Router' else '[%s%s]'
                             p1 = '((%s%s))' if c1['name'] == 'Router' else '[%s%s]'
                             for j1 in range(YamlGraph.Layer.get_value(c1, 'replicas')):
-                                id, id1 = '%s%s%s' % (last_layer.id, c_idx, j), '%s%s%s' % (layer.id, c1_idx, j1)
+                                id, id1 = '%s%s%s' % (last_layer.layer_id, c_idx, j), '%s%s%s' % (layer.layer_id, c1_idx, j1)
                                 conn_type = (
                                         c['socket_out'].split('_')[0] + '/' + c1['socket_in'].split('_')[0]).lower()
                                 s_id = '%s%s' % (c_idx if len(last_layer.components) > 1 else '',
@@ -174,8 +177,13 @@ class YamlGraph:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = 'style Frontend000 fill:#ffd889ff,stroke:#f66,stroke-width:2px,stroke-dasharray:5'
-        mermaid_str = '\n'.join(['graph TD' if show_topdown else 'graph LR'] + [style] + mermaid_graph)
+        style = ['classDef FrontendCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px,stroke-dasharray:5;',
+                 'classDef EncoderCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
+                 'classDef IndexerCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
+                 'classDef RouterCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;',
+                 'classDef PreprocessorCLS fill:#ffd889ff,stroke:#f66,stroke-width:2px;']
+
+        mermaid_str = '\n'.join(['graph TD' if show_topdown else 'graph LR'] + style + mermaid_graph)
         return mermaid_str
 
     def build_html(self, mermaid_str: str):
@@ -204,7 +212,7 @@ class YamlGraph:
 
         def rule3():
             # a shortcut fn: (N)-2-(N) with push pull connection
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             r = CommentedMap({'name': 'Router',
@@ -233,7 +241,7 @@ class YamlGraph:
 
         def rule6():
             last_layer.components[0]['socket_out'] = str(SocketType.PUB_BIND)
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
                 r = CommentedMap({'name': 'Router',
@@ -250,7 +258,7 @@ class YamlGraph:
         def rule7():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
 
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
                                'yaml_path': None,
@@ -262,7 +270,7 @@ class YamlGraph:
             router_layers.append(router_layer)
             last_layer.components[0]['port_out'] = r0['port_in']
 
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
                 r = CommentedMap({'name': 'Router',
@@ -278,7 +286,7 @@ class YamlGraph:
 
         def rule8():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r = CommentedMap({'name': 'Router',
                               'yaml_path': None,
@@ -304,7 +312,7 @@ class YamlGraph:
                 c['port_in'] = r['port_out']
             router_layers.append(router_layer)
 
-            router_layer = YamlGraph.Layer(id=self._num_layer)
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             router_layer.append(r)
             router_layers.append(router_layer)
