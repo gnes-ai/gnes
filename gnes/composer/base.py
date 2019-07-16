@@ -211,7 +211,7 @@ class YamlGraph:
         pass
 
     @staticmethod
-    def build_shell(all_layers: List['YamlGraph.Layer'], log_fn: str = None, job_background: bool = False) -> str:
+    def build_shell(all_layers: List['YamlGraph.Layer'], log_path: str = None) -> str:
         shell_lines = []
         taboo = {'name', 'replicas'}
         for layer in all_layers:
@@ -224,8 +224,8 @@ class YamlGraph:
                     args = ' '.join(
                         ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
                          a not in taboo and v])
-                    shell_lines.append('gnes %s %s %s %s' % (
-                        cmd, args, '>> %s 2>&1' % log_fn if log_fn else '', '&' if job_background else ''))
+                    shell_lines.append('gnes %s %s %s &' % (
+                        cmd, args, '>> %s 2>&1' % log_path if log_path else ''))
 
         r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh')))
         with r:
