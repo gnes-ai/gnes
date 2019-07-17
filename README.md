@@ -35,7 +35,7 @@
   <a href="#getting-started">Getting Started</a> •
   <a href="#usage">Usage</a> •
   <a href="#book-tutorial">Tutorials</a> •
-  <a href="#speech_balloon-faq">FAQ</a>  
+  <a href="./CHANGELOG.md">Release Notes</a>  
 </p>
 
 <h2 align="center">What is it</h2>
@@ -48,9 +48,9 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Highlights</h2>
 
-- :cloud: **Cloud-native**: GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running statelessly and independently in their own containers.  They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.
+- :cloud: **Cloud-native and elastic**: GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.
 - :hatching_chick: **Easy-to-use on every level**: How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.
-- :rocket: **State-of-the-art**: Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
+- :rocket: **State-of-the-art performance**: Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
 - :nut_and_bolt: **Generic and compatible**: Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. 
 - :100: **Best practice**: We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.
 
@@ -69,17 +69,17 @@ As a cloud-native application, GNES requires an **orchestration engine** to coor
 <table>
   <tr>
     <th>
-    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="100px">
+    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a>
     </th>
     <th>
-    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="100px">
+    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a>
     </th>
     <th>
-    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="100px">
+    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a>
     </th>
@@ -174,13 +174,16 @@ TBA
 
 <h2 align="center">Contributing</h2>
 
-Thanks for your interest in contributing! There are many ways to get involved; start with our [contributor guidelines](#) and then check these [open issues](/issues) for specific tasks.
+Thanks for your interest in contributing! 
+
+- [Contributor guidelines](./CONTRIBUTING.md)
+- [Open issues](/issues)
+- [Release notes](./CHANGELOG.md)
 
 For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
 
-<h2 align="center">Release Notes</h2>
 
-TBA
+
 
 <h2 align="center">Citing GNES</h2>
 

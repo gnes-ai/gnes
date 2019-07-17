@@ -1,6 +1,4 @@
-<%
-
-var groupCommits = [{
+<% var groupCommits = [{
     name: 'feat',
     show: true,
     list: []
@@ -16,13 +14,20 @@ var groupCommits = [{
     name: 'docs',
     show: true,
     list: []
+},  {
+    name: 'test',
+    show: true,
+    list: []
 }, {
     name: 'other',
     show: true,
     list: []
-}]
+}
+]
 
 var all_titles = {};
+var all_commiters = {};
+var commitHref = "https://github.com/gnes-ai/gnes/commit/"
 
 commits.forEach(function (commit) {
 
@@ -31,6 +36,11 @@ commits.forEach(function (commit) {
     var type = result && result[1];
     var scope = result && result[3];
     var title = result && result[4];
+    var committer = commit.authorName
+
+    if (!(committer in all_commiters)) {
+        all_commiters[committer] = 1
+    }
 
     if (!(title in all_titles)) {
         all_titles[title] = 1
@@ -58,6 +68,13 @@ commits.forEach(function (commit) {
             })
         } else if(type == 'docs' || type == 'doc'){
             groupCommits.find(item => item.name === 'docs').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
+        } else if(type == 'test' || type == 'tests' || type == 'ci'){
+            groupCommits.find(item => item.name === 'test').list.push({
                 type: type,
                 scope: scope,
                 title: title,
@@ -95,37 +112,33 @@ list.forEach(function (ct) {
     }else{
         title = commit.title;
     }
-%> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (<%= commit.authorName %>)
-<% })}
-%>
+%> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (*<%= commit.authorName %>*)
+<% })} %>
 
-# Release Notes
+🙇 We'd like to thank all contributors for this new release! In particular,
+<%  Object.keys(all_commiters).forEach(function (key) { %> <%= key %>, <% }) %> 🙇
 
 <%
-
-
         for(var i of groupCommits){
     if(i.list.length == 0) continue;
 
 if (i.name === 'fix' && i.show) { %>
-
-### Bug fixes
+### 🐞 Bug fixes
 
 <%	} else if( i.name === 'feat' && i.show) { %>
-
-### New Features
+### 🆕 New Features
 
 <%	} else if(i.name === 'refactor' && i.show) { %>
-
-### Code Refactoring
+### 🚧 Code Refactoring
 
 <%	} else if(i.name === 'docs' && i.show) { %>
+### 📗 Documentation
 
-### Documentation
+<%	} else if(i.name === 'test' && i.show) { %>
+### 🏁 Unit Test and CICD
 
 <%	} else if (i.name === 'other' && i.show) { %>
-
-### Other Improvements
+### 🍹 Other Improvements
 
 <%	}
     i.show && listCommits(i.list, i);

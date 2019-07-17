@@ -75,9 +75,10 @@ class YamlGraph:
 
         self._layers = []  # type: List['YamlGraph.Layer']
         self.logger = set_logger(self.__class__.__name__)
-        tmp = _yaml.load(args.yaml_path)
-        stream = StringIO()
-        _yaml.dump(tmp, stream)
+        with args.yaml_path:
+            tmp = _yaml.load(args.yaml_path)
+            stream = StringIO()
+            _yaml.dump(tmp, stream)
         self.original_yaml = stream.getvalue()
         self.name = tmp.get('name', args.name)
         self.port = tmp.get('port', args.port)
@@ -175,8 +176,8 @@ class YamlGraph:
                         host_in_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
                         break
 
-                args += ['--host_in %s' % host_in_name,
-                         '--host_out %s' % host_out_name]
+                args += ['--host_in %s' % host_in_name]
+                         # '--host_out %s' % host_out_name]
 
                 cmd = '%s %s' % (YamlGraph.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = {
@@ -266,7 +267,7 @@ class YamlGraph:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef FrontendCLS fill:#FFFFCB,stroke:#277CE8,stroke-width:1px,stroke-dasharray:5;',
+        style = ['classDef FrontendCLS fill:#ffb347,stroke:#277CE8,stroke-width:1px,stroke-dasharray:5;',
                  'classDef EncoderCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
                  'classDef IndexerCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
                  'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',
@@ -417,20 +418,29 @@ class YamlGraph:
                               'port_out': self._get_random_port()})
 
             for c in last_layer.components:
-                c['socket_out'] = str(SocketType.PUSH_CONNECT)
-                r_c = CommentedMap({'name': 'Router',
-                                    'yaml_path': None,
-                                    'socket_in': str(SocketType.PULL_BIND),
-                                    'socket_out': str(SocketType.PUSH_CONNECT),
-                                    'port_in': self._get_random_port(),
-                                    'port_out': r['port_in']})
-                c['port_out'] = r_c['port_in']
-                router_layer.append(r_c)
+                last_income = self.Layer.get_value(c, 'income')
+                if last_income == 'sub':
+                    c['socket_out'] = str(SocketType.PUSH_CONNECT)
+                    r_c = CommentedMap({'name': 'Router',
+                                        'yaml_path': None,
+                                        'socket_in': str(SocketType.PULL_BIND),
+                                        'socket_out': str(SocketType.PUSH_CONNECT),
+                                        'port_in': self._get_random_port(),
+                                        'port_out': r['port_in']})
+                    c['port_out'] = r_c['port_in']
+                    router_layer.append(r_c)
+                elif last_income == 'pull':
+                    c['socket_out'] = str(SocketType.PUSH_CONNECT)
+                    c['port_out'] = r['port_in']
 
             for c in layer.components:
                 c['socket_in'] = str(SocketType.PULL_CONNECT)
                 c['port_in'] = r['port_out']
-            router_layers.append(router_layer)
+
+            if router_layer.components:
+                router_layers.append(router_layer)
+            else:
+                self._num_layer -= 1
 
             router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
