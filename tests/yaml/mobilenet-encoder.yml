@@ -1,0 +1,9 @@
+!BasePytorchEncoder
+parameter:
+  model_dir: ${MOBILENET_MODEL}
+  model_name: mobilenet_v2
+  layers:
+    - features
+    - x.mean([2, 3])
+property:
+  is_trained: true

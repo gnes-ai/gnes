@@ -5,7 +5,7 @@ import copy
 import numpy as np
 
 from gnes.encoder.image.base import BasePytorchEncoder
-from gnes.preprocessor.image.simple import VanillaSlidingPreprocessor
+from gnes.preprocessor.image.slidingWindow import VanillaSlidingPreprocessor
 from gnes.preprocessor.base import BaseSingletonPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
@@ -39,6 +39,7 @@ class TestImageEncoder(unittest.TestCase):
         self.vgg_yaml = os.path.join(dirname, 'yaml', 'vgg-encoder.yml')
         self.res_yaml = os.path.join(dirname, 'yaml', 'resnet-encoder.yml')
         self.inception_yaml = os.path.join(dirname, 'yaml', 'inception-encoder.yml')
+        self.mobilenet_yaml = os.path.join(dirname, 'yaml', 'mobilenet-encoder.yml')
 
     def test_vgg_encoding(self):
         self.encoder = BasePytorchEncoder.load_yaml(self.vgg_yaml)
@@ -63,6 +64,14 @@ class TestImageEncoder(unittest.TestCase):
             print("the length of data now is:", len(test_img))
             self.assertEqual(vec.shape[0], len(test_img))
             self.assertEqual(vec.shape[1], 2048)
+
+    def test_mobilenet_encoding(self):
+        self.encoder = BasePytorchEncoder.load_yaml(self.mobilenet_yaml)
+        for test_img in self.test_img:
+            vec = self.encoder.encode(test_img)
+            print("the length of data now is:", len(test_img))
+            self.assertEqual(vec.shape[0], len(test_img))
+            self.assertEqual(vec.shape[1], 1280)
 
     def test_dump_load(self):
         self.encoder = BasePytorchEncoder.load_yaml(self.vgg_yaml)
