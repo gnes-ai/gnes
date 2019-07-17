@@ -9,7 +9,7 @@ class DocReduceRouter(BaseReduceRouter):
         final_docs = []
         for idx, r in enumerate(msg.response.search.topk_results):
             # get result from all shards, some may return None, we only take the first non-None doc
-            final_docs.append([r for m in accum_msgs if
+            final_docs.append([m for m in accum_msgs if
                                m.response.search.topk_results[idx].doc.WhichOneof('raw_data') is not None][0])
 
         # resort all doc result as the doc_weight has been applied

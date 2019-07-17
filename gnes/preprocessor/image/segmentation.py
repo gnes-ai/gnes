@@ -34,10 +34,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
 
     def apply(self, doc: 'gnes_pb2.Document'):
         super().apply(doc)
-        # from torchvision.transforms import functional
         if doc.raw_bytes:
             original_image = Image.open(io.BytesIO(doc.raw_bytes))
-            # image_tensor = functional.to_tensor(np.array(original_image))
             image_tensor = self._torch_transform(original_image)
 
             seg_output = self._model([image_tensor])

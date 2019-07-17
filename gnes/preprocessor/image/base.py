@@ -31,7 +31,8 @@ class BaseImagePreprocessor(BasePreprocessor):
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         pass
 
-    def _torch_transform(self, image):
+    @classmethod
+    def _torch_transform(cls, image):
         import torchvision.transforms as transforms
         return transforms.Compose([transforms.ToTensor(),
                                    transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(image)

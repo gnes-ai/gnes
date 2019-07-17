@@ -40,8 +40,6 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         super().apply(doc)
         if doc.raw_bytes:
             img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
-            self.logger.info("we are in preprocessor!")
-            self.logger.info("doc id is: %s" % str(doc.doc_id))
             image_set = self._get_all_sliding_window(img)
             normalizaed_image_set = [np.array(self._torch_transform(img)).transpose(1, 2, 0)
                                      for img in image_set]
@@ -97,16 +95,4 @@ class WeightedSlidingPreprocessor(BaseSlidingPreprocessor):
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         return FFmpegPreprocessor.pic_weight(image_set)
 
-        # weight = np.zeros([len(image_set)])
-        # # n_channel is usually 3 for RGB images
-        # n_channel = image_set[0].shape[-1]
-        # for i in range(len(image_set)):
-        #     # calcualte the variance of histgram of pixels
-        #     weight[i] = sum([np.histogram(image_set[i][:, :, _])[0].var()
-        #                      for _ in range(n_channel)])
-        # weight = weight / weight.sum()
-        #
-        # # normalized result
-        # weight = np.exp(- weight * 10)
-        # return weight / weight.sum()
 
