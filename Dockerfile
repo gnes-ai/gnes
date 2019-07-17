@@ -16,4 +16,6 @@ ADD . ./
 RUN pip --no-cache-dir install .[all] \
     && rm -rf /tmp/*
 
+WORKDIR /
+
 ENTRYPOINT ["gnes"]

@@ -11,7 +11,7 @@ _docker_push() {
     docker build --rm --target $TARGET -t ${DOCKER_NAMESPACE}/${PROJ_NAME}:${GIT_TAG} .
     docker push ${DOCKER_NAMESPACE}/${PROJ_NAME}:${GIT_TAG}
     printf 'done! and to run the container simply do:\n'
-    printf "\e[1;33mdocker run --entrypoint "/bin/bash" --rm -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG\e[0m\n"
+    printf "\e[1;33mdocker run --entrypoint "/bin/bash" --rm -v /data/ext_models/ext_models:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG\e[0m\n"
 }
 
 _select_namespace() {
