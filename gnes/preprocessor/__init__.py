@@ -25,7 +25,7 @@ _cls2file_map = {
     'BaseTextPreprocessor': 'text.base',
     'VanillaSlidingPreprocessor': 'image.simple',
     'WeightedSlidingPreprocessor': 'image.simple',
-    'SegmentPreprocessor': 'image.simple',
+    'SegmentPreprocessor': 'image.segmentation',
     'BaseSingletonPreprocessor': 'base',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
