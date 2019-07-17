@@ -13,9 +13,9 @@ FROM dependency as base
 ADD . ./
 
 
-RUN pip --no-cache-dir install -e .[all] \
+RUN pip --no-cache-dir install .[all] \
     && rm -rf /tmp/*
 
-# WORKDIR /
+WORKDIR /
 
 ENTRYPOINT ["gnes"]
