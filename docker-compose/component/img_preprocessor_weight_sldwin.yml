@@ -1,0 +1,6 @@
+!WeightedSlidingPreprocessor
+parameter:
+  window_size: 16
+  stride_height: 16
+  stride_wide: 16
+  target_img_size: 224
