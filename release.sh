@@ -71,11 +71,11 @@ function make_release_note {
     printf '\n%s\n%s\n%s\n%s\n' "# Release Note (\`$2\`)" "> Release time: $(date +'%Y-%m-%d %H:%M:%S')" "$(cat ./CHANGELOG.tmp)" "$(cat ./CHANGELOG.md)" > ./CHANGELOG.md
 }
 
-#BRANCH=$(git rev-parse --abbrev-ref HEAD)
-#if [[ "$BRANCH" != "master" ]]; then
-#  printf "You are not at master branch, exit\n";
-#  exit 1;
-#fi
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$BRANCH" != "master" ]]; then
+  printf "You are not at master branch, exit\n";
+  exit 1;
+fi
 
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
