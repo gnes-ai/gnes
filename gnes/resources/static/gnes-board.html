@@ -8,12 +8,29 @@
     <link rel="stylesheet"
           href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/default.min.css">
     <style>
-        .container {
-            margin-top: 20px;
+
+        .sticky-card {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0;
         }
 
-        .label {
-            font-size: 0.8em;
+        .jumbotron {
+            padding: 1.5rem 1.5rem;
+        }
+
+        .container-wide {
+            margin-top: 20px;
+            max-width: 100%;
+        }
+
+        footer {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        footer p {
+            margin-bottom: .25rem;
         }
 
         .nav-pills .nav-link.active {
@@ -22,6 +39,66 @@
 
         a {
             color: #247ba0ff;
+        }
+
+        @keyframes flickerAnimation {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @-o-keyframes flickerAnimation {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @-moz-keyframes flickerAnimation {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes flickerAnimation {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        g .node :hover {
+            color: #247ba0ff;
+            -webkit-animation: flickerAnimation 1s ease-in-out infinite;
+            -moz-animation: flickerAnimation 1s ease-in-out infinite;
+            -o-animation: flickerAnimation 1s ease-in-out infinite;
+            animation: flickerAnimation 1s ease-in-out infinite;
+        }
+
+        g .label {
+            pointer-events: none;
         }
 
         a:hover {
@@ -96,101 +173,155 @@
     </a>
     <ul class="nav nav-pills" id="pills-tab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="pills-flow-tab" data-toggle="pill" href="#pills-flow" role="tab">Serving
+            <a class="nav-link active" id="pills-flow-tab" data-toggle="pill" href="#pills-flow" role="tab">Work
                 Flow</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-yaml-tab" data-toggle="pill" href="#pills-yaml" role="tab">YAML config</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="pills-shell-tab" data-toggle="pill" href="#pills-shell" role="tab">📃 Generated Shell
+            <a class="nav-link" id="pills-shell-tab" data-toggle="pill" href="#pills-shell" role="tab">
+                Shell
                 Script</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-docker-tab" data-toggle="pill" href="#pills-docker" role="tab">📃 Generated
-                Docker-compose</a>
+            <a class="nav-link" id="pills-docker-tab" data-toggle="pill" href="#pills-docker" role="tab">
+                Docker Swarm/Compose</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-k8s-tab" data-toggle="pill" href="#pills-k8s" role="tab">📃 Generated Kubernetes
-                config</a>
+            <a class="nav-link" id="pills-k8s-tab" data-toggle="pill" href="#pills-k8s" role="tab">
+                Kubernetes
+                Config</a>
         </li>
     </ul>
 </nav>
-<div class="tab-content" id="pills-tabContent">
-    <div class="tab-pane fade show active" id="pills-flow" role="tabpanel" aria-labelledby="pills-home-tab">
-        <div class="container">
-            <center>
-                <div class="mermaid">
-                    {{gnes-mermaid}}
+<div class="container container-wide">
+    <div class="row">
+        <div class="col-4">
+            <div class="card sticky-card">
+                <div class="card-header">
+                    YAML config
                 </div>
-            </center>
-        </div>
-    </div>
-    <div class="tab-pane fade" id="pills-yaml" role="tabpanel">
-        <div class="container">
-            <div class="row justify-content-center">
-                <button type="button" class="btn btn-primary" data-clipboard-target="#yaml-code">
-                    Copy to Clipboard
-                </button>
-            </div>
-            <div class="row justify-content-center">
-                <pre>
+                <div class="card-body">
+                    <button type="button" class="btn btn-primary" data-clipboard-target="#yaml-code">
+                        Copy to Clipboard
+                    </button>
+                    <pre>
                     <code class="yaml" id="yaml-code">
 {{gnes-yaml}}
                     </code>
-                </pre>
+                    </pre>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="tab-pane fade" id="pills-shell" role="tabpanel">
-        <div class="container">
-            <div class="row justify-content-center">
-                <button type="button" class="btn btn-primary" data-clipboard-target="#shell-code">
-                    Copy to Clipboard
-                </button>
-            </div>
-            <div class="row justify-content-center">
-                <pre>
+        <div class="col-8">
+            <div class="tab-content" id="pills-tabContent">
+
+                <div class="tab-pane fade show active" id="pills-flow" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div class="jumbotron">
+
+                        <p class="lead">This is the workflow generated from your input YAML config, which helps you
+                        to understand how microservices work together in GNES.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            Workflow
+                        </div>
+                        <div class="card-body">
+                            <div class="mermaid">
+                                {{gnes-mermaid}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pills-shell" role="tabpanel">
+                    <div class="jumbotron">
+
+                        <p class="lead">This is a Bash script generated from your YAML config.
+                            You can use it to start a GNES server on a local machine.</p>
+                        <hr class="my-4">
+                        <p> 1. Install GNES via <code>pip install gnes</code><br>
+                            2. Create a new file say <code>run.sh</code><br>
+                            3. Copy the following content to it and run it via <code>bash ./run.sh</code>.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            Shell script
+                        </div>
+                        <div class="card-body">
+                            <button type="button" class="btn btn-primary" data-clipboard-target="#shell-code">
+                                Copy to Clipboard
+                            </button>
+                            <pre>
                     <code class="bash" id="shell-code">
 {{gnes-shell}}
                     </code>
                 </pre>
-            </div>
-        </div>
-    </div>
-    <div class="tab-pane fade" id="pills-docker" role="tabpanel">
-        <div class="container">
-            <div class="row justify-content-center">
-                <button type="button" class="btn btn-primary" data-clipboard-target="#docker-code">
-                    Copy to Clipboard
-                </button>
-            </div>
-            <div class="row justify-content-center">
-                <pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-docker" role="tabpanel">
+                    <div class="jumbotron">
+
+                        <p class="lead">This is a docker-compose YAML file generated from your YAML config.
+                            You can use it to start a Docker Swarm distributed on multiple machines.</p>
+                        <hr class="my-4">
+                        <p> 1. Install Docker and Docker Swarm<br>
+                            2. Create a new file say <code>my-compose.yml</code><br>
+                            3. Copy the following content to it
+                            4. Run <code>docker stack deploy --compose-file my-compose.yml</code>.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            Docker-Swarm/Compose config
+                        </div>
+                        <div class="card-body">
+                            <button type="button" class="btn btn-primary" data-clipboard-target="#docker-code">
+                                Copy to Clipboard
+                            </button>
+                            <pre>
                     <code class="yaml" id="docker-code">
 {{gnes-docker}}
                     </code>
                 </pre>
-            </div>
-        </div>
-    </div>
-    <div class="tab-pane fade" id="pills-k8s" role="tabpanel">
-        <div class="container">
-            <div class="row justify-content-center">
-                <button type="button" class="btn btn-primary" data-clipboard-target="#k8s-code">
-                    Copy to Clipboard
-                </button>
-            </div>
-            <div class="row justify-content-center">
-                <pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-k8s" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            Docker-Swarm/Docker-compose config
+                        </div>
+                        <div class="card-body">
+                            <button type="button" class="btn btn-primary" data-clipboard-target="#k8s-code">
+                                Copy to Clipboard
+                            </button>
+                            <pre>
                     <code class="yaml" id="k8s-code">
 {{gnes-k8s}}
                     </code>
                 </pre>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+
         </div>
+
     </div>
 </div>
+
+<footer class="text-muted bg-light" style="margin-top: 20px">
+    <div class="container">
+        <p class="float-right">
+            <a href="#">Back to top</a>
+        </p>
+        <p>Page is generated at {{gnes-timestamp}} with GNES v{{gnes-version}}.</p>
+        <p>GNES is Generic Neural Elastic Search. GNES © 2019 is licensed under the Apache License, Version 2.0</p>
+        <p>New to GNES? <a href="https://gnes.ai">Visit the homepage</a> or read our <a
+                href="https://github.com/gnes-ai/gnes">getting started guide on Github</a>.</p>
+    </div>
+</footer>
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -214,6 +345,5 @@
     hljs.initHighlightingOnLoad();
     new ClipboardJS('.btn');
 </script>
-
 </body>
 </html>

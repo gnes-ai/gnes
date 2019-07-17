@@ -45,8 +45,10 @@ def set_composer_parser(parser=None):
                         default='GNES instance',
                         help='name of the instance')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
+                        required=True,
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
+                        default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
     parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the shell-based starting script')
@@ -54,6 +56,14 @@ def set_composer_parser(parser=None):
                         help='output path of the docker-compose file for Docker Swarm')
     parser.add_argument('--k8s_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the docker-compose file for Docker Swarm')
+    parser.add_argument('--shell_log_redirect', type=str,
+                        help='the file path for redirecting shell output. '
+                             'when not given, the output will be flushed to stdout')
+    parser.add_argument('--mermaid_leftright', action='store_true', default=False,
+                        help='showing the flow in left-to-right manner rather than top down')
+    parser.add_argument('--docker_img', type=str,
+                        default='gnes/gnes:latest',
+                        help='the docker image used in Docker Swarm & Kubernetes')
     return parser
 
 
@@ -184,9 +194,9 @@ def set_grpc_frontend_parser(parser=None):
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent client allowed')
     parser.add_argument('--max_send_size', type=int, default=100,
-                        help='maximum send size for grpc server in (M)')
+                        help='maximum send size for grpc server in (MB)')
     parser.add_argument('--max_receive_size', type=int, default=100,
-                        help='maximum receive size for grpc server in (M)')
+                        help='maximum receive size for grpc server in (MB)')
     return parser
 
 

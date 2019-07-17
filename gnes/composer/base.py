@@ -1,5 +1,6 @@
 import copy
 import random
+import time
 from collections import defaultdict
 from typing import Dict, List
 
@@ -8,6 +9,7 @@ from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
 from termcolor import colored
 
+from .. import __version__
 from ..helper import set_logger
 from ..service.base import SocketType
 
@@ -211,7 +213,7 @@ class YamlGraph:
         pass
 
     @staticmethod
-    def build_shell(all_layers: List['YamlGraph.Layer'], log_path: str = None) -> str:
+    def build_shell(all_layers: List['YamlGraph.Layer'], log_redirect: str = None) -> str:
         shell_lines = []
         taboo = {'name', 'replicas'}
         for layer in all_layers:
@@ -225,14 +227,14 @@ class YamlGraph:
                         ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
                          a not in taboo and v])
                     shell_lines.append('gnes %s %s %s &' % (
-                        cmd, args, '>> %s 2>&1' % log_path if log_path else ''))
+                        cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
         r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh')))
         with r:
             return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
 
     @staticmethod
-    def build_mermaid(all_layers: List['YamlGraph.Layer'], show_topdown: bool = True) -> str:
+    def build_mermaid(all_layers: List['YamlGraph.Layer'], mermaid_leftright: bool = False) -> str:
         mermaid_graph = []
         cls_dict = defaultdict(set)
         for l_idx, layer in enumerate(all_layers[1:] + [all_layers[0]], 1):
@@ -244,8 +246,8 @@ class YamlGraph:
                 for j in range(YamlGraph.Layer.get_value(c, 'replicas')):
                     for c1_idx, c1 in enumerate(layer.components):
                         if c1['port_in'] == c['port_out']:
-                            p = '((%s%s))' if c['name'] == 'Router' else '[%s%s]'
-                            p1 = '((%s%s))' if c1['name'] == 'Router' else '[%s%s]'
+                            p = '((%s%s))' if c['name'] == 'Router' else '(%s%s)'
+                            p1 = '((%s%s))' if c1['name'] == 'Router' else '(%s%s)'
                             for j1 in range(YamlGraph.Layer.get_value(c1, 'replicas')):
                                 _id, _id1 = '%s%s%s' % (last_layer.layer_id, c_idx, j), '%s%s%s' % (
                                     layer.layer_id, c1_idx, j1)
@@ -270,7 +272,8 @@ class YamlGraph:
                  'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',
                  'classDef PreprocessorCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;']
         class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
-        mermaid_str = '\n'.join(['graph %s' % 'TD' if show_topdown else 'LR'] + mermaid_graph + style + class_def)
+        mermaid_str = '\n'.join(
+            ['graph %s' % ('LR' if mermaid_leftright else 'TD')] + mermaid_graph + style + class_def)
         return mermaid_str
 
     @staticmethod
@@ -295,17 +298,19 @@ class YamlGraph:
                     print(content)
 
         all_layers = self.build_layers()
-        rep_dict = {
-            'mermaid': self.build_mermaid(all_layers),
-            'shell': self.build_shell(all_layers),
+        cmds = {
+            'mermaid': self.build_mermaid(all_layers, self.args.mermaid_leftright),
+            'shell': self.build_shell(all_layers, self.args.shell_log_redirect),
             'yaml': self.original_yaml,
-            'docker': self.build_dockerswarm(all_layers),
+            'docker': self.build_dockerswarm(all_layers, self.args.docker_img),
             'k8s': self.build_kubernetes(all_layers),
+            'timestamp': time.strftime("%a, %d %b %Y %H:%M:%S"),
+            'version': __version__
         }
-        std_or_print(self.args.shell_path, rep_dict['shell'])
-        std_or_print(self.args.swarm_path, rep_dict['docker'])
-        std_or_print(self.args.k8s_path, rep_dict['k8s'])
-        std_or_print(self.args.html_path, self.build_html(rep_dict))
+        std_or_print(self.args.shell_path, cmds['shell'])
+        std_or_print(self.args.swarm_path, cmds['docker'])
+        std_or_print(self.args.k8s_path, cmds['k8s'])
+        std_or_print(self.args.html_path, self.build_html(cmds))
 
     @staticmethod
     def _get_random_port(min_port: int = 49152, max_port: int = 65536) -> str:
