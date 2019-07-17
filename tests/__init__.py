@@ -48,6 +48,8 @@ env_dict = {
         'VGG_MODEL': '/',
         'RESNET_MODEL': '/',
         'INCEPTION_MODEL': '/',
+        'MOBILENET_MODEL': '/',
+        'FASTERRCNN_MODEL': '/',
         'GNES_PROFILING': 0
     },
     'idc-165': {
@@ -63,6 +65,8 @@ env_dict = {
         'VGG_MODEL': '/ext_data/image_encoder',
         'RESNET_MODEL': '/ext_data/image_encoder',
         'INCEPTION_MODEL': '/ext_data/image_encoder',
+        'MOBILENET_MODEL': '/ext_data/image_encoder',
+        'FASTERRCNN_MODEL': '/ext_data/image_preprocessor',
         'GNES_PROFILING': 0
     }
 
