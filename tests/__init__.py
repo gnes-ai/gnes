@@ -48,7 +48,7 @@ env_dict = {
         'VGG_MODEL': '/',
         'RESNET_MODEL': '/',
         'INCEPTION_MODEL': '/',
-        'GNES_PROFILING': 1
+        'GNES_PROFILING': 0
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -63,7 +63,7 @@ env_dict = {
         'VGG_MODEL': '/ext_data/image_encoder',
         'RESNET_MODEL': '/ext_data/image_encoder',
         'INCEPTION_MODEL': '/ext_data/image_encoder',
-        'GNES_PROFILING': 1
+        'GNES_PROFILING': 0
     }
 
 }
