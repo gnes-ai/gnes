@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Requirements
+# brew install hub
+# npm install -g git-release-notes
+
 set -e
 
 INIT_FILE='gnes/__init__.py'
@@ -37,9 +41,24 @@ function pub_pypi {
 }
 
 function pub_gittag {
-    git tag $VER -m "$(cat ./CHANGELOG.md)"
-    git remote add $SOURCE_ORIGIN https://hanxiao:${GITHUB_ACCESS_TOKEN}@github.com/gnes-ai/gnes.git
+    git tag $VER -m "$(cat ./CHANGELOG.tmp)"
+    # git remote add $SOURCE_ORIGIN https://hanxiao:${GITHUB_ACCESS_TOKEN}@github.com/gnes-ai/gnes.git
     git push $SOURCE_ORIGIN $VER
+    rm ./CHANGELOG.tmp
+}
+
+function make_chore_pr {
+    git checkout -B "chore-bumping-version"
+    git add ./CHANGELOG.md
+    git commit -m "chore(changelog): update change log to $1"
+    git push $SOURCE_ORIGIN chore-bumping-version --force
+    hub pull-request -m "chore(changelog): update change log to $1" --no-edit -l new-release -r gnes-ai/dev-core
+    git checkout master
+}
+
+function make_release_note {
+    git-release-notes $1..HEAD .github/release-template.ejs > ./CHANGELOG.tmp
+    printf '\n%s\n%s\n%s\n%s\n' "# Release Note (\`$2\`)" "> Release time: $(date +'%Y-%m-%d %H:%M:%S')" "$(cat ./CHANGELOG.tmp)" "$(cat ./CHANGELOG.md)" > ./CHANGELOG.md
 }
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -50,25 +69,29 @@ fi
 
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
-VER=$(git tag -l | sort -V |tail -n1)
-printf "current version:\t\e[1;33m$VER\e[0m\n"
+OLDVER=$(git tag -l | sort -V |tail -n1)
+printf "current version:\t\e[1;33m$OLDVER\e[0m\n"
 
-git-release-notes v$VER..HEAD .github/release-template.ejs > ./CHANGELOG.md
-
-VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{$NF=sprintf("%0*d", length($NF), ($NF+1)); print}')
+VER=$(echo $OLDVER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{$NF=sprintf("%0*d", length($NF), ($NF+1)); print}')
 printf "bump version to:\t\e[1;32m$VER\e[0m\n"
 
+make_release_note $OLDVER $VER
+
+head -n10 ./CHANGELOG.md
+
 read -p "release this version? " -n 1 -r
-#echo    # (optional) move to a new line
-#if [[ $REPLY =~ ^[Yy]$ ]]
-#then
-# write back tag to client and server code
-VER_VAL=$VER_TAG"'"${VER#"v"}"'"
-change_line "$VER_TAG" "$VER_VAL" $INIT_FILE
-pub_pypi
-pub_gittag
-mv ${TMP_INIT_FILE} $INIT_FILE
-#fi
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    # write back tag to client and server code
+    VER_VAL=$VER_TAG"'"${VER#"v"}"'"
+    change_line "$VER_TAG" "$VER_VAL" $INIT_FILE
+    pub_pypi
+    pub_gittag
+    # change the version line back
+    mv ${TMP_INIT_FILE} $INIT_FILE
+    make_chore_pr $VER
+fi
 
 
 

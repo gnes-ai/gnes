@@ -1,6 +1,4 @@
-<%
-
-var groupCommits = [{
+<% var groupCommits = [{
     name: 'feat',
     show: true,
     list: []
@@ -16,13 +14,19 @@ var groupCommits = [{
     name: 'docs',
     show: true,
     list: []
+},  {
+    name: 'test',
+    show: true,
+    list: []
 }, {
     name: 'other',
     show: true,
     list: []
-}]
+}
+]
 
 var all_titles = {};
+var commitHref = "https://github.com/gnes-ai/gnes/commit/"
 
 commits.forEach(function (commit) {
 
@@ -63,6 +67,13 @@ commits.forEach(function (commit) {
                 title: title,
                 commit: commit
             })
+        } else if(type == 'test' || type == 'tests' || type == 'ci'){
+            groupCommits.find(item => item.name === 'test').list.push({
+                type: type,
+                scope: scope,
+                title: title,
+                commit: commit
+            })
         } else {
             groupCommits.find(item => item.name === 'other').list.push({
                 type: type,
@@ -96,36 +107,28 @@ list.forEach(function (ct) {
         title = commit.title;
     }
 %> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (<%= commit.authorName %>)
-<% })}
-%>
-
-# Release Notes
-
+<% })} %>
 <%
-
-
         for(var i of groupCommits){
     if(i.list.length == 0) continue;
 
 if (i.name === 'fix' && i.show) { %>
-
-### Bug fixes
+### 🐞 Bug fixes
 
 <%	} else if( i.name === 'feat' && i.show) { %>
-
-### New Features
+### 🆕 New Features
 
 <%	} else if(i.name === 'refactor' && i.show) { %>
-
-### Code Refactoring
+### 🚧 Code Refactoring
 
 <%	} else if(i.name === 'docs' && i.show) { %>
+### 📗 Documentation
 
-### Documentation
+<%	} else if(i.name === 'test' && i.show) { %>
+### 🏁 Unit Test and CICD
 
 <%	} else if (i.name === 'other' && i.show) { %>
-
-### Other Improvements
+### 🍹 Other Improvements
 
 <%	}
     i.show && listCommits(i.list, i);
