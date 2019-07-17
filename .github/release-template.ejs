@@ -26,6 +26,7 @@
 ]
 
 var all_titles = {};
+var all_commiters = {};
 var commitHref = "https://github.com/gnes-ai/gnes/commit/"
 
 commits.forEach(function (commit) {
@@ -35,6 +36,11 @@ commits.forEach(function (commit) {
     var type = result && result[1];
     var scope = result && result[3];
     var title = result && result[4];
+    var committer = commit.authorName
+
+    if (!(committer in all_commiters)) {
+        all_commiters[committer] = 1
+    }
 
     if (!(title in all_titles)) {
         all_titles[title] = 1
@@ -106,8 +112,12 @@ list.forEach(function (ct) {
     }else{
         title = commit.title;
     }
-%> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (<%= commit.authorName %>)
+%> - <% if(typeof commitHref === 'undefined' || commitHref === '') { %>[```<%=commit.sha1.slice(0,8)%>```]<% } else { %>[[```<%=commit.sha1.slice(0,8)%>```](<%=commitHref%><%=commit.sha1%>)]<%}%> __-__ <%=title%> (*<%= commit.authorName %>*)
 <% })} %>
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+<%  Object.keys(all_commiters).forEach(function (key) { %> <%= key %>, <% }) %> 🙇
+
 <%
         for(var i of groupCommits){
     if(i.list.length == 0) continue;
