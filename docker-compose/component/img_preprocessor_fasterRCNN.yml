@@ -1,0 +1,8 @@
+!SegmentPreprocessor
+parameter:
+  model_dir: /ext_data/image_preprocessor
+  model_name: fasterrcnn_resnet50_fpn
+  target_img_size: 224
+  _use_cuda: false
+property:
+  is_trained: true
