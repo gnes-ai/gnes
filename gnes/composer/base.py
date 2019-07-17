@@ -75,9 +75,10 @@ class YamlGraph:
 
         self._layers = []  # type: List['YamlGraph.Layer']
         self.logger = set_logger(self.__class__.__name__)
-        tmp = _yaml.load(args.yaml_path)
-        stream = StringIO()
-        _yaml.dump(tmp, stream)
+        with args.yaml_path:
+            tmp = _yaml.load(args.yaml_path)
+            stream = StringIO()
+            _yaml.dump(tmp, stream)
         self.original_yaml = stream.getvalue()
         self.name = tmp.get('name', args.name)
         self.port = tmp.get('port', args.port)
