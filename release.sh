@@ -44,7 +44,6 @@ function pub_gittag {
     git tag $VER -m "$(cat ./CHANGELOG.tmp)"
     # git remote add $SOURCE_ORIGIN https://hanxiao:${GITHUB_ACCESS_TOKEN}@github.com/gnes-ai/gnes.git
     git push $SOURCE_ORIGIN $VER
-    rm ./CHANGELOG.tmp
 }
 
 function make_chore_pr {
@@ -53,7 +52,18 @@ function make_chore_pr {
     git commit -m "chore(changelog): update change log to $1"
     git push $SOURCE_ORIGIN chore-bumping-version --force
     hub pull-request -m "chore(changelog): update change log to $1" --no-edit -l new-release -r gnes-ai/dev-core
+
+    make_wechat_push $1
+    rm ./CHANGELOG.tmp
     git checkout master
+}
+
+function make_wechat_push {
+    export MSG_CONTENT=$(cat ./CHANGELOG.tmp | sed -e 's!(http\(s\)\{0,1\}://[^[:space:]][^]]*!!g' | sed 's/\[\[//g' | sed 's/\]\]//g')
+    export MSG_TITLE="# Release Note ($1)"
+    export MSG_LINK="https://github.com/gnes-ai/gnes/releases"
+
+    ./shell/push-wechatwork.sh
 }
 
 function make_release_note {
@@ -61,11 +71,11 @@ function make_release_note {
     printf '\n%s\n%s\n%s\n%s\n' "# Release Note (\`$2\`)" "> Release time: $(date +'%Y-%m-%d %H:%M:%S')" "$(cat ./CHANGELOG.tmp)" "$(cat ./CHANGELOG.md)" > ./CHANGELOG.md
 }
 
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ "$BRANCH" != "master" ]]; then
-  printf "You are not at master branch, exit\n";
-  exit 1;
-fi
+#BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#if [[ "$BRANCH" != "master" ]]; then
+#  printf "You are not at master branch, exit\n";
+#  exit 1;
+#fi
 
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
