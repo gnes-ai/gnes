@@ -38,7 +38,6 @@ class SegmentPreprocessor(BaseImagePreprocessor):
             image_tensor = self._torch_transform(original_image)
             if self._use_cuda:
                 image_tensor = image_tensor.cuda()
-
             seg_output = self._model([image_tensor])
             chunks = seg_output[0]['boxes'].tolist()
             weight = seg_output[0]['scores'].tolist()
