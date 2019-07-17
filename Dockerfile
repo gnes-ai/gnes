@@ -12,7 +12,8 @@ FROM dependency as base
 
 ADD . ./
 
-RUN pip install .[all]
+RUN pip install .[all] \
+    && rm -rf /tmp/*
 
 WORKDIR /
 

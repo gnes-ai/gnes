@@ -13,3 +13,5 @@ toy*
 release.sh
 shell/
 .tmp/
+.git/
+.github/
