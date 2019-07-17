@@ -35,7 +35,7 @@
   <a href="#getting-started">Getting Started</a> •
   <a href="#usage">Usage</a> •
   <a href="#book-tutorial">Tutorials</a> •
-  <a href="#speech_balloon-faq">FAQ</a>  
+  <a href="./CHANGELOG.md">Release Notes</a>  
 </p>
 
 <h2 align="center">What is it</h2>
@@ -69,17 +69,17 @@ As a cloud-native application, GNES requires an **orchestration engine** to coor
 <table>
   <tr>
     <th>
-    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="100px">
+    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a>
     </th>
     <th>
-    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="100px">
+    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a>
     </th>
     <th>
-    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="100px">
+    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="64px" width="64px">
     <br>
     <a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a>
     </th>
