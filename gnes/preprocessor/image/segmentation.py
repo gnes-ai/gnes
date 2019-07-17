@@ -1,5 +1,5 @@
 from .base import BaseImagePreprocessor
-from ...proto import gnes_pb2, array2blob
+from ...proto import array2blob
 from PIL import Image
 import numpy as np
 import io
