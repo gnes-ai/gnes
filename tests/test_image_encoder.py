@@ -5,7 +5,7 @@ import copy
 import numpy as np
 
 from gnes.encoder.image.base import BasePytorchEncoder
-from gnes.preprocessor.image.slidingWindow import VanillaSlidingPreprocessor
+from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.preprocessor.base import BaseSingletonPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
