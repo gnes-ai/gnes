@@ -19,6 +19,7 @@ from typing import List, Callable
 import numpy as np
 
 from ..base import BaseImageEncoder
+from ...helper import batching
 
 
 class BasePytorchEncoder(BaseImageEncoder):
@@ -72,6 +73,7 @@ class BasePytorchEncoder(BaseImageEncoder):
             self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             self._model = self._model.to(self._device)
 
+    @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         import torch
         self._model.eval()

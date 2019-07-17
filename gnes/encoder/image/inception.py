@@ -17,6 +17,7 @@ from typing import List
 import numpy as np
 from gnes.helper import batch_iterator
 from ..base import BaseImageEncoder
+from ...helper import batching
 from PIL import Image
 
 
@@ -59,6 +60,7 @@ class TFInceptionEncoder(BaseImageEncoder):
         self.saver = tf.train.Saver()
         self.saver.restore(self.sess, self.model_dir)
 
+    @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
         img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
