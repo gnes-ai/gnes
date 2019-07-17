@@ -1,9 +1,0 @@
-!ImagePreprocessor
-parameter:
-  start_doc_id: 0
-  random_doc_id: True
-  use_split: True
-  split_method: 'stride'
-  is_rgb: True
-property:
-  is_trained: true
