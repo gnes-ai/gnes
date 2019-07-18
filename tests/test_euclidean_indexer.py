@@ -39,9 +39,9 @@ class TestEUIndexer(unittest.TestCase):
     def test_dump_load(self):
         with FaissIndexer(20, 'HNSW32', self.dump_path) as tmp:
             tmp.add(self.toy_label, self.toy_query, [1.] * len(self.toy_label))
-            tmp.dump(self.dump_path)
+            tmp.dump()
 
-        with FaissIndexer.load(self.dump_path) as fd:
+        with FaissIndexer.load(tmp.dump_full_path) as fd:
             ret = fd.query(self.sub_query, top_k=2)
             self.assertEqual(len(ret), self.sub_query.shape[0])
             self.assertEqual(len(ret[0]), 2)
