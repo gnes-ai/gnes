@@ -21,9 +21,13 @@ class AnnoyIndexer(BaseVectorIndexer):
         from annoy import AnnoyIndex
         self._index = AnnoyIndex(self.num_dim, self.metric)
         try:
+            if not os.path.exists(self.data_path):
+                raise FileNotFoundError('"data_path" is not exist')
+            if os.path.isdir(self.data_path):
+                raise IsADirectoryError('"data_path" must be a file path, not a directory')
             self._index.load(self.data_path)
         except:
-            self.logger.warning('fail to load model from %s, will create an empty one' % self.indexer_file_path)
+            self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         last_idx = self._key_info_indexer.size

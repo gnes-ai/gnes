@@ -44,8 +44,14 @@ class HBIndexer(BaseVectorIndexer):
 
     def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
-        if os.path.exists(self.data_path):
+        try:
+            if not os.path.exists(self.data_path):
+                raise FileNotFoundError('"data_path" is not exist')
+            if os.path.isdir(self.data_path):
+                raise IsADirectoryError('"data_path" must be a file path, not a directory')
             self.hbindexer.load(self.data_path)
+        except (FileNotFoundError, IsADirectoryError):
+            self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):

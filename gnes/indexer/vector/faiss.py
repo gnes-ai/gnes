@@ -37,8 +37,12 @@ class FaissIndexer(BaseVectorIndexer):
     def post_init(self):
         import faiss
         try:
+            if not os.path.exists(self.data_path):
+                raise FileNotFoundError('"data_path" is not exist')
+            if os.path.isdir(self.data_path):
+                raise IsADirectoryError('"data_path" must be a file path, not a directory')
             self._faiss_index = faiss.read_index(self.data_path)
-        except RuntimeError:
+        except (RuntimeError, FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
