@@ -27,16 +27,16 @@ class TestBIndexer(unittest.TestCase):
                         [(234, 0, 1., 3), (123, 1, 1., 3)]]
         self.weights = [1.] * len(self.toy_label)
 
-        self.data_path = './test_bindexer_data'
-        touch_dir(self.data_path)
-        self.dump_path = os.path.join(self.data_path, 'indexer.pkl')
+
+        self.dirname = os.path.dirname(__file__)
+        self.dump_path = os.path.join(self.dirname, 'indexer.pkl')
 
     def tearDown(self):
-        if os.path.exists(self.data_path):
-            os.remove(self.data_path)
+        if os.path.exists(self.dump_path):
+            os.remove(self.dump_path)
 
     def test_nsw_search(self):
-        fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_1")
+        fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path)
         fd.add(self.toy_label, self.toy_data, self.weights)
 
         rs = fd.query(self.toy_query, 2, method='nsw', normalized_score=False)
@@ -46,7 +46,7 @@ class TestBIndexer(unittest.TestCase):
         self.assertEqual(rs, self.toy_exp)
 
     def test_force_search(self):
-        fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_2")
+        fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path)
         fd.add(self.toy_label, self.toy_data, self.weights)
         rs = fd.query(self.toy_query, 2, method='force', normalized_score=False)
         for i in range(len(rs)):
@@ -55,7 +55,7 @@ class TestBIndexer(unittest.TestCase):
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
-        fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_3")
+        fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path)
         fd.add(self.toy_label, self.toy_data, self.weights)
         fd.dump(self.dump_path)
         fd.close()

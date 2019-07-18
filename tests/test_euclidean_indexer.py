@@ -14,7 +14,8 @@ class TestEUIndexer(unittest.TestCase):
         self.add_label = np.random.randint(0, 1e9, [1000, 2]).tolist()
 
         self.sub_query = self.toy_query[:10]
-        self.dump_path = './test_eu_indexer/indexer.pkl'
+        dirname = os.path.dirname(__file__)
+        self.dump_path = os.path.join(dirname, 'test_eu_faiss')
 
     def tearDown(self):
         if os.path.exists(self.dump_path):
