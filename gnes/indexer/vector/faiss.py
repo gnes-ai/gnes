@@ -26,12 +26,10 @@ from ..key_only import ListKeyIndexer
 
 
 class FaissIndexer(BaseVectorIndexer):
-    lock_work_dir = True
 
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
-        super().__init__()
-        self.work_dir = data_path
-        self.indexer_file_path = os.path.join(self.work_dir, self.internal_index_path)
+        super().__init__(*args, **kwargs)
+        self.data_path = data_path
         self.num_dim = num_dim
         self.index_key = index_key
         self._key_info_indexer = ListKeyIndexer()
@@ -39,9 +37,9 @@ class FaissIndexer(BaseVectorIndexer):
     def post_init(self):
         import faiss
         try:
-            self._faiss_index = faiss.read_index(self.indexer_file_path)
+            self._faiss_index = faiss.read_index(self.data_path)
         except RuntimeError:
-            self.logger.warning('fail to load model from %s, will init an empty one' % self.indexer_file_path)
+            self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
@@ -76,5 +74,5 @@ class FaissIndexer(BaseVectorIndexer):
     def __getstate__(self):
         import faiss
         d = super().__getstate__()
-        faiss.write_index(self._faiss_index, self.indexer_file_path)
+        faiss.write_index(self._faiss_index, self.data_path)
         return d

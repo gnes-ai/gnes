@@ -56,6 +56,8 @@ def set_composer_parser(parser=None):
                         help='output path of the docker-compose file for Docker Swarm')
     parser.add_argument('--k8s_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the docker-compose file for Docker Swarm')
+    parser.add_argument('--graph_path', type=argparse.FileType('w', encoding='utf8'),
+                        help='output path of the mermaid graph file')
     parser.add_argument('--shell_log_redirect', type=str,
                         help='the file path for redirecting shell output. '
                              'when not given, the output will be flushed to stdout')
@@ -90,10 +92,10 @@ def set_service_parser(parser=None):
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
     parser.add_argument('--dump_interval', type=int, default=5,
-                        help='dump the service every n seconds')
+                        help='serialize the service to a file every n seconds')
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
-                             'dump_path and dump_interval will be ignored')
+                             'dump_interval will be ignored')
     return parser
 
 
@@ -118,8 +120,6 @@ def set_loadable_service_parser(parser=None):
     from ..service.base import SocketType
     set_service_parser(parser)
 
-    parser.add_argument('--dump_path', type=str, default=None,
-                        help='binary dump of the service')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
                         default=pkg_resources.resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),

@@ -25,7 +25,6 @@ from ...base import BaseVectorIndexer
 
 
 class BIndexer(BaseVectorIndexer):
-    lock_work_dir = True
 
     def __init__(self,
                  num_bytes: int = None,
@@ -41,17 +40,15 @@ class BIndexer(BaseVectorIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
 
-        self.work_dir = data_path
-        self.indexer_bin_path = os.path.join(self.work_dir,
-                                             self.internal_index_path)
+        self.data_path = data_path
         self._weight_norm = 2 ** 16 - 1
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
                                   self.insert_iterations,
                                   self.query_iterations)
-        if os.path.exists(self.indexer_bin_path):
-            self.bindexer.load(self.indexer_bin_path)
+        if os.path.exists(self.data_path):
+            self.bindexer.load(self.data_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
@@ -115,6 +112,6 @@ class BIndexer(BaseVectorIndexer):
         return result
 
     def __getstate__(self):
-        self.bindexer.save(self.indexer_bin_path)
+        self.bindexer.save(self.data_path)
         d = super().__getstate__()
         return d

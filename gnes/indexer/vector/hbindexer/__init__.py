@@ -25,7 +25,6 @@ from ...base import BaseVectorIndexer
 
 
 class HBIndexer(BaseVectorIndexer):
-    lock_work_dir = True
 
     def __init__(self,
                  num_clusters: int = 100,
@@ -38,18 +37,15 @@ class HBIndexer(BaseVectorIndexer):
         self.n_bytes = num_bytes
         self.n_clusters = num_clusters
         self.n_idx = n_idx
-
-        self.work_dir = data_path
-        self.indexer_bin_path = os.path.join(self.work_dir,
-                                             self.internal_index_path)
+        self.data_path = data_path
         self._weight_norm = 2 ** 16 - 1
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
 
     def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
-        if os.path.exists(self.indexer_bin_path):
-            self.hbindexer.load(self.indexer_bin_path)
+        if os.path.exists(self.data_path):
+            self.hbindexer.load(self.data_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
@@ -93,6 +89,6 @@ class HBIndexer(BaseVectorIndexer):
         return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
 
     def __getstate__(self):
-        self.hbindexer.save(self.indexer_bin_path)
+        self.hbindexer.save(self.data_path)
         d = super().__getstate__()
         return d

@@ -27,7 +27,7 @@ from ...proto import gnes_pb2
 class LVDBIndexer(BaseTextIndexer):
 
     def __init__(self, data_path: str, keep_na_doc: bool = True, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.data_path = data_path
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
