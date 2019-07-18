@@ -177,7 +177,7 @@ class YamlGraph:
                         break
 
                 args += ['--host_in %s' % host_in_name]
-                         # '--host_out %s' % host_out_name]
+                # '--host_out %s' % host_out_name]
 
                 cmd = '%s %s' % (YamlGraph.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = {
@@ -366,13 +366,15 @@ class YamlGraph:
             router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
+                income = self.Layer.get_value(c, 'income')
                 r = CommentedMap({'name': 'Router',
                                   'yaml_path': None,
                                   'socket_in': str(SocketType.SUB_CONNECT),
-                                  'socket_out': str(SocketType.PUSH_BIND),
+                                  'socket_out': str(SocketType.PUSH_BIND) if income == 'pull' else str(
+                                      SocketType.PUB_BIND),
                                   'port_in': last_layer.components[0]['port_out'],
                                   'port_out': self._get_random_port()})
-                c['socket_in'] = str(SocketType.PULL_CONNECT)
+                c['socket_in'] = str(SocketType.PULL_CONNECT) if income == 'pull' else str(SocketType.SUB_CONNECT)
                 c['port_in'] = r['port_out']
                 router_layer.append(r)
             router_layers.append(router_layer)
@@ -395,6 +397,8 @@ class YamlGraph:
             router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
+                income = self.Layer.get_value(c, 'income')
+
                 r = CommentedMap({'name': 'Router',
                                   'yaml_path': None,
                                   'socket_in': str(SocketType.SUB_CONNECT),
@@ -405,6 +409,25 @@ class YamlGraph:
                 c['port_in'] = r['port_out']
                 router_layer.append(r)
             router_layers.append(router_layer)
+
+        def rule10():
+            last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
+
+            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            self._num_layer += 1
+            r0 = CommentedMap({'name': 'Router',
+                               'yaml_path': None,
+                               'socket_in': str(SocketType.PULL_BIND),
+                               'socket_out': str(SocketType.PUB_BIND),
+                               'port_in': self._get_random_port(),
+                               'port_out': self._get_random_port()})
+            router_layer.append(r0)
+            router_layers.append(router_layer)
+            last_layer.components[0]['port_out'] = r0['port_in']
+
+            for c in layer.components:
+                c['socket_in'] = str(SocketType.SUB_CONNECT)
+                c['port_in'] = r0['port_out']
 
         def rule8():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
@@ -501,7 +524,13 @@ class YamlGraph:
                 # (N)-to-(1)&(1)&(1)
                 rule5()
             else:
-                rule7()
+                income = self.Layer.get_value(layer.components[0], 'income')
+                if income == 'pull':
+                    rule7()
+                elif income == 'sub':
+                    rule10()
+                else:
+                    raise NotImplementedError('replica type: %s is not recognized!' % last_income)
         elif last_layer.is_heto_single_component:
             rule3()
         else:

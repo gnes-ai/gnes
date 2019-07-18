@@ -7,7 +7,7 @@
 set -e
 
 INIT_FILE='gnes/__init__.py'
-TMP_INIT_FILE='.__init__.py.tmp'
+TMP_INIT_FILE='./__init__.py.tmp'
 VER_TAG='__version__ = '
 SOURCE_ORIGIN='origin'
 
@@ -41,9 +41,12 @@ function pub_pypi {
 }
 
 function pub_gittag {
+    git add $INIT_FILE
+    git commit -m "chore(version): bumping version to $VER"
     git tag $VER -m "$(cat ./CHANGELOG.tmp)"
     # git remote add $SOURCE_ORIGIN https://hanxiao:${GITHUB_ACCESS_TOKEN}@github.com/gnes-ai/gnes.git
     git push $SOURCE_ORIGIN $VER
+    git checkout master
 }
 
 function make_chore_pr {

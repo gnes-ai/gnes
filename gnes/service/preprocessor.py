@@ -27,15 +27,15 @@ class PreprocessorService(BS):
         self._model = self.load_model(BasePreprocessor)
 
     @handler.register(gnes_pb2.Request.TrainRequest)
-    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
+    def _handler_train(self, msg: 'gnes_pb2.Message'):
         for d in msg.request.train.docs:
             self._model.apply(d)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
-    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
+    def _handler_index(self, msg: 'gnes_pb2.Message'):
         for d in msg.request.index.docs:
             self._model.apply(d)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
-    def _handler_train_index(self, msg: 'gnes_pb2.Message'):
+    def _handler_query(self, msg: 'gnes_pb2.Message'):
         self._model.apply(msg.request.search.query)

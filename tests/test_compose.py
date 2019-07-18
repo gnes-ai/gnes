@@ -12,7 +12,7 @@ class TestCompose(unittest.TestCase):
 
     def test_all(self):
         paths = [os.path.join(self.dirname, 'yaml', 'topology%d.yml' % j) for j in range(1, 8)]
-        b_a = [(3, 3), (4, 4), (4, 5), (4, 7), (4, 6), (4, 8), (4, 9)]
+        b_a = [(3, 3), (4, 4), (4, 5), (4, 7), (4, 6), (4, 8), (4, 8)]
         for p, j in zip(paths, b_a):
             self._test_topology(p, *j)
 
@@ -32,6 +32,6 @@ class TestCompose(unittest.TestCase):
         os.path.exists(self.html_path)
         print(a.build_dockerswarm(r))
 
-    # def tearDown(self):
-    #     if os.path.exists(self.html_path):
-    #         os.remove(self.html_path)
+    def tearDown(self):
+        if os.path.exists(self.html_path):
+            os.remove(self.html_path)
