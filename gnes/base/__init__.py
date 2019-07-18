@@ -301,7 +301,8 @@ class TrainableBase(metaclass=TrainableType):
             _id = str(uuid.uuid4()).split('-')[0]
             _name = obj.__class__.__name__ + _id
             obj.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found), i will call it as "%s". '
+                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'i will call it as "%s". '
                 'However, naming the object is important especially when you need to '
                 'serialize/deserialize/store/load the object.' % _name)
             setattr(obj, 'name', _name)
