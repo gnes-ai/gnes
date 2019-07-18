@@ -17,7 +17,6 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         self.model_name = model_name
         self.model_dir = model_dir
         self.target_img_size = target_img_size
-        self.model_name = model_name
         self._use_cuda = _use_cuda
 
     def post_init(self):
@@ -37,6 +36,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         if doc.raw_bytes:
             original_image = Image.open(io.BytesIO(doc.raw_bytes))
             image_tensor = self._torch_transform(original_image)
+            if self._use_cuda:
+                image_tensor = image_tensor.cuda()
 
             seg_output = self._model([image_tensor])
             chunks = seg_output[0]['boxes'].tolist()
