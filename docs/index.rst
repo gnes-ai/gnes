@@ -20,7 +20,7 @@ View by Microservices
 .. toctree::
    :maxdepth: 3
 
-   microservice
+   chapter/microservice.rst
 
 View by Packages
 ----------------

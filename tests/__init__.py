@@ -50,7 +50,7 @@ env_dict = {
         'INCEPTION_MODEL': '/',
         'MOBILENET_MODEL': '/',
         'FASTERRCNN_MODEL': '/',
-        'GNES_PROFILING': 0
+        'GNES_PROFILING': ''
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -67,7 +67,7 @@ env_dict = {
         'INCEPTION_MODEL': '/ext_data/image_encoder',
         'MOBILENET_MODEL': '/ext_data/image_encoder',
         'FASTERRCNN_MODEL': '/ext_data/image_preprocessor',
-        'GNES_PROFILING': 0
+        'GNES_PROFILING': ''
     }
 
 }
