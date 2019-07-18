@@ -53,9 +53,16 @@ release = __version__
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinxcontrib.apidoc',
     'sphinxarg.ext',
     'recommonmark'
 ]
+
+apidoc_module_dir = '../gnes'
+apidoc_output_dir = 'reference'
+apidoc_excluded_paths = ['tests']
+apidoc_separate_modules = True
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

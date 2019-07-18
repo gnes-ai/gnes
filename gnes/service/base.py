@@ -308,7 +308,7 @@ class BaseService(threading.Thread):
         except FileNotFoundError:
             raise ComponentNotLoad
         try:
-            model = model.load()
+            model = model.__class__.load(model.dump_full_path)
         except FileNotFoundError:
             self.logger.warning('load an empty %s from %s' % (model.__class__.__name__, self.args.yaml_path))
         return model

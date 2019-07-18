@@ -157,6 +157,15 @@ class TrainableBase(metaclass=TrainableType):
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self._post_init_vars = set()
+        if not getattr(self, 'name', None):
+            _id = str(uuid.uuid4()).split('-')[0]
+            _name = '%s-%s' % (self.__class__.__name__, _id)
+            self.logger.warning(
+                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'i will call it as "%s". '
+                'However, naming the object is important especially when you need to '
+                'serialize/deserialize/store/load the object.' % _name)
+            setattr(self, 'name', _name)
 
     def _post_init_wrapper(self):
         _before = set(list(self.__dict__.keys()))
@@ -171,7 +180,7 @@ class TrainableBase(metaclass=TrainableType):
         pass
 
     @property
-    def pickle_full_path(self):
+    def dump_full_path(self):
         return os.path.join(self.work_dir, '%s.bin' % self.name)
 
     @property
@@ -201,7 +210,7 @@ class TrainableBase(metaclass=TrainableType):
 
     @profiling
     def dump(self, filename: str = None) -> None:
-        f = filename or self.pickle_full_path
+        f = filename or self.dump_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
         with open(f, 'wb') as fp:
@@ -227,11 +236,11 @@ class TrainableBase(metaclass=TrainableType):
             with filename:
                 return yaml.load(filename)
 
+    @staticmethod
     @profiling
-    def load(self, filename: str = None) -> T:
-        f = filename or self.pickle_full_path
-        if not f: raise FileNotFoundError
-        with open(f, 'rb') as fp:
+    def load(filename: str = None) -> T:
+        if not filename: raise FileNotFoundError
+        with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
     def close(self):
@@ -296,16 +305,6 @@ class TrainableBase(metaclass=TrainableType):
             setattr(obj, k, v)
             if old and old != v:
                 obj.logger.info('gnes_config: %r is replaced from %r to %r' % (k, old, v))
-
-        if not getattr(obj, 'name', None):
-            _id = str(uuid.uuid4()).split('-')[0]
-            _name = obj.__class__.__name__ + _id
-            obj.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
-                'i will call it as "%s". '
-                'However, naming the object is important especially when you need to '
-                'serialize/deserialize/store/load the object.' % _name)
-            setattr(obj, 'name', _name)
 
         cls.init_from_yaml = False
 
