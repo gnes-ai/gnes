@@ -8,13 +8,11 @@ from ..key_only import ListKeyIndexer
 
 
 class AnnoyIndexer(BaseVectorIndexer):
-    lock_work_dir = True
 
     def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees=10, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_dim = num_dim
-        self.work_dir = data_path
-        self.indexer_file_path = os.path.join(self.work_dir, self.internal_index_path)
+        self.data_path = data_path
         self.metric = metric
         self.n_trees = n_trees
         self._key_info_indexer = ListKeyIndexer()
@@ -23,9 +21,13 @@ class AnnoyIndexer(BaseVectorIndexer):
         from annoy import AnnoyIndex
         self._index = AnnoyIndex(self.num_dim, self.metric)
         try:
-            self._index.load(self.indexer_file_path)
+            if not os.path.exists(self.data_path):
+                raise FileNotFoundError('"data_path" is not exist')
+            if os.path.isdir(self.data_path):
+                raise IsADirectoryError('"data_path" must be a file path, not a directory')
+            self._index.load(self.data_path)
         except:
-            self.logger.warning('fail to load model from %s, will create an empty one' % self.indexer_file_path)
+            self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         last_idx = self._key_info_indexer.size
@@ -58,5 +60,5 @@ class AnnoyIndexer(BaseVectorIndexer):
 
     def __getstate__(self):
         d = super().__getstate__()
-        self._index.save(self.indexer_file_path)
+        self._index.save(self.data_path)
         return d

@@ -25,7 +25,7 @@ from ...helper import batching, pooling_simple
 
 
 class Word2VecEncoder(BaseTextEncoder):
-    def __init__(self, model_dir,
+    def __init__(self, model_dir: str,
                  skiprows: int = 1,
                  batch_size: int = 64,
                  dimension: int = 300,
@@ -65,4 +65,3 @@ class Word2VecEncoder(BaseTextEncoder):
             pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
 
         return np.array(pooled_data).astype(np.float32)
-

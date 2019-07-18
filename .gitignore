@@ -68,6 +68,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/api/
 
 # PyBuilder
 target/
@@ -124,6 +125,6 @@ data/
 .nes_cache
 toy*.py
 toy*.yml
-.tmp
+*.tmp
 
 shell/gnes-wizard.sh
