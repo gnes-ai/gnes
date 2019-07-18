@@ -228,7 +228,7 @@ class TrainableBase(metaclass=TrainableType):
                 return yaml.load(filename)
 
     @profiling
-    def load(self, filename: str) -> T:
+    def load(self, filename: str = None) -> T:
         f = filename or self.pickle_full_path
         if not f: raise FileNotFoundError
         with open(f, 'rb') as fp:
