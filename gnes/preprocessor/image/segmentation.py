@@ -42,6 +42,14 @@ class SegmentPreprocessor(BaseImagePreprocessor):
             seg_output = self._model([image_tensor])
             chunks = seg_output[0]['boxes'].tolist()
             weight = seg_output[0]['scores'].tolist()
+            if len(chunks) == 0:
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.blob.CopyFrom(array2blob(np.array(original_image.resize((self.target_img_size,
+                                                                self.target_img_size)))))
+                c.offset_1d = 1
+                c.weight = 1.
+
             for ci, ele in enumerate(zip(chunks, weight)):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
