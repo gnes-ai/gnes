@@ -28,7 +28,7 @@ View by Packages
 .. toctree::
    :maxdepth: 3
 
-   gnes
+   api/gnes
 
 
 Tutorials

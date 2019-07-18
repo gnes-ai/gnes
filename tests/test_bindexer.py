@@ -33,8 +33,7 @@ class TestBIndexer(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists(self.data_path):
-            shutil.rmtree(self.data_path)
-            # os.remove(self.data_path)
+            os.remove(self.data_path)
 
     def test_nsw_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.data_path + "_1")
@@ -44,7 +43,6 @@ class TestBIndexer(unittest.TestCase):
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
-        shutil.rmtree(self.data_path + "_1")
         self.assertEqual(rs, self.toy_exp)
 
     def test_force_search(self):
@@ -54,7 +52,6 @@ class TestBIndexer(unittest.TestCase):
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
-        shutil.rmtree(self.data_path + "_2")
         self.assertEqual(rs, self.toy_exp)
 
     def test_dump_load(self):
@@ -70,5 +67,4 @@ class TestBIndexer(unittest.TestCase):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd2.close()
 
-        shutil.rmtree(self.data_path + "_3")
         self.assertEqual(rs, self.toy_exp)
