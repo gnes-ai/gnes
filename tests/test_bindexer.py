@@ -41,7 +41,6 @@ class TestBIndexer(unittest.TestCase):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
         self.assertEqual(rs, self.toy_exp)
-        os.remove(self.dump_path + '_1')
 
     def test_force_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path + '_2')
@@ -51,16 +50,15 @@ class TestBIndexer(unittest.TestCase):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
         fd.close()
         self.assertEqual(rs, self.toy_exp)
-        os.remove(self.dump_path + '_2')
 
     def test_dump_load(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path + '_3')
         fd.add(self.toy_label, self.toy_data, self.weights)
-        fd.dump(self.dump_path + '_3')
+        fd.dump()
         fd.close()
         # shutil.rmtree(self.data_path + "_3")
 
-        fd2 = BIndexer.load(self.dump_path + '_3')
+        fd2 = BIndexer.load(fd.dump_full_path)
         rs = fd2.query(self.toy_query, 2, normalized_score=False)
         for i in range(len(rs)):
             rs[i] = sorted(rs[i], key=lambda x: (x[3], -x[0]))
