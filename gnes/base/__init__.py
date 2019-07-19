@@ -332,7 +332,7 @@ class TrainableBase(metaclass=TrainableType):
     def _dump_instance_to_yaml(data):
         # note: we only dump non-default property for the sake of clarity
         p = {k: getattr(data, k) for k, v in TrainableType.default_gnes_config.items() if getattr(data, k) != v}
-        a = {k: v for k, v in data._init_kwargs_dict.items()}
+        a = {k: v for k, v in data._init_kwargs_dict.items() if k not in TrainableType.default_gnes_config}
         r = {}
         if a:
             r['parameter'] = a
