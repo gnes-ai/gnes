@@ -116,12 +116,12 @@ def _set_client_parser(parser=None):
 def set_loadable_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    import pkg_resources
+    from pkg_resources import resource_stream
     from ..service.base import SocketType
     set_service_parser(parser)
 
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=pkg_resources.resource_stream(
+                        default=resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),
                         help='yaml config of the service')
 
@@ -133,9 +133,9 @@ def set_loadable_service_parser(parser=None):
 def set_preprocessor_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    import pkg_resources
+    from pkg_resources import resource_stream
     set_loadable_service_parser(parser)
-    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+    parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))))
 
     parser.set_defaults(read_only=True)
@@ -143,11 +143,11 @@ def set_preprocessor_service_parser(parser=None):
 
 
 def set_router_service_parser(parser=None):
-    import pkg_resources
+    from pkg_resources import resource_stream
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+    parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'router', 'default.yml'))))
 
     parser.set_defaults(read_only=True)
@@ -156,12 +156,12 @@ def set_router_service_parser(parser=None):
 
 def set_indexer_service_parser(parser=None):
     from ..service.base import SocketType
-    import pkg_resources
+    from pkg_resources import resource_stream
 
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.set_defaults(yaml_path=pkg_resources.resource_stream(
+    parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'indexer', 'default.yml'))))
 
     # encoder's port_out is indexer's port_in

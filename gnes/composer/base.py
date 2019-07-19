@@ -4,7 +4,7 @@ import time
 from collections import defaultdict
 from typing import Dict, List
 
-import pkg_resources
+from pkg_resources import resource_stream
 from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
 from termcolor import colored
@@ -140,7 +140,7 @@ class YamlGraph:
     @staticmethod
     def build_dockerswarm(all_layers: List['YamlGraph.Layer'], docker_img: str = 'gnes/gnes:latest',
                           volumes: Dict = None, networks: Dict = None) -> str:
-        with pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
+        with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
             swarm_lines = _yaml.load(r)
         taboo = {'name', 'replicas', 'yaml_path'}
         config_dict = {}
@@ -233,8 +233,7 @@ class YamlGraph:
                     shell_lines.append('gnes %s %s %s &' % (
                         cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
-        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh')))
-        with r:
+        with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh'))) as r:
             return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
 
     @staticmethod
@@ -282,7 +281,7 @@ class YamlGraph:
 
     @staticmethod
     def build_html(generate_dict: Dict[str, str]) -> str:
-        with pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-board.html'))) as r:
+        with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-board.html'))) as r:
             html = r.read().decode()
             for k, v in generate_dict.items():
                 if v:
