@@ -83,16 +83,6 @@ class TrainableType(type):
                 v = kwargs[k]
             setattr(obj, k, v)
 
-        if not getattr(obj, 'name', None):
-            _id = str(uuid.uuid4()).split('-')[0]
-            _name = '%s-%s' % (obj.__class__.__name__, _id)
-            obj.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
-                'i will call it as "%s". '
-                'naming the object is important especially when you need to '
-                'serialize/deserialize/store/load the object.' % _name)
-            setattr(obj, 'name', _name)
-
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
 
@@ -170,6 +160,16 @@ class TrainableBase(metaclass=TrainableType):
         self._post_init_vars = set()
 
     def _post_init_wrapper(self):
+        if not getattr(self, 'name', None):
+            _id = str(uuid.uuid4()).split('-')[0]
+            _name = '%s-%s' % (self.__class__.__name__, _id)
+            self.logger.warning(
+                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'i will call it as "%s". '
+                'naming the object is important especially when you need to '
+                'serialize/deserialize/store/load the object.' % _name)
+            setattr(self, 'name', _name)
+
         _before = set(list(self.__dict__.keys()))
         self.post_init()
         self._post_init_vars = {k for k in self.__dict__ if k not in _before}
