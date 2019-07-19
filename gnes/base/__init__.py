@@ -77,10 +77,25 @@ class TrainableType(type):
 
         obj = type.__call__(cls, *args, **kwargs)
 
-        obj._set_gnes_config(**kwargs)
+        # set attribute
+        for k, v in TrainableType.default_gnes_config.items():
+            if k in kwargs:
+                v = kwargs[k]
+            setattr(obj, k, v)
+
+        if not getattr(obj, 'name', None):
+            _id = str(uuid.uuid4()).split('-')[0]
+            _name = '%s-%s' % (obj.__class__.__name__, _id)
+            obj.logger.warning(
+                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'i will call it as "%s". '
+                'naming the object is important especially when you need to '
+                'serialize/deserialize/store/load the object.' % _name)
+            setattr(obj, 'name', _name)
 
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
+
 
     @staticmethod
     def register_class(cls):
@@ -166,22 +181,6 @@ class TrainableBase(metaclass=TrainableType):
     def pre_init(cls):
         pass
 
-    def _set_gnes_config(self, **kwargs):
-        # set attribute
-        for k, v in TrainableType.default_gnes_config.items():
-            if k in kwargs:
-                v = kwargs[k]
-            setattr(self, k, v)
-
-        if not getattr(self, 'name', None):
-            _id = str(uuid.uuid4()).split('-')[0]
-            _name = '%s-%s' % (self.__class__.__name__, _id)
-            self.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
-                'i will call it as "%s". '
-                'However, naming the object is important especially when you need to '
-                'serialize/deserialize/store/load the object.' % _name)
-            setattr(self, 'name', _name)
 
     @property
     def dump_full_path(self):
