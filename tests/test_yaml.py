@@ -52,7 +52,7 @@ class TestYaml(unittest.TestCase):
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
 
-    def test_siganature(self):
+    def test_signature(self):
         a = foo1(2)
         self.assertEqual(a._init_kwargs_dict, {'a': 2, 'b': 1})
         a = foo2(2, 3, 3)
