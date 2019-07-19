@@ -139,7 +139,7 @@ class TrainableType(type):
 
             if self.store_args_kwargs:
                 if args: tmp['args'] = args
-                if kwargs: tmp['kwargs'] = {k: v for k, v in kwargs if k not in taboo}
+                if kwargs: tmp['kwargs'] = {k: v for k, v in kwargs.items() if k not in taboo}
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
