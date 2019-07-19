@@ -10,6 +10,9 @@ from ruamel.yaml.comments import CommentedMap
 from termcolor import colored
 
 from .. import __version__
+from ..cli.parser import set_grpc_frontend_parser, \
+    set_router_service_parser, set_loadable_service_parser, set_preprocessor_service_parser, \
+    set_indexer_service_parser
 from ..helper import set_logger
 from ..service.base import SocketType
 
@@ -23,6 +26,14 @@ class YamlGraph:
         'Indexer': 'index',
         'gRPCFrontend': 'frontend',
         'Preprocessor': 'preprocess'
+    }
+
+    comp2args = {
+        'Encoder': set_loadable_service_parser().parse_args(),
+        'Router': set_router_service_parser().parse_args(),
+        'Indexer': set_indexer_service_parser().parse_args(),
+        'gRPCFrontend': set_grpc_frontend_parser().parse_args(),
+        'Preprocessor': set_preprocessor_service_parser().parse_args()
     }
 
     class Layer:
@@ -142,13 +153,12 @@ class YamlGraph:
                           volumes: Dict = None, networks: Dict = None) -> str:
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
             swarm_lines = _yaml.load(r)
-        taboo = {'name', 'replicas', 'yaml_path'}
         config_dict = {}
         for l_idx, layer in enumerate(all_layers):
             for c_idx, c in enumerate(layer.components):
                 c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                        a not in taboo and v]
+                        a in YamlGraph.comp2args[c['name']] and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
@@ -219,7 +229,6 @@ class YamlGraph:
     @staticmethod
     def build_shell(all_layers: List['YamlGraph.Layer'], log_redirect: str = None) -> str:
         shell_lines = []
-        taboo = {'name', 'replicas'}
         for layer in all_layers:
             for c in layer.components:
                 rep_c = YamlGraph.Layer.get_value(c, 'replicas')
@@ -229,7 +238,7 @@ class YamlGraph:
                     cmd = YamlGraph.comp2file[c['name']]
                     args = ' '.join(
                         ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                         a not in taboo and v])
+                         a in YamlGraph.comp2args[c['name']] and v])
                     shell_lines.append('gnes %s %s %s &' % (
                         cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
