@@ -52,6 +52,7 @@ function pub_gittag {
 function make_chore_pr {
     git checkout -B "chore-bumping-version"
     git add ./CHANGELOG.md
+    git add $INIT_FILE
     git commit -m "chore(changelog): update change log to $1"
     git push $SOURCE_ORIGIN chore-bumping-version --force
     hub pull-request -m "chore(changelog): update change log to $1" --no-edit -l new-release -r gnes-ai/dev-core
@@ -102,7 +103,7 @@ then
     pub_pypi
     pub_gittag
     # change the version line back
-    mv ${TMP_INIT_FILE} $INIT_FILE
+#    mv ${TMP_INIT_FILE} $INIT_FILE
     make_chore_pr $VER
 fi
 

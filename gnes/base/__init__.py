@@ -26,7 +26,7 @@ from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, profiling, yaml, parse_arg, touch_dir, FileLock
+from ..helper import set_logger, profiling, yaml, parse_arg
 
 __all__ = ['TrainableBase']
 
@@ -63,6 +63,8 @@ class TrainableType(type):
     default_property = {
         'is_trained': False,
         'batch_size': None,
+        'work_dir': os.environ.get('GNES_VOLUME', os.getcwd()),
+        'name': None
     }
 
     def __new__(cls, *args, **kwargs):
@@ -149,17 +151,21 @@ class TrainableType(type):
 
 class TrainableBase(metaclass=TrainableType):
     store_args_kwargs = False
-    lock_work_dir = False
 
     def __init__(self, *args, **kwargs):
         self.is_trained = False
-        self._obj_id = str(uuid.uuid4()).split('-')[0]
-        self._obj_pickle_name = '%s%s.bin' % (self.__class__.__name__, self._obj_id)
-        self._obj_yaml_name = '%s%s.yml' % (self.__class__.__name__, self._obj_id)
-        self._work_dir = os.getcwd()
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self._post_init_vars = set()
+        if not getattr(self, 'name', None):
+            _id = str(uuid.uuid4()).split('-')[0]
+            _name = '%s-%s' % (self.__class__.__name__, _id)
+            self.logger.warning(
+                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'i will call it as "%s". '
+                'However, naming the object is important especially when you need to '
+                'serialize/deserialize/store/load the object.' % _name)
+            setattr(self, 'name', _name)
 
     def _post_init_wrapper(self):
         _before = set(list(self.__dict__.keys()))
@@ -174,27 +180,12 @@ class TrainableBase(metaclass=TrainableType):
         pass
 
     @property
-    def pickle_full_path(self):
-        return os.path.join(self.work_dir, self._obj_pickle_name)
+    def dump_full_path(self):
+        return os.path.join(self.work_dir, '%s.bin' % self.name)
 
     @property
     def yaml_full_path(self):
-        return os.path.join(self.work_dir, self._obj_yaml_name)
-
-    @property
-    def work_dir(self):
-        return self._work_dir
-
-    @work_dir.setter
-    def work_dir(self, value: str):
-        touch_dir(value)
-        if self.lock_work_dir:
-            self._file_lock = FileLock(os.path.join(value, "LOCK"))
-            if self._file_lock.acquire() is None:
-                raise RuntimeError(
-                    "this model\'s work_dir %r is used and locked by another model" %
-                    value)
-        self._work_dir = value
+        return os.path.join(self.work_dir, '%s.yml' % self.name)
 
     def __getstate__(self):
         d = dict(self.__dict__)
@@ -208,9 +199,6 @@ class TrainableBase(metaclass=TrainableType):
     def __setstate__(self, d):
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__, self.verbose)
-        if self.lock_work_dir:
-            # trigger the lock again
-            self.work_dir = self._work_dir
         try:
             self._post_init_wrapper()
         except ImportError:
@@ -222,18 +210,18 @@ class TrainableBase(metaclass=TrainableType):
 
     @profiling
     def dump(self, filename: str = None) -> None:
-        f = filename or self.pickle_full_path
+        f = filename or self.dump_full_path
         if not f:
-            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
+            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
         with open(f, 'wb') as fp:
             pickle.dump(self, fp)
-        self.logger.info('model is pickled to %s' % f)
+        self.logger.info('model is stored to %s' % f)
 
     @profiling
     def dump_yaml(self, filename: str = None) -> None:
         f = filename or self.yaml_full_path
         if not f:
-            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('NES_TEMP_DIR', None)).name
+            f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
         with open(filename, 'w') as fp:
             yaml.dump(self, fp)
         self.logger.info('model\'s yaml config is dump to %s' % f)
@@ -250,14 +238,13 @@ class TrainableBase(metaclass=TrainableType):
 
     @staticmethod
     @profiling
-    def load(filename: str) -> T:
+    def load(filename: str = None) -> T:
         if not filename: raise FileNotFoundError
         with open(filename, 'rb') as fp:
             return pickle.load(fp)
 
     def close(self):
-        if self.lock_work_dir:
-            self._file_lock.release()
+        pass
 
     def __enter__(self):
         return self
@@ -313,11 +300,11 @@ class TrainableBase(metaclass=TrainableType):
             tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
             obj = cls(**tmp_p)
 
-        for k, v in data.get('property', {}).items():
+        for k, v in data.get('gnes_config', {}).items():
             old = getattr(obj, k, None)
             setattr(obj, k, v)
             if old and old != v:
-                obj.logger.info('property: %r is replaced from %r to %r' % (k, old, v))
+                obj.logger.info('gnes_config: %r is replaced from %r to %r' % (k, old, v))
 
         cls.init_from_yaml = False
 
@@ -339,5 +326,5 @@ class TrainableBase(metaclass=TrainableType):
         if a:
             r['parameter'] = a
         if p:
-            r['property'] = p
+            r['gnes_config'] = p
         return r

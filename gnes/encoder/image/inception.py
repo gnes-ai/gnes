@@ -15,9 +15,8 @@
 
 from typing import List
 import numpy as np
-from gnes.helper import batch_iterator
 from ..base import BaseImageEncoder
-from ...helper import batching
+from ...helper import batching, batch_iterator
 from PIL import Image
 
 
@@ -39,8 +38,8 @@ class TFInceptionEncoder(BaseImageEncoder):
 
     def post_init(self):
         import tensorflow as tf
-        from gnes.encoder.image.inception_cores.inception_v4 import inception_v4
-        from gnes.encoder.image.inception_cores.inception_utils import inception_arg_scope
+        from .inception_cores.inception_v4 import inception_v4
+        from .inception_cores.inception_utils import inception_arg_scope
 
         arg_scope = inception_arg_scope()
         inception_v4.default_image_size = self.inception_size_x

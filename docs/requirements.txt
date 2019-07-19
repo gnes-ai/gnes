@@ -1,1 +1,2 @@
 sphinx-argparse
+sphinxcontrib-apidoc

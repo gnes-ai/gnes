@@ -24,8 +24,6 @@ class TestMHIndexer(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.dump_path):
             os.remove(self.dump_path)
-        if os.path.exists(self.data_path):
-            shutil.rmtree(self.data_path)
 
     def test_add_query(self):
         m = HBIndexer(self.num_clusters, self.num_bytes, self.n_idx, self.data_path)
@@ -35,7 +33,6 @@ class TestMHIndexer(unittest.TestCase):
         s = sum([1 for i in range(self.n) if i in [_[0][0] for _ in res[i]]])
         self.assertEqual(s, self.n)
         m.close()
-        shutil.rmtree(self.data_path)
 
     def test_dump_load(self):
         m = HBIndexer(self.num_clusters, self.num_bytes, self.n_idx, self.data_path)

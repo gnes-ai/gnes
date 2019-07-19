@@ -33,13 +33,12 @@ steps:
   - cat /proc/cpuinfo | grep flags
   - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
 
-- name: pip-install gnes
+- name: install gnes and unit test
   image: gnes/ci-base
   environment:
     GNES_ENV_SET: orange-ci
   commands:
   - pip install -e .[all]
-  - pylint gnes/**/*.py --exit-zero
   - python -m unittest tests/*.py
 
 

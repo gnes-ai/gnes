@@ -29,7 +29,6 @@ class YamlGraph:
         default_values = {
             'name': None,
             'yaml_path': None,
-            'dump_path': None,
             'replicas': 1,
             'income': 'pull'
         }
@@ -106,9 +105,9 @@ class YamlGraph:
         if comp['name'] not in self.comp2file:
             raise AttributeError(
                 'a component must be one of: %s, but given %s' % (', '.join(self.comp2file.keys()), comp['name']))
-        if 'yaml_path' not in comp and 'dump_path' not in comp:
+        if 'yaml_path' not in comp:
             self.logger.warning(
-                'found empty "yaml_path" and "dump_path", '
+                'found empty "yaml_path", '
                 'i will use a default config and would probably result in an empty model')
         for k in comp:
             if k not in self.Layer.default_values:
@@ -138,7 +137,7 @@ class YamlGraph:
     def build_dockerswarm(all_layers: List['YamlGraph.Layer'], docker_img: str = 'gnes/gnes:latest',
                           volumes: Dict = None) -> str:
         swarm_lines = {'version': '3.4', 'services': {}}
-        taboo = {'name', 'replicas', 'yaml_path', 'dump_path'}
+        taboo = {'name', 'replicas', 'yaml_path'}
         config_dict = {}
         network_dict = {'gnes-network': {'driver': 'overlay', 'attachable': True}}
         for l_idx, layer in enumerate(all_layers):
@@ -308,6 +307,7 @@ class YamlGraph:
             'timestamp': time.strftime("%a, %d %b %Y %H:%M:%S"),
             'version': __version__
         }
+        std_or_print(self.args.graph_path, cmds['mermaid'])
         std_or_print(self.args.shell_path, cmds['shell'])
         std_or_print(self.args.swarm_path, cmds['docker'])
         std_or_print(self.args.k8s_path, cmds['k8s'])
@@ -397,8 +397,6 @@ class YamlGraph:
             router_layer = YamlGraph.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
-                income = self.Layer.get_value(c, 'income')
-
                 r = CommentedMap({'name': 'Router',
                                   'yaml_path': None,
                                   'socket_in': str(SocketType.SUB_CONNECT),

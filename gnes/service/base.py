@@ -192,7 +192,7 @@ class BaseService(threading.Thread):
         if not self.args.read_only:
             if self._model:
                 self.logger.info('dumping changes to the model...')
-                self._model.dump(self.args.dump_path)
+                self._model.dump()
                 self.logger.info('dumping finished!')
         else:
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
@@ -304,16 +304,13 @@ class BaseService(threading.Thread):
 
     def load_model(self, base_class: Type[TrainableBase]) -> T:
         try:
-            model = base_class.load(self.args.dump_path)
-            self.logger.info(
-                'load a trained %s from a binary file: %s' % (model.__class__.__name__, self.args.dump_path))
+            model = base_class.load_yaml(self.args.yaml_path)
         except FileNotFoundError:
-            self.logger.warning('fail to load the model from %s' % self.args.dump_path)
-            try:
-                model = base_class.load_yaml(self.args.yaml_path)
-                self.logger.warning('load an empty %s from %s' % (model.__class__.__name__, self.args.yaml_path))
-            except FileNotFoundError:
-                raise ComponentNotLoad
+            raise ComponentNotLoad
+        try:
+            model = model.__class__.load(model.dump_full_path)
+        except FileNotFoundError:
+            self.logger.warning('load an empty %s from %s' % (model.__class__.__name__, self.args.yaml_path))
         return model
 
     @handler.register(NotImplementedError)
