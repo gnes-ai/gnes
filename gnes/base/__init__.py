@@ -153,15 +153,6 @@ class TrainableBase(metaclass=TrainableType):
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self._post_init_vars = set()
-        if not getattr(self, 'name', None):
-            _id = str(uuid.uuid4()).split('-')[0]
-            _name = '%s-%s' % (self.__class__.__name__, _id)
-            self.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
-                'i will call it as "%s". '
-                'However, naming the object is important especially when you need to '
-                'serialize/deserialize/store/load the object.' % _name)
-            setattr(self, 'name', _name)
 
     def _post_init_wrapper(self):
         _before = set(list(self.__dict__.keys()))
