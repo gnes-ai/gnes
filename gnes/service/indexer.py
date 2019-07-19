@@ -61,7 +61,7 @@ class IndexerService(BS):
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
         q_weights = [qc.weight for qc in msg.request.search.query.chunks]
         for all_topks, qc_weight in zip(results, q_weights):
-            for _doc_id, _offset, _relevance, _weight in all_topks:
+            for _doc_id, _offset, _weight, _relevance in all_topks:
                 r = msg.response.search.topk_results.add()
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
