@@ -16,7 +16,7 @@ component:
                 model_dir: /ext_data/chinese_L-12_H-768_A-12
                 max_seq_len: NONE
                 pooling_layer: -12
-            property:
+            gnes_config:
               is_trained: true
           bert_client:
             !BertEncoder
@@ -25,13 +25,13 @@ component:
                 port: 5555
                 port_out: 5556
                 ignore_all_checks: true
-            property:
+            gnes_config:
               is_trained: true
       - !PCALocalEncoder
         parameter:
           output_dim: 32
           num_locals: 8
-        property:
+        gnes_config:
           batch_size: 2048
       - !PQEncoder
         parameter:
@@ -44,5 +44,5 @@ component:
   text_indexer: !LVDBIndexer
     parameter:
       data_path: ./test_db
-property:
+gnes_config:
   work_dir: /ext_data/demo-model

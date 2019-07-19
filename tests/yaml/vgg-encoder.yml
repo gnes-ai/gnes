@@ -7,5 +7,5 @@ parameter:
     - avgpool
     - x.view(x.size(0), -1)
     - classifier[0]
-property:
+gnes_config:
   is_trained: true

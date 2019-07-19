@@ -13,5 +13,5 @@ parameter:
     - layer4
     - avgpool
     - x.reshape(x.size(0), -1)
-property:
+gnes_config:
   is_trained: true

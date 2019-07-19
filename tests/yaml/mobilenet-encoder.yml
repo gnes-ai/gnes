@@ -5,5 +5,5 @@ parameter:
   layers:
     - features
     - x.mean([2, 3])
-property:
+gnes_config:
   is_trained: true

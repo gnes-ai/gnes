@@ -8,13 +8,13 @@ component:
           model_dir: $ELMO_CI_MODEL
           pooling_layer: -1
           pooling_stragy: REDUCE_MEAN
-        property:
+        gnes_config:
           is_trained: true
       - !PCALocalEncoder
         parameter:
           output_dim: 32
           num_locals: 8
-        property:
+        gnes_config:
           batch_size: 2048
       - !PQEncoder
         parameter:

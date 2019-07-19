@@ -4,7 +4,7 @@ component:
     parameter:
       output_dim: 32
       num_locals: 8
-    property:
+    gnes_config:
       batch_size: 2048
   - !PQEncoder
     parameter:

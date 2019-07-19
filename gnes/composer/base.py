@@ -21,7 +21,7 @@ class YamlGraph:
         'Encoder': 'encode',
         'Router': 'route',
         'Indexer': 'index',
-        'Frontend': 'frontend',
+        'gRPCFrontend': 'frontend',
         'Preprocessor': 'preprocess'
     }
 
@@ -78,15 +78,19 @@ class YamlGraph:
             tmp = _yaml.load(args.yaml_path)
             stream = StringIO()
             _yaml.dump(tmp, stream)
-        self.original_yaml = stream.getvalue()
-        self.name = tmp.get('name', args.name)
-        self.port = tmp.get('port', args.port)
+            self.original_yaml = stream.getvalue()
+
+        self._name = tmp.get('name', args.name)
+        self._port = tmp.get('port', args.port)
+        self._networks = tmp.get('networks', {})
+        self._volumes = tmp.get('volumes', {})
+
         self.args = args
         self._num_layer = 0
 
         if 'services' in tmp:
             self.add_layer()
-            self.add_comp(CommentedMap({'name': 'Frontend', 'grpc_port': self.port}))
+            self.add_comp(CommentedMap({'name': 'gRPCFrontend', 'grpc_port': self._port}))
             for comp in tmp['services']:
                 self.add_layer()
                 if isinstance(comp, list):
@@ -135,11 +139,11 @@ class YamlGraph:
 
     @staticmethod
     def build_dockerswarm(all_layers: List['YamlGraph.Layer'], docker_img: str = 'gnes/gnes:latest',
-                          volumes: Dict = None) -> str:
-        swarm_lines = {'version': '3.4', 'services': {}}
+                          volumes: Dict = None, networks: Dict = None) -> str:
+        with pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
+            swarm_lines = _yaml.load(r)
         taboo = {'name', 'replicas', 'yaml_path'}
         config_dict = {}
-        network_dict = {'gnes-network': {'driver': 'overlay', 'attachable': True}}
         for l_idx, layer in enumerate(all_layers):
             for c_idx, c in enumerate(layer.components):
                 c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
@@ -149,18 +153,17 @@ class YamlGraph:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
 
-                if l_idx + 1 < len(all_layers):
-                    next_layer = all_layers[l_idx + 1]
-                    _l_idx = l_idx + 1
-                else:
-                    next_layer = all_layers[0]
-                    _l_idx = 0
-
-                host_out_name = ''
-                for _c_idx, _c in enumerate(next_layer.components):
-                    if _c['port_in'] == c['port_out']:
-                        host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
-                        break
+                # if l_idx + 1 < len(all_layers):
+                #     next_layer = all_layers[l_idx + 1]
+                #     _l_idx = l_idx + 1
+                # else:
+                #     next_layer = all_layers[0]
+                #     _l_idx = 0
+                # host_out_name = ''
+                # for _c_idx, _c in enumerate(next_layer.components):
+                #     if _c['port_in'] == c['port_out']:
+                #         host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
+                #         break
 
                 if l_idx - 1 >= 0:
                     last_layer = all_layers[l_idx - 1]
@@ -179,31 +182,32 @@ class YamlGraph:
                 # '--host_out %s' % host_out_name]
 
                 cmd = '%s %s' % (YamlGraph.comp2file[c['name']], ' '.join(args))
-                swarm_lines['services'][c_name] = {
+                swarm_lines['services'][c_name] = CommentedMap({
                     'image': docker_img,
                     'command': cmd,
-                }
+                })
 
                 rep_c = YamlGraph.Layer.get_value(c, 'replicas')
                 if rep_c > 1:
-                    swarm_lines['services'][c_name]['deploy'] = {
+                    swarm_lines['services'][c_name]['deploy'] = CommentedMap({
                         'replicas': YamlGraph.Layer.get_value(c, 'replicas'),
                         'restart_policy': {
                             'condition': 'on-failure',
                             'max_attempts': 3,
                         }
-                    }
+                    })
 
                 if 'yaml_path' in c and c['yaml_path'] is not None:
                     swarm_lines['services'][c_name]['configs'] = ['%s_yaml' % c_name]
 
-                if c['name'] == 'Frontend':
+                if c['name'] == 'gRPCFrontend':
                     swarm_lines['services'][c_name]['ports'] = ['%d:%d' % (c['grpc_port'], c['grpc_port'])]
 
         if volumes:
             swarm_lines['volumes'] = volumes
+        if networks:
+            swarm_lines['networks'] = volumes
         swarm_lines['configs'] = config_dict
-        swarm_lines['networks'] = network_dict
         stream = StringIO()
         _yaml.dump(swarm_lines, stream)
         return stream.getvalue()
@@ -278,8 +282,7 @@ class YamlGraph:
 
     @staticmethod
     def build_html(generate_dict: Dict[str, str]) -> str:
-        r = pkg_resources.resource_stream('gnes', '/'.join(('resources', 'static', 'gnes-board.html')))
-        with r:
+        with pkg_resources.resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-board.html'))) as r:
             html = r.read().decode()
             for k, v in generate_dict.items():
                 if v:
@@ -302,7 +305,8 @@ class YamlGraph:
             'mermaid': self.build_mermaid(all_layers, self.args.mermaid_leftright),
             'shell': self.build_shell(all_layers, self.args.shell_log_redirect),
             'yaml': self.original_yaml,
-            'docker': self.build_dockerswarm(all_layers, self.args.docker_img),
+            'docker': self.build_dockerswarm(all_layers, self.args.docker_img,
+                                             volumes=self._volumes, networks=self._networks),
             'k8s': self.build_kubernetes(all_layers),
             'timestamp': time.strftime("%a, %d %b %Y %H:%M:%S"),
             'version': __version__

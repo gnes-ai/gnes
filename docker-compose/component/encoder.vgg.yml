@@ -9,13 +9,13 @@ component:
         - avg_pool
         - x.view(x.size(0), -1)
         - classifier[0]
-    property:
+    gnes_config:
       is_trained: true
   - !PCALocalEncoder
     parameter:
       output_dim: 200
       num_locals: 10
-    property:
+    gnes_config:
       batch_size: 2048
   - !PQEncoder
     parameter:

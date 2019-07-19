@@ -8,5 +8,5 @@ parameter:
   kwargs:
     vsync: vfr
     vf: select=eq(pict_type\,I)
-property:
+gnes_config:
   is_trained: true
