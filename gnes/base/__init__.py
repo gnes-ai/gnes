@@ -125,6 +125,7 @@ class TrainableType(type):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             taboo = {'self', 'args', 'kwargs'}
+            taboo.update(TrainableType.default_gnes_config.keys())
             all_pars = inspect.signature(func).parameters
             tmp = {k: v.default for k, v in all_pars.items() if k not in taboo}
             tmp_list = [k for k in all_pars.keys() if k not in taboo]
