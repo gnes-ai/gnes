@@ -33,10 +33,11 @@ __all__ = ['TrainableBase']
 T = TypeVar('T', bound='TrainableBase')
 
 
-def register_all_class(cls2file_map: Dict):
-    for k in cls2file_map:
+def register_all_class(cls2file_map: Dict, module_name: str):
+    import importlib
+    for k, v in cls2file_map.items():
         try:
-            import_class_by_str(k)
+            getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
         except ImportError:
             pass
 
@@ -86,7 +87,6 @@ class TrainableType(type):
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
 
-
     @staticmethod
     def register_class(cls):
         # print('try to register class: %s' % cls.__name__)
@@ -127,7 +127,7 @@ class TrainableType(type):
             taboo = {'self', 'args', 'kwargs'}
             taboo.update(TrainableType.default_gnes_config.keys())
             all_pars = inspect.signature(func).parameters
-            tmp = {k: v.default for k, v in all_pars.items() if k not in taboo}
+            tmp = {k: v.default for k, v in all_pars.items()}
             tmp_list = [k for k in all_pars.keys() if k not in taboo]
             # set args by aligning tmp_list with arg values
             for k, v in zip(tmp_list, args):
@@ -139,7 +139,7 @@ class TrainableType(type):
 
             if self.store_args_kwargs:
                 if args: tmp['args'] = args
-                if kwargs: tmp['kwargs'] = kwargs
+                if kwargs: tmp['kwargs'] = {k: v for k, v in kwargs if k not in taboo}
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -181,7 +181,6 @@ class TrainableBase(metaclass=TrainableType):
     @classmethod
     def pre_init(cls):
         pass
-
 
     @property
     def dump_full_path(self):
