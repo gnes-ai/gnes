@@ -29,11 +29,11 @@ class YamlGraph:
     }
 
     comp2args = {
-        'Encoder': set_loadable_service_parser().parse_args(),
-        'Router': set_router_service_parser().parse_args(),
-        'Indexer': set_indexer_service_parser().parse_args(),
-        'gRPCFrontend': set_grpc_frontend_parser().parse_args(),
-        'Preprocessor': set_preprocessor_service_parser().parse_args()
+        'Encoder': set_loadable_service_parser().parse_args([]),
+        'Router': set_router_service_parser().parse_args([]),
+        'Indexer': set_indexer_service_parser().parse_args([]),
+        'gRPCFrontend': set_grpc_frontend_parser().parse_args([]),
+        'Preprocessor': set_preprocessor_service_parser().parse_args([])
     }
 
     class Layer:
