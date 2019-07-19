@@ -33,10 +33,11 @@ __all__ = ['TrainableBase']
 T = TypeVar('T', bound='TrainableBase')
 
 
-def register_all_class(cls2file_map: Dict):
-    for k in cls2file_map:
+def register_all_class(cls2file_map: Dict, module_name: str):
+    import importlib
+    for k, v in cls2file_map.items():
         try:
-            import_class_by_str(k)
+            getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
         except ImportError:
             pass
 
@@ -60,7 +61,7 @@ def import_class_by_str(name: str):
 
 
 class TrainableType(type):
-    default_property = {
+    default_gnes_config = {
         'is_trained': False,
         'batch_size': None,
         'work_dir': os.environ.get('GNES_VOLUME', os.getcwd()),
@@ -78,11 +79,11 @@ class TrainableType(type):
         obj = type.__call__(cls, *args, **kwargs)
 
         # set attribute
-        for k, v in TrainableType.default_property.items():
-            if not hasattr(obj, k):
-                setattr(obj, k, v)
+        for k, v in TrainableType.default_gnes_config.items():
+            if k in kwargs:
+                v = kwargs[k]
+            setattr(obj, k, v)
 
-        # do _post_init()
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
 
@@ -124,6 +125,7 @@ class TrainableType(type):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             taboo = {'self', 'args', 'kwargs'}
+            taboo.update(TrainableType.default_gnes_config.keys())
             all_pars = inspect.signature(func).parameters
             tmp = {k: v.default for k, v in all_pars.items() if k not in taboo}
             tmp_list = [k for k in all_pars.keys() if k not in taboo]
@@ -137,7 +139,7 @@ class TrainableType(type):
 
             if self.store_args_kwargs:
                 if args: tmp['args'] = args
-                if kwargs: tmp['kwargs'] = kwargs
+                if kwargs: tmp['kwargs'] = {k: v for k, v in kwargs.items() if k not in taboo}
 
             if getattr(self, '_init_kwargs_dict', None):
                 self._init_kwargs_dict.update(tmp)
@@ -157,17 +159,18 @@ class TrainableBase(metaclass=TrainableType):
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self._post_init_vars = set()
+
+    def _post_init_wrapper(self):
         if not getattr(self, 'name', None):
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
             self.logger.warning(
                 'this object is not named ("- gnes_config: - name" is not found in YAML config), '
                 'i will call it as "%s". '
-                'However, naming the object is important especially when you need to '
+                'naming the object is important especially when you need to '
                 'serialize/deserialize/store/load the object.' % _name)
             setattr(self, 'name', _name)
 
-    def _post_init_wrapper(self):
         _before = set(list(self.__dict__.keys()))
         self.post_init()
         self._post_init_vars = {k for k in self.__dict__ if k not in _before}
@@ -286,29 +289,37 @@ class TrainableBase(metaclass=TrainableType):
 
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
-        cls.init_from_yaml = True
 
-        if cls.store_args_kwargs:
-            p = data.get('parameter', {})  # type: Dict[str, Any]
-            a = p.pop('args') if 'args' in p else ()
-            k = p.pop('kwargs') if 'kwargs' in p else {}
-            # maybe there are some hanging kwargs in "parameter"
-            tmp_a = (cls._convert_env_var(v) for v in a)
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
-            obj = cls(*tmp_a, **tmp_p)
+        dump_path = cls._get_dump_path_from_config(data)
+        if dump_path:
+            obj = cls.load(dump_path)
+            obj.logger.info('restore %s from %s' % (cls.__name__, dump_path))
         else:
-            tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
-            obj = cls(**tmp_p)
+            cls.init_from_yaml = True
 
-        for k, v in data.get('gnes_config', {}).items():
-            old = getattr(obj, k, None)
-            setattr(obj, k, v)
-            if old and old != v:
-                obj.logger.info('gnes_config: %r is replaced from %r to %r' % (k, old, v))
+            if cls.store_args_kwargs:
+                p = data.get('parameter', {})  # type: Dict[str, Any]
+                a = p.pop('args') if 'args' in p else ()
+                k = p.pop('kwargs') if 'kwargs' in p else {}
+                # maybe there are some hanging kwargs in "parameter"
+                tmp_a = (cls._convert_env_var(v) for v in a)
+                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
+                obj = cls(*tmp_a, **tmp_p, **data.get('gnes_config', {}))
+            else:
+                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+                obj = cls(**tmp_p, **data.get('gnes_config', {}))
 
-        cls.init_from_yaml = False
+            obj.logger.info('initialize %s from a yaml config' % cls.__name__)
+            cls.init_from_yaml = False
 
         return obj, data
+
+    @staticmethod
+    def _get_dump_path_from_config(gnes_config: Dict):
+        if 'work_dir' in gnes_config and 'name' in gnes_config:
+            dump_path = os.path.join(gnes_config['work_dir'], '%s.bin' % gnes_config['name'])
+            if os.path.exists(dump_path):
+                return dump_path
 
     @staticmethod
     def _convert_env_var(v):
@@ -320,8 +331,8 @@ class TrainableBase(metaclass=TrainableType):
     @staticmethod
     def _dump_instance_to_yaml(data):
         # note: we only dump non-default property for the sake of clarity
-        p = {k: getattr(data, k) for k, v in TrainableType.default_property.items() if getattr(data, k) != v}
-        a = {k: v for k, v in data._init_kwargs_dict.items()}
+        p = {k: getattr(data, k) for k, v in TrainableType.default_gnes_config.items() if getattr(data, k) != v}
+        a = {k: v for k, v in data._init_kwargs_dict.items() if k not in TrainableType.default_gnes_config}
         r = {}
         if a:
             r['parameter'] = a

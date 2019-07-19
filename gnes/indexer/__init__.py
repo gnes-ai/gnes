@@ -31,4 +31,4 @@ _cls2file_map = {
     'AnnoyIndexer': 'vector.annoy'
 }
 
-register_all_class(_cls2file_map)
+register_all_class(_cls2file_map, 'indexer')

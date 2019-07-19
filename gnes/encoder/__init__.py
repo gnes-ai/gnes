@@ -42,4 +42,4 @@ _cls2file_map = {
     'TFInceptionEncoder': 'image.inception',
 }
 
-register_all_class(_cls2file_map)
+register_all_class(_cls2file_map, 'encoder')

@@ -3,5 +3,5 @@ parameter:
   start_doc_id: 0
   random_doc_id: True
   is_rgb: True
-property:
+gnes_config:
   is_trained: true

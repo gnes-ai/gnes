@@ -13,3 +13,5 @@ services:
     yaml_path: indexer-fulltext.yml
     replicas: 3
     income: sub
+volumes:
+  work_dir:

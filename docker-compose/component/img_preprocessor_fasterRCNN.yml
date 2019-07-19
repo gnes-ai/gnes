@@ -4,5 +4,5 @@ parameter:
   model_name: fasterrcnn_resnet50_fpn
   target_img_size: 224
   _use_cuda: false
-property:
+gnes_config:
   is_trained: true

@@ -304,14 +304,9 @@ class BaseService(threading.Thread):
 
     def load_model(self, base_class: Type[TrainableBase]) -> T:
         try:
-            model = base_class.load_yaml(self.args.yaml_path)
+            return base_class.load_yaml(self.args.yaml_path)
         except FileNotFoundError:
             raise ComponentNotLoad
-        try:
-            model = model.__class__.load(model.dump_full_path)
-        except FileNotFoundError:
-            self.logger.warning('load an empty %s from %s' % (model.__class__.__name__, self.args.yaml_path))
-        return model
 
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):

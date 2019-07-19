@@ -32,4 +32,4 @@ _cls2file_map = {
     'ShotDetectPreprocessor': 'video.shotdetect',
 }
 
-register_all_class(_cls2file_map)
+register_all_class(_cls2file_map, 'preprocessor')

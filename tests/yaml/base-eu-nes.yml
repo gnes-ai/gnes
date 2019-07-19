@@ -8,13 +8,13 @@ component:
           kwargs:
             port: $BERT_CI_PORT
             port_out: $BERT_CI_PORT_OUT
-        property:
+        gnes_config:
           is_trained: true
       - !PCALocalEncoder
         parameter:
           output_dim: 32
           num_locals: 8
-        property:
+        gnes_config:
           batch_size: 2048
   binary_indexer: !FaissIndexer
     num_dim: 32
