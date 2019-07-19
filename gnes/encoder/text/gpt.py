@@ -109,7 +109,6 @@ class GPTEncoder(BaseTextEncoder):
         return output_tensor.numpy()
 
 
-
 class GPT2Encoder(GPTEncoder):
 
     def _get_token_ids(self, x):

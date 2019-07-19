@@ -81,7 +81,8 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
             writeable=False
         )
         expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
-        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in expanded_input]
+        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
+                expanded_input]
 
 
 class VanillaSlidingPreprocessor(BaseSlidingPreprocessor):
@@ -94,4 +95,3 @@ class WeightedSlidingPreprocessor(BaseSlidingPreprocessor):
 
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         return FFmpegPreprocessor.pic_weight(image_set)
-

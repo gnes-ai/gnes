@@ -1,9 +1,11 @@
-from .base import BaseImagePreprocessor
-from ...proto import array2blob
-from PIL import Image
-import numpy as np
 import io
 import os
+
+import numpy as np
+from PIL import Image
+
+from .base import BaseImagePreprocessor
+from ...proto import array2blob
 
 
 class SegmentPreprocessor(BaseImagePreprocessor):

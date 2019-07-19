@@ -15,7 +15,7 @@
 
 # pylint: disable=low-comment-ratio
 
-from .base import BaseService as BS, MessageHandler, ComponentNotLoad
+from .base import BaseService as BS, MessageHandler
 from ..proto import gnes_pb2
 
 

@@ -53,12 +53,13 @@ class BasePytorchEncoder(BaseImageEncoder):
 
                 if '(' not in layer and ')' not in layer:
                     # this is a shorthand syntax we need to add "(x)" at the end
-                    layer = 'm.%s(x)'%layer
+                    layer = 'm.%s(x)' % layer
                 else:
                     pass
 
                 def layer_fn(x, l, m, torch):
                     return eval(l)
+
                 return lambda x: layer_fn(x, layer, self.m, torch)
 
             def forward(self, x):
@@ -93,4 +94,3 @@ class BasePytorchEncoder(BaseImageEncoder):
             result_npy.append(encodes.data.cpu().numpy())
 
         return np.array(result_npy, dtype=np.float32)
-

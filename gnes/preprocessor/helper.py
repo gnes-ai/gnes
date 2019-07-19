@@ -20,9 +20,9 @@ import subprocess as sp
 from typing import List, Callable
 
 import cv2
+import imagehash
 import numpy as np
 from PIL import Image
-import imagehash
 
 
 def get_video_frames(buffer_data: bytes, image_format: str = "cv2",
@@ -73,7 +73,7 @@ def get_video_frames(buffer_data: bytes, image_format: str = "cv2",
 def block_descriptor(image: "np.ndarray",
                      descriptor_fn: Callable,
                      num_blocks: int = 3) -> "np.ndarray":
-    h, w, _ = image.shape    # find shape of image and channel
+    h, w, _ = image.shape  # find shape of image and channel
     block_h = int(np.ceil(h / num_blocks))
     block_w = int(np.ceil(w / num_blocks))
 
@@ -91,7 +91,7 @@ def pyramid_descriptor(image: "np.ndarray",
                        max_level: int = 2) -> "np.ndarray":
     descriptors = []
     for level in range(max_level + 1):
-        num_blocks = 2**level
+        num_blocks = 2 ** level
         descriptors.extend(block_descriptor(image, descriptor_fn, num_blocks))
 
     return np.array(descriptors)

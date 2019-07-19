@@ -13,9 +13,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import List
+
 from ..base import BasePreprocessor
 from ...proto import gnes_pb2
-from typing import List
 
 
 class BaseImagePreprocessor(BasePreprocessor):
@@ -35,4 +36,4 @@ class BaseImagePreprocessor(BasePreprocessor):
     def _torch_transform(cls, image):
         import torchvision.transforms as transforms
         return transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(image)
+                                   transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(image)

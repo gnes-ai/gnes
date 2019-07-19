@@ -70,6 +70,5 @@ class TFPQEncoder(PQEncoder):
                                         self._graph['ph_centroids']: self.centroids})
         return tmp.astype(np.uint8)
 
-
     def close(self):
         self._sess.close()
