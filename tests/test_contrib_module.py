@@ -12,6 +12,7 @@ class TestContribModule(unittest.TestCase):
         self.yaml_path = os.path.join(os.path.dirname(__file__),
                                       'contrib', 'dummy.yml')
 
+    def tearDown(self):
         # reload gnes module on every unit test
         for mod in list(sys.modules.keys()):
             if mod.startswith('gnes.'):
