@@ -7,7 +7,8 @@ module_path = os.path.join(dirname, 'contrib', 'dummy_contrib.py')
 cls_name = 'FooContribEncoder'
 
 
-class TestYaml(unittest.TestCase):
+@unittest.SkipTest
+class TestContribModule(unittest.TestCase):
     def setUp(self):
         self.yaml_path = os.path.join(os.path.dirname(__file__),
                                       'contrib', 'dummy.yml')
