@@ -33,6 +33,7 @@ class TestCompose(unittest.TestCase):
         os.path.exists(self.html_path)
         print(a.build_dockerswarm(r))
 
+    @unittest.SkipTest
     def test_flask(self):
         yaml_path = os.path.join(self.dirname, 'yaml', 'topology1.yml')
         args = set_composer_flask_parser().parse_args([
