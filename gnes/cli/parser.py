@@ -34,6 +34,8 @@ def set_base_parser():
 
 
 def set_composer_parser(parser=None):
+    from pkg_resources import resource_stream
+
     if not parser:
         parser = set_base_parser()
     parser.add_argument('--port',
@@ -45,8 +47,9 @@ def set_composer_parser(parser=None):
                         default='GNES instance',
                         help='name of the instance')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        required=True,
-                        help='yaml config of the service')
+                        default=resource_stream(
+                            'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
+                            help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
                         default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
@@ -66,6 +69,19 @@ def set_composer_parser(parser=None):
     parser.add_argument('--docker_img', type=str,
                         default='gnes/gnes:latest',
                         help='the docker image used in Docker Swarm & Kubernetes')
+    return parser
+
+
+def set_composer_flask_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    set_composer_parser(parser)
+    parser.add_argument('--flask', action='store_true', default=False,
+                        help='using Flask to serve GNES composer in interactive mode')
+    parser.add_argument('--cors', type=str, default='*',
+                        help='setting "Access-Control-Allow-Origin" for HTTP requests')
+    parser.add_argument('--http_port', type=int, default=8080,
+                        help='server port for receiving HTTP requests')
     return parser
 
 
@@ -253,5 +269,5 @@ def get_main_parser():
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
     set_cli_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
-    set_composer_parser(sp.add_parser('compose', help='start a GNES composer to simplify config generation'))
+    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES composer to simplify config generation'))
     return parser

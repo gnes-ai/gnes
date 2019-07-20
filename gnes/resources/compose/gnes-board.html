@@ -200,14 +200,28 @@
                     YAML config
                 </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary" data-clipboard-target="#yaml-code">
-                        Copy to Clipboard
-                    </button>
-                    <pre>
-                    <code class="yaml" id="yaml-code">
+                    <form action="/refresh" method="post">
+                        <div class="card-title">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-secondary"
+                                        data-clipboard-target="#simple-yaml-config">
+                                    Copy
+                                </button>
+                                <input type="submit" class="btn btn-primary" value="Generate">
+                            </div>
+                        </div>
+                        <div class="card-text">
+
+
+                            <div class="form-group">
+                            <textarea name="yaml-config" class="form-control" id="simple-yaml-config" rows="15"
+                                      placeholder="your YAML config here" required autofocus>
 {{gnes-yaml}}
-                    </code>
-                    </pre>
+                            </textarea>
+                            </div>
+
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -218,7 +232,7 @@
                     <div class="jumbotron">
 
                         <p class="lead">This is the workflow generated from your input YAML config, which helps you
-                        to understand how microservices work together in GNES.</p>
+                            to understand how microservices work together in GNES.</p>
                     </div>
                     <div class="card">
                         <div class="card-header">

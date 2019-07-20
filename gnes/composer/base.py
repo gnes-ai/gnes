@@ -19,7 +19,7 @@ from ..service.base import SocketType
 _yaml = YAML()
 
 
-class YamlGraph:
+class YamlComposer:
     comp2file = {
         'Encoder': 'encode',
         'Router': 'route',
@@ -50,7 +50,7 @@ class YamlGraph:
 
         @staticmethod
         def get_value(comp: Dict, key: str):
-            return comp.get(key, YamlGraph.Layer.default_values[key])
+            return comp.get(key, YamlComposer.Layer.default_values[key])
 
         @property
         def is_homogenous(self):
@@ -83,7 +83,7 @@ class YamlGraph:
 
     def __init__(self, args):
 
-        self._layers = []  # type: List['YamlGraph.Layer']
+        self._layers = []  # type: List['YamlComposer.Layer']
         self.logger = set_logger(self.__class__.__name__)
         with args.yaml_path:
             tmp = _yaml.load(args.yaml_path)
@@ -136,8 +136,8 @@ class YamlGraph:
     def add_comp(self, comp: Dict) -> None:
         self._layers[-1].append(comp)
 
-    def build_layers(self) -> List['YamlGraph.Layer']:
-        all_layers = []  # type: List['YamlGraph.Layer']
+    def build_layers(self) -> List['YamlComposer.Layer']:
+        all_layers = []  # type: List['YamlComposer.Layer']
         for idx, layer in enumerate(self._layers[1:] + [self._layers[0]], 1):
             last_layer = self._layers[idx - 1]
             for l in self._add_router(last_layer, layer):
@@ -149,7 +149,7 @@ class YamlGraph:
         return all_layers
 
     @staticmethod
-    def build_dockerswarm(all_layers: List['YamlGraph.Layer'], docker_img: str = 'gnes/gnes:latest',
+    def build_dockerswarm(all_layers: List['YamlComposer.Layer'], docker_img: str = 'gnes/gnes:latest',
                           volumes: Dict = None, networks: Dict = None) -> str:
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
             swarm_lines = _yaml.load(r)
@@ -158,7 +158,7 @@ class YamlGraph:
             for c_idx, c in enumerate(layer.components):
                 c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                        a in YamlGraph.comp2args[c['name']] and v]
+                        a in YamlComposer.comp2args[c['name']] and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
@@ -191,16 +191,16 @@ class YamlGraph:
                 args += ['--host_in %s' % host_in_name]
                 # '--host_out %s' % host_out_name]
 
-                cmd = '%s %s' % (YamlGraph.comp2file[c['name']], ' '.join(args))
+                cmd = '%s %s' % (YamlComposer.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = CommentedMap({
                     'image': docker_img,
                     'command': cmd,
                 })
 
-                rep_c = YamlGraph.Layer.get_value(c, 'replicas')
+                rep_c = YamlComposer.Layer.get_value(c, 'replicas')
                 if rep_c > 1:
                     swarm_lines['services'][c_name]['deploy'] = CommentedMap({
-                        'replicas': YamlGraph.Layer.get_value(c, 'replicas'),
+                        'replicas': YamlComposer.Layer.get_value(c, 'replicas'),
                         'restart_policy': {
                             'condition': 'on-failure',
                             'max_attempts': 3,
@@ -223,22 +223,22 @@ class YamlGraph:
         return stream.getvalue()
 
     @staticmethod
-    def build_kubernetes(all_layers: List['YamlGraph.Layer'], *args, **kwargs):
+    def build_kubernetes(all_layers: List['YamlComposer.Layer'], *args, **kwargs):
         pass
 
     @staticmethod
-    def build_shell(all_layers: List['YamlGraph.Layer'], log_redirect: str = None) -> str:
+    def build_shell(all_layers: List['YamlComposer.Layer'], log_redirect: str = None) -> str:
         shell_lines = []
         for layer in all_layers:
             for c in layer.components:
-                rep_c = YamlGraph.Layer.get_value(c, 'replicas')
+                rep_c = YamlComposer.Layer.get_value(c, 'replicas')
                 shell_lines.append('printf "starting service %s with %s replicas...\\n"' % (
                     colored(c['name'], 'green'), colored(rep_c, 'yellow')))
                 for _ in range(rep_c):
-                    cmd = YamlGraph.comp2file[c['name']]
+                    cmd = YamlComposer.comp2file[c['name']]
                     args = ' '.join(
                         ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                         a in YamlGraph.comp2args[c['name']] and v])
+                         a in YamlComposer.comp2args[c['name']] and v])
                     shell_lines.append('gnes %s %s %s &' % (
                         cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
@@ -246,7 +246,7 @@ class YamlGraph:
             return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
 
     @staticmethod
-    def build_mermaid(all_layers: List['YamlGraph.Layer'], mermaid_leftright: bool = False) -> str:
+    def build_mermaid(all_layers: List['YamlComposer.Layer'], mermaid_leftright: bool = False) -> str:
         mermaid_graph = []
         cls_dict = defaultdict(set)
         for l_idx, layer in enumerate(all_layers[1:] + [all_layers[0]], 1):
@@ -255,20 +255,20 @@ class YamlGraph:
             for c_idx, c in enumerate(last_layer.components):
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tsubgraph %s%d' % (c['name'], c_idx))
-                for j in range(YamlGraph.Layer.get_value(c, 'replicas')):
+                for j in range(YamlComposer.Layer.get_value(c, 'replicas')):
                     for c1_idx, c1 in enumerate(layer.components):
                         if c1['port_in'] == c['port_out']:
                             p = '((%s%s))' if c['name'] == 'Router' else '(%s%s)'
                             p1 = '((%s%s))' if c1['name'] == 'Router' else '(%s%s)'
-                            for j1 in range(YamlGraph.Layer.get_value(c1, 'replicas')):
+                            for j1 in range(YamlComposer.Layer.get_value(c1, 'replicas')):
                                 _id, _id1 = '%s%s%s' % (last_layer.layer_id, c_idx, j), '%s%s%s' % (
                                     layer.layer_id, c1_idx, j1)
                                 conn_type = (
                                         c['socket_out'].split('_')[0] + '/' + c1['socket_in'].split('_')[0]).lower()
                                 s_id = '%s%s' % (c_idx if len(last_layer.components) > 1 else '',
-                                                 j if YamlGraph.Layer.get_value(c, 'replicas') > 1 else '')
+                                                 j if YamlComposer.Layer.get_value(c, 'replicas') > 1 else '')
                                 s1_id = '%s%s' % (c1_idx if len(layer.components) > 1 else '',
-                                                  j1 if YamlGraph.Layer.get_value(c1, 'replicas') > 1 else '')
+                                                  j1 if YamlComposer.Layer.get_value(c1, 'replicas') > 1 else '')
                                 mermaid_graph.append(
                                     '\t%s%s%s-- %s -->%s%s%s' % (
                                         c['name'], _id, p % (c['name'], s_id), conn_type, c1['name'], _id1,
@@ -319,11 +319,15 @@ class YamlGraph:
             'timestamp': time.strftime("%a, %d %b %Y %H:%M:%S"),
             'version': __version__
         }
+
+        cmds['html'] = self.build_html(cmds)
+
         std_or_print(self.args.graph_path, cmds['mermaid'])
         std_or_print(self.args.shell_path, cmds['shell'])
         std_or_print(self.args.swarm_path, cmds['docker'])
         std_or_print(self.args.k8s_path, cmds['k8s'])
-        std_or_print(self.args.html_path, self.build_html(cmds))
+        std_or_print(self.args.html_path, cmds['html'])
+        return cmds
 
     @staticmethod
     def _get_random_port(min_port: int = 49152, max_port: int = 65536) -> str:
@@ -333,7 +337,7 @@ class YamlGraph:
     def _get_random_host(comp_name: str) -> str:
         return str(comp_name + str(random.randrange(0, 100)))
 
-    def _add_router(self, last_layer: 'YamlGraph.Layer', layer: 'YamlGraph.Layer') -> List['YamlGraph.Layer']:
+    def _add_router(self, last_layer: 'YamlComposer.Layer', layer: 'YamlComposer.Layer') -> List['YamlComposer.Layer']:
         def rule1():
             # a shortcut fn: push connect the last and current
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_BIND)
@@ -346,7 +350,7 @@ class YamlGraph:
 
         def rule3():
             # a shortcut fn: (N)-2-(N) with push pull connection
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             r = CommentedMap({'name': 'Router',
@@ -375,7 +379,7 @@ class YamlGraph:
 
         def rule6():
             last_layer.components[0]['socket_out'] = str(SocketType.PUB_BIND)
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
                 income = self.Layer.get_value(c, 'income')
@@ -394,7 +398,7 @@ class YamlGraph:
         def rule7():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
 
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
                                'yaml_path': None,
@@ -406,7 +410,7 @@ class YamlGraph:
             router_layers.append(router_layer)
             last_layer.components[0]['port_out'] = r0['port_in']
 
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             for c in layer.components:
                 r = CommentedMap({'name': 'Router',
@@ -423,7 +427,7 @@ class YamlGraph:
         def rule10():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
 
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
                                'yaml_path': None,
@@ -441,7 +445,7 @@ class YamlGraph:
 
         def rule8():
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r = CommentedMap({'name': 'Router',
                               'yaml_path': None,
@@ -475,7 +479,7 @@ class YamlGraph:
             else:
                 self._num_layer -= 1
 
-            router_layer = YamlGraph.Layer(layer_id=self._num_layer)
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             router_layer.append(r)
             router_layers.append(router_layer)
