@@ -18,15 +18,18 @@
 
 import argparse
 
-IDX_PORT_DELTA = 2
-
 
 def set_base_parser():
     from .. import __version__
+    from termcolor import colored
     # create the top-level parser
     parser = argparse.ArgumentParser(
-        description='GNES v%s: Generic Neural Elastic Search '
-                    'is an end-to-end solution for semantic text search' % __version__)
+        description='%s, a cloud-native semantic search system '
+                    'based on deep neural network. '
+                    'It enables large-scale index and semantic search for text-to-text, image-to-image, '
+                    'video-to-video and any content form. Visit %s for tutorials and documentations.' % (
+                        colored('GNES v%s: Generic Neural Elastic Search' % __version__, 'green'),
+                        colored('https://gnes.ai', 'cyan', attrs=['underline'])))
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     parser.add_argument('--verbose', action='store_true', default=False,
                         help='turn on detailed logging for debug')
@@ -49,7 +52,7 @@ def set_composer_parser(parser=None):
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
                         default=resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
-                            help='yaml config of the service')
+                        help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
                         default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
@@ -182,7 +185,7 @@ def set_indexer_service_parser(parser=None):
 
     # encoder's port_out is indexer's port_in
     parser.set_defaults(port_in=parser.get_default('port_out'),
-                        port_out=parser.get_default('port_out') + IDX_PORT_DELTA,
+                        port_out=parser.get_default('port_out') + 2,
                         socket_in=SocketType.PULL_CONNECT,
                         socket_out=SocketType.PUB_BIND)
     return parser
@@ -260,7 +263,9 @@ def set_http_service_parser(parser=None):
 def get_main_parser():
     # create the top-level parser
     parser = set_base_parser()
-    sp = parser.add_subparsers(dest='cli')
+    sp = parser.add_subparsers(dest='cli', title='GNES sub-commands',
+                               description='use "gnes [sub-command] --help" '
+                                           'to get detailed information about each sub-command')
 
     set_grpc_frontend_parser(sp.add_parser('frontend', help='start a grpc frontend service'))
     set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
@@ -269,5 +274,5 @@ def get_main_parser():
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
     set_cli_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
-    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES composer to simplify config generation'))
+    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board and visualize YAML config'))
     return parser

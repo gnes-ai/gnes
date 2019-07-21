@@ -40,19 +40,29 @@ base_dep = [
     'ruamel.yaml>=0.15.89',
     'pyzmq>=17.1.0',
 ]
-bert_dep = ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6']
-elmo_dep = ['elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
-            'paramiko', 'pattern3']
-flair_dep = ['flair>=0.4.1']
-nlp_dep = list(set(bert_dep + flair_dep))
-annoy_dep = ['annoy==1.15.2']
-chinese_dep = ['jieba']
-cn_nlp_dep = list(set(chinese_dep + nlp_dep))
-vision_dep = ['opencv-python>=4.0.0', 'torchvision==0.3.0', 'imagehash>=4.0']
-leveldb_dep = ['plyvel>=1.0.5']
-test_dep = ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0']
-http_dep = ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'aiohttp==3.5.4']
-all_dep = list(set(base_dep + cn_nlp_dep + vision_dep + leveldb_dep + test_dep + annoy_dep))
+
+extras_dep = {
+    'bert': ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6'],
+    # 'elmo': [
+    #     'elmoformanylangs @ git+https://github.com/HIT-SCIR/ELMoForManyLangs.git@master#egg=elmoformanylangs-0.0.2',
+    #     'paramiko', 'pattern3'],
+    'flair': ['flair>=0.4.1'],
+    'annoy': ['annoy==1.15.2'],
+    'chinese': ['jieba'],
+    'vision': ['opencv-python>=4.0.0', 'torchvision==0.3.0', 'imagehash>=4.0'],
+    'leveldb': ['plyvel>=1.0.5'],
+    'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
+    'http': ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'aiohttp==3.5.4']
+}
+
+
+def combine_dep(new_key, base_keys):
+    extras_dep[new_key] = list(set(k for v in base_keys for k in extras_dep[v]))
+
+
+combine_dep('nlp', ['bert', 'flair'])
+combine_dep('cn_nlp', ['chinese', 'nlp'])
+combine_dep('all', [k for k in extras_dep if k != 'elmo'])
 
 setup(
     name=pkg_name,
@@ -75,19 +85,7 @@ setup(
     ],
     ext_modules=extensions,
     install_requires=base_dep,
-    extras_require={
-        'bert': bert_dep,
-        # 'elmo': elmo_dep,   # not welcome by pip
-        'flair': flair_dep,
-        'nlp': nlp_dep,
-        'annoy': annoy_dep,
-        'chinese': chinese_dep,
-        'cn_nlp': cn_nlp_dep,
-        'vision': vision_dep,
-        'leveldb': leveldb_dep,
-        'test': test_dep,
-        'all': all_dep,
-    },
+    extras_require=extras_dep,
     entry_points={
         'console_scripts': ['gnes=gnes.cli:main'],
     },
