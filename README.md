@@ -60,6 +60,10 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 <img src=".github/gnes-component-overview.svg" alt="component overview">
 </p>
 
+<h2 align="center">Install</h2>
+
+
+
 
 <h2 align="center">Getting Started</h2>
 

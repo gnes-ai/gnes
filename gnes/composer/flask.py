@@ -17,21 +17,23 @@ import tempfile
 
 from .base import YamlComposer
 from ..cli.parser import set_composer_parser
+from ..helper import set_logger
 
 
 class YamlComposerFlask:
     def __init__(self, args):
         self.args = args
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
 
     def _create_flask_app(self):
         try:
-            from flask import Flask, request, abort, redirect, url_for
+            from flask import Flask, request
             from flask_compress import Compress
             from flask_cors import CORS
         except ImportError:
             raise ImportError('Flask or its dependencies are not fully installed, '
                               'they are required for serving HTTP requests.'
-                              'Please use "pip install Flask" to install it.')
+                              'Please use "pip install gnes[http]" to install it.')
 
         # support up to 10 concurrent HTTP requests
         app = Flask(__name__)
@@ -40,9 +42,11 @@ class YamlComposerFlask:
         def _get_homepage():
             return YamlComposer(set_composer_parser().parse_args([])).build_all()['html']
 
-        @app.route('/refresh', methods=['POST'])
+        @app.route('/generate', methods=['POST'])
         def _regenerate():
             data = request.form if request.form else request.json
+            if not data or 'yaml-config' not in data:
+                return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
             f = tempfile.NamedTemporaryFile('w', delete=False).name
             with open(f, 'w', encoding='utf8') as fp:
                 fp.write(data['yaml-config'])
@@ -50,8 +54,9 @@ class YamlComposerFlask:
                 return YamlComposer(set_composer_parser().parse_args([
                     '--yaml_path', f
                 ])).build_all()['html']
-            except Exception:
-                return 'Bad YAML input, please kindly check the format, indent and content of your YAML file!'
+            except Exception as e:
+                self.logger.error(e)
+                return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
 
         CORS(app, origins=self.args.cors)
         Compress().init_app(app)

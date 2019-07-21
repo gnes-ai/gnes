@@ -97,9 +97,9 @@ class YamlComposer:
             return str(self.components)
 
     def __init__(self, args):
+        self.args = args
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
 
-        self._layers = []  # type: List['YamlComposer.Layer']
-        self.logger = set_logger(self.__class__.__name__)
         with args.yaml_path:
             tmp = _yaml.load(args.yaml_path)
             stream = StringIO()
@@ -111,7 +111,7 @@ class YamlComposer:
         self._networks = tmp.get('networks', {})
         self._volumes = tmp.get('volumes', {})
 
-        self.args = args
+        self._layers = []  # type: List['YamlComposer.Layer']
         self._num_layer = 0
 
         if 'services' in tmp:

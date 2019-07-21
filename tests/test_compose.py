@@ -33,7 +33,6 @@ class TestCompose(unittest.TestCase):
         os.path.exists(self.html_path)
         print(a.build_dockerswarm(r))
 
-    @unittest.SkipTest
     def test_flask(self):
         yaml_path = os.path.join(self.dirname, 'yaml', 'topology1.yml')
         args = set_composer_flask_parser().parse_args([
@@ -41,7 +40,24 @@ class TestCompose(unittest.TestCase):
             '--yaml_path', yaml_path,
             '--html_path', self.html_path
         ])
-        YamlComposerFlask(args).run()
+        app = YamlComposerFlask(args)._create_flask_app().test_client()
+        response = app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+
+        response = app.post('/generate', follow_redirects=True)
+        self.assertEqual(response.status_code, 406)
+
+        response = app.post('/generate', data={'yaml-config': ''},
+                            follow_redirects=True)
+        self.assertEqual(response.status_code, 400)
+
+        response = app.post('/generate',
+                            data={'yaml-config': 'port: 5566\nservices:\n- name: Preprocessor\n- name: Encoder'},
+                            follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+
+        response = app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
 
     def tearDown(self):
         if os.path.exists(self.html_path):
