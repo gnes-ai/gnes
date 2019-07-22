@@ -74,7 +74,7 @@ class CompositionalEncoder(BaseEncoder):
     @component.setter
     def component(self, comps: Callable[[], Union[list, dict]]):
         if not callable(comps):
-            raise TypeError('component mus be a callable function that returns '
+            raise TypeError('component must be a callable function that returns '
                             'a List[BaseEncoder]')
         if not getattr(self, 'init_from_yaml', False):
             self._component = comps()
@@ -115,8 +115,8 @@ class CompositionalEncoder(BaseEncoder):
 
     @classmethod
     def from_yaml(cls, constructor, node):
-        obj, data = super()._get_instance_from_yaml(constructor, node)
-        if 'component' in data:
+        obj, data, from_dump = super()._get_instance_from_yaml(constructor, node)
+        if not from_dump and 'component' in data:
             obj.component = lambda: data['component']
         return obj
 

@@ -31,29 +31,47 @@
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#overview">Overview</a> •
-  <a href="#install">Install</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#book-tutorial">Tutorials</a> •
+  <a href="#install-gnes">Install</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#tutorial">Tutorial</a> •
+  <a href="#contributing">Contributing</a> •
   <a href="./CHANGELOG.md">Release Notes</a>  
 </p>
 
 <h2 align="center">What is it</h2>
 
-GNES [<i>jee-nes</i>] is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. 
+GNES [<i>jee-nes</i>] is **Generic Neural Elastic Search**, a cloud-native semantic search system based on deep neural network. 
 
 
 GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
 
 
 <h2 align="center">Highlights</h2>
-
-- :cloud: **Cloud-native and elastic**: GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.
-- :hatching_chick: **Easy-to-use on every level**: How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.
-- :rocket: **State-of-the-art performance**: Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
-- :nut_and_bolt: **Generic and compatible**: Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. 
-- :100: **Best practice**: We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.
-
+<center>
+<table>
+  <tr>
+    <th><h3>☁️</h3><h3>Cloud-Native & Elastic</h3></th>
+    <th><h3>🐣</h3><h3>Easy-to-Use</h3></th>
+    <th><h3>🔬</h3><h3>State-of-the-Art</h3></th>
+  </tr>
+  <tr>
+    <td width="33%"><sub>GNES is <i>all-in-microservice</i>! Encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.</sub></td>
+    <td width="33%"><sub>How long would it take to deploy a change that involves just switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic to a YAML config, so that you can change or stack encoders and indexers without even touching the codebase.</sub></td>
+    <td width="33%"><sub>Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.</sub></td>
+  </tr>
+  <tr>
+      <th><h3>🌌</h3><h3>Generic & Universal</h3></th>
+      <th><h3>📦</h3><h3>Model as Plugin</h3></th>
+      <th><h3>💯</h3><h3>Best Practice</h3></th>
+    </tr>
+    <tr>
+      <td width="33%"><sub>Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. </sub></td>
+      <td width="33%"><sub>When built-in models do not meet your requirments, simply build your own with <i>one Python file and one YAML file</i>. No need to rebuilt GNES framework, as your models will be loaded as plugins and directly rollout online.</sub></td>
+      <td width="33%"><sub>We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.</sub></td>
+    </tr>
+</table>
+</center>
 
 <h2 align="center">Overview</h2>
 <p align="center">
@@ -62,10 +80,13 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Install GNES</h2>
 
-There are two ways to get GNES, either as a docker image or as a PyPi package. 
-For cloud users, we highly recommend using GNES as a docker image. 
+There are two ways to get GNES, either as a Docker image or as a PyPi package.
+ 
+✅ For cloud users, we **highly recommend using GNES via Docker image**. 
 
-## Run GNES as a Docker Image
+## Run GNES as a Docker Container
+
+We provide GNES as a Docker image to simplify the installation. The Docker image is built with GNES full dependencies, so you can run GNES out-of-the-box.
 
 #### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
 
@@ -74,7 +95,7 @@ docker pull gnes/gnes:latest
 docker run gnes/gnes:latest --help
 ```
 
-#### via Tencent Container service
+#### via Tencent container service
 
 We also provide a public mirror hosted on Tencent Cloud, from which Chinese mainland users can pull the image faster.
 
@@ -84,11 +105,42 @@ docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
 ```
 
-> You may pull and run different versions by changing the `latest` to a version tag, e.g. `v0.0.24`.
+> 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
 
-## Install via `pip`
+## Install GNES via `pip`
 
-Install
+You can also install GNES as a Python package via:
+```bash
+pip install gnes
+```
+
+Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior as in GNES models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
+
+To enable the full functionalities and dependencies, you may install GNES via:
+```bash
+pip install gnes[all]
+```
+
+🍒 Or cherry-picking the dependencies according to the table below:
+
+<details>
+ <summary>List of cherry-picked dependencies (click to expand...)</summary>
+
+
+<table>
+<tr><td><pre>pip install gnes[bert]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6</td>
+<tr><td><pre>pip install gnes[flair]</pre></td><td>flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[annoy]</pre></td><td>annoy==1.15.2</td>
+<tr><td><pre>pip install gnes[chinese]</pre></td><td>jieba</td>
+<tr><td><pre>pip install gnes[vision]</pre></td><td>opencv-python>=4.0.0, torchvision==0.3.0, imagehash>=4.0</td>
+<tr><td><pre>pip install gnes[leveldb]</pre></td><td>plyvel>=1.0.5</td>
+<tr><td><pre>pip install gnes[test]</pre></td><td>pylint, memory_profiler>=0.55.0, psutil>=5.6.1, gputil>=1.4.0</td>
+<tr><td><pre>pip install gnes[http]</pre></td><td>flask, flask-compress, flask-cors, flask-json, aiohttp==3.5.4</td>
+<tr><td><pre>pip install gnes[nlp]</pre></td><td>flair>=0.4.1, bert-serving-client>=1.8.6, bert-serving-server>=1.8.6</td>
+<tr><td><pre>pip install gnes[cn_nlp]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6, jieba, flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[all]</pre></td><td>bert-serving-client>=1.8.6, bert-serving-server>=1.8.6, imagehash>=4.0, gputil>=1.4.0, flask, flask-cors, flask-compress, jieba, flair>=0.4.1, opencv-python>=4.0.0, torchvision==0.3.0, pylint, aiohttp==3.5.4, psutil>=5.6.1, flask-json, plyvel>=1.0.5, annoy==1.15.2, memory_profiler>=0.55.0</td>
+</table>
+</details>
 
 
 <h2 align="center">Quick Start</h2>
@@ -191,12 +243,11 @@ TBA
 TBA  
 
 
-<h2 align="center">:book: Documentation</h2>
+<h2 align="center">Documentation</h2>
 
 [![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai)
 
 The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release.
-
 
 <h2 align="center">Tutorial</h2>
 
