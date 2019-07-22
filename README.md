@@ -62,10 +62,12 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Install GNES</h2>
 
-There are two ways to get GNES, either as a docker image or as a PyPi package. 
-For cloud users, we highly recommend using GNES as a docker image. 
+There are two ways to get GNES, either as a Docker image or as a PyPi package. 
+For cloud users, we highly recommend using GNES via Docker image. 
 
-## Run GNES as a Docker Image
+## Run GNES as a Docker Container (:white_check_mark: recommended)
+
+We provide GNES as a Docker image to simplify the installation. The Docker image is built with GNES full dependencies, so you can run GNES out-of-the-box.
 
 #### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
 
@@ -84,11 +86,42 @@ docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
 ```
 
-> You may pull and run different versions by changing the `latest` to a version tag, e.g. `v0.0.24`.
+> :bulb: Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
 
-## Install via `pip`
+## Install GNES via `pip`
 
-Install
+You can also install GNES as a Python package via:
+```bash
+pip install gnes
+```
+
+Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES. *No* third-party pretrained models, deep learning/NLP/CV packages are installed. We make this setup as the default installation behavior as in GNES models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
+
+To enable the full functionalities and dependencies, you may install GNES via:
+```bash
+pip install gnes[all]
+```
+
+Or cherry-picking the dependencies according to the table below:
+
+<details>
+ <summary>List of cherry-picked dependencies (click to expand...)</summary>
+
+
+<table>
+<tr><td><pre>pip install gnes[bert]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6</td>
+<tr><td><pre>pip install gnes[flair]</pre></td><td>flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[annoy]</pre></td><td>annoy==1.15.2</td>
+<tr><td><pre>pip install gnes[chinese]</pre></td><td>jieba</td>
+<tr><td><pre>pip install gnes[vision]</pre></td><td>opencv-python>=4.0.0, torchvision==0.3.0, imagehash>=4.0</td>
+<tr><td><pre>pip install gnes[leveldb]</pre></td><td>plyvel>=1.0.5</td>
+<tr><td><pre>pip install gnes[test]</pre></td><td>pylint, memory_profiler>=0.55.0, psutil>=5.6.1, gputil>=1.4.0</td>
+<tr><td><pre>pip install gnes[http]</pre></td><td>flask, flask-compress, flask-cors, flask-json, aiohttp==3.5.4</td>
+<tr><td><pre>pip install gnes[nlp]</pre></td><td>flair>=0.4.1, bert-serving-client>=1.8.6, bert-serving-server>=1.8.6</td>
+<tr><td><pre>pip install gnes[cn_nlp]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6, jieba, flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[all]</pre></td><td>bert-serving-client>=1.8.6, bert-serving-server>=1.8.6, imagehash>=4.0, gputil>=1.4.0, flask, flask-cors, flask-compress, jieba, flair>=0.4.1, opencv-python>=4.0.0, torchvision==0.3.0, pylint, aiohttp==3.5.4, psutil>=5.6.1, flask-json, plyvel>=1.0.5, annoy==1.15.2, memory_profiler>=0.55.0</td>
+</table>
+</details>
 
 
 <h2 align="center">Quick Start</h2>
