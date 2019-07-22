@@ -292,7 +292,7 @@ class TrainableBase(metaclass=TrainableType):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
 
-        dump_path = cls._get_dump_path_from_config(data)
+        dump_path = cls._get_dump_path_from_config(data.get('gnes_config', {}))
         if dump_path:
             obj = cls.load(dump_path)
             obj.logger.info('restore %s from %s' % (cls.__name__, dump_path))

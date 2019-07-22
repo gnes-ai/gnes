@@ -43,23 +43,25 @@ class TFInceptionEncoder(BaseImageEncoder):
         from .inception_cores.inception_v4 import inception_v4
         from .inception_cores.inception_utils import inception_arg_scope
 
-        arg_scope = inception_arg_scope()
-        inception_v4.default_image_size = self.inception_size_x
-        self.inputs = tf.placeholder(tf.float32, (None,
-                                                  self.inception_size_x,
-                                                  self.inception_size_y, 3))
+        g = tf.Graph()
+        with g.as_default():
+            arg_scope = inception_arg_scope()
+            inception_v4.default_image_size = self.inception_size_x
+            self.inputs = tf.placeholder(tf.float32, (None,
+                                                      self.inception_size_x,
+                                                      self.inception_size_y, 3))
 
-        with tf.contrib.slim.arg_scope(arg_scope):
-            self.logits, self.end_points = inception_v4(self.inputs,
-                                                        is_training=False,
-                                                        dropout_keep_prob=1.0)
+            with tf.contrib.slim.arg_scope(arg_scope):
+                self.logits, self.end_points = inception_v4(self.inputs,
+                                                            is_training=False,
+                                                            dropout_keep_prob=1.0)
 
-        config = tf.ConfigProto(log_device_placement=False)
-        if self._use_cuda:
-            config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
-        self.saver = tf.train.Saver()
-        self.saver.restore(self.sess, self.model_dir)
+            config = tf.ConfigProto(log_device_placement=False)
+            if self._use_cuda:
+                config.gpu_options.allow_growth = True
+            self.sess = tf.Session(config=config)
+            self.saver = tf.train.Saver()
+            self.saver.restore(self.sess, self.model_dir)
 
     @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
