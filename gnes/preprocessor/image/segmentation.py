@@ -68,7 +68,7 @@ class SegmentPreprocessor(BaseImagePreprocessor):
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(self._crop_image_reshape(original_image, ele[0])))
                 c.offset_1d = ci
-                c.weight = ele[1]
+                c.weight = self._cal_area(ele[0]) / (original_image.size[0] * original_image.size[1])
 
             c = doc.chunks.add()
             c.doc_id = doc.doc_id
@@ -82,3 +82,6 @@ class SegmentPreprocessor(BaseImagePreprocessor):
     def _crop_image_reshape(self, original_image, coordinates):
         return np.array(original_image.crop(coordinates).resize((self.target_img_size,
                                                                  self.target_img_size)))
+
+    def _cal_area(self, coordinate):
+        return (coordinate[2] - coordinate[0]) * (coordinate[3] - coordinate[1])
