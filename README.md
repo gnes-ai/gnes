@@ -48,6 +48,17 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Highlights</h2>
 
+<table>
+  <tr>
+    <th>:cloud: **Cloud-native and elastic**</th>
+    <th>:hatching_chick: **Easy-to-use on every level**</th>
+  </tr>
+  <tr>
+    <td>GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.</td>
+    <td>How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.</td>
+  </tr>
+</table>
+
 - :cloud: **Cloud-native and elastic**: GNES is *all-in-microservice*: encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.
 - :hatching_chick: **Easy-to-use on every level**: How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.
 - :rocket: **State-of-the-art performance**: Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.
@@ -62,10 +73,11 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Install GNES</h2>
 
-There are two ways to get GNES, either as a Docker image or as a PyPi package. 
-For cloud users, we highly recommend using GNES via Docker image. 
+There are two ways to get GNES, either as a Docker image or as a PyPi package.
+ 
+:white_check_mark: For cloud users, we **highly recommend using GNES via Docker image**. 
 
-## Run GNES as a Docker Container (:white_check_mark: recommended)
+## Run GNES as a Docker Container
 
 We provide GNES as a Docker image to simplify the installation. The Docker image is built with GNES full dependencies, so you can run GNES out-of-the-box.
 
@@ -76,7 +88,7 @@ docker pull gnes/gnes:latest
 docker run gnes/gnes:latest --help
 ```
 
-#### via Tencent Container service
+#### via Tencent container service
 
 We also provide a public mirror hosted on Tencent Cloud, from which Chinese mainland users can pull the image faster.
 
@@ -95,14 +107,14 @@ You can also install GNES as a Python package via:
 pip install gnes
 ```
 
-Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES. *No* third-party pretrained models, deep learning/NLP/CV packages are installed. We make this setup as the default installation behavior as in GNES models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
+Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior as in GNES models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
 
 To enable the full functionalities and dependencies, you may install GNES via:
 ```bash
 pip install gnes[all]
 ```
 
-Or cherry-picking the dependencies according to the table below:
+:cherries: Or cherry-picking the dependencies according to the table below:
 
 <details>
  <summary>List of cherry-picked dependencies (click to expand...)</summary>
