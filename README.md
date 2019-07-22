@@ -56,11 +56,11 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
   </tr>
   <tr>
     <td width="33%"><sub>GNES is <i>all-in-microservice</i>! Encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.</sub></td>
-    <td width="33%"><sub>How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic from the code to a YAML config, so that you can combine or stack encoders and indexers without even touching the codebase.</sub></td>
+    <td width="33%"><sub>How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic to a YAML config, so that you can change or stack encoders and indexers without even touching the codebase.</sub></td>
     <td width="33%"><sub>Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.</sub></td>
   </tr>
   <tr>
-      <th><h3>🔩</h3><h3>Generic & Compatible</h3></th>
+      <th><h3>🌌</h3><h3>Generic & Universal</h3></th>
       <th><h3>📦</h3><h3>Model as Plugin</h3></th>
       <th><h3>💯</h3><h3>Best Practice</h3></th>
     </tr>
