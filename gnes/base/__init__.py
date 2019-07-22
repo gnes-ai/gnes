@@ -84,7 +84,8 @@ class TrainableType(type):
         for k, v in TrainableType.default_gnes_config.items():
             if k in kwargs:
                 v = kwargs[k]
-            setattr(obj, k, v)
+            if not hasattr(obj, k):
+                setattr(obj, k, v)
 
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
         return obj
@@ -227,7 +228,7 @@ class TrainableBase(metaclass=TrainableType):
         f = filename or self.yaml_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
-        with open(filename, 'w') as fp:
+        with open(f, 'w') as fp:
             yaml.dump(self, fp)
         self.logger.info('model\'s yaml config is dump to %s' % f)
 
@@ -293,9 +294,11 @@ class TrainableBase(metaclass=TrainableType):
             constructor, node, deep=True)
 
         dump_path = cls._get_dump_path_from_config(data.get('gnes_config', {}))
+        load_from_dump = False
         if dump_path:
             obj = cls.load(dump_path)
             obj.logger.info('restore %s from %s' % (cls.__name__, dump_path))
+            load_from_dump = True
         else:
             cls.init_from_yaml = True
 
@@ -314,7 +317,7 @@ class TrainableBase(metaclass=TrainableType):
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
 
-        return obj, data
+        return obj, data, load_from_dump
 
     @staticmethod
     def _get_dump_path_from_config(gnes_config: Dict):

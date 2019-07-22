@@ -5,10 +5,15 @@ from gnes.encoder.base import BaseEncoder, PipelineEncoder
 
 
 class DummyTFEncoder(BaseEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_trained = True
+
     def post_init(self):
         import tensorflow as tf
-        self.a = tf.get_variable(name='a', shape=[])
-        self.sess = tf.Session()
+        with tf.Graph().as_default():
+            self.a = tf.get_variable(name='a', shape=[])
+            self.sess = tf.Session()
 
     def encode(self, a, *args):
         return self.sess.run(self.a + 1, feed_dict={self.a: a})
@@ -35,13 +40,45 @@ class TestLoadDumpPipeline(unittest.TestCase):
     def test_dummytf(self):
         d1 = DummyTFEncoder()
         self.assertEqual(d1.encode(1), 2)
+        self.assertTrue(d1.is_trained)
+        d1.dump()
+        d11 = BaseEncoder.load(d1.dump_full_path)
+        self.assertTrue(d11.is_trained)
 
         d2 = DummyTFEncoder()
         self.assertEqual(d2.encode(2), 3)
+        self.assertTrue(d2.is_trained)
 
         d3 = PipelineEncoder()
         d3.component = lambda: [d1, d2]
-        self.assertEqual(d2.encode(1), 3)
+        self.assertEqual(d3.encode(1), 3)
+        self.assertFalse(d3.is_trained)
+        self.assertTrue(d3.component[0].is_trained)
+        self.assertTrue(d3.component[1].is_trained)
+
+        d3.dump()
+        d31 = BaseEncoder.load(d3.dump_full_path)
+        self.assertFalse(d31.is_trained)
+        self.assertTrue(d31.component[0].is_trained)
+        self.assertTrue(d31.component[1].is_trained)
+
+        d3.work_dir = './'
+        d3.name = 'dummy-pipeline'
+        d3.is_trained = True
+        d3.dump_yaml()
+        d3.dump()
+
+        d4 = PipelineEncoder.load(self.dump_path)
+        self.assertTrue(d4.is_trained)
+        self.assertTrue(d4.component[0].is_trained)
+        self.assertTrue(d4.component[1].is_trained)
+
+        d4 = PipelineEncoder.load_yaml(self.yaml_path)
+        self.assertTrue(d4.is_trained)
+        self.assertTrue(d4.component[0].is_trained)
+        self.assertTrue(d4.component[1].is_trained)
+
+        self.assertEqual(d4.encode(4), 6)
 
     def tearDown(self):
         if os.path.exists(self.dump_path):

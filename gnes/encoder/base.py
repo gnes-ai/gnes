@@ -115,8 +115,8 @@ class CompositionalEncoder(BaseEncoder):
 
     @classmethod
     def from_yaml(cls, constructor, node):
-        obj, data = super()._get_instance_from_yaml(constructor, node)
-        if 'component' in data:
+        obj, data, from_dump = super()._get_instance_from_yaml(constructor, node)
+        if not from_dump and 'component' in data:
             obj.component = lambda: data['component']
         return obj
 
