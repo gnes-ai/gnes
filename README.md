@@ -50,9 +50,9 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <table>
   <tr>
-    <th><h3>:cloud:</h3><h3>Cloud-native and elastic</h3></th>
-    <th><h3>:hatching_chick:</h3><h3>Easy-to-use on every level</h3></th>
-    <th><h3>:rocket:</h3><h3>State-of-the-art performance</h3></th>
+    <th><h3>:cloud:</h3><h3>Cloud-native & elastic</h3></th>
+    <th><h3>:hatching_chick:</h3><h3>Easy-to-use</h3></th>
+    <th><h3>:rocket:</h3><h3>State-of-the-art</h3></th>
   </tr>
   <tr>
     <td><sub>GNES is <i>all-in-microservice</i>: encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.</sub></td>
@@ -60,9 +60,9 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
     <td><sub>Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.</sub></td>
   </tr>
   <tr>
-      <th><h3>:nut_and_bolt:</h3><h3>Generic and compatible</h3></th>
+      <th><h3>:nut_and_bolt:</h3><h3>Generic & compatible</h3></th>
+      <th><h3>📦</h3><h3>Model as plugin</h3></th>
       <th><h3>:100:</h3><h3>Best practice</h3></th>
-      <th><h3>:rocket:</h3><h3>State-of-the-art performance</h3></th>
     </tr>
     <tr>
       <td><sub>GNES is <i>all-in-microservice</i>: Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. </sub></td>
