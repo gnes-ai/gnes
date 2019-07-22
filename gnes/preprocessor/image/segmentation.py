@@ -83,5 +83,6 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         return np.array(original_image.crop(coordinates).resize((self.target_img_size,
                                                                  self.target_img_size)))
 
-    def _cal_area(self, coordinate):
+    @classmethod
+    def _cal_area(cls, coordinate):
         return (coordinate[2] - coordinate[0]) * (coordinate[3] - coordinate[1])
