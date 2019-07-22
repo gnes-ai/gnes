@@ -62,7 +62,7 @@ class TestLoadDumpPipeline(unittest.TestCase):
         self.assertTrue(d31.component[0].is_trained)
         self.assertTrue(d31.component[1].is_trained)
 
-        d3.work_dir = './'
+        d3.work_dir = self.dirname
         d3.name = 'dummy-pipeline'
         d3.is_trained = True
         d3.dump_yaml()
