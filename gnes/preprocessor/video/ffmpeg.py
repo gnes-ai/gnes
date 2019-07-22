@@ -14,11 +14,12 @@
 #  limitations under the License.
 
 from typing import List
+
 import numpy as np
 
 from .base import BaseVideoPreprocessor
-from ...proto import gnes_pb2, array2blob
 from ..helper import get_video_frames, phash_descriptor
+from ...proto import gnes_pb2, array2blob
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):

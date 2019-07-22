@@ -1,8 +1,9 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_composer_parser
-from gnes.composer.base import YamlGraph
+from gnes.cli.parser import set_composer_parser, set_composer_flask_parser
+from gnes.composer.base import YamlComposer
+from gnes.composer.flask import YamlComposerFlask
 
 
 class TestCompose(unittest.TestCase):
@@ -21,7 +22,7 @@ class TestCompose(unittest.TestCase):
             '--yaml_path', yaml_path,
             '--html_path', self.html_path
         ])
-        a = YamlGraph(args)
+        a = YamlComposer(args)
         self.assertEqual(len(a._layers), num_layer_before)
         r = a.build_layers()
         self.assertEqual(len(r), num_layer_after)
@@ -31,6 +32,32 @@ class TestCompose(unittest.TestCase):
         print(a.build_shell(r))
         os.path.exists(self.html_path)
         print(a.build_dockerswarm(r))
+
+    def test_flask(self):
+        yaml_path = os.path.join(self.dirname, 'yaml', 'topology1.yml')
+        args = set_composer_flask_parser().parse_args([
+            '--flask',
+            '--yaml_path', yaml_path,
+            '--html_path', self.html_path
+        ])
+        app = YamlComposerFlask(args)._create_flask_app().test_client()
+        response = app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+
+        response = app.post('/generate', follow_redirects=True)
+        self.assertEqual(response.status_code, 406)
+
+        response = app.post('/generate', data={'yaml-config': ''},
+                            follow_redirects=True)
+        self.assertEqual(response.status_code, 400)
+
+        response = app.post('/generate',
+                            data={'yaml-config': 'port: 5566\nservices:\n- name: Preprocessor\n- name: Encoder'},
+                            follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+
+        response = app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
 
     def tearDown(self):
         if os.path.exists(self.html_path):

@@ -21,7 +21,6 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
-from aiohttp import web
 from google.protobuf.json_format import MessageToJson
 
 from ..helper import set_logger
@@ -34,6 +33,7 @@ class HttpClient:
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
 
     def start(self):
+        from aiohttp import web
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 

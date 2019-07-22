@@ -16,9 +16,10 @@
 # pylint: disable=low-comment-ratio
 
 import numpy as np
+
 from .base import BaseVideoPreprocessor
-from ...proto import gnes_pb2, array2blob
 from ..helper import get_video_frames, compute_descriptor, compare_descriptor
+from ...proto import gnes_pb2, array2blob
 
 
 class ShotDetectPreprocessor(BaseVideoPreprocessor):
@@ -66,7 +67,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             clt = KMeans(n_clusters=2)
             clt.fit(dists)
 
-            #select which cluster includes shot frames
+            # select which cluster includes shot frames
             big_center = np.argmax(clt.cluster_centers_)
 
             shots = []

@@ -17,7 +17,7 @@
 
 import numpy as np
 
-from .base import BaseService as BS, ComponentNotLoad, MessageHandler, ServiceError
+from .base import BaseService as BS, MessageHandler, ServiceError
 from ..proto import gnes_pb2, blob2array
 
 

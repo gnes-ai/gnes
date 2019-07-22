@@ -40,7 +40,7 @@ from termcolor import colored
 __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
            'batch_iterator', 'batching', 'yaml',
-           'profile_logger', 'doc_logger',
+           'profile_logger', 'load_contrib_module',
            'parse_arg', 'profiling', 'FileLock', 'train_required', 'get_first_available_gpu']
 
 
@@ -506,8 +506,33 @@ def train_required(func):
     return arg_wrapper
 
 
+def load_contrib_module():
+    if not os.getenv('GNES_CONTRIB_MODULE_IS_LOADING'):
+        import importlib.util
+
+        contrib = os.getenv('GNES_CONTRIB_MODULE')
+        os.environ['GNES_CONTRIB_MODULE_IS_LOADING'] = 'true'
+
+        modules = []
+
+        if contrib:
+            default_logger.info(
+                'find value in $GNES_CONTRIB_MODULE=%s, will try to load these modules from external' % contrib)
+            for c in contrib.split(','):
+                if ':' in c:
+                    _name, _path = c.split(':')
+                    spec = importlib.util.spec_from_file_location('gnes.contrib', _path)
+                    foo = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(foo)
+                    m = getattr(foo, _name)
+                    modules.append(m)
+                    default_logger.info('successfully register %s class, you can now use it via yaml.' % m)
+        return modules
+
+
 profile_logger = set_logger('PROFILE')
-doc_logger = set_logger('DOC')
+default_logger = set_logger('GNES')
 profiling = time_profile
 
 yaml = _get_yaml()
+

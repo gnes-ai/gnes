@@ -35,8 +35,13 @@ def route(args):
 
 
 def compose(args):
-    from ..composer.base import YamlGraph
-    YamlGraph(args).build_all()
+    from ..composer.base import YamlComposer
+    from ..composer.flask import YamlComposerFlask
+
+    if args.flask:
+        YamlComposerFlask(args).run()
+    else:
+        YamlComposer(args).build_all()
 
 
 def frontend(args):

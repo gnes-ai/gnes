@@ -81,6 +81,11 @@ if [[ "$BRANCH" != "master" ]]; then
   exit 1;
 fi
 
+if [[ -z "${BOT_URL}" ]]; then
+  printf "BOT_URL is not set! Need to export BOT_URL=xxx"
+  exit 1;
+fi
+
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
 OLDVER=$(git tag -l | sort -V |tail -n1)

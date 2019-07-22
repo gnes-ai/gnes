@@ -14,10 +14,12 @@
 #  limitations under the License.
 
 from typing import List
+
 import numpy as np
+from PIL import Image
+
 from ..base import BaseImageEncoder
 from ...helper import batching, batch_iterator
-from PIL import Image
 
 
 class TFInceptionEncoder(BaseImageEncoder):
@@ -63,7 +65,8 @@ class TFInceptionEncoder(BaseImageEncoder):
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
         img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
-                         self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im in img]
+                                                     self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
+               in img]
         for _im in batch_iterator(img, self.batch_size):
             _, end_points_ = self.sess.run((self.logits, self.end_points),
                                            feed_dict={self.inputs: _im})

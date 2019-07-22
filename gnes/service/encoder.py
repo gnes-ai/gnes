@@ -16,7 +16,7 @@
 # pylint: disable=low-comment-ratio
 from typing import List, Union
 
-from .base import BaseService as BS, MessageHandler, BlockMessage
+from .base import BaseService as BS, MessageHandler
 from ..proto import gnes_pb2, array2blob, blob2array
 
 

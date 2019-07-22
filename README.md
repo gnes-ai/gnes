@@ -60,8 +60,38 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 <img src=".github/gnes-component-overview.svg" alt="component overview">
 </p>
 
+<h2 align="center">Install GNES</h2>
 
-<h2 align="center">Getting Started</h2>
+There are two ways to get GNES, either as a docker image or as a PyPi package. 
+For cloud users, we highly recommend using GNES as a docker image. 
+
+## Run GNES as a Docker Image
+
+#### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
+
+```bash
+docker pull gnes/gnes:latest
+docker run gnes/gnes:latest --help
+```
+
+#### via Tencent Container service
+
+We also provide a public mirror hosted on Tencent Cloud, from which Chinese mainland users can pull the image faster.
+
+```bash
+docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
+docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
+docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
+```
+
+> You may pull and run different versions by changing the `latest` to a version tag, e.g. `v0.0.24`.
+
+## Install via `pip`
+
+Install
+
+
+<h2 align="center">Quick Start</h2>
 
 As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 

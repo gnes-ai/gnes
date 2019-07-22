@@ -26,11 +26,12 @@ from typing import Dict, Any, Union, TextIO, TypeVar, Type
 
 import ruamel.yaml.constructor
 
-from ..helper import set_logger, profiling, yaml, parse_arg
+from ..helper import set_logger, profiling, yaml, parse_arg, load_contrib_module
 
 __all__ = ['TrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
+
 
 
 def register_all_class(cls2file_map: Dict, module_name: str):
@@ -40,6 +41,7 @@ def register_all_class(cls2file_map: Dict, module_name: str):
             getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
         except ImportError:
             pass
+    load_contrib_module()
 
 
 def import_class_by_str(name: str):
@@ -339,3 +341,6 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['gnes_config'] = p
         return r
+
+
+

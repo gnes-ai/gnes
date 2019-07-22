@@ -21,7 +21,6 @@ from typing import List, Any, Union, Dict, Callable
 import numpy as np
 
 from ..base import TrainableBase
-from ..proto import gnes_pb2
 
 
 class BaseEncoder(TrainableBase):

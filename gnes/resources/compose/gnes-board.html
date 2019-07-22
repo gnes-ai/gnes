@@ -123,10 +123,25 @@
         }
     </style>
     <title>GNES Board</title>
+    <meta name="description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content form.">
+    <meta name="author" content="Han Xiao">
+    <meta name="keywords" content="GNES, neual network, deep learning, search, elastic search, cloud-native, kubernetes, docker swarm, docker container, semantic search, bert, vgg, alexnet, resnet, elmo, faiss, annoy">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="GNES is Generic Neural Elastic Search">
+    <meta property="og:site_name" content="GNES is Generic Neural Elastic Search">
+    <meta property="og:description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
+    <meta property="og:locale" content="default">
+    <meta property="og:image" content="https://gnes.ai/img/thumbnail.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="GNES is Generic Neural Elastic Search">
+    <meta name="twitter:description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
+    <meta name="twitter:image" content="https://gnes.ai/img/thumbnail.png">
+    <meta name="twitter:creator" content="@hxiao">
+    <link rel="icon" type="image/png" href="https://gnes.ai/favicon.png">
 </head>
 <body>
 <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="https://gnes.ai">
         <svg version="1.1" style="height: 30px" viewBox="0.0 0.0 432.0524934383202 157.11023622047244" fill="none"
              stroke="none" stroke-linecap="square" stroke-miterlimit="10"
              xmlns="http://www.w3.org/2000/svg">
@@ -200,14 +215,28 @@
                     YAML config
                 </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary" data-clipboard-target="#yaml-code">
-                        Copy to Clipboard
-                    </button>
-                    <pre>
-                    <code class="yaml" id="yaml-code">
+                    <form action="/generate" method="post">
+                        <div class="card-title">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button type="button" class="btn btn-secondary"
+                                        data-clipboard-target="#simple-yaml-config">
+                                    Copy
+                                </button>
+                                <input type="submit" class="btn btn-primary" value="Generate">
+                            </div>
+                        </div>
+                        <div class="card-text">
+
+
+                            <div class="form-group">
+                            <textarea name="yaml-config" class="form-control" id="simple-yaml-config" rows="15"
+                                      placeholder="your YAML config here" required autofocus>
 {{gnes-yaml}}
-                    </code>
-                    </pre>
+                            </textarea>
+                            </div>
+
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -218,7 +247,7 @@
                     <div class="jumbotron">
 
                         <p class="lead">This is the workflow generated from your input YAML config, which helps you
-                        to understand how microservices work together in GNES.</p>
+                            to understand how microservices work together in GNES.</p>
                     </div>
                     <div class="card">
                         <div class="card-header">
@@ -266,7 +295,7 @@
                         <hr class="my-4">
                         <p> 1. Install Docker and Docker Swarm<br>
                             2. Create a new file say <code>my-compose.yml</code><br>
-                            3. Copy the following content to it
+                            3. Copy the following content to it<br>
                             4. Run <code>docker stack deploy --compose-file my-compose.yml</code>.</p>
                     </div>
                     <div class="card">
@@ -287,6 +316,9 @@
                 </div>
 
                 <div class="tab-pane fade" id="pills-k8s" role="tabpanel">
+                    <div class="jumbotron">
+                        <p class="lead">The generation of Kubenetes config is currently under development.</p>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             Docker-Swarm/Docker-compose config

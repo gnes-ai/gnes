@@ -14,10 +14,12 @@
 #  limitations under the License.
 
 from typing import List
+
 import numpy as np
-from gnes.helper import batch_iterator
-from ..base import BaseImageEncoder
 from PIL import Image
+
+from ..base import BaseImageEncoder
+from ...helper import batch_iterator
 
 
 class CVAEEncoder(BaseImageEncoder):
@@ -56,7 +58,7 @@ class CVAEEncoder(BaseImageEncoder):
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
         img = [(np.array(Image.fromarray(im).resize((120, 120)),
-                dtype=np.float32)/255) for im in img]
+                         dtype=np.float32) / 255) for im in img]
         for _im in batch_iterator(img, self.batch_size):
             _mean, _var = self.sess.run((self.mean, self.var),
                                         feed_dict={self.inputs: _im})

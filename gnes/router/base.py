@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 # pylint: disable=low-comment-ratio
-from typing import List, Optional, Generator
+from typing import List, Generator
 
 from ..base import TrainableBase
 from ..proto import gnes_pb2, merge_routes
