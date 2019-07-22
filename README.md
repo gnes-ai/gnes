@@ -31,10 +31,11 @@
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#overview">Overview</a> •
-  <a href="#install">Install</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#book-tutorial">Tutorials</a> •
+  <a href="#install-gnes">Install</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#tutorial">Tutorial</a> •
+  <a href="#contributing">Contributing</a> •
   <a href="./CHANGELOG.md">Release Notes</a>  
 </p>
 
@@ -56,7 +57,7 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
   </tr>
   <tr>
     <td width="33%"><sub>GNES is <i>all-in-microservice</i>! Encoder, indexer, preprocessor and router are all running in their own containers. They communicate via versioned APIs and collaborate under the orchestration of Docker Swarm/Kubernetes etc. Scaling, load-balancing, automated recovering, they come off-the-shelf in GNES.</sub></td>
-    <td width="33%"><sub>How long would it take to deploy a change that involves just changing the encoder from BERT to ELMO or switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic to a YAML config, so that you can change or stack encoders and indexers without even touching the codebase.</sub></td>
+    <td width="33%"><sub>How long would it take to deploy a change that involves just switching a layer in VGG? In GNES, this is just one line change in a YAML file. We abstract the encoding and indexing logic to a YAML config, so that you can change or stack encoders and indexers without even touching the codebase.</sub></td>
     <td width="33%"><sub>Taking advantage of fast-evolving AI/ML/NLP/CV communities, we learn from best-of-breed deep learning models and plug them into GNES, making sure you always enjoy the state-of-the-art performance.</sub></td>
   </tr>
   <tr>
@@ -81,7 +82,7 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 There are two ways to get GNES, either as a Docker image or as a PyPi package.
  
-:white_check_mark: For cloud users, we **highly recommend using GNES via Docker image**. 
+✅ For cloud users, we **highly recommend using GNES via Docker image**. 
 
 ## Run GNES as a Docker Container
 
@@ -104,7 +105,7 @@ docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
 ```
 
-> :bulb: Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
+> 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
 
 ## Install GNES via `pip`
 
@@ -120,7 +121,7 @@ To enable the full functionalities and dependencies, you may install GNES via:
 pip install gnes[all]
 ```
 
-:cherries: Or cherry-picking the dependencies according to the table below:
+🍒 Or cherry-picking the dependencies according to the table below:
 
 <details>
  <summary>List of cherry-picked dependencies (click to expand...)</summary>
@@ -242,12 +243,11 @@ TBA
 TBA  
 
 
-<h2 align="center">:book: Documentation</h2>
+<h2 align="center">Documentation</h2>
 
 [![ReadTheDoc](https://readthedocs.org/projects/gnes/badge/?version=latest&style=for-the-badge)](https://doc.gnes.ai)
 
 The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.ai/). It is automatically built, updated and archived on every new release.
-
 
 <h2 align="center">Tutorial</h2>
 
