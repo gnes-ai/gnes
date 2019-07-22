@@ -50,7 +50,7 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <table>
   <tr>
-    <th><font size="+2">:cloud:</font><br>Cloud-native and elastic<br></th>
+    <th><span style="font-size:larger;">:cloud:</span><br>Cloud-native and elastic<br></th>
     <th>:hatching_chick: **Easy-to-use on every level**</th>
   </tr>
   <tr>
