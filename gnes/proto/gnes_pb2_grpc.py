@@ -34,6 +34,16 @@ class GnesRPCStub(object):
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
+    self.TrainStream = channel.stream_unary(
+        '/gnes.GnesRPC/TrainStream',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
+        )
+    self.IndexStream = channel.stream_unary(
+        '/gnes.GnesRPC/IndexStream',
+        request_serializer=gnes__pb2.Request.SerializeToString,
+        response_deserializer=gnes__pb2.Response.FromString,
+        )
 
 
 class GnesRPCServicer(object):
@@ -69,6 +79,20 @@ class GnesRPCServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def TrainStream(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def IndexStream(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_GnesRPCServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -89,6 +113,16 @@ def add_GnesRPCServicer_to_server(servicer, server):
       ),
       '_Call': grpc.unary_unary_rpc_method_handler(
           servicer._Call,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
+      ),
+      'TrainStream': grpc.stream_unary_rpc_method_handler(
+          servicer.TrainStream,
+          request_deserializer=gnes__pb2.Request.FromString,
+          response_serializer=gnes__pb2.Response.SerializeToString,
+      ),
+      'IndexStream': grpc.stream_unary_rpc_method_handler(
+          servicer.IndexStream,
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),
