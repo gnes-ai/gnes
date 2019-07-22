@@ -68,12 +68,12 @@ class TestLoadDumpPipeline(unittest.TestCase):
         d3.dump_yaml()
         d3.dump()
 
-        d4 = PipelineEncoder.load(self.dump_path)
+        d4 = PipelineEncoder.load(d3.dump_full_path)
         self.assertTrue(d4.is_trained)
         self.assertTrue(d4.component[0].is_trained)
         self.assertTrue(d4.component[1].is_trained)
 
-        d4 = PipelineEncoder.load_yaml(self.yaml_path)
+        d4 = PipelineEncoder.load_yaml(d3.yaml_full_path)
         self.assertTrue(d4.is_trained)
         self.assertTrue(d4.component[0].is_trained)
         self.assertTrue(d4.component[1].is_trained)
