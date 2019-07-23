@@ -268,7 +268,7 @@ Now it's time to run! As a cloud-native application, GNES requires an **orchestr
 <th>Shell-based solution</th><th>DockerSwarm solution</th>
 </tr>
 <tr>
-<td>
+<td width="50%">
    <pre lang="bash">
 #!/usr/bin/env bash
 
@@ -292,7 +292,7 @@ gnes index --yaml_path b-indexer.yml --port_in 49947 --socket_in PULL_CONNECT --
 wait
    </pre>
 </td>
-<td>
+<td width="50%">
   <pre lang="yaml">
 version: '3.4'
 services:
