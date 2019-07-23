@@ -106,7 +106,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         for area in all_subareas:
             if center_point[0] in range(int(area[0]), int(area[2])) and center_point[1] in range(int(area[1]),
                                                                                                  int(area[3])):
-                location_list.append(True)
+                location_list.append(True) 
             elif center_point[0] in range(int(area[0]), int(area[2])) and y_boundary == area[3] and center_point[1] > y_boundary:
                 location_list.append(True)
             elif center_point[1] in range(int(area[1]), int(area[3])) and x_boundary == area[2] and center_point[0] > x_boundary:
