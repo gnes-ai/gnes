@@ -158,7 +158,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 - [Build your first GNES app](#build-your-first-gnes-app)
 - [Scale your GNES app](#scale-your-gnes-app)
 - [Take-home messages](#take-home-messages)
-  * [What's next?](#whats-next)
+  * [👨‍💻️What's next?](#-whats-next)
 
 ### 🐣 Preliminaries
 
@@ -415,7 +415,7 @@ Now that you know how to compose and run a GNES app, let's make a short recap of
 - The real power of GNES is elasticity on every level. Router is automatically added between microservices for connecting the pieces together.
 
 
-#### What's next?
+#### 👨‍💻️ What's next?
 
 The next step is feeding data to GNES for training, indexing and querying. Checkout the [tutorials](#tutorial) and [documentations](#documentation) for more details. 
 
