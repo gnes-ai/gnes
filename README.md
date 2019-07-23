@@ -259,17 +259,15 @@ gnes_config:
 ```
 </details> 
 
-On the right side of the above table, you can see how the actual data flow looks like. There is an additional component `gRPCFrontend` automatically added to the workflow, it allows you to feed the data and fetch the result via gRPC protocol.
+On the right side of the above table, you can see how the actual data flow looks like. There is an additional component `gRPCFrontend` automatically added to the workflow, it allows you to feed the data and fetch the result via gRPC protocol through port `5566`.
 
-Now it's time to run! As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and a shell-based multi-process solution. Moreover, [GNES board](https://board.gnes.ai) can automatically generate an orchestration config/script based on the YAML file you give. Let's see what the generated script looks like in this case.
+Now it's time to run! [GNES board](https://board.gnes.ai) can automatically generate a starting script/config based on the YAML config you give. As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and shell-based multi-process. Let's see what the generated script looks like in this case.
 
-<table>
-<tr>
-<th>Shell-based solution</th>
-</tr>
-<tr>
-<td>
-   <pre lang="bash">
+
+<details>
+ <summary>Shell-based starting script (click to expand...)</summary>
+ 
+```bash
 #!/usr/bin/env bash
 set -e
 
@@ -277,7 +275,7 @@ trap 'kill $(jobs -p)' EXIT
 
 printf "starting service gRPCFrontend with 0 replicas...\n"
 gnes frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in 60654 --socket_in PULL_CONNECT  &
-printf "starting service Preprocessor with 0replicas...\n"
+printf "starting service Preprocessor with 0 replicas...\n"
 gnes preprocess --yaml_path text-prep.yaml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
 printf "starting service Encoder with 0 replicas...\n"
 gnes encode --yaml_path gpt2.yml --port_in 61911 --socket_in PULL_CONNECT --port_out 49947 --socket_out PUSH_BIND  &
@@ -285,15 +283,13 @@ printf "starting service Indexer with 0 replicas...\n"
 gnes index --yaml_path b-indexer.yml --port_in 49947 --socket_in PULL_CONNECT --port_out 60654 --socket_out PUSH_BIND  &
 
 wait
-   </pre>
-</td>
-</tr>
-<tr>
-<th>Docker-Swarm solution</th>
-</tr>
-<tr>
-<td>
-  <pre lang="yaml">
+```
+</details>
+
+<details>
+ <summary>DockerSwarm compose file (click to expand...)</summary>
+ 
+```yaml
 version: '3.4'
 services:
   gRPCFrontend00:
@@ -334,15 +330,9 @@ configs:
   Encoder20_yaml:
     file: gpt2.yml
   Indexer30_yaml:
-    file: b-indexer.yml         
-  </pre>
-</td>
-</tr>
-</table>
-
-
-
-
+    file: b-indexer.yml       
+```
+</details>
 
 
 Click on one of the icons below to get started.
