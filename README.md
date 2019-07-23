@@ -263,6 +263,12 @@ On the right side of the above table, you can see how the actual data flow looks
 
 Now it's time to run! [GNES board](https://board.gnes.ai) can automatically generate a starting script/config based on the YAML config you give. As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and shell-based multi-process. Let's see what the generated script looks like in this case.
 
+<p align="center">
+<a href="https://gnes.ai">
+    <img src=".github/gnes-board-demo?raw=true" alt="GNES Board">
+</a>
+</p>
+
 
 <details>
  <summary>Shell-based starting script (click to expand...)</summary>
@@ -333,6 +339,8 @@ configs:
     file: b-indexer.yml       
 ```
 </details>
+
+
 
 
 Click on one of the icons below to get started.
