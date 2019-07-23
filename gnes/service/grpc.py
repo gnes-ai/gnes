@@ -129,6 +129,16 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
     def Search(self, request, context):
         return self._Call(request, context)
 
+    def TrainStream(self, request_iterator, context):
+        for request in request_iterator:
+            ret = self._Call(request, context)
+        return ret
+
+    def IndexStream(self, request_iterator, context):
+        for request in request_iterator:
+            ret = self._Call(request, context)
+        return ret
+
 
 class GRPCFrontend:
     def __init__(self, args):
