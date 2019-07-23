@@ -203,7 +203,7 @@ services:
 The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the text below.
 
 <details>
- <summary>Preprocessor config: <pre>text-prep.yml</pre> (click to expand...)</summary>
+ <summary>Preprocessor config: text-prep.yml (click to expand...)</summary>
  
 ```yaml
 !TextPreprocessor
@@ -214,9 +214,10 @@ parameter:
 gnes_config:
   is_trained: true
 ```
-<details> 
 <details>
- <summary>Encoder config: <code>gpt2.yml</code> (click to expand...)</summary>
+
+<details>
+ <summary>Encoder config: gpt2.yml (click to expand...)</summary>
  
 ```yaml
 !PipelineEncoder
@@ -243,8 +244,9 @@ gnes_config:
 ```
 
 </details>
+
 <details>
- <summary>Indexer config: <pre>b-indexer.yml</pre> (click to expand...)</summary>
+ <summary>Indexer config: b-indexer.yml (click to expand...)</summary>
  
 ```yaml
 !BIndexer
