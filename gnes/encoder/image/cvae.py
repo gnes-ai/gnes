@@ -40,7 +40,7 @@ class CVAEEncoder(BaseImageEncoder):
 
     def post_init(self):
         import tensorflow as tf
-        from .cave_cores.model import CVAE
+        from .cvae_cores.model import CVAE
 
         self._model = CVAE(self.latent_dim)
         self.inputs = tf.placeholder(tf.float32,
