@@ -40,8 +40,9 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
     def apply(self, doc: 'gnes_pb2.Document'):
         super().apply(doc)
         if doc.raw_bytes:
-            img = np.array(Image.open(io.BytesIO(doc.raw_bytes)))
-            image_set = self._get_all_sliding_window(img)
+            original_image = Image.open(io.BytesIO(doc.raw_bytes))
+            all_subareas, index = self._get_all_subarea(original_image)
+            image_set, center_point_list = self._get_all_sliding_window(np.array(original_image))
             normalizaed_image_set = [np.array(self._torch_transform(img)).transpose(1, 2, 0)
                                      for img in image_set]
             weight = self._get_all_chunks_weight(normalizaed_image_set)
@@ -51,11 +52,12 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(ele[0]))
                 c.offset_1d = ci
+                c.offset_nd.x.extend(self._get_offset_nd(all_subareas, index, center_point_list[ci]))
                 c.weight = ele[1]
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
-    def _get_all_sliding_window(self, img: 'np.ndarray') -> List['np.ndarray']:
+    def _get_all_sliding_window(self, img: 'np.ndarray'):
         extend_height = self.window_size - (img.shape[0]) % self.stride_height
         extend_wide = self.window_size - (img.shape[1]) % self.stride_wide
 
@@ -81,9 +83,37 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
             ),
             writeable=False
         )
+        center_point_list = [
+            [self.window_size / 2 + x * self.stride_wide, self.window_size / 2 + y * self.stride_height]
+            for x in range(expanded_input.shape[0])
+            for y in range(expanded_input.shape[1])]
+
         expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
         return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
-                expanded_input]
+                expanded_input], center_point_list
+
+    def _get_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> List[
+        int]:
+        location_list = self._get_location(all_subareas, center_point)
+        location = [i for i in range(len(location_list)) if location_list[i] is True][0]
+        return index[location][:2]
+
+    @classmethod
+    def _get_location(cls, all_subareas: List[List[int]], center_point: List[float]) -> List[bool]:
+        location_list = []
+        x_boundary = max([x[1] for x in all_subareas])
+        y_boundary = max([y[3] for y in all_subareas])
+        for area in all_subareas:
+            if center_point[0] in range(int(area[0]), int(area[2])) and center_point[1] in range(int(area[1]),
+                                                                                                 int(area[3])):
+                location_list.append(True)
+            elif center_point[0] in range(int(area[0]), int(area[2])) and y_boundary == area[3] and center_point[1] > y_boundary:
+                location_list.append(True)
+            elif center_point[1] in range(int(area[1]), int(area[3])) and x_boundary == area[2] and center_point[0] > x_boundary:
+                location_list.append(True)
+            else:
+                location_list.append(False)
+        return location_list
 
 
 class VanillaSlidingPreprocessor(BaseSlidingPreprocessor):
