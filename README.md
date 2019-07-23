@@ -216,7 +216,7 @@ gnes_config:
 ```
 <details> 
 <details>
- <summary>Encoder config: <pre>gpt2.yml</pre> (click to expand...)</summary>
+ <summary>Encoder config: <code>gpt2.yml</code> (click to expand...)</summary>
  
 ```yaml
 !PipelineEncoder
