@@ -32,7 +32,7 @@
   <a href="#highlights">Highlights</a> •
   <a href="#overview">Overview</a> •
   <a href="#install-gnes">Install</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#getting-started">Getting Started</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
@@ -150,9 +150,9 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 </p>
 
 
-<h2 align="center">Quick Start</h2>
+<h2 align="center">Getting Started</h2>
 
-### Preliminaries
+### 🐣 Preliminaries
 
 Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. 
 
@@ -200,7 +200,7 @@ services:
 </tr>
 </table>
 
-The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the text below.
+The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the items below.
 
 <details>
  <summary>Preprocessor config: text-prep.yml (click to expand...)</summary>
@@ -259,7 +259,93 @@ gnes_config:
 ```
 </details> 
 
-As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+On the right side of the above table, you can see how the actual data flow looks like. There is an additional component `gRPCFrontend` automatically added to the workflow, it allows you to feed the data and fetch the result via gRPC protocol.
+
+Now it's time to run! As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and a shell-based multi-process solution. Moreover, [GNES board](https://board.gnes.ai) can automatically generate an orchestration config/script based on the YAML file you give. Let's see what the generated script looks like in this case.
+
+<table>
+<tr>
+<th>Shell-based solution</th><th>DockerSwarm solution</th>
+</tr>
+<tr>
+<td>
+   <pre lang="bash">
+#!/usr/bin/env bash
+
+## Prerequirment of this script
+## You need to install GNES locally on this local machine
+## pip install gnes
+
+set -e
+
+trap 'kill $(jobs -p)' EXIT
+
+printf "starting service [32mgRPCFrontend[0m with [33m1[0m replicas...\n"
+gnes frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in 60654 --socket_in PULL_CONNECT  &
+printf "starting service [32mPreprocessor[0m with [33m1[0m replicas...\n"
+gnes preprocess --yaml_path text-prep.yaml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
+printf "starting service [32mEncoder[0m with [33m1[0m replicas...\n"
+gnes encode --yaml_path gpt2.yml --port_in 61911 --socket_in PULL_CONNECT --port_out 49947 --socket_out PUSH_BIND  &
+printf "starting service [32mIndexer[0m with [33m1[0m replicas...\n"
+gnes index --yaml_path b-indexer.yml --port_in 49947 --socket_in PULL_CONNECT --port_out 60654 --socket_out PUSH_BIND  &
+
+wait
+   </pre>
+</td>
+<td>
+  <pre lang="yaml">
+version: '3.4'
+services:
+  gRPCFrontend00:
+    image: gnes/gnes:latest
+    command: frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in
+      60654 --socket_in PULL_CONNECT --host_in Indexer30
+    ports:
+    - 5566:5566
+  Preprocessor10:
+    image: gnes/gnes:latest
+    command: preprocess --port_in 49668 --socket_in PULL_CONNECT
+      --port_out 61911 --socket_out PUSH_BIND --yaml_path /Preprocessor10_yaml --host_in
+      gRPCFrontend00
+    configs:
+    - Preprocessor10_yaml
+  Encoder20:
+    image: gnes/gnes:latest
+    command: encode --port_in 61911 --socket_in PULL_CONNECT
+      --port_out 49947 --socket_out PUSH_BIND --yaml_path /Encoder20_yaml --host_in
+      Preprocessor10
+    configs:
+    - Encoder20_yaml
+  Indexer30:
+    image: gnes/gnes:latest
+    command: index --port_in 49947 --socket_in PULL_CONNECT
+      --port_out 60654 --socket_out PUSH_BIND --yaml_path /Indexer30_yaml --host_in
+      Encoder20
+    configs:
+    - Indexer30_yaml
+volumes: {}
+networks:
+  gnes-net:
+    driver: overlay
+    attachable: true
+configs:
+  Preprocessor10_yaml:
+    file: text-prep.yaml
+  Encoder20_yaml:
+    file: gpt2.yml
+  Indexer30_yaml:
+    file: b-indexer.yml         
+  <pre>
+</td>
+</tr>
+</table>
+
+
+
+
+
+
+Click on one of the icons below to get started.
 
 <p align="center">
 <table>
