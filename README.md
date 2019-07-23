@@ -152,13 +152,13 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 
 <h2 align="center">Getting Started</h2>
 
-- [🐣 Preliminaries](#---preliminaries)
+- [🐣 Preliminaries](#-preliminaries)
   * [Microservice](#microservice)
   * [Runtime](#runtime)
 - [Build your first GNES app](#build-your-first-gnes-app)
 - [Scale your GNES app](#scale-your-gnes-app)
-- [A Short Recap](#a-short-recap)
-  * [What's next?](#what-s-next-)
+- [Take-home messages](#take-home-messages)
+  * [What's next?](#whats-next)
 
 ### 🐣 Preliminaries
 
