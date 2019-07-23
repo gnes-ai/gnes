@@ -271,22 +271,17 @@ Now it's time to run! As a cloud-native application, GNES requires an **orchestr
 <td>
    <pre lang="bash">
 #!/usr/bin/env bash
-
-## Prerequirment of this script
-## You need to install GNES locally on this local machine
-## pip install gnes
-
 set -e
 
 trap 'kill $(jobs -p)' EXIT
 
-printf "starting service [32mgRPCFrontend[0m with [33m1[0m replicas...\n"
+printf "starting service gRPCFrontend with 0 replicas...\n"
 gnes frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in 60654 --socket_in PULL_CONNECT  &
-printf "starting service [32mPreprocessor[0m with [33m1[0m replicas...\n"
+printf "starting service Preprocessor with 0replicas...\n"
 gnes preprocess --yaml_path text-prep.yaml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
-printf "starting service [32mEncoder[0m with [33m1[0m replicas...\n"
+printf "starting service Encoder with 0 replicas...\n"
 gnes encode --yaml_path gpt2.yml --port_in 61911 --socket_in PULL_CONNECT --port_out 49947 --socket_out PUSH_BIND  &
-printf "starting service [32mIndexer[0m with [33m1[0m replicas...\n"
+printf "starting service Indexer with 0 replicas...\n"
 gnes index --yaml_path b-indexer.yml --port_in 49947 --socket_in PULL_CONNECT --port_out 60654 --socket_out PUSH_BIND  &
 
 wait
