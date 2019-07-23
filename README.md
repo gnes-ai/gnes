@@ -203,7 +203,20 @@ services:
 The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the text below.
 
 <details>
- <summary>Encoder config: gpt2.yml (click to expand...)</summary>
+ <summary>Preprocessor config: <pre>text-prep.yml</pre> (click to expand...)</summary>
+ 
+```yaml
+!TextPreprocessor
+parameter:
+  start_doc_id: 0
+  random_doc_id: True
+  deliminator: "[.!?]+"
+gnes_config:
+  is_trained: true
+```
+<details> 
+<details>
+ <summary>Encoder config: <pre>gpt2.yml</pre> (click to expand...)</summary>
  
 ```yaml
 !PipelineEncoder
@@ -224,9 +237,25 @@ component:
     parameter:
       cluster_per_byte: 8
       num_bytes: 8
+gnes_config:
+  work_dir: ./
+  name: gpt2bin-pipe
 ```
 
 </details>
+<details>
+ <summary>Indexer config: <pre>b-indexer.yml</pre> (click to expand...)</summary>
+ 
+```yaml
+!BIndexer
+parameter:
+  num_bytes: 8
+  data_path: /out_data/idx.binary
+gnes_config:
+  work_dir: ./
+  name: bindexer
+```
+<details> 
 
 As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 
