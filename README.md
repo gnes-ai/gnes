@@ -158,6 +158,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 - [Build your first GNES app](#build-your-first-gnes-app)
 - [Scale your GNES app](#scale-your-gnes-app)
 - [A Short Recap](#a-short-recap)
+  * [What's next?](#what-s-next-)
 
 ### 🐣 Preliminaries
 
@@ -178,7 +179,7 @@ In GNES, we have implemented dozens of preprocessor, encoder, indexer to process
 
 Okay, now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three tasks: indexing, querying and training are what we call three **runtimes** in GNES.
 
-💡 The key to understand GNES is to know *which runtime requires what microservices, and each of which does what*.
+💡 The key to understand GNES is to know *which runtime requires what microservices, and each microservice does what*.
 
 ### Build your first GNES app
 
@@ -403,10 +404,20 @@ The output should looks like follows:
 This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 
 
-### A Short Recap
+### Take-home messages
+
+Now that you know how to compose and run a GNES app, let's make a short recap of what we have learned. 
+
+- GNES is *all-in-microservice*, there are four fundamental components: preprocessor, encoder, indexer and router.
+- GNES has three runtimes: training, indexing, and querying. The key to compose a GNES app is to clarify *which runtime requires what microservices (defined in the YAML config), and each microservice does what (defined in the component-wise YAML config)*.
+- GNES requires an orchestration engine to coordinate all microservices. It supports Kubernetes, Docker Swarm and a shell-based multi-process solution. 
+- [GNES Board](https://board.gnes.ai) is a convenient tool for visualizing the workflow, generating starting script or cloud configuration.
+- The real power of GNES is elasticity on every level. Router is automatically added between microservices for connecting the pieces together.
 
 
+#### What's next?
 
+The next step is feeding data to GNES for training, indexing and querying. Checkout the [tutorials](#tutorial) and [documentations](#documentation) for more details. 
 
 <h2 align="center">Documentation</h2>
 
