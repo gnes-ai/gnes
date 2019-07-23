@@ -28,6 +28,7 @@ class CVAEEncoder(BaseImageEncoder):
                  latent_dim: int = 300,
                  batch_size: int = 64,
                  select_method: str = 'MEAN',
+                 l2_normalize: bool = False,
                  use_gpu: bool = True,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,24 +37,26 @@ class CVAEEncoder(BaseImageEncoder):
         self.latent_dim = latent_dim
         self.batch_size = batch_size
         self.select_method = select_method
+        self.l2_normalize = l2_normalize
         self.use_gpu = use_gpu
 
     def post_init(self):
         import tensorflow as tf
-        from .cave_cores.model import CVAE
+        from .cvae_cores.model import CVAE
+        g = tf.Graph()
+        with g.as_default():
+            self._model = CVAE(self.latent_dim)
+            self.inputs = tf.placeholder(tf.float32,
+                                         (None, 120, 120, 3))
 
-        self._model = CVAE(self.latent_dim)
-        self.inputs = tf.placeholder(tf.float32,
-                                     (None, 120, 120, 3))
+            self.mean, self.var = self._model.encode(self.inputs)
 
-        self.mean, self.var = self._model.encode(self.inputs)
-
-        config = tf.ConfigProto(log_device_placement=False)
-        if self.use_gpu:
-            config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
-        self.saver = tf.train.Saver()
-        self.saver.restore(self.sess, self.model_dir)
+            config = tf.ConfigProto(log_device_placement=False)
+            if self.use_gpu:
+                config.gpu_options.allow_growth = True
+            self.sess = tf.Session(config=config)
+            self.saver = tf.train.Saver()
+            self.saver.restore(self.sess, self.model_dir)
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
@@ -68,4 +71,7 @@ class CVAEEncoder(BaseImageEncoder):
                 ret.append(_var)
             elif self.select_method == 'MEAN_VAR':
                 ret.append(np.concatenate([_mean, _var]), axis=1)
-        return np.concatenate(ret, axis=0).astype(np.float32)
+        v = np.concatenate(ret, axis=0).astype(np.float32)
+        if self.l2_normalize:
+            v = v / (v**2).sum(axis=1, keepdims=True)**0.5
+        return v
