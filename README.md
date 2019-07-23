@@ -214,7 +214,7 @@ parameter:
 gnes_config:
   is_trained: true
 ```
-<details>
+</details>
 
 <details>
  <summary>Encoder config: gpt2.yml (click to expand...)</summary>
@@ -257,7 +257,7 @@ gnes_config:
   work_dir: ./
   name: bindexer
 ```
-<details> 
+</details> 
 
 As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 
