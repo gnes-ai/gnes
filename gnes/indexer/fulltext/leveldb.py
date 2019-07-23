@@ -26,10 +26,16 @@ from ...proto import gnes_pb2
 
 class LVDBIndexer(BaseTextIndexer):
 
-    def __init__(self, data_path: str, keep_na_doc: bool = True, *args, **kwargs):
+    def __init__(self, data_path: str,
+                 keep_na_doc: bool = True,
+                 drop_raw_bytes: bool = False,
+                 drop_chunk_blob: bool = False,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data_path = data_path
         self.keep_na_doc = keep_na_doc
+        self.drop_raw_bytes = drop_raw_bytes
+        self.drop_chunk_blob = drop_chunk_blob
         self._NOT_FOUND = None
 
     def post_init(self):
@@ -40,6 +46,11 @@ class LVDBIndexer(BaseTextIndexer):
         with self._db.write_batch() as wb:
             for k, d in zip(keys, docs):
                 doc_id = pickle.dumps(k)
+                if self.drop_raw_bytes:
+                    d.raw_bytes = b''
+                if self.drop_chunk_blob:
+                    for i in range(len(d.chunks)):
+                        d.chunks[i].ClearField('blob')
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
 
