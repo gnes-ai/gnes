@@ -265,7 +265,7 @@ Now it's time to run! [GNES board](https://board.gnes.ai) can automatically gene
 
 <p align="center">
 <a href="https://gnes.ai">
-    <img src=".github/gnes-board-demo?raw=true" alt="GNES Board">
+    <img src=".github/gnes-board-demo.gif?raw=true" alt="GNES Board">
 </a>
 </p>
 
