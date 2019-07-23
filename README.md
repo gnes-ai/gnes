@@ -84,7 +84,7 @@ There are two ways to get GNES, either as a Docker image or as a PyPi package.
  
 ✅ For cloud users, we **highly recommend using GNES via Docker image**. 
 
-## Run GNES as a Docker Container
+### Run GNES as a Docker Container
 
 We provide GNES as a Docker image to simplify the installation. The Docker image is built with GNES full dependencies, so you can run GNES out-of-the-box.
 
@@ -107,7 +107,7 @@ docker run ccr.ccs.tencentyun.com/gnes/gnes:latest
 
 > 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
 
-## Install GNES via `pip`
+### Install GNES via `pip`
 
 You can also install GNES as a Python package via:
 ```bash
@@ -152,7 +152,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 
 <h2 align="center">Quick Start</h2>
 
-## Preliminaries
+### Preliminaries
 
 Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. For machine learning engineers and data scientists who are not familiar with the concept of *cloud-native* and *microservice*, one can picture a microservice as an app (on your smartphone). Each app runs independently, and an app may cooperate with other apps to accomplish a task. In GNES, we have four fundamental apps, aka. microservices, they are:
 
@@ -165,6 +165,9 @@ In GNES, we have implemented dozens of preprocessor, encoder, indexer to process
 
 Okay, now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three tasks: indexing, querying and training are what we call three **runtimes** in GNES.
 
+💡 The key to understand GNES is to know *which runtime requires what microservices, and each of which does what*.
+
+### Build your first GNES network
 
 
 
