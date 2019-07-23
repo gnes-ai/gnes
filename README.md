@@ -91,9 +91,10 @@ We provide GNES as a Docker image to simplify the installation. The Docker image
 #### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
 
 ```bash
-docker pull gnes/gnes:latest
-docker run gnes/gnes:latest --help
+docker run gnes/gnes:latest
 ```
+
+This command downloads the latest GNES image and runs it in a container. When the container runs, it prints an informational message and exits.
 
 #### via Tencent container service
 
@@ -101,8 +102,7 @@ We also provide a public mirror hosted on Tencent Cloud, from which Chinese main
 
 ```bash
 docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
-docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
-docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
+docker run ccr.ccs.tencentyun.com/gnes/gnes:latest
 ```
 
 > 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
@@ -143,6 +143,13 @@ pip install gnes[all]
 </details>
 
 
+Either way, if you see the following message after `$gnes` or `$docker run gnes/gnes`, then you are ready to go!
+
+<p align="center">
+<img src=".github/install-success.svg" alt="success installation of GNES">
+</p>
+
+
 <h2 align="center">Quick Start</h2>
 
 As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
@@ -168,6 +175,8 @@ As a cloud-native application, GNES requires an **orchestration engine** to coor
   </tr>
 </table>
 </p>
+
+
 
 ### Using GNES with Kubernetes
 
