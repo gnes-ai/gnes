@@ -41,19 +41,20 @@ class CVAEEncoder(BaseImageEncoder):
     def post_init(self):
         import tensorflow as tf
         from .cvae_cores.model import CVAE
+        g = tf.Graph()
+        with g.as_default():
+            self._model = CVAE(self.latent_dim)
+            self.inputs = tf.placeholder(tf.float32,
+                                         (None, 120, 120, 3))
 
-        self._model = CVAE(self.latent_dim)
-        self.inputs = tf.placeholder(tf.float32,
-                                     (None, 120, 120, 3))
+            self.mean, self.var = self._model.encode(self.inputs)
 
-        self.mean, self.var = self._model.encode(self.inputs)
-
-        config = tf.ConfigProto(log_device_placement=False)
-        if self.use_gpu:
-            config.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=config)
-        self.saver = tf.train.Saver()
-        self.saver.restore(self.sess, self.model_dir)
+            config = tf.ConfigProto(log_device_placement=False)
+            if self.use_gpu:
+                config.gpu_options.allow_growth = True
+            self.sess = tf.Session(config=config)
+            self.saver = tf.train.Saver()
+            self.saver.restore(self.sess, self.model_dir)
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
