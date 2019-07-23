@@ -175,7 +175,7 @@ Okay, now that we have a bunch of apps, what are we expecting them to do? In a t
 
 ### Build your first GNES app
 
-Let's start with a typical indexing procedure:
+Let's start with a typical indexing procedure by writing a YAML config (see the left column of the table):
 
 <table>
 <tr>
@@ -200,8 +200,33 @@ services:
 </tr>
 </table>
 
+The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the text below.
 
+<details>
+ <summary>Encoder config: gpt2.yml (click to expand...)</summary>
+ 
+```yaml
+!PipelineEncoder
+component:
+  - !GPT2Encoder
+    parameter:
+      model_dir: $GPT2_CI_MODEL
+      pooling_stragy: REDUCE_MEAN
+    gnes_config:
+      is_trained: true
+  - !PCALocalEncoder
+    parameter:
+      output_dim: 32
+      num_locals: 8
+    gnes_config:
+      batch_size: 2048
+  - !PQEncoder
+    parameter:
+      cluster_per_byte: 8
+      num_bytes: 8
+```
 
+</details>
 
 As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
 
