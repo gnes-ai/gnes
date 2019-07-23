@@ -154,7 +154,11 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 
 ### Preliminaries
 
-Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. For machine learning engineers and data scientists who are not familiar with the concept of *cloud-native* and *microservice*, one can picture a microservice as an app (on your smartphone). Each app runs independently, and an app may cooperate with other apps to accomplish a task. In GNES, we have four fundamental apps, aka. microservices, they are:
+Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. 
+
+#### Microservice
+
+For machine learning engineers and data scientists who are not familiar with the concept of *cloud-native* and *microservice*, one can picture a microservice as an app (on your smartphone). Each app runs independently, and an app may cooperate with other apps to accomplish a task. In GNES, we have four fundamental apps, aka. microservices, they are:
 
 - **Preprocessor**: transforming a real-world object to a list of workable semantic units;
 - **Encoder**: representing a semantic unit with vector representation;
@@ -162,6 +166,8 @@ Before we start, let me first introduce two basic concepts serving as the backbo
 - **Router**: forwarding messages between microservices: e.g. batching, mapping, reducing.
 
 In GNES, we have implemented dozens of preprocessor, encoder, indexer to process different content forms, such as image, text, video. It is also super easy to plug in your own implementation, which we shall see an example in the sequel.
+
+#### Runtime
 
 Okay, now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three tasks: indexing, querying and training are what we call three **runtimes** in GNES.
 
