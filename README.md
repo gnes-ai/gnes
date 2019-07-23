@@ -195,7 +195,7 @@ Let's start with a typical indexing procedure:
    </pre>
 </td>
 <td>
-  <img src=".github/gnes-flow-1.svg" alt="GNES workflow of example 1">
+  <img src=".github/mermaid-diagram-20190723165430.svg" alt="GNES workflow of example 1">
 </td>
 </tr>
 </table>
