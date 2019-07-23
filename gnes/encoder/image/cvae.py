@@ -28,6 +28,7 @@ class CVAEEncoder(BaseImageEncoder):
                  latent_dim: int = 300,
                  batch_size: int = 64,
                  select_method: str = 'MEAN',
+                 l2_normalize: bool = False,
                  use_gpu: bool = True,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,6 +37,7 @@ class CVAEEncoder(BaseImageEncoder):
         self.latent_dim = latent_dim
         self.batch_size = batch_size
         self.select_method = select_method
+        self.l2_normalize = l2_normalize
         self.use_gpu = use_gpu
 
     def post_init(self):
@@ -69,4 +71,7 @@ class CVAEEncoder(BaseImageEncoder):
                 ret.append(_var)
             elif self.select_method == 'MEAN_VAR':
                 ret.append(np.concatenate([_mean, _var]), axis=1)
-        return np.concatenate(ret, axis=0).astype(np.float32)
+        v = np.concatenate(ret, axis=0).astype(np.float32)
+        if self.l2_normalize:
+            v = v / (v**2).sum(axis=1, keepdims=True)**0.5
+        return v
