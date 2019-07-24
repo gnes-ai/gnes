@@ -424,7 +424,7 @@ Generally, a complete and successful Docker Swarm starting process should look l
 </p>
 
 
-This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
+When the GNES stack is ready and waiting for the incoming data, you may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 
 
 To stop a running GNES stack, you can use `docker stack rm gnes-531`.
@@ -539,15 +539,28 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 <h2 align="center">Tutorial</h2>
 
+> 🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES! 
+
 - How to write your GNES YAML config
-- How to define a component-wise YAML config
+- How to write a component-wise YAML config
+- Understanding preprocessor, encoder, indexer and router
 - Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
-
-
+- Index and query text data with GNES
+- Index and query image data with GNES
+- Index and query video data with GNES
+- Using GNES with Kubernetes
+- Using GNES in other language (besides Python)
+- Model-as-plugin: write your own component
 
 <h2 align="center">Contributing</h2>
 
-Thanks for your interest in contributing! 
+Thanks for your interest in contributing! GNES always welcome the contribution from the open-source community, individual committers and other partners. Without you, GNES can't be successful.
+
+Currently there are two major directions of contribution:
+- **Porting state-of-the-art models to GNES**. This includes new preprocessing algorithms, new DNN networks for encoding, and new high-performance index. Believe me, it is super easy to wrap an algorithm and use it in GNES. Checkout this example.
+- **Adding tutorial and learning experience**. What is good and what can be improved? If you apply GNES in your domain, whether it's about NLP or CV, whether it's a blog post or a Reddit/Twitter thread, we are always eager to know your thoughts.
+
+Make sure to read the contributor guidelines before your first commit. 
 
 - [Contributor guidelines](./CONTRIBUTING.md)
 - [Open issues](/issues)
@@ -555,19 +568,20 @@ Thanks for your interest in contributing!
 
 For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
 
-
-
-
 <h2 align="center">Citing GNES</h2>
 
-```latex
-@misc{tencent2019GNES,
-  title={GNES: Generic Neural Elastic Search},
-  author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
-  howpublished={\url{https://github.com/gnes-ai}},
-  year={2019}
-}
-```
+If you use GNES in an academic paper, you are more than welcome to make a citation. Here are the two ways of citing GNES:
+
+1.     \footnote{https://github.com/gnes-ai/gnes}
+2. 
+    ```latex
+    @misc{tencent2019GNES,
+      title={GNES: Generic Neural Elastic Search},
+      author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
+      howpublished={\url{https://github.com/gnes-ai}},
+      year={2019}
+    }
+    ```
 
 <h2 align="center">License</h2>
 
