@@ -32,7 +32,7 @@ class RequestGenerator:
 
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
-            req.request_id = start_id
+            req.request_id = str(start_id)
             for raw_bytes in pi:
                 d = req.index.docs.add()
                 d.raw_bytes = raw_bytes
