@@ -5,4 +5,5 @@ parameter:
   target_img_size: 224
   _use_cuda: false
 gnes_config:
+  name: fasterRCNN
   is_trained: true

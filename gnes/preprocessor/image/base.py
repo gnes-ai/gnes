@@ -32,8 +32,18 @@ class BaseImagePreprocessor(BasePreprocessor):
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         pass
 
-    @classmethod
-    def _torch_transform(cls, image):
+    @staticmethod
+    def _torch_transform(image):
         import torchvision.transforms as transforms
         return transforms.Compose([transforms.ToTensor(),
                                    transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(image)
+
+    @staticmethod
+    def _get_all_subarea(image):
+        from itertools import product
+        x_list = [0, image.size[0] / 3, 2 * image.size[0] / 3, image.size[0]]
+        y_list = [0, image.size[1] / 3, 2 * image.size[1] / 3, image.size[1]]
+
+        index = [[x, y, x + 1, y + 1] for [x, y] in product(range(len(x_list) - 1), range(len(y_list) - 1))]
+        all_subareas = [[x_list[idx[0]], y_list[idx[1]], x_list[idx[2]], y_list[idx[3]]] for idx in index]
+        return all_subareas, index
