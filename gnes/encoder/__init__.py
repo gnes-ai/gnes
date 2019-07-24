@@ -40,6 +40,7 @@ _cls2file_map = {
     'HashEncoder': 'numeric.hash',
     'BasePytorchEncoder': 'image.base',
     'TFInceptionEncoder': 'image.inception',
+    'CVAEEncoder': 'image.cvae'
 }
 
 register_all_class(_cls2file_map, 'encoder')
