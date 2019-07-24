@@ -29,7 +29,7 @@ from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
 __all__ = ['GRPCFrontend']
 
 
-class ZmqContext(object):
+class ZmqContext:
     """The zmq context class."""
 
     def __init__(self, args):
@@ -111,32 +111,29 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         msg.request.CopyFrom(body)
         return msg
 
-    def _Call(self, request, context):
+    def remove_envelope(self, m: 'gnes_pb2.Message'):
+        resp = m.response
+        resp.request_id = m.envelope.request_id
+        return resp
+
+    def Call(self, request, context):
         self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
         with self.zmq_context as zmq_client:
-            msg = self.add_envelope(request, zmq_client)
-            zmq_client.send_message(msg, self.args.timeout)
-            resp = zmq_client.recv_message(self.args.timeout)
-            self.logger.info("received message done!")
-            return resp.response
+            zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
+            return self.remove_envelope(zmq_client.recv_message(self.args.timeout))
 
     def Train(self, request, context):
-        return self._Call(request, context)
+        return self.Call(request, context)
 
     def Index(self, request, context):
-        return self._Call(request, context)
+        return self.Call(request, context)
 
     def Search(self, request, context):
-        return self._Call(request, context)
+        return self.Call(request, context)
 
-    def TrainStream(self, request_iterator, context):
+    def RequestStreamCall(self, request_iterator, context):
         for request in request_iterator:
-            ret = self._Call(request, context)
-        return ret
-
-    def IndexStream(self, request_iterator, context):
-        for request in request_iterator:
-            ret = self._Call(request, context)
+            ret = self.Call(request, context)
         return ret
 
 

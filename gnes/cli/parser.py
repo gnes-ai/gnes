@@ -206,10 +206,13 @@ def _set_grpc_parser(parser=None):
 
 
 def set_grpc_frontend_parser(parser=None):
+    from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
     _set_client_parser(parser)
     _set_grpc_parser(parser)
+    parser.set_defaults(socket_in=SocketType.PULL_BIND,
+                        socket_out=SocketType.PUSH_BIND)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent client allowed')
     parser.add_argument('--max_send_size', type=int, default=100,

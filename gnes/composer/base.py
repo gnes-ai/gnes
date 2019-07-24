@@ -22,7 +22,6 @@ from typing import Dict, List
 from pkg_resources import resource_stream
 from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
-from termcolor import colored
 
 from .. import __version__
 from ..cli.parser import set_grpc_frontend_parser, \
@@ -104,7 +103,7 @@ class YamlComposer:
             tmp = _yaml.load(args.yaml_path)
             stream = StringIO()
             _yaml.dump(tmp, stream)
-            self.original_yaml = stream.getvalue()
+            self.original_yaml = stream.getvalue().strip()
 
         self._name = tmp.get('name', args.name)
         self._port = tmp.get('port', args.port)
@@ -173,7 +172,7 @@ class YamlComposer:
             for c_idx, c in enumerate(layer.components):
                 c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                        a in YamlComposer.comp2args[c['name']] and v]
+                        a in YamlComposer.comp2args[c['name']] and a != 'yaml_path' and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
@@ -235,7 +234,7 @@ class YamlComposer:
         swarm_lines['configs'] = config_dict
         stream = StringIO()
         _yaml.dump(swarm_lines, stream)
-        return stream.getvalue()
+        return stream.getvalue().strip()
 
     @staticmethod
     def build_kubernetes(all_layers: List['YamlComposer.Layer'], *args, **kwargs):
@@ -247,8 +246,8 @@ class YamlComposer:
         for layer in all_layers:
             for c in layer.components:
                 rep_c = YamlComposer.Layer.get_value(c, 'replicas')
-                shell_lines.append('printf "starting service %s with %s replicas...\\n"' % (
-                    colored(c['name'], 'green'), colored(rep_c, 'yellow')))
+                shell_lines.append('printf "starting service \\e[1;33m%s\\e[0m with \e[1;33m%s\e[0m replicas...\\n"' % (
+                    c['name'], rep_c))
                 for _ in range(rep_c):
                     cmd = YamlComposer.comp2file[c['name']]
                     args = ' '.join(
@@ -258,7 +257,7 @@ class YamlComposer:
                         cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh'))) as r:
-            return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
+            return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines)).strip()
 
     @staticmethod
     def build_mermaid(all_layers: List['YamlComposer.Layer'], mermaid_leftright: bool = False) -> str:
@@ -301,7 +300,7 @@ class YamlComposer:
         class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
         mermaid_str = '\n'.join(
             ['graph %s' % ('LR' if mermaid_leftright else 'TD')] + mermaid_graph + style + class_def)
-        return mermaid_str
+        return mermaid_str.strip()
 
     @staticmethod
     def build_html(generate_dict: Dict[str, str]) -> str:
@@ -310,7 +309,7 @@ class YamlComposer:
             for k, v in generate_dict.items():
                 if v:
                     html = html.replace('{{gnes-%s}}' % k, v)
-        return html
+        return html.strip()
 
     def build_all(self):
         def std_or_print(f, content):
@@ -516,13 +515,13 @@ class YamlComposer:
                 rule1()
             elif layer.is_homo_multi_component:
                 # 1-to-(N)
-                last_income = self.Layer.get_value(last_layer.components[0], 'income')
-                if last_income == 'pull':
+                income = self.Layer.get_value(layer.components[0], 'income')
+                if income == 'pull':
                     rule1()
-                elif last_income == 'sub':
+                elif income == 'sub':
                     rule2()
                 else:
-                    raise NotImplementedError('replica type: %s is not recognized!' % last_income)
+                    raise NotImplementedError('replica type: %s is not recognized!' % income)
             elif layer.is_heto_single_component:
                 # 1-to-(1)&(1)&(1)
                 rule4()

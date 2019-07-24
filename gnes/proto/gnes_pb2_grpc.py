@@ -29,18 +29,13 @@ class GnesRPCStub(object):
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
-    self._Call = channel.unary_unary(
-        '/gnes.GnesRPC/_Call',
+    self.Call = channel.unary_unary(
+        '/gnes.GnesRPC/Call',
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
-    self.TrainStream = channel.stream_unary(
-        '/gnes.GnesRPC/TrainStream',
-        request_serializer=gnes__pb2.Request.SerializeToString,
-        response_deserializer=gnes__pb2.Response.FromString,
-        )
-    self.IndexStream = channel.stream_unary(
-        '/gnes.GnesRPC/IndexStream',
+    self.RequestStreamCall = channel.stream_unary(
+        '/gnes.GnesRPC/RequestStreamCall',
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
@@ -72,21 +67,14 @@ class GnesRPCServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def _Call(self, request, context):
+  def Call(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def TrainStream(self, request_iterator, context):
-    # missing associated documentation comment in .proto file
-    pass
-    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-    context.set_details('Method not implemented!')
-    raise NotImplementedError('Method not implemented!')
-
-  def IndexStream(self, request_iterator, context):
+  def RequestStreamCall(self, request_iterator, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -111,18 +99,13 @@ def add_GnesRPCServicer_to_server(servicer, server):
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),
-      '_Call': grpc.unary_unary_rpc_method_handler(
-          servicer._Call,
+      'Call': grpc.unary_unary_rpc_method_handler(
+          servicer.Call,
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),
-      'TrainStream': grpc.stream_unary_rpc_method_handler(
-          servicer.TrainStream,
-          request_deserializer=gnes__pb2.Request.FromString,
-          response_serializer=gnes__pb2.Response.SerializeToString,
-      ),
-      'IndexStream': grpc.stream_unary_rpc_method_handler(
-          servicer.IndexStream,
+      'RequestStreamCall': grpc.stream_unary_rpc_method_handler(
+          servicer.RequestStreamCall,
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),
