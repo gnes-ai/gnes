@@ -159,8 +159,8 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 - [🐣 Preliminaries](#-preliminaries)
   * [Microservice](#microservice)
   * [Runtime](#runtime)
-- [Build your first GNES app](#build-your-first-gnes-app)
-- [Scale your GNES app](#scale-your-gnes-app)
+- [Build your first GNES app on local machine](#build-your-first-gnes-app-on-local-machine)
+- [Scale your GNES app to the cloud](#scale-your-gnes-app-to-the-cloud)
 - [Customize GNES on your need](#customize-gnes-to-your-need)
 - [Take-home messages](#take-home-messages)
   * [👨‍💻️What's next?](#-whats-next)
@@ -186,7 +186,7 @@ Okay, now that we have a bunch of apps, what are we expecting them to do? In a t
 
 💡 The key to understand GNES is to know *which runtime requires what microservices, and each microservice does what*.
 
-### Build your first GNES app
+### Build your first GNES app on local machine
 
 Let's start with a typical indexing procedure by writing a YAML config (see the left column of the table):
 
@@ -213,7 +213,7 @@ services:
 </tr>
 </table>
 
-The YAML config should be pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. For each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the items below.
+Now let's see what the YAML config says. First impression, it is pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. This pipeline is a typical workflow of *index* or *query* runtime. Under each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the items below.
 
 <details>
  <summary>Preprocessor config: text-prep.yml (click to expand...)</summary>
@@ -367,7 +367,7 @@ This suggests the GNES app is ready and waiting for the incoming data. You may n
 To stop a running GNES, you can simply do <kbd>control</kbd> + <kbd>c</kbd>.
 
 
-### Scale your GNES app
+### Scale your GNES app to the cloud
 
 Now let's juice it up a bit. To be honest, building a single-machine process-based pipeline is not impressive anyway. The true power of GNES is that you can scale any component at any time you want. Encoding is slow? Adding more machines. Preprocessing takes too long? More machines. Index file is too large? Adding shards, aka. more machines!
 
