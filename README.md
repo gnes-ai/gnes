@@ -84,7 +84,7 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
 
 There are two ways to get GNES, either as a Docker image or as a PyPi package.
  
-✅ For cloud users, we **highly recommend using GNES via Docker image**. 
+> ✅ For cloud users, we **highly recommend using GNES via Docker image**. 
 
 ### Run GNES as a Docker Container
 
@@ -161,7 +161,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
   * [Runtime](#runtime)
 - [Build your first GNES app](#build-your-first-gnes-app)
 - [Scale your GNES app](#scale-your-gnes-app)
-- [Customize GNES on your need](#customize-gnes-on-your-need)
+- [Customize GNES on your need](#customize-gnes-to-your-need)
 - [Take-home messages](#take-home-messages)
   * [👨‍💻️What's next?](#-whats-next)
 
