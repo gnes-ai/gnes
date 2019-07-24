@@ -196,7 +196,7 @@ Let's start with a typical indexing procedure by writing a YAML config (see the 
 port: 5566
 services:
 - name: Preprocessor
- yaml_path: text-prep.yaml
+ yaml_path: text-prep.yml
 - name: Encoder
  yaml_path: gpt2.yml
 - name: Indexer
@@ -291,7 +291,7 @@ trap 'kill $(jobs -p)' EXIT
 printf "starting service gRPCFrontend with 0 replicas...\n"
 gnes frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in 60654 --socket_in PULL_CONNECT  &
 printf "starting service Preprocessor with 0 replicas...\n"
-gnes preprocess --yaml_path text-prep.yaml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
+gnes preprocess --yaml_path text-prep.yml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
 printf "starting service Encoder with 0 replicas...\n"
 gnes encode --yaml_path gpt2.yml --port_in 61911 --socket_in PULL_CONNECT --port_out 49947 --socket_out PUSH_BIND  &
 printf "starting service Indexer with 0 replicas...\n"
@@ -341,7 +341,7 @@ networks:
     attachable: true
 configs:
   Preprocessor10_yaml:
-    file: text-prep.yaml
+    file: text-prep.yml
   Encoder20_yaml:
     file: gpt2.yml
   Indexer30_yaml:
@@ -352,6 +352,9 @@ configs:
 
 For the sake of simplicity, we will just use the generated shell-script to start GNES. Create a new file say `run.sh`, copy the content to it and run it via `$ bash ./run.sh`. You should see the output as follows:
 
+<p align="center">
+<img src=".github/shell-success.svg" alt="success running GNES in shell">
+</p>
 
 This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 

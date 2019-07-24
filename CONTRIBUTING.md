@@ -82,7 +82,7 @@ docker pull gnes/ci-base
 To test GNES inside this image, you may run
 
 ```bash
-docker run --entrypoint "/bin/bash" gnes/ci-base
+docker run --network=host --rm --entrypoint "/bin/bash" -it gnes/ci-base
 
 # now you are inside the 'gnes/ci-base' container
 # first sync your local modification, then
