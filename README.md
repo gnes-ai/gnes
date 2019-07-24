@@ -157,6 +157,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
   * [Runtime](#runtime)
 - [Build your first GNES app](#build-your-first-gnes-app)
 - [Scale your GNES app](#scale-your-gnes-app)
+- [Customize GNES on your need](#customize-gnes-on-your-need)
 - [Take-home messages](#take-home-messages)
   * [👨‍💻️What's next?](#-whats-next)
 
@@ -422,7 +423,7 @@ services:
    </pre>
 </td>
 <td width="70%">
-  <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3" width="60%">
+  <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3" width="50%">
 </td>
 </tr>
 <tr>
@@ -442,7 +443,7 @@ services:
 </tr>
 <tr>
 <td width="30%">
-Vector-only indexing with 3 shards 
+Index-time with 3 vector-index shards 
    <pre lang="yaml">
 port: 5566
 services:
@@ -458,7 +459,7 @@ services:
 </tr>
 <tr>
 <td width="30%">
-Query-time with 2 vector-index shards and 3 full-text-index shards
+Query-time with 2 vector-index shards followed by 3 full-text-index shards
    <pre lang="yaml">
 port: 5566
 services:
