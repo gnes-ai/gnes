@@ -364,6 +364,9 @@ For the sake of simplicity, we will just use the generated shell-script to start
 
 This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 
+To stop a running GNES, you can simply do <kbd>control</kbd> + <kbd>c</kbd>.
+
+
 ### Scale your GNES app
 
 Now let's juice it up a bit. To be honest, building a single-machine process-based pipeline is not impressive anyway. The true power of GNES is that you can scale any component at any time you want. Encoding is slow? Adding more machines. Preprocessing takes too long? More machines. Index file is too large? Adding shards, aka. more machines!
@@ -407,15 +410,27 @@ Again, the detailed YAML config of each component is not important for understan
 
 This time we will run GNES via DockerSwarm. To do that simply copy the generated DockerSwarm YAML config to a file say `my-gnes.yml`, and then do
 ```bash
-docker stack deploy --compose-file my-gnes.yml
+docker stack deploy --compose-file my-gnes.yml gnes-531
 ```  
 
-The output should looks like follows:
+Note that `gnes-531` is your GNES stack name, keep that name in mind. If you forget about that name, you can always use `docker stack ls` to find out. To tell whether the whole stack is running successfully or not, you can use `docker service ls -f name=gnes-531`. The number of replicas `1/1` or `4/4` suggests everything is fine.
+
+Generally, a complete and successful Docker Swarm starting process should look like the following:
+
+<p align="center">
+<a href="https://gnes.ai">
+<img src=".github/swarm-success.svg" alt="success running GNES in shell">
+</a>
+</p>
 
 
 This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 
-### Customize GNES on your need
+
+To stop a running GNES stack, you can use `docker stack rm gnes-531`.
+
+
+### Customize GNES to your need
 
 With the help of GNES Board, you can easily compose a GNES app for different purposes. The table below summarizes some common compositions with the corresponding workflow visualizations. Note, we hide the component-wise YAML config (i.e. `yaml_path`) for the sake of clarity.
 
@@ -524,7 +539,11 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 <h2 align="center">Tutorial</h2>
 
-TBA
+- How to write your GNES YAML config
+- How to define a component-wise YAML config
+- Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
+
+
 
 <h2 align="center">Contributing</h2>
 
