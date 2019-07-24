@@ -530,6 +530,14 @@ def load_contrib_module():
         return modules
 
 
+def get_single_gpu(maxLoad=0.5, maxMemory=0.5):
+    import GPUtil
+    return str(GPUtil.getAvailable(order='first',
+                                   limit=1,
+                                   maxLoad=maxLoad,
+                                   maxMemory=maxMemory)[0])
+
+
 profile_logger = set_logger('PROFILE')
 default_logger = set_logger('GNES')
 profiling = time_profile
