@@ -91,9 +91,7 @@ class HttpClient:
             return srv
 
         def stub_call(req):
-            res_f = None
-            for r in req:
-                res_f = stub._Call(r)
+            res_f = stub.RequestStreamCall(req)
             return json.loads(MessageToJson(res_f))
 
         with grpc.insecure_channel(
