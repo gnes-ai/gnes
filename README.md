@@ -75,7 +75,9 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Overview</h2>
 <p align="center">
+<a href="https://gnes.ai">
 <img src=".github/gnes-component-overview.svg" alt="component overview">
+</a>
 </p>
 
 <h2 align="center">Install GNES</h2>
@@ -146,7 +148,9 @@ pip install gnes[all]
 Either way, if you see the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
 
 <p align="center">
+<a href="https://gnes.ai">
 <img src=".github/install-success.svg" alt="success installation of GNES">
+</a>
 </p>
 
 
@@ -353,7 +357,9 @@ configs:
 For the sake of simplicity, we will just use the generated shell-script to start GNES. Create a new file say `run.sh`, copy the content to it and run it via `$ bash ./run.sh`. You should see the output as follows:
 
 <p align="center">
+<a href="https://gnes.ai">
 <img src=".github/shell-success.svg" alt="success running GNES in shell">
+</a>
 </p>
 
 This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
@@ -388,7 +394,9 @@ services:
    </pre>
 </td>
 <td width="70%">
+<a href="https://gnes.ai">
   <img src=".github/mermaid-diagram-20190723191407.svg" alt="GNES workflow of example 2">
+  </a>
 </td>
 </tr>
 </table>
@@ -426,7 +434,9 @@ services:
    </pre>
 </td>
 <td width="70%">
+<a href="https://gnes.ai">
   <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3" width="50%">
+  </a>
 </td>
 </tr>
 <tr>
@@ -441,7 +451,9 @@ services:
    </pre>
 </td>
 <td width="70%">
+<a href="https://gnes.ai">
   <img src=".github/mermaid-diagram-20190724111007.svg" alt="GNES workflow of example 4" width="70%">
+  </a>
 </td>
 </tr>
 <tr>
@@ -457,7 +469,9 @@ services:
    </pre>
 </td>
 <td width="70%">
+<a href="https://gnes.ai">
   <img src=".github/mermaid-diagram-20190724111344.svg" alt="GNES workflow of example 5" width="90%">
+  </a>
 </td>
 </tr>
 <tr>
@@ -477,7 +491,9 @@ services:
    </pre>
 </td>
 <td width="70%">
+<a href="https://gnes.ai">
   <img src=".github/mermaid-diagram-20190724112032.svg" alt="GNES workflow of example 5">
+  </a>
 </td>
 </tr>
 </table>
