@@ -274,7 +274,7 @@ gnes_config:
 
 On the right side of the above table, you can see how the actual data flow looks like. There is an additional component `gRPCFrontend` automatically added to the workflow, it allows you to feed the data and fetch the result via gRPC protocol through port `5566`.
 
-Now it's time to run! [GNES board](https://board.gnes.ai) can automatically generate a starting script/config based on the YAML config you give. As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and shell-based multi-process. Let's see what the generated script looks like in this case.
+Now it's time to run! [GNES board](https://board.gnes.ai) can automatically generate a starting script/config based on the YAML config you give, saving troubles of writing them on your own. 
 
 <p align="center">
 <a href="https://gnes.ai">
@@ -282,6 +282,9 @@ Now it's time to run! [GNES board](https://board.gnes.ai) can automatically gene
 </a>
 </p>
 
+> 💡 You can also start a GNES board locally. Simply run `docker run -d -p 0.0.0.0:80:8080/tcp gnes/gnes compose --flask`
+
+As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and shell-based multi-process. Let's see what the generated script looks like in this case.
 
 <details>
  <summary>Shell-based starting script (click to expand...)</summary>
@@ -544,13 +547,14 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 - How to write your GNES YAML config
 - How to write a component-wise YAML config
 - Understanding preprocessor, encoder, indexer and router
-- Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
 - Index and query text data with GNES
 - Index and query image data with GNES
 - Index and query video data with GNES
 - Using GNES with Kubernetes
 - Using GNES in other language (besides Python)
+- Serves HTTP-request with GNES in an end-to-end way
 - Model-as-plugin: write your own component
+- Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
 
 <h2 align="center">Contributing</h2>
 
