@@ -1,5 +1,20 @@
 # Contributing to GNES
 
+🙇 Thanks for your interest in contributing! GNES always welcome the contribution from the open-source community, individual committers and other partners. Without you, GNES can't be successful.
+
+Currently there are three major directions of contribution:
+- **Porting state-of-the-art models to GNES**. This includes new preprocessing algorithms, new DNN networks for encoding, and new high-performance index. Believe me, it is super easy to wrap an algorithm and use it in GNES. Checkout this example.
+- **Adding tutorial and learning experience**. What is good and what can be improved? If you apply GNES in your domain, whether it's about NLP or CV, whether it's a blog post or a Reddit/Twitter thread, we are always eager to hear your thoughts.
+- **Completing the user experience of other programming languages**. GNES offers a generic interface with gRPC and protobuf, therefore it is easy to add an interface for other languages, e.g. Java, C, Go. 
+
+## Table of Content
+
+* [Commit Message Naming](#commit-message-naming)
+* [Merging Process](#merging-process)
+* [Release Process](#release-process)
+  - [Major and minor version increments](#major-and-minor-version-increments)
+* [Testing Locally](#testing-locally)
+  
 ## Commit Message Naming
 
 To help everyone with understanding the commit history of GNES, we employ [`commitlint`](https://commitlint.js.org/#/) in the CI pipeline to enforce the commit styles. Specifically, our convention is:
@@ -82,7 +97,7 @@ docker pull gnes/ci-base
 To test GNES inside this image, you may run
 
 ```bash
-docker run --entrypoint "/bin/bash" gnes/ci-base
+docker run --network=host --rm --entrypoint "/bin/bash" -it gnes/ci-base
 
 # now you are inside the 'gnes/ci-base' container
 # first sync your local modification, then

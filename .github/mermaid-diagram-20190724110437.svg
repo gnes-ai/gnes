@@ -1,0 +1,399 @@
+<svg id="mermaid-1563937473948" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width: 354.578125px;" viewBox="0 0 354.578125 169"><style>
+
+
+#mermaid-1563937473948 .label {
+  font-family: 'trebuchet ms', verdana, arial;
+  color: #333; }
+
+#mermaid-1563937473948 .label text {
+  fill: #333; }
+
+#mermaid-1563937473948 .node rect,
+#mermaid-1563937473948 .node circle,
+#mermaid-1563937473948 .node ellipse,
+#mermaid-1563937473948 .node polygon {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1px; }
+
+#mermaid-1563937473948 .node.clickable {
+  cursor: pointer; }
+
+#mermaid-1563937473948 .arrowheadPath {
+  fill: #333333; }
+
+#mermaid-1563937473948 .edgePath .path {
+  stroke: #333333;
+  stroke-width: 1.5px; }
+
+#mermaid-1563937473948 .edgeLabel {
+  background-color: #e8e8e8; }
+
+#mermaid-1563937473948 .cluster rect {
+  fill: #ffffde;
+  stroke: #aaaa33;
+  stroke-width: 1px; }
+
+#mermaid-1563937473948 .cluster text {
+  fill: #333; }
+
+#mermaid-1563937473948 div.mermaidTooltip {
+  position: absolute;
+  text-align: center;
+  max-width: 200px;
+  padding: 2px;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 12px;
+  background: #ffffde;
+  border: 1px solid #aaaa33;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 100; }
+
+#mermaid-1563937473948 .actor {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1563937473948 text.actor {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1563937473948 .actor-line {
+  stroke: grey; }
+
+#mermaid-1563937473948 .messageLine0 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1563937473948 .messageLine1 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1563937473948 #arrowhead {
+  fill: #333; }
+
+#mermaid-1563937473948 .sequenceNumber {
+  fill: white; }
+
+#mermaid-1563937473948 #sequencenumber {
+  fill: #333; }
+
+#mermaid-1563937473948 #crosshead path {
+  fill: #333 !important;
+  stroke: #333 !important; }
+
+#mermaid-1563937473948 .messageText {
+  fill: #333;
+  stroke: none; }
+
+#mermaid-1563937473948 .labelBox {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1563937473948 .labelText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1563937473948 .loopText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1563937473948 .loopLine {
+  stroke-width: 2;
+  stroke-dasharray: '2 2';
+  stroke: #CCCCFF; }
+
+#mermaid-1563937473948 .note {
+  stroke: #aaaa33;
+  fill: #fff5ad; }
+
+#mermaid-1563937473948 .noteText {
+  fill: black;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 14px; }
+
+#mermaid-1563937473948 .activation0 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1563937473948 .activation1 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1563937473948 .activation2 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+
+#mermaid-1563937473948 .section {
+  stroke: none;
+  opacity: 0.2; }
+
+#mermaid-1563937473948 .section0 {
+  fill: rgba(102, 102, 255, 0.49); }
+
+#mermaid-1563937473948 .section2 {
+  fill: #fff400; }
+
+#mermaid-1563937473948 .section1,
+#mermaid-1563937473948 .section3 {
+  fill: white;
+  opacity: 0.2; }
+
+#mermaid-1563937473948 .sectionTitle0 {
+  fill: #333; }
+
+#mermaid-1563937473948 .sectionTitle1 {
+  fill: #333; }
+
+#mermaid-1563937473948 .sectionTitle2 {
+  fill: #333; }
+
+#mermaid-1563937473948 .sectionTitle3 {
+  fill: #333; }
+
+#mermaid-1563937473948 .sectionTitle {
+  text-anchor: start;
+  font-size: 11px;
+  text-height: 14px; }
+
+
+#mermaid-1563937473948 .grid .tick {
+  stroke: lightgrey;
+  opacity: 0.3;
+  shape-rendering: crispEdges; }
+
+#mermaid-1563937473948 .grid path {
+  stroke-width: 0; }
+
+
+#mermaid-1563937473948 .today {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px; }
+
+
+
+#mermaid-1563937473948 .task {
+  stroke-width: 2; }
+
+#mermaid-1563937473948 .taskText {
+  text-anchor: middle;
+  font-size: 11px; }
+
+#mermaid-1563937473948 .taskTextOutsideRight {
+  fill: black;
+  text-anchor: start;
+  font-size: 11px; }
+
+#mermaid-1563937473948 .taskTextOutsideLeft {
+  fill: black;
+  text-anchor: end;
+  font-size: 11px; }
+
+
+#mermaid-1563937473948 .task.clickable {
+  cursor: pointer; }
+
+#mermaid-1563937473948 .taskText.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+#mermaid-1563937473948 .taskTextOutsideLeft.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+#mermaid-1563937473948 .taskTextOutsideRight.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+
+#mermaid-1563937473948 .taskText0,
+#mermaid-1563937473948 .taskText1,
+#mermaid-1563937473948 .taskText2,
+#mermaid-1563937473948 .taskText3 {
+  fill: white; }
+
+#mermaid-1563937473948 .task0,
+#mermaid-1563937473948 .task1,
+#mermaid-1563937473948 .task2,
+#mermaid-1563937473948 .task3 {
+  fill: #8a90dd;
+  stroke: #534fbc; }
+
+#mermaid-1563937473948 .taskTextOutside0,
+#mermaid-1563937473948 .taskTextOutside2 {
+  fill: black; }
+
+#mermaid-1563937473948 .taskTextOutside1,
+#mermaid-1563937473948 .taskTextOutside3 {
+  fill: black; }
+
+
+#mermaid-1563937473948 .active0,
+#mermaid-1563937473948 .active1,
+#mermaid-1563937473948 .active2,
+#mermaid-1563937473948 .active3 {
+  fill: #bfc7ff;
+  stroke: #534fbc; }
+
+#mermaid-1563937473948 .activeText0,
+#mermaid-1563937473948 .activeText1,
+#mermaid-1563937473948 .activeText2,
+#mermaid-1563937473948 .activeText3 {
+  fill: black !important; }
+
+
+#mermaid-1563937473948 .done0,
+#mermaid-1563937473948 .done1,
+#mermaid-1563937473948 .done2,
+#mermaid-1563937473948 .done3 {
+  stroke: grey;
+  fill: lightgrey;
+  stroke-width: 2; }
+
+#mermaid-1563937473948 .doneText0,
+#mermaid-1563937473948 .doneText1,
+#mermaid-1563937473948 .doneText2,
+#mermaid-1563937473948 .doneText3 {
+  fill: black !important; }
+
+
+#mermaid-1563937473948 .crit0,
+#mermaid-1563937473948 .crit1,
+#mermaid-1563937473948 .crit2,
+#mermaid-1563937473948 .crit3 {
+  stroke: #ff8888;
+  fill: red;
+  stroke-width: 2; }
+
+#mermaid-1563937473948 .activeCrit0,
+#mermaid-1563937473948 .activeCrit1,
+#mermaid-1563937473948 .activeCrit2,
+#mermaid-1563937473948 .activeCrit3 {
+  stroke: #ff8888;
+  fill: #bfc7ff;
+  stroke-width: 2; }
+
+#mermaid-1563937473948 .doneCrit0,
+#mermaid-1563937473948 .doneCrit1,
+#mermaid-1563937473948 .doneCrit2,
+#mermaid-1563937473948 .doneCrit3 {
+  stroke: #ff8888;
+  fill: lightgrey;
+  stroke-width: 2;
+  cursor: pointer;
+  shape-rendering: crispEdges; }
+
+#mermaid-1563937473948 .milestone {
+  transform: rotate(45deg) scale(0.8, 0.8); }
+
+#mermaid-1563937473948 .milestoneText {
+  font-style: italic; }
+
+#mermaid-1563937473948 .doneCritText0,
+#mermaid-1563937473948 .doneCritText1,
+#mermaid-1563937473948 .doneCritText2,
+#mermaid-1563937473948 .doneCritText3 {
+  fill: black !important; }
+
+#mermaid-1563937473948 .activeCritText0,
+#mermaid-1563937473948 .activeCritText1,
+#mermaid-1563937473948 .activeCritText2,
+#mermaid-1563937473948 .activeCritText3 {
+  fill: black !important; }
+
+#mermaid-1563937473948 .titleText {
+  text-anchor: middle;
+  font-size: 18px;
+  fill: black; }
+
+#mermaid-1563937473948 g.classGroup text {
+  fill: #9370DB;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 10px; }
+
+#mermaid-1563937473948 g.classGroup rect {
+  fill: #ECECFF;
+  stroke: #9370DB; }
+
+#mermaid-1563937473948 g.classGroup line {
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 .classLabel .box {
+  stroke: none;
+  stroke-width: 0;
+  fill: #ECECFF;
+  opacity: 0.5; }
+
+#mermaid-1563937473948 .classLabel .label {
+  fill: #9370DB;
+  font-size: 10px; }
+
+#mermaid-1563937473948 .relation {
+  stroke: #9370DB;
+  stroke-width: 1;
+  fill: none; }
+
+#mermaid-1563937473948 #compositionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #compositionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #aggregationStart {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #aggregationEnd {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #dependencyStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #dependencyEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #extensionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 #extensionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1563937473948 .commit-id,
+#mermaid-1563937473948 .commit-msg,
+#mermaid-1563937473948 .branch-label {
+  fill: lightgrey;
+  color: lightgrey; }
+
+#mermaid-1563937473948 .FrontendCLS &gt; * { fill:#ffb347 !important; stroke:#277CE8 !important; stroke-width:1px !important; stroke-dasharray:5 !important; }
+#mermaid-1563937473948 .EncoderCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1563937473948 .IndexerCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1563937473948 .RouterCLS &gt; * { fill:#2BFFCB !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1563937473948 .PreprocessorCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }</style><style>#mermaid-1563937473948 {
+    color: rgba(0, 0, 0, 0.65);
+    font: ;
+  }</style><g transform="translate(-12, -12)"><g class="output"><g class="clusters"></g><g class="edgePaths"><g class="edgePath" style="opacity: 1;"><path class="path" d="M111.78000710227272,76L124.62266216856061,68.41666666666667C137.46531723484847,60.833333333333336,163.15062736742425,45.666666666666664,185.11177201704547,39.74897319874696C207.07291666666666,33.83127973082724,225.30989583333334,37.16255946165449,234.42838541666666,38.82819932706811L243.546875,40.49383919248173" marker-end="url(#arrowhead491)" style="fill:none"></path><defs><marker id="arrowhead491" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M134.125,106.96564618718111L143.24348958333334,108.6380384893176C152.36197916666666,110.31043079145407,170.59895833333334,113.65521539572704,188.8359375,117.35887582641674C207.07291666666666,121.0625362571064,225.30989583333334,125.12507251421279,234.42838541666666,127.156340642766L243.546875,129.1876087713192" marker-end="url(#arrowhead492)" style="fill:none"></path><defs><marker id="arrowhead492" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M243.546875,63.81239122868082L234.42838541666666,65.84365935723402C225.30989583333334,67.87492748578721,207.07291666666666,71.93746374289361,188.8359375,75.6411241735833C170.59895833333334,79.34478460427296,152.36197916666666,82.68956920854593,143.24348958333334,84.3619615106824L134.125,86.03435381281889" marker-end="url(#arrowhead493)" style="fill:none"></path><defs><marker id="arrowhead493" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M243.546875,152.50616080751828L234.42838541666666,154.1718006729319C225.30989583333334,155.83744053834553,207.07291666666666,159.16872026917278,185.11177201704547,153.25102680125306C163.15062736742425,147.33333333333334,137.46531723484847,132.16666666666666,124.62266216856061,124.58333333333333L111.78000710227272,117" marker-end="url(#arrowhead494)" style="fill:none"></path><defs><marker id="arrowhead494" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g></g><g class="edgeLabels"><g class="edgeLabel" style="opacity: 1;" transform="translate(188.8359375,30.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(188.8359375,117)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(188.8359375,76)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(188.8359375,162.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g></g><g class="nodes"><g class="node gRPCFrontendCLS" style="opacity: 1;" id="gRPCFrontend000" transform="translate(77.0625,96.5)"><rect rx="5" ry="5" x="-57.0625" y="-20.5" width="114.125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-47.0625,-10.5)"><foreignObject width="94.125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">gRPCFrontend</div></foreignObject></g></g></g><g class="node PreprocessorCLS" style="opacity: 1;" id="Preprocessor100" transform="translate(301.0625,51)"><rect rx="5" ry="5" x="-57.515625" y="-20.5" width="115.03125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-47.515625,-10.5)"><foreignObject width="95.03125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Preprocessor0</div></foreignObject></g></g></g><g class="node PreprocessorCLS" style="opacity: 1;" id="Preprocessor101" transform="translate(301.0625,142)"><rect rx="5" ry="5" x="-57.515625" y="-20.5" width="115.03125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-47.515625,-10.5)"><foreignObject width="95.03125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Preprocessor1</div></foreignObject></g></g></g></g></g></g></svg>

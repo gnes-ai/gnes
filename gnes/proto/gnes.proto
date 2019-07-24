@@ -205,11 +205,9 @@ service GnesRPC {
     }
     rpc Query (Request) returns (Response) {
     }
-    rpc _Call (Request) returns (Response) {
+    rpc Call (Request) returns (Response) {
     }
-    rpc TrainStream (stream Request) returns (Response) {
-    }
-    rpc IndexStream (stream Request) returns (Response) {
+    rpc RequestStreamCall (stream Request) returns (Response) {
     }
 }
 

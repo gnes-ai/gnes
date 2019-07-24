@@ -32,7 +32,7 @@
   <a href="#highlights">Highlights</a> •
   <a href="#overview">Overview</a> •
   <a href="#install-gnes">Install</a> •
-  <a href="#quick-start">Quick Start</a> •
+  <a href="#getting-started">Getting Started</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
@@ -44,7 +44,7 @@
 GNES [<i>jee-nes</i>] is **Generic Neural Elastic Search**, a cloud-native semantic search system based on deep neural network. 
 
 
-GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and possibly any-to-any content form.
+GNES enables large-scale index and semantic search for **text-to-text**, **image-to-image**, **video-to-video** and *any-to-any* content form.
 
 
 <h2 align="center">Highlights</h2>
@@ -75,25 +75,28 @@ GNES enables large-scale index and semantic search for text-to-text, image-to-im
 
 <h2 align="center">Overview</h2>
 <p align="center">
+<a href="https://gnes.ai">
 <img src=".github/gnes-component-overview.svg" alt="component overview">
+</a>
 </p>
 
 <h2 align="center">Install GNES</h2>
 
 There are two ways to get GNES, either as a Docker image or as a PyPi package.
  
-✅ For cloud users, we **highly recommend using GNES via Docker image**. 
+> ✅ For cloud users, we **highly recommend using GNES via Docker image**. 
 
-## Run GNES as a Docker Container
+### Run GNES as a Docker Container
 
 We provide GNES as a Docker image to simplify the installation. The Docker image is built with GNES full dependencies, so you can run GNES out-of-the-box.
 
 #### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
 
 ```bash
-docker pull gnes/gnes:latest
-docker run gnes/gnes:latest --help
+docker run gnes/gnes:latest
 ```
+
+This command downloads the latest GNES image and runs it in a container. When the container runs, it prints an informational message and exits.
 
 #### via Tencent container service
 
@@ -101,13 +104,12 @@ We also provide a public mirror hosted on Tencent Cloud, from which Chinese main
 
 ```bash
 docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
-docker pull ccr.ccs.tencentyun.com/gnes/gnes:latest
-docker run ccr.ccs.tencentyun.com/gnes/gnes:latest --help
+docker run ccr.ccs.tencentyun.com/gnes/gnes:latest
 ```
 
 > 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
 
-## Install GNES via `pip`
+### Install GNES via `pip`
 
 You can also install GNES as a Python package via:
 ```bash
@@ -143,105 +145,394 @@ pip install gnes[all]
 </details>
 
 
-<h2 align="center">Quick Start</h2>
-
-As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. Currently, we support Kubernetes, Docker Swarm and a built-in solution.  Click on one of the icons below to get started.
+Either way, if you see the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
 
 <p align="center">
-<table>
-  <tr>
-    <th>
-    <img src=".github/orch-kubernetes.png?raw=true" alt="GNES on Kubernetes" height="64px" width="64px">
-    <br>
-    <a href="#using-gnes-with-kubernetes"> ▶️ I want to use GNES with Kubernetes.</a>
-    </th>
-    <th>
-    <img src=".github/orch-dockerswarm.png?raw=true" alt="GNES on Docker Swarm" height="64px" width="64px">
-    <br>
-    <a href="#using-gnes-with-docker-swarm"> ▶️ I want to use GNES with Docker Swarm.</a>
-    </th>
-    <th>
-    <img src=".github/orch-cli.png?raw=true" alt="GNES with built-in orchestration" height="64px" width="64px">
-    <br>
-    <a href="#using-gnes-with-built-in-orchestration"> ▶️ I want to use GNES on a single machine.</a>
-    </th>
-  </tr>
-</table>
+<a href="https://gnes.ai">
+<img src=".github/install-success.svg" alt="success installation of GNES">
+</a>
 </p>
 
-### Using GNES with Kubernetes
 
-TBA
+<h2 align="center">Getting Started</h2>
 
-### Using GNES with Docker Swarm
+- [🐣 Preliminaries](#-preliminaries)
+  * [Microservice](#microservice)
+  * [Runtime](#runtime)
+- [Build your first GNES app on local machine](#build-your-first-gnes-app-on-local-machine)
+- [Scale your GNES app to the cloud](#scale-your-gnes-app-to-the-cloud)
+- [Customize GNES on your need](#customize-gnes-to-your-need)
+- [Take-home messages](#take-home-messages)
+  * [👨‍💻️What's next?](#-whats-next)
 
-The easiest and the recommended way to use GNES is via Docker, which uses containers to create virtual environments that isolate a GNES installation from the rest of the system. You don't need to worry about dependencies, they are self-contained in the GNES docker image. Moreover, GNES relies on the Docker Swarm for managing, scaling and conducting orchestration tasks over multiple micro-services. 
+### 🐣 Preliminaries
 
-#### 1. Prerequisites
+Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. 
 
-- [Docker Engine>=1.13](https://docs.docker.com/install/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Docker Machine](https://docs.docker.com/machine/install-machine/)
+#### Microservice
 
+For machine learning engineers and data scientists who are not familiar with the concept of *cloud-native* and *microservice*, one can picture a microservice as an app (on your smartphone). Each app runs independently, and an app may cooperate with other apps to accomplish a task. In GNES, we have four fundamental apps, aka. microservices, they are:
 
-#### 2. Start GNES with the wizard
+- **Preprocessor**: transforming a real-world object to a list of workable semantic units;
+- **Encoder**: representing a semantic unit with vector representation;
+- **Indexer**: storing the vectors into memory/disk that allows fast-access;
+- **Router**: forwarding messages between microservices: e.g. batching, mapping, reducing.
 
-If you are new to GNES, it is recommended to use the wizard to config and start GNES.
+In GNES, we have implemented dozens of preprocessor, encoder, indexer to process different content forms, such as image, text, video. It is also super easy to plug in your own implementation, which we shall see an example in the sequel.
 
-```bash
-bash <(curl -s https://raw.githubusercontent.com/gnes-ai/wizard/build/wizard.sh)
-```
+#### Runtime
 
-At the last step, the wizard will generate a random name for the service, say `my-gnes-0531`. Keep that name in mind. If you miss that name, you can always use `docker stack ls` to checkout the name of your service.
+Okay, now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three tasks: indexing, querying and training are what we call three **runtimes** in GNES.
+
+💡 The key to understand GNES is to know *which runtime requires what microservices, and each microservice does what*.
+
+### Build your first GNES app on local machine
+
+Let's start with a typical indexing procedure by writing a YAML config (see the left column of the table):
+
+<table>
+<tr>
+<th>YAML config</th><th>GNES workflow (generated by <a href="https://board.gnes.ai">GNES board</a>)</th>
+</tr>
+<tr>
+<td width="30%">
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+ yaml_path: text-prep.yml
+- name: Encoder
+ yaml_path: gpt2.yml
+- name: Indexer
+ yaml_path: b-indexer.yml
+   </pre>
+</td>
+<td width="70%">
+  <img src=".github/mermaid-diagram-20190723165430.svg" alt="GNES workflow of example 1">
+</td>
+</tr>
+</table>
+
+Now let's see what the YAML config says. First impression, it is pretty intuitive. It defines a pipeline workflow consists of preprocessing, encoding and indexing, where the output of the former component is the input of the next. This pipeline is a typical workflow of *index* or *query* runtime. Under each component, we also associate it with a YAML config specifying how it should work. Right now they are not important for understanding the big picture, nonetheless curious readers can checkout how each YAML looks like by expanding the items below.
 
 <details>
- <summary>How do I know if GNES is running succesfully? (click to expand...)</summary>
-
-To tell whether the service is running successfully or not, you can use `docker stack ps my-gnes-0531`. It should give you results as follows:
-```bash
-ID                  NAME                         IMAGE                                           NODE                DESIRED STATE       CURRENT STATE                ERROR               PORTS
-zku2zm9deli9        my-gnes-0531_encoder.1      ccr.ccs.tencentyun.com/gnes/aipd-gnes:86c0a3a   VM-0-3-ubuntu       Running             Running about an hour ago
-yc09pst6s7yt        my-gnes-0531_grpc_serve.1   ccr.ccs.tencentyun.com/gnes/aipd-gnes:86c0a3a   VM-0-3-ubuntu       Running             Running about an hour ago
+ <summary>Preprocessor config: text-prep.yml (click to expand...)</summary>
+ 
+```yaml
+!TextPreprocessor
+parameter:
+  start_doc_id: 0
+  random_doc_id: True
+  deliminator: "[.!?]+"
+gnes_config:
+  is_trained: true
 ```
+</details>
 
-Note, the running status under `CURRENT STATE` suggests everything is fine.
+<details>
+ <summary>Encoder config: gpt2.yml (click to expand...)</summary>
+ 
+```yaml
+!PipelineEncoder
+component:
+  - !GPT2Encoder
+    parameter:
+      model_dir: $GPT2_CI_MODEL
+      pooling_stragy: REDUCE_MEAN
+    gnes_config:
+      is_trained: true
+  - !PCALocalEncoder
+    parameter:
+      output_dim: 32
+      num_locals: 8
+    gnes_config:
+      batch_size: 2048
+  - !PQEncoder
+    parameter:
+      cluster_per_byte: 8
+      num_bytes: 8
+gnes_config:
+  work_dir: ./
+  name: gpt2bin-pipe
+```
 
 </details>
 
 <details>
-<summary>How can I terminate GNES? (click to expand...)</summary>
+ <summary>Indexer config: b-indexer.yml (click to expand...)</summary>
+ 
+```yaml
+!BIndexer
+parameter:
+  num_bytes: 8
+  data_path: /out_data/idx.binary
+gnes_config:
+  work_dir: ./
+  name: bindexer
+```
+</details> 
 
-To stop a running GNES service, you can use `docker stack rm my-gnes-0531`.
+On the right side of the above table, you can see how the actual data flow looks like. There is an additional component `gRPCFrontend` automatically added to the workflow, it allows you to feed the data and fetch the result via gRPC protocol through port `5566`.
 
-- Having troubles to start GNES? Checkout our [troubleshooting guide](#).
-- For pro-users/developers, you may want to use our `gnes-yaml.sh` tools to [generate a YAML config via CLI](#); or simply [handcraft your own `docker-compose.yml`](#).
+Now it's time to run! [GNES board](https://board.gnes.ai) can automatically generate a starting script/config based on the YAML config you give, saving troubles of writing them on your own. 
 
+<p align="center">
+<a href="https://gnes.ai">
+    <img src=".github/gnes-board-demo.gif?raw=true" alt="GNES Board">
+</a>
+</p>
+
+> 💡 You can also start a GNES board locally. Simply run `docker run -d -p 0.0.0.0:80:8080/tcp gnes/gnes compose --flask`
+
+As a cloud-native application, GNES requires an **orchestration engine** to coordinate all micro-services. We support Kubernetes, Docker Swarm and shell-based multi-process. Let's see what the generated script looks like in this case.
+
+<details>
+ <summary>Shell-based starting script (click to expand...)</summary>
+ 
+```bash
+#!/usr/bin/env bash
+set -e
+
+trap 'kill $(jobs -p)' EXIT
+
+printf "starting service gRPCFrontend with 0 replicas...\n"
+gnes frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in 60654 --socket_in PULL_CONNECT  &
+printf "starting service Preprocessor with 0 replicas...\n"
+gnes preprocess --yaml_path text-prep.yml --port_in 49668 --socket_in PULL_CONNECT --port_out 61911 --socket_out PUSH_BIND  &
+printf "starting service Encoder with 0 replicas...\n"
+gnes encode --yaml_path gpt2.yml --port_in 61911 --socket_in PULL_CONNECT --port_out 49947 --socket_out PUSH_BIND  &
+printf "starting service Indexer with 0 replicas...\n"
+gnes index --yaml_path b-indexer.yml --port_in 49947 --socket_in PULL_CONNECT --port_out 60654 --socket_out PUSH_BIND  &
+
+wait
+```
+</details>
+
+<details>
+ <summary>DockerSwarm compose file (click to expand...)</summary>
+ 
+```yaml
+version: '3.4'
+services:
+  gRPCFrontend00:
+    image: gnes/gnes:latest
+    command: frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in
+      60654 --socket_in PULL_CONNECT --host_in Indexer30
+    ports:
+    - 5566:5566
+  Preprocessor10:
+    image: gnes/gnes:latest
+    command: preprocess --port_in 49668 --socket_in PULL_CONNECT
+      --port_out 61911 --socket_out PUSH_BIND --yaml_path /Preprocessor10_yaml --host_in
+      gRPCFrontend00
+    configs:
+    - Preprocessor10_yaml
+  Encoder20:
+    image: gnes/gnes:latest
+    command: encode --port_in 61911 --socket_in PULL_CONNECT
+      --port_out 49947 --socket_out PUSH_BIND --yaml_path /Encoder20_yaml --host_in
+      Preprocessor10
+    configs:
+    - Encoder20_yaml
+  Indexer30:
+    image: gnes/gnes:latest
+    command: index --port_in 49947 --socket_in PULL_CONNECT
+      --port_out 60654 --socket_out PUSH_BIND --yaml_path /Indexer30_yaml --host_in
+      Encoder20
+    configs:
+    - Indexer30_yaml
+volumes: {}
+networks:
+  gnes-net:
+    driver: overlay
+    attachable: true
+configs:
+  Preprocessor10_yaml:
+    file: text-prep.yml
+  Encoder20_yaml:
+    file: gpt2.yml
+  Indexer30_yaml:
+    file: b-indexer.yml       
+```
 </details>
 
 
+For the sake of simplicity, we will just use the generated shell-script to start GNES. Create a new file say `run.sh`, copy the content to it and run it via `$ bash ./run.sh`. You should see the output as follows:
 
-### Using GNES with Built-In Orchestration
+<p align="center">
+<a href="https://gnes.ai">
+<img src=".github/shell-success.svg" alt="success running GNES in shell">
+</a>
+</p>
 
-TBA
+This suggests the GNES app is ready and waiting for the incoming data. You may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
 
-<h2 align="center">Usage</h2>
+To stop a running GNES, you can simply do <kbd>control</kbd> + <kbd>c</kbd>.
 
-First thing to know, GNES has **three independent runtimes**: train, index and search. This differs from the classic machine learning system which has two runtimes i.e. train and inference; also differs from the classic search system that has two runtimes i.e. index and search. Depending on the runtime of GNES, the microservices may be composed, work and communicate with others in different ways. In other word, the runtime determines which service doing what logic at when. In the sequel, we will demonstrate how to use GNES under different runtimes. 
 
-Note, to switch between runtimee you need to shutdown the current runtime and start a new GNES.
+### Scale your GNES app to the cloud
 
-### Train mode: training encoders and indexers
+Now let's juice it up a bit. To be honest, building a single-machine process-based pipeline is not impressive anyway. The true power of GNES is that you can scale any component at any time you want. Encoding is slow? Adding more machines. Preprocessing takes too long? More machines. Index file is too large? Adding shards, aka. more machines!
 
-TBA
+In this example, we compose a more complicated GNES workflow for images. This workflow consists of multiple preprocessors, encoders and two types of indexers. In particular, we introduce two types of indexers: one for storing the encoded binary vectors, the other for storing the original images, i.e. full-text index. These two types of indexers work in parallel. Check out the YAML file on the left side of table for more details, note how `replicas` is defined for each component.
 
-### Index mode: adding new documents
+<table>
+<tr>
+<th>YAML config</th><th>GNES workflow (generated by <a href="https://board.gnes.ai">GNES board</a>)</th>
+</tr>
+<tr>
+<td width="30%">
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 2
+  yaml_path: image-prep.yml
+- name: Encoder
+  replicas: 3
+  yaml_path: incep-v3.yml
+- - name: Indexer
+    yaml_path: faiss.yml
+    replicas: 4
+  - name: Indexer
+    yaml_path: fulltext.yml
+    replicas: 3
+   </pre>
+</td>
+<td width="70%">
+<a href="https://gnes.ai">
+  <img src=".github/mermaid-diagram-20190723191407.svg" alt="GNES workflow of example 2">
+  </a>
+</td>
+</tr>
+</table>
 
-TBA
+You may realize that besides the `gRPCFrontend`, multiple `Router` have been added to the workflow. Routers serve as a message broker between microservices, determining how and where the message is received and sent. In the last pipeline example, the data flow is too simple so there is no need for adding any router. In this example routers are necessary for connecting multiple preprocessors and encoders, otherwise preprocessors wouldn't know where to send the message. GNES Board automatically adds router to the workflow when necessary based on the type of two consecutive layers. It may also add stacked routers, as you can see between encoder and indexer in the right graph.
 
-### Query mode: searching relevant documents of a given query
+Again, the detailed YAML config of each component is not important for understanding the big picture, hence we omit it for now.
 
-TBA  
+This time we will run GNES via DockerSwarm. To do that simply copy the generated DockerSwarm YAML config to a file say `my-gnes.yml`, and then do
+```bash
+docker stack deploy --compose-file my-gnes.yml gnes-531
+```  
 
+Note that `gnes-531` is your GNES stack name, keep that name in mind. If you forget about that name, you can always use `docker stack ls` to find out. To tell whether the whole stack is running successfully or not, you can use `docker service ls -f name=gnes-531`. The number of replicas `1/1` or `4/4` suggests everything is fine.
+
+Generally, a complete and successful Docker Swarm starting process should look like the following:
+
+<p align="center">
+<a href="https://gnes.ai">
+<img src=".github/swarm-success.svg" alt="success running GNES in shell">
+</a>
+</p>
+
+
+When the GNES stack is ready and waiting for the incoming data, you may now feed data to it through the `gRPCFrontend`. Depending on your language (Python, C, Java, Go, HTTP, Shell, etc.) and the content form (image, video, text, etc), the data feeding part can be slightly different.
+
+
+To stop a running GNES stack, you can use `docker stack rm gnes-531`.
+
+
+### Customize GNES to your need
+
+With the help of GNES Board, you can easily compose a GNES app for different purposes. The table below summarizes some common compositions with the corresponding workflow visualizations. Note, we hide the component-wise YAML config (i.e. `yaml_path`) for the sake of clarity.
+
+<table>
+<tr>
+<th>YAML config</th><th>GNES workflow (generated by <a href="https://board.gnes.ai">GNES board</a>)</th>
+</tr>
+<tr>
+<td width="30%">
+Parallel preprocessing only
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 2
+   </pre>
+</td>
+<td width="70%">
+<a href="https://gnes.ai">
+  <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3" width="50%">
+  </a>
+</td>
+</tr>
+<tr>
+<td width="30%">
+Training an encoder
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 3
+- name: Encoder
+   </pre>
+</td>
+<td width="70%">
+<a href="https://gnes.ai">
+  <img src=".github/mermaid-diagram-20190724111007.svg" alt="GNES workflow of example 4" width="70%">
+  </a>
+</td>
+</tr>
+<tr>
+<td width="30%">
+Index-time with 3 vector-index shards 
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
+- name: Indexer
+  replicas: 3
+   </pre>
+</td>
+<td width="70%">
+<a href="https://gnes.ai">
+  <img src=".github/mermaid-diagram-20190724111344.svg" alt="GNES workflow of example 5" width="90%">
+  </a>
+</td>
+</tr>
+<tr>
+<td width="30%">
+Query-time with 2 vector-index shards followed by 3 full-text-index shards
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
+- name: Indexer
+  income: sub
+  replicas: 2
+- name: Indexer
+  income: sub
+  replicas: 3
+   </pre>
+</td>
+<td width="70%">
+<a href="https://gnes.ai">
+  <img src=".github/mermaid-diagram-20190724112032.svg" alt="GNES workflow of example 5">
+  </a>
+</td>
+</tr>
+</table>
+
+ 
+
+
+### Take-home messages
+
+Now that you know how to compose and run a GNES app, let's make a short recap of what we have learned. 
+
+- GNES is *all-in-microservice*, there are four fundamental components: preprocessor, encoder, indexer and router.
+- GNES has three runtimes: training, indexing, and querying. The key to compose a GNES app is to clarify *which runtime requires what microservices (defined in the YAML config), and each microservice does what (defined in the component-wise YAML config)*.
+- GNES requires an orchestration engine to coordinate all microservices. It supports Kubernetes, Docker Swarm and a shell-based multi-process solution. 
+- [GNES Board](https://board.gnes.ai) is a convenient tool for visualizing the workflow, generating starting script or cloud configuration.
+- The real power of GNES is elasticity on every level. Router is automatically added between microservices for connecting the pieces together.
+
+
+#### 👨‍💻️ What's next?
+
+The next step is feeding data to GNES for training, indexing and querying. Checkout the [tutorials](#tutorial) and [documentations](#documentation) for more details. 
 
 <h2 align="center">Documentation</h2>
 
@@ -251,11 +542,30 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 <h2 align="center">Tutorial</h2>
 
-TBA
+> 🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES! 
+
+- How to write your GNES YAML config
+- How to write a component-wise YAML config
+- Understanding preprocessor, encoder, indexer and router
+- Index and query text data with GNES
+- Index and query image data with GNES
+- Index and query video data with GNES
+- Using GNES with Kubernetes
+- Using GNES in other language (besides Python)
+- Serves HTTP-request with GNES in an end-to-end way
+- Model-as-plugin: write your own component
+- Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
 
 <h2 align="center">Contributing</h2>
 
-Thanks for your interest in contributing! 
+Thanks for your interest in contributing! GNES always welcome the contribution from the open-source community, individual committers and other partners. Without you, GNES can't be successful.
+
+Currently there are three major directions of contribution:
+- **Porting state-of-the-art models to GNES**. This includes new preprocessing algorithms, new DNN networks for encoding, and new high-performance index. Believe me, it is super easy to wrap an algorithm and use it in GNES. Checkout this example.
+- **Adding tutorial and learning experience**. What is good and what can be improved? If you apply GNES in your domain, whether it's about NLP or CV, whether it's a blog post or a Reddit/Twitter thread, we are always eager to hear your thoughts.
+- **Completing the user experience of other programming languages**. GNES offers a generic interface with gRPC and protobuf, therefore it is easy to add an interface for other languages, e.g. Java, C, Go. 
+
+Make sure to read the contributor guidelines before your first commit. 
 
 - [Contributor guidelines](./CONTRIBUTING.md)
 - [Open issues](/issues)
@@ -263,25 +573,26 @@ Thanks for your interest in contributing!
 
 For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
 
-
-
-
 <h2 align="center">Citing GNES</h2>
 
-```latex
-@misc{tencent2019GNES,
-  title={GNES: Generic Neural Elastic Search},
-  author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
-  howpublished={\url{https://github.com/gnes-ai}},
-  year={2019}
-}
-```
+If you use GNES in an academic paper, you are more than welcome to make a citation. Here are the two ways of citing GNES:
+
+1.     \footnote{https://github.com/gnes-ai/gnes}
+2. 
+    ```latex
+    @misc{tencent2019GNES,
+      title={GNES: Generic Neural Elastic Search},
+      author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
+      howpublished={\url{https://github.com/gnes-ai}},
+      year={2019}
+    }
+    ```
 
 <h2 align="center">License</h2>
 
-Tencent is pleased to support the open source community by making GNES
-available.
-
-Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
-
 If you have downloaded a copy of the GNES binary or source code, please note that the GNES binary and source code are both licensed under the [Apache License, Version 2.0](./LICENSE).
+
+<sub>
+Tencent is pleased to support the open source community by making GNES available.<br>
+Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+</sub>

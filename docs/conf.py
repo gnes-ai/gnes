@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 project = 'GNES Documentation'
 copyright = '2019. Han Xiao, Jianfeng Yan, Feng Wang, Jie Fu'
-author = 'Han Xiao'
+author = 'Han Xiao (https://hanxiao.github.io)'
 
 
 try:
@@ -110,6 +110,9 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_logo = '../.github/gnes-logo-square-blue-on-white-tight.svg'
+
+html_css_files = ['main.css']
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -152,7 +155,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'GNES.tex', 'GNES Documentation',
-     'Han Xiao, Feng Wang, Jianfeng Yan', 'manual'),
+     'Han Xiao, Feng Wang, Jianfeng Yan, Jie Fu', 'manual'),
 ]
 
 
