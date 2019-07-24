@@ -39,10 +39,7 @@ class BaseImagePreprocessor(BasePreprocessor):
                                    transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(image)
 
     @classmethod
-    def _get_offset_nd(cls, image, index, chunk):
-        pass
-
-    def _get_all_subarea(self, image):
+    def _get_all_subarea(cls, image):
         from itertools import product
         x_list = [0, image.size[0] / 3, 2 * image.size[0] / 3, image.size[0]]
         y_list = [0, image.size[1] / 3, 2 * image.size[1] / 3, image.size[1]]
