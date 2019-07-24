@@ -585,9 +585,9 @@ If you use GNES in an academic paper, you are more than welcome to make a citati
 
 <h2 align="center">License</h2>
 
-Tencent is pleased to support the open source community by making GNES
-available.
-
-Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
-
 If you have downloaded a copy of the GNES binary or source code, please note that the GNES binary and source code are both licensed under the [Apache License, Version 2.0](./LICENSE).
+
+<sub>
+Tencent is pleased to support the open source community by making GNES available.<br>
+Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+</sub>
