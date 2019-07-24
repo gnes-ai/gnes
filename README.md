@@ -425,6 +425,57 @@ services:
   <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3">
 </td>
 </tr>
+<tr>
+<td width="30%">
+Training an encoder
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+  replicas: 3
+- name: Encoder
+   </pre>
+</td>
+<td width="70%">
+  <img src=".github/mermaid-diagram-20190724111007.svg" alt="GNES workflow of example 4">
+</td>
+</tr>
+<tr>
+<td width="30%">
+Vector-only indexing with 3 shards 
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
+- name: Indexer
+  replicas: 3
+   </pre>
+</td>
+<td width="70%">
+  <img src=".github/mermaid-diagram-20190724111344.svg" alt="GNES workflow of example 5">
+</td>
+</tr>
+<tr>
+<td width="30%">
+Query-time with 2 vector-index shards and 3 full-text-index shards
+   <pre lang="yaml">
+port: 5566
+services:
+- name: Preprocessor
+- name: Encoder
+- name: Indexer
+  income: sub
+  replicas: 2
+- name: Indexer
+  income: sub
+  replicas: 3
+   </pre>
+</td>
+<td width="70%">
+  <img src=".github/mermaid-diagram-20190724112032.svg" alt="GNES workflow of example 5">
+</td>
+</tr>
 </table>
 
  
