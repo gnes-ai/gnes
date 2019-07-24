@@ -34,6 +34,7 @@ class RequestGenerator:
             for raw_bytes in pi:
                 d = req.index.docs.add()
                 d.raw_bytes = raw_bytes
+                d.weight = 1.0
             yield req
 
     @staticmethod
