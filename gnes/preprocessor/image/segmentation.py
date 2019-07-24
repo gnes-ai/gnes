@@ -91,8 +91,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]
         return index[int(np.argmax(iou_list))][:2]
 
-    @classmethod
-    def _cal_area(cls, coordinate: List[int]):
+    @staticmethod
+    def _cal_area(coordinate: List[int]):
         return (coordinate[2] - coordinate[0]) * (coordinate[3] - coordinate[1])
 
     def _cal_iou(self, image: List[int], chunk: List[int]) -> float:
@@ -105,7 +105,5 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         y2 = min(chunk[3], image[3])
 
         overlap_area = max(0, x2 - x1) * max(0, y2 - y1)
-
         iou = overlap_area / (chunk_area + image_area - overlap_area)
-
         return iou

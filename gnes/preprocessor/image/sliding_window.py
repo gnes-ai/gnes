@@ -97,8 +97,8 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         location = [i for i in range(len(location_list)) if location_list[i] is True][0]
         return index[location][:2]
 
-    @classmethod
-    def _get_location(cls, all_subareas: List[List[int]], center_point: List[float]) -> List[bool]:
+    @staticmethod
+    def _get_location(all_subareas: List[List[int]], center_point: List[float]) -> List[bool]:
         location_list = []
         x_boundary = max([x[1] for x in all_subareas])
         y_boundary = max([y[3] for y in all_subareas])
