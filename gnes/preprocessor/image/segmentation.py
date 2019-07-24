@@ -70,7 +70,7 @@ class SegmentPreprocessor(BaseImagePreprocessor):
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(self._crop_image_reshape(original_image, ele[0])))
                 c.offset_1d = ci
-                c.offset_nd.x.extend(self._get_offset_nd(all_subareas, index, ele[0]))
+                c.offset_nd.x.extend(self._get_seg_offset_nd(all_subareas, index, ele[0]))
                 c.weight = self._cal_area(ele[0]) / (original_image.size[0] * original_image.size[1])
 
             c = doc.chunks.add()
@@ -87,7 +87,7 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         return np.array(original_image.crop(coordinates).resize((self.target_img_size,
                                                                  self.target_img_size)))
 
-    def _get_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
+    def _get_seg_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]
         return index[int(np.argmax(iou_list))][:2]
 

@@ -52,7 +52,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(ele[0]))
                 c.offset_1d = ci
-                c.offset_nd.x.extend(self._get_offset_nd(all_subareas, index, center_point_list[ci]))
+                c.offset_nd.x.extend(self._get_slid_offset_nd(all_subareas, index, center_point_list[ci]))
                 c.weight = ele[1]
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
@@ -92,7 +92,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
                 expanded_input], center_point_list
 
-    def _get_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> List[int]:
+    def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> List[int]:
         location_list = self._get_location(all_subareas, center_point)
         location = [i for i in range(len(location_list)) if location_list[i] is True][0]
         return index[location][:2]
