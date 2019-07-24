@@ -422,7 +422,7 @@ services:
    </pre>
 </td>
 <td width="70%">
-  <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3">
+  <img src=".github/mermaid-diagram-20190724110437.svg" alt="GNES workflow of example 3" width="60%">
 </td>
 </tr>
 <tr>
@@ -437,7 +437,7 @@ services:
    </pre>
 </td>
 <td width="70%">
-  <img src=".github/mermaid-diagram-20190724111007.svg" alt="GNES workflow of example 4">
+  <img src=".github/mermaid-diagram-20190724111007.svg" alt="GNES workflow of example 4" width="70%">
 </td>
 </tr>
 <tr>
@@ -453,7 +453,7 @@ services:
    </pre>
 </td>
 <td width="70%">
-  <img src=".github/mermaid-diagram-20190724111344.svg" alt="GNES workflow of example 5">
+  <img src=".github/mermaid-diagram-20190724111344.svg" alt="GNES workflow of example 5" width="90%">
 </td>
 </tr>
 <tr>
