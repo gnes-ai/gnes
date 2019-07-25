@@ -1,6 +1,6 @@
 FROM gnes/build-base:latest AS dependency
 
-WORKDIR /nes/
+WORKDIR /gnes/
 
 COPY setup.py ./setup.py
 
