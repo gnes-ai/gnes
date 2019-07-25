@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -44,7 +44,7 @@ class AnnoyIndexer(BaseVectorIndexer):
         except:
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
+    def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         last_idx = self._key_info_indexer.size
 
         if len(vectors) != len(keys):
@@ -70,7 +70,7 @@ class AnnoyIndexer(BaseVectorIndexer):
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
 
-    def normalize_score(self, score: List[float], metrics: str, *args) -> List[float]:
+    def normalize_score(self, score: List[float], metrics: str, *args, **kwargs) -> List[float]:
         if metrics == 'angular':
             return list(map(lambda x:1 / (1 + x), score))
         elif metrics == 'euclidean':
@@ -81,7 +81,7 @@ class AnnoyIndexer(BaseVectorIndexer):
         elif metrics == 'hamming':
             return list(map(lambda x:1 / (1 + x), score))
         elif metrics == 'dot':
-            pass
+            raise NotImplementedError
 
     @property
     def size(self):

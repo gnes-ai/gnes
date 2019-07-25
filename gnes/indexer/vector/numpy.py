@@ -15,7 +15,7 @@
 
 # pylint: disable=low-comment-ratio
 
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -31,7 +31,7 @@ class NumpyIndexer(BaseVectorIndexer):
         self._vectors = None  # type: np.ndarray
         self._key_info_indexer = ListKeyIndexer()
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
+    def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) % len(keys) != 0:
             raise ValueError('vectors bytes should be divided by doc_ids')
