@@ -66,7 +66,7 @@ class IndexerService(BS):
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset_1d = _offset
                 r.chunk.weight = _weight
-                r.score = _weight * qc_weight * (-1 / _relevance)
+                r.score = _weight * qc_weight * _relevance
                 r.score_explained = '[chunk_score at doc: %d, offset: %d] = ' \
                                     '(doc_chunk_weight: %.6f) * ' \
                                     '(query_doc_chunk_relevance: %.6f) * ' \
