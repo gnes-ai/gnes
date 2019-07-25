@@ -26,7 +26,7 @@ _cls2file_map = {
     'VanillaSlidingPreprocessor': 'image.sliding_window',
     'WeightedSlidingPreprocessor': 'image.sliding_window',
     'SegmentPreprocessor': 'image.segmentation',
-    'BaseSingletonPreprocessor': 'base',
+    'BaseUnaryPreprocessor': 'base',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',

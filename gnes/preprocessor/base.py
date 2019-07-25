@@ -38,7 +38,7 @@ class BasePreprocessor(TrainableBase):
         doc.doc_type = self.doc_type
 
 
-class BaseSingletonPreprocessor(BasePreprocessor):
+class BaseUnaryPreprocessor(BasePreprocessor):
 
     def __init__(self, doc_type: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
