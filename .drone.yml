@@ -32,6 +32,7 @@ steps:
   - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
   - cat /proc/cpuinfo | grep flags
   - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+  - nvcc --version
 
 - name: install gnes and unit test
   image: gnes/ci-base
@@ -39,6 +40,8 @@ steps:
     GNES_ENV_SET: orange-ci
   commands:
   - pip install -e .[all]
+  - pip uninstall -y torchvision
+  - pip install https://download.pytorch.org/whl/cpu/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
   - "python -c 'import torchvision'"
   - python -m unittest tests/*.py
 
