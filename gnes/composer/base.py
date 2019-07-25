@@ -22,7 +22,6 @@ from typing import Dict, List
 from pkg_resources import resource_stream
 from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
-from termcolor import colored
 
 from .. import __version__
 from ..cli.parser import set_grpc_frontend_parser, \
@@ -104,7 +103,7 @@ class YamlComposer:
             tmp = _yaml.load(args.yaml_path)
             stream = StringIO()
             _yaml.dump(tmp, stream)
-            self.original_yaml = stream.getvalue()
+            self.original_yaml = stream.getvalue().strip()
 
         self._name = tmp.get('name', args.name)
         self._port = tmp.get('port', args.port)
@@ -173,7 +172,7 @@ class YamlComposer:
             for c_idx, c in enumerate(layer.components):
                 c_name = '%s%d%d' % (c['name'], l_idx, c_idx)
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
-                        a in YamlComposer.comp2args[c['name']] and v]
+                        a in YamlComposer.comp2args[c['name']] and a != 'yaml_path' and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
@@ -235,7 +234,7 @@ class YamlComposer:
         swarm_lines['configs'] = config_dict
         stream = StringIO()
         _yaml.dump(swarm_lines, stream)
-        return stream.getvalue()
+        return stream.getvalue().strip()
 
     @staticmethod
     def build_kubernetes(all_layers: List['YamlComposer.Layer'], *args, **kwargs):
@@ -247,8 +246,8 @@ class YamlComposer:
         for layer in all_layers:
             for c in layer.components:
                 rep_c = YamlComposer.Layer.get_value(c, 'replicas')
-                shell_lines.append('printf "starting service %s with %s replicas...\\n"' % (
-                    colored(c['name'], 'green'), colored(rep_c, 'yellow')))
+                shell_lines.append('printf "starting service \\e[1;33m%s\\e[0m with \e[1;33m%s\e[0m replicas...\\n"' % (
+                    c['name'], rep_c))
                 for _ in range(rep_c):
                     cmd = YamlComposer.comp2file[c['name']]
                     args = ' '.join(
@@ -258,7 +257,7 @@ class YamlComposer:
                         cmd, args, '>> %s 2>&1' % log_redirect if log_redirect else ''))
 
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-shell.sh'))) as r:
-            return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines))
+            return r.read().decode().replace('{{gnes-template}}', '\n'.join(shell_lines)).strip()
 
     @staticmethod
     def build_mermaid(all_layers: List['YamlComposer.Layer'], mermaid_leftright: bool = False) -> str:
@@ -301,7 +300,7 @@ class YamlComposer:
         class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
         mermaid_str = '\n'.join(
             ['graph %s' % ('LR' if mermaid_leftright else 'TD')] + mermaid_graph + style + class_def)
-        return mermaid_str
+        return mermaid_str.strip()
 
     @staticmethod
     def build_html(generate_dict: Dict[str, str]) -> str:
@@ -310,7 +309,7 @@ class YamlComposer:
             for k, v in generate_dict.items():
                 if v:
                     html = html.replace('{{gnes-%s}}' % k, v)
-        return html
+        return html.strip()
 
     def build_all(self):
         def std_or_print(f, content):
@@ -374,8 +373,9 @@ class YamlComposer:
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': last_layer.components[0]['port_out'],
                               'port_out': self._get_random_port()})
-            layer.components[0]['socket_in'] = str(SocketType.PULL_CONNECT)
-            layer.components[0]['port_in'] = r['port_out']
+            for c in layer.components:
+                c['socket_in'] = str(SocketType.PULL_CONNECT)
+                c['port_in'] = r['port_out']
             router_layer.append(r)
             router_layers.append(router_layer)
 
@@ -459,7 +459,6 @@ class YamlComposer:
                 c['port_in'] = r0['port_out']
 
         def rule8():
-            last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r = CommentedMap({'name': 'Router',
@@ -504,11 +503,33 @@ class YamlComposer:
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             layer.components[0]['socket_in'] = str(SocketType.PULL_BIND)
 
+        def rule11():
+            # a shortcut fn: (N)-2-(N) with push pull connection
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
+            self._num_layer += 1
+            r = CommentedMap({'name': 'Router',
+                              'yaml_path': None,
+                              'socket_in': str(SocketType.PULL_BIND),
+                              'socket_out': str(SocketType.PUSH_BIND),
+                              'port_in': self._get_random_port(),
+                              'port_out': self._get_random_port()})
+
+            for c in last_layer.components:
+                c['socket_out'] = str(SocketType.PUSH_CONNECT)
+                c['port_out'] = r['port_in']
+            for c in layer.components:
+                c['socket_in'] = str(SocketType.PULL_CONNECT)
+                c['port_in'] = r['port_out']
+            router_layer.append(r)
+            router_layers.append(router_layer)
+
         router_layers = []  # type: List['self.Layer']
         # bind the last out to current in
-        last_layer.components[0]['port_out'] = self._get_random_port()
-        layer.components[0]['port_in'] = last_layer.components[0]['port_out']
+
         if last_layer.is_single_component:
+            last_layer.components[0]['port_out'] = self._get_random_port()
+            for c in layer.components:
+                c['port_in'] = last_layer.components[0]['port_out']
             # 1-to-?
             if layer.is_single_component:
                 # 1-to-(1)
@@ -516,13 +537,13 @@ class YamlComposer:
                 rule1()
             elif layer.is_homo_multi_component:
                 # 1-to-(N)
-                last_income = self.Layer.get_value(last_layer.components[0], 'income')
-                if last_income == 'pull':
+                income = self.Layer.get_value(layer.components[0], 'income')
+                if income == 'pull':
                     rule1()
-                elif last_income == 'sub':
+                elif income == 'sub':
                     rule2()
                 else:
-                    raise NotImplementedError('replica type: %s is not recognized!' % last_income)
+                    raise NotImplementedError('replica type: %s is not recognized!' % income)
             elif layer.is_heto_single_component:
                 # 1-to-(1)&(1)&(1)
                 rule4()
@@ -531,7 +552,12 @@ class YamlComposer:
                 rule6()
         elif last_layer.is_homo_multi_component:
             # (N)-to-?
+            last_layer.components[0]['port_out'] = self._get_random_port()
+
             last_income = self.Layer.get_value(last_layer.components[0], 'income')
+
+            for c in layer.components:
+                c['port_in'] = last_layer.components[0]['port_out']
 
             if layer.is_single_component:
                 if last_income == 'pull':
@@ -561,7 +587,7 @@ class YamlComposer:
                 else:
                     raise NotImplementedError('replica type: %s is not recognized!' % last_income)
         elif last_layer.is_heto_single_component:
-            rule3()
+            rule8()
         else:
             rule8()
         return [last_layer, *router_layers]

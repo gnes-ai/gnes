@@ -33,7 +33,6 @@ __all__ = ['TrainableBase']
 T = TypeVar('T', bound='TrainableBase')
 
 
-
 def register_all_class(cls2file_map: Dict, module_name: str):
     import importlib
     for k, v in cls2file_map.items():
@@ -78,12 +77,17 @@ class TrainableType(type):
         # do _preload_package
         getattr(cls, '_pre_init', lambda *x: None)()
 
+        if 'gnes_config' in kwargs:
+            gnes_config = kwargs.pop('gnes_config')
+        else:
+            gnes_config = {}
+
         obj = type.__call__(cls, *args, **kwargs)
 
         # set attribute
         for k, v in TrainableType.default_gnes_config.items():
-            if k in kwargs:
-                v = kwargs[k]
+            if k in gnes_config:
+                v = gnes_config[k]
             if not hasattr(obj, k):
                 setattr(obj, k, v)
 
@@ -164,7 +168,7 @@ class TrainableBase(metaclass=TrainableType):
         self._post_init_vars = set()
 
     def _post_init_wrapper(self):
-        if not getattr(self, 'name', None):
+        if not getattr(self, 'name', None) and os.environ.get('GNES_WARN_UNNAMED_COMPONENT', '1') == '1':
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
             self.logger.warning(
@@ -290,6 +294,9 @@ class TrainableBase(metaclass=TrainableType):
             if stop_on_import_error:
                 raise RuntimeError('Cannot import module, pip install may required') from ex
 
+        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '0'
+
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
 
@@ -309,13 +316,16 @@ class TrainableBase(metaclass=TrainableType):
                 # maybe there are some hanging kwargs in "parameter"
                 tmp_a = (cls._convert_env_var(v) for v in a)
                 tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
-                obj = cls(*tmp_a, **tmp_p, **data.get('gnes_config', {}))
+                obj = cls(*tmp_a, **tmp_p, gnes_config=data.get('gnes_config', {}))
             else:
                 tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
-                obj = cls(**tmp_p, **data.get('gnes_config', {}))
+                obj = cls(**tmp_p, gnes_config=data.get('gnes_config', {}))
 
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
+
+        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
 
         return obj, data, load_from_dump
 
@@ -344,6 +354,3 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['gnes_config'] = p
         return r
-
-
-

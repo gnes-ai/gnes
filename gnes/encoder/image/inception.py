@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 from ..base import BaseImageEncoder
-from ...helper import batching, batch_iterator
+from ...helper import batching, batch_iterator, get_first_available_gpu
 
 
 class TFInceptionEncoder(BaseImageEncoder):
@@ -42,7 +42,8 @@ class TFInceptionEncoder(BaseImageEncoder):
         import tensorflow as tf
         from .inception_cores.inception_v4 import inception_v4
         from .inception_cores.inception_utils import inception_arg_scope
-
+        import os
+        os.environ['CUDA_VISIBLE_DEVICES'] = get_first_available_gpu()
         g = tf.Graph()
         with g.as_default():
             arg_scope = inception_arg_scope()
