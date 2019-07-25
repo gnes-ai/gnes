@@ -57,14 +57,9 @@ class TestStreamgRPC(unittest.TestCase):
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             with TimeContext('sync call'):  # about 5s
-                resp = stub.RequestStreamCall(RequestGenerator.train(self.all_bytes, 1))
+                resp = list(stub.StreamCall(RequestGenerator.train(self.all_bytes, 1)))[-1]
 
             self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
-
-            # test async calls
-            with TimeContext('async call'):  # immeidiately returns 0.001 s
-                resp = stub.RequestStreamCall.future(RequestGenerator.train(self.all_bytes, 1))
-            self.assertEqual(resp.result().request_id, str(len(self.all_bytes)))
 
     @unittest.mock.patch.dict(os.environ, {'http_proxy': '', 'https_proxy': ''})
     def test_async_block(self):
@@ -91,9 +86,19 @@ class TestStreamgRPC(unittest.TestCase):
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            with TimeContext('sync call'):  # about 5s
-                resp = stub.RequestStreamCall.future(RequestGenerator.train(self.all_bytes, 1))
+            id = 0
+            with TimeContext('non-blocking call'):  # about 26s = 32s (total) - 3*2s (overlap)
+                resp = stub.StreamCall(RequestGenerator.train(self.all_bytes2, 1))
+                for r in resp:
+                    self.assertEqual(r.request_id, str(id))
+                    id += 1
 
-            self.assertEqual(resp.result().request_id, str(len(self.all_bytes)))
+            id = 0
+            with TimeContext('blocking call'):  # should be 32 s
+                for r in RequestGenerator.train(self.all_bytes2, 1):
+                    resp = stub.Call(r)
+                    self.assertEqual(resp.request_id, str(id))
+                    id += 1
+            # self.assertEqual(resp.result().request_id, str(len(self.all_bytes)))
 
-            self.assertEqual(resp.request_id, str(len(self.all_bytes2)))  # idx start with 0, but +1 for final FLUSH
+            # self.assertEqual(resp.request_id, str(len(self.all_bytes2)))  # idx start with 0, but +1 for final FLUSH
