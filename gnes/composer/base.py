@@ -373,8 +373,9 @@ class YamlComposer:
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': last_layer.components[0]['port_out'],
                               'port_out': self._get_random_port()})
-            layer.components[0]['socket_in'] = str(SocketType.PULL_CONNECT)
-            layer.components[0]['port_in'] = r['port_out']
+            for c in layer.components:
+                c['socket_in'] = str(SocketType.PULL_CONNECT)
+                c['port_in'] = r['port_out']
             router_layer.append(r)
             router_layers.append(router_layer)
 
@@ -458,7 +459,6 @@ class YamlComposer:
                 c['port_in'] = r0['port_out']
 
         def rule8():
-            last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r = CommentedMap({'name': 'Router',
@@ -503,11 +503,33 @@ class YamlComposer:
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             layer.components[0]['socket_in'] = str(SocketType.PULL_BIND)
 
+        def rule11():
+            # a shortcut fn: (N)-2-(N) with push pull connection
+            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
+            self._num_layer += 1
+            r = CommentedMap({'name': 'Router',
+                              'yaml_path': None,
+                              'socket_in': str(SocketType.PULL_BIND),
+                              'socket_out': str(SocketType.PUSH_BIND),
+                              'port_in': self._get_random_port(),
+                              'port_out': self._get_random_port()})
+
+            for c in last_layer.components:
+                c['socket_out'] = str(SocketType.PUSH_CONNECT)
+                c['port_out'] = r['port_in']
+            for c in layer.components:
+                c['socket_in'] = str(SocketType.PULL_CONNECT)
+                c['port_in'] = r['port_out']
+            router_layer.append(r)
+            router_layers.append(router_layer)
+
         router_layers = []  # type: List['self.Layer']
         # bind the last out to current in
-        last_layer.components[0]['port_out'] = self._get_random_port()
-        layer.components[0]['port_in'] = last_layer.components[0]['port_out']
+
         if last_layer.is_single_component:
+            last_layer.components[0]['port_out'] = self._get_random_port()
+            for c in layer.components:
+                c['port_in'] = last_layer.components[0]['port_out']
             # 1-to-?
             if layer.is_single_component:
                 # 1-to-(1)
@@ -530,7 +552,12 @@ class YamlComposer:
                 rule6()
         elif last_layer.is_homo_multi_component:
             # (N)-to-?
+            last_layer.components[0]['port_out'] = self._get_random_port()
+
             last_income = self.Layer.get_value(last_layer.components[0], 'income')
+
+            for c in layer.components:
+                c['port_in'] = last_layer.components[0]['port_out']
 
             if layer.is_single_component:
                 if last_income == 'pull':
@@ -560,7 +587,7 @@ class YamlComposer:
                 else:
                     raise NotImplementedError('replica type: %s is not recognized!' % last_income)
         elif last_layer.is_heto_single_component:
-            rule3()
+            rule8()
         else:
             rule8()
         return [last_layer, *router_layers]
