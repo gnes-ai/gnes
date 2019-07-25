@@ -77,12 +77,17 @@ class TrainableType(type):
         # do _preload_package
         getattr(cls, '_pre_init', lambda *x: None)()
 
+        if 'gnes_config' in kwargs:
+            gnes_config = kwargs.pop('gnes_config')
+        else:
+            gnes_config = {}
+
         obj = type.__call__(cls, *args, **kwargs)
 
         # set attribute
         for k, v in TrainableType.default_gnes_config.items():
-            if k in kwargs:
-                v = kwargs[k]
+            if k in gnes_config:
+                v = gnes_config[k]
             if not hasattr(obj, k):
                 setattr(obj, k, v)
 
@@ -295,9 +300,6 @@ class TrainableBase(metaclass=TrainableType):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
 
-        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
-            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
-
         dump_path = cls._get_dump_path_from_config(data.get('gnes_config', {}))
         load_from_dump = False
         if dump_path:
@@ -314,13 +316,16 @@ class TrainableBase(metaclass=TrainableType):
                 # maybe there are some hanging kwargs in "parameter"
                 tmp_a = (cls._convert_env_var(v) for v in a)
                 tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
-                obj = cls(*tmp_a, **tmp_p, **data.get('gnes_config', {}))
+                obj = cls(*tmp_a, **tmp_p, gnes_config=data.get('gnes_config', {}))
             else:
                 tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
-                obj = cls(**tmp_p, **data.get('gnes_config', {}))
+                obj = cls(**tmp_p, gnes_config=data.get('gnes_config', {}))
 
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
+
+        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
 
         return obj, data, load_from_dump
 

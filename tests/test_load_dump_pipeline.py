@@ -44,10 +44,12 @@ class TestLoadDumpPipeline(unittest.TestCase):
         d2.name = ''
         d3 = PipelineEncoder()
         d3.component = lambda: [d1, d2]
-        d3.name = 'aa'
+        d3.name = 'dummy-pipeline'
+        d3.work_dir = './'
+        d3.dump()
         d3.dump_yaml()
         print('there should not be any warning after this line')
-        d31 = BaseEncoder.load_yaml(d3.yaml_full_path)
+        BaseEncoder.load_yaml(d3.yaml_full_path)
 
     def test_dummytf(self):
         d1 = DummyTFEncoder()
