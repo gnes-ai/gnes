@@ -55,9 +55,9 @@ def get_first_available_gpu():
             return r[0]
         raise ValueError
     except ImportError:
-        return 0
+        return -1
     except ValueError:
-        return 0
+        return -1
 
 
 class FileLock:
