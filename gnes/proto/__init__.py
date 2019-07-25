@@ -62,7 +62,7 @@ class RequestGenerator:
             raise ValueError('"top_k: %d" is not a valid number' % top_k)
 
         req = gnes_pb2.Request()
-        req.request_id = start_id
+        req.request_id = str(start_id)
         req.search.query.raw_bytes = query
         req.search.top_k = top_k
         yield req
