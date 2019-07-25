@@ -33,7 +33,6 @@ __all__ = ['TrainableBase']
 T = TypeVar('T', bound='TrainableBase')
 
 
-
 def register_all_class(cls2file_map: Dict, module_name: str):
     import importlib
     for k, v in cls2file_map.items():
@@ -164,7 +163,7 @@ class TrainableBase(metaclass=TrainableType):
         self._post_init_vars = set()
 
     def _post_init_wrapper(self):
-        if not getattr(self, 'name', None):
+        if not getattr(self, 'name', None) and os.environ.get('GNES_WARN_UNNAMED_COMPONENT', '1') == '1':
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
             self.logger.warning(
@@ -290,8 +289,14 @@ class TrainableBase(metaclass=TrainableType):
             if stop_on_import_error:
                 raise RuntimeError('Cannot import module, pip install may required') from ex
 
+        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '0'
+
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
+
+        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+            os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
 
         dump_path = cls._get_dump_path_from_config(data.get('gnes_config', {}))
         load_from_dump = False
@@ -344,6 +349,3 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['gnes_config'] = p
         return r
-
-
-

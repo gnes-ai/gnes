@@ -37,6 +37,18 @@ class TestLoadDumpPipeline(unittest.TestCase):
         b = BaseEncoder.load_yaml(self.yaml_path)
         self.assertTrue(b.is_trained)
 
+    def test_name_warning(self):
+        d1 = DummyTFEncoder()
+        d2 = DummyTFEncoder()
+        d1.name = ''
+        d2.name = ''
+        d3 = PipelineEncoder()
+        d3.component = lambda: [d1, d2]
+        d3.name = 'aa'
+        d3.dump_yaml()
+        print('there should not be any warning after this line')
+        d31 = BaseEncoder.load_yaml(d3.yaml_full_path)
+
     def test_dummytf(self):
         d1 = DummyTFEncoder()
         self.assertEqual(d1.encode(1), 2)
