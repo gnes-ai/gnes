@@ -38,7 +38,12 @@ class IndexerService(BS):
         for d in msg.request.index.docs:
             all_vecs.append(blob2array(d.chunk_embeddings))
             doc_ids += [d.doc_id] * len(d.chunks)
-            offsets += [c.offset_1d for c in d.chunks]
+            if msg.request.index.docs.doc_type == 'TEXT':
+                offsets += [c.offset_1d for c in d.chunks]
+            elif msg.request.index.docs.doc_type == 'IMAGE':
+                offsets += [c.offset_nd for c in d.chunks]
+            elif msg.request.index.docs.doc_type == 'VIDEO':
+                offsets += [c.offset_1d for c in d.chunks]
             weights += [c.weight for c in d.chunks]
 
         from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
@@ -56,22 +61,40 @@ class IndexerService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_chunk_search(self, msg: 'gnes_pb2.Message'):
+        def _cal_offset_relevance(q_offset, i_offset):
+            import math
+            if not isinstance(q_offset, list) and isinstance(i_offset, list):
+                raise TypeError("Type of qc_offset and offset is supposed to be (list, list), "
+                                "but actually we got (%s, %s)" % (str(type(q_offset)), str(type(i_offset))))
+            if not len(q_offset) == 2 and len(i_offset) == 2:
+                raise ValueError("Length of qc_offset and offset should be (2, 2), "
+                                 "but actually we got (%d, %d)" % (len(q_offset), len(i_offset)))
+            return 1 / (1 + math.sqrt((q_offset[0] - i_offset[0])**2 + (q_offset[1] - i_offset[1])**2))
+
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
+        q_offset = [c.offset_nd if msg.request.search.query.doc_type == 'IMAGE'
+                    else c.offset_1d for c in msg.request.search.query.chunks]
         topk = msg.request.search.top_k
         results = self._model.query(vecs, top_k=msg.request.search.top_k)
         q_weights = [qc.weight for qc in msg.request.search.query.chunks]
-        for all_topks, qc_weight in zip(results, q_weights):
+        for all_topks, qc_weight, qc_offset in zip(results, q_weights, q_offset):
             for _doc_id, _offset, _weight, _relevance in all_topks:
                 r = msg.response.search.topk_results.add()
                 r.chunk.doc_id = _doc_id
-                r.chunk.offset_1d = _offset
                 r.chunk.weight = _weight
-                r.score = _weight * qc_weight * _relevance
+                if msg.request.search.query.doc_type == 'IMAGE':
+                    r.chunk.offset_nd = _offset
+                    offset_relevance = _cal_offset_relevance(qc_offset, _offset)
+                else:
+                    r.chunk.offset_1d = _offset
+                    offset_relevance = 1
+                r.score = _weight * qc_weight * _relevance * offset_relevance
                 r.score_explained = '[chunk_score at doc: %d, offset: %d] = ' \
                                     '(doc_chunk_weight: %.6f) * ' \
                                     '(query_doc_chunk_relevance: %.6f) * ' \
+                                    '(query_doc_offset_relevance: %.6f) * ' \
                                     '(query_chunk_weight: %.6f)' % (
-                                        _doc_id, _offset, _weight, _relevance, qc_weight)
+                                        _doc_id, _offset, _weight, _relevance, offset_relevance, qc_weight)
             msg.response.search.top_k = topk
 
     @handler.register(gnes_pb2.Response.QueryResponse)
