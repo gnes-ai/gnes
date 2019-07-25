@@ -1,14 +1,14 @@
 #  Tencent is pleased to support the open source community by making GNES available.
 #
 #  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
-#  Licensed under the Apache License, Version 2.0 (the "License");
+#  Licensed under the Apache License, Version 2.0 (the 'License');
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
 #
 #  http://www.apache.org/licenses/LICENSE-2.0
 #
 #  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
+#  distributed under the License is distributed on an 'AS IS' BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
@@ -20,13 +20,12 @@ import subprocess as sp
 from typing import List, Callable
 
 import cv2
-import imagehash
 import numpy as np
 from PIL import Image
 
 
-def get_video_frames(buffer_data: bytes, image_format: str = "cv2",
-                     **kwargs) -> List["np.ndarray"]:
+def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
+                     **kwargs) -> List['np.ndarray']:
     ffmpeg_cmd = ['ffmpeg', '-i', '-', '-f', 'image2pipe']
 
     # example k,v pair:
@@ -70,9 +69,9 @@ def get_video_frames(buffer_data: bytes, image_format: str = "cv2",
     return frames
 
 
-def block_descriptor(image: "np.ndarray",
+def block_descriptor(image: 'np.ndarray',
                      descriptor_fn: Callable,
-                     num_blocks: int = 3) -> "np.ndarray":
+                     num_blocks: int = 3) -> 'np.ndarray':
     h, w, _ = image.shape  # find shape of image and channel
     block_h = int(np.ceil(h / num_blocks))
     block_w = int(np.ceil(w / num_blocks))
@@ -86,9 +85,9 @@ def block_descriptor(image: "np.ndarray",
     return np.array(descriptors)
 
 
-def pyramid_descriptor(image: "np.ndarray",
+def pyramid_descriptor(image: 'np.ndarray',
                        descriptor_fn: Callable,
-                       max_level: int = 2) -> "np.ndarray":
+                       max_level: int = 2) -> 'np.ndarray':
     descriptors = []
     for level in range(max_level + 1):
         num_blocks = 2 ** level
@@ -97,7 +96,7 @@ def pyramid_descriptor(image: "np.ndarray",
     return np.array(descriptors)
 
 
-def rgb_histogram(image: "np.ndarray") -> "np.ndarray":
+def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
     hist = [
         cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
@@ -107,7 +106,7 @@ def rgb_histogram(image: "np.ndarray") -> "np.ndarray":
     return hist
 
 
-def hsv_histogram(image: "np.ndarray") -> "np.ndarray":
+def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
@@ -124,36 +123,37 @@ def hsv_histogram(image: "np.ndarray") -> "np.ndarray":
     return hist
 
 
-def phash_descriptor(image: "np.ndarray") -> "imagehash.ImageHash":
+def phash_descriptor(image: 'np.ndarray'):
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    import imagehash
     return imagehash.phash(image)
 
 
-def compute_descriptor(image: "np.ndarray",
-                       method: str = "rgb_histogram",
-                       **kwargs) -> "np.array":
+def compute_descriptor(image: 'np.ndarray',
+                       method: str = 'rgb_histogram',
+                       **kwargs) -> 'np.array':
     funcs = {
         'rgb_histogram': rgb_histogram,
         'hsv_histogram': hsv_histogram,
-        'block_rgb_histogram': lambda image: block_descriptor(image, rgb_histogram, kwargs.get("num_blocks", 3)),
-        'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get("num_blocks", 3)),
-        'pyramid_rgb_histogram': lambda image: pyramid_descriptor(image, rgb_histogram, kwargs.get("max_level", 2)),
-        'pyramid_hsv_histogram': lambda image: pyramid_descriptor(image, hsv_histogram, kwargs.get("max_level", 2)),
+        'block_rgb_histogram': lambda image: block_descriptor(image, rgb_histogram, kwargs.get('num_blocks', 3)),
+        'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get('num_blocks', 3)),
+        'pyramid_rgb_histogram': lambda image: pyramid_descriptor(image, rgb_histogram, kwargs.get('max_level', 2)),
+        'pyramid_hsv_histogram': lambda image: pyramid_descriptor(image, hsv_histogram, kwargs.get('max_level', 2)),
     }
     return funcs[method](image)
 
 
-def compare_descriptor(descriptor1: "np.ndarray",
-                       descriptor2: "np.ndarray",
-                       metric: str = "chisqr") -> float:
+def compare_descriptor(descriptor1: 'np.ndarray',
+                       descriptor2: 'np.ndarray',
+                       metric: str = 'chisqr') -> float:
     dist_metric = {
-        "correlation": cv2.HISTCMP_CORREL,
-        "chisqr": cv2.HISTCMP_CHISQR,
-        "chisqr_alt": cv2.HISTCMP_CHISQR_ALT,
-        "intersection": cv2.HISTCMP_INTERSECT,
-        "bhattacharya": cv2.HISTCMP_BHATTACHARYYA,
-        "hellinguer": cv2.HISTCMP_HELLINGER,
-        "kl_div": cv2.HISTCMP_KL_DIV
+        'correlation': cv2.HISTCMP_CORREL,
+        'chisqr': cv2.HISTCMP_CHISQR,
+        'chisqr_alt': cv2.HISTCMP_CHISQR_ALT,
+        'intersection': cv2.HISTCMP_INTERSECT,
+        'bhattacharya': cv2.HISTCMP_BHATTACHARYYA,
+        'hellinguer': cv2.HISTCMP_HELLINGER,
+        'kl_div': cv2.HISTCMP_KL_DIV
     }
 
     return cv2.compareHist(descriptor1, descriptor2, dist_metric[metric])

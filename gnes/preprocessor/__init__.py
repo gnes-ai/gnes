@@ -23,6 +23,7 @@ _cls2file_map = {
     'TextPreprocessor': 'text.simple',
     'BaseImagePreprocessor': 'image.base',
     'BaseTextPreprocessor': 'text.base',
+    'BaseSlidingPreprocessor': 'image.sliding_window',
     'VanillaSlidingPreprocessor': 'image.sliding_window',
     'WeightedSlidingPreprocessor': 'image.sliding_window',
     'SegmentPreprocessor': 'image.segmentation',
