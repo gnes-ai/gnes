@@ -1,12 +1,11 @@
+import copy
 import os
 import unittest
 import zipfile
-import copy
-import numpy as np
 
 from gnes.encoder.image.base import BasePytorchEncoder
-from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.preprocessor.base import BaseUnaryPreprocessor
+from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
 
