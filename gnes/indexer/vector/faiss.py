@@ -17,7 +17,7 @@
 
 
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -46,7 +46,7 @@ class FaissIndexer(BaseVectorIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
+    def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
 
@@ -72,7 +72,7 @@ class FaissIndexer(BaseVectorIndexer):
 
         return ret
 
-    def normalize_score(self, score: np.ndarray, *args) -> np.ndarray:
+    def normalize_score(self, score: np.ndarray, *args, **kwargs) -> np.ndarray:
         if 'HNSW' in self.index_key:
             return 1 / (1 + np.sqrt(score) / self.num_dim)
         elif 'PQ' or 'Flat' in self.index_key:

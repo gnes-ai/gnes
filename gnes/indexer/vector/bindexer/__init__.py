@@ -16,7 +16,7 @@
 # pylint: disable=low-comment-ratio
 
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -56,7 +56,7 @@ class BIndexer(BaseVectorIndexer):
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
-    def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args,
+    def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) != len(keys):
             raise ValueError('vectors length should be equal to doc_ids')
@@ -112,7 +112,7 @@ class BIndexer(BaseVectorIndexer):
                 result[q].append((i, o, w / self._weight_norm, self.normalize_score(d)))
         return result
 
-    def normalize_score(self, distance: int, *args) -> float:
+    def normalize_score(self, distance: int, *args, **kwargs) -> float:
         return 1. - distance / self.num_bytes
 
     def __getstate__(self):
