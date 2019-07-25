@@ -21,7 +21,7 @@ class TestBIndexer(unittest.TestCase):
                                    [2, 1, 3, 4],
                                    [3, 2, 1, 2]]).astype(np.uint8)
 
-        self.toy_exp = [[(234, 0, 1., 4,), (123, 1, 1., 4)], [(432, 0, 1., 4), (1, 0, 1., 4)],
+        self.toy_exp = [[(234, 0, 1., 1,), (123, 1, 1., 1)], [(432, 0, 1., 1), (1, 0, 1., 1)],
                         [(234, 0, 1., 0.75), (123, 1, 1., 0.75)]]
         self.weights = [1.] * len(self.toy_label)
 
