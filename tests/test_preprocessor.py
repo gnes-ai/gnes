@@ -16,18 +16,12 @@ class TestProto(unittest.TestCase):
         self.dirname = os.path.dirname(__file__)
 
     def test_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
-            '--port_in', str(YamlComposer._get_random_port()),
-            '--port_out', str(YamlComposer._get_random_port())
-        ])
+        args = set_preprocessor_service_parser().parse_args([])
         with PreprocessorService(args):
             pass
 
     def test_preprocessor_service_echo(self):
-        args = set_preprocessor_service_parser().parse_args([
-            '--port_in', str(YamlComposer._get_random_port()),
-            '--port_out', str(YamlComposer._get_random_port())
-        ])
+        args = set_preprocessor_service_parser().parse_args([])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in)
@@ -44,10 +38,7 @@ class TestProto(unittest.TestCase):
             print(r)
 
     def test_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
-            '--port_in', str(YamlComposer._get_random_port()),
-            '--port_out', str(YamlComposer._get_random_port())
-        ])
+        args = set_preprocessor_service_parser().parse_args([])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in)
