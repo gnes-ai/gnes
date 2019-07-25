@@ -74,7 +74,6 @@ class BIndexer(BaseVectorIndexer):
     def query(self,
               keys: np.ndarray,
               top_k: int,
-              normalized_score: bool = True,
               method: str = 'nsw',
               *args,
               **kwargs) -> List[List[Tuple]]:
@@ -93,7 +92,7 @@ class BIndexer(BaseVectorIndexer):
             q_idx, doc_ids, offsets, weights = self.bindexer.find_batch_trie(
                 keys, num_rows)
             for (i, q, o, w) in zip(doc_ids, q_idx, offsets, weights):
-                result[q].append((i, o, w / self._weight_norm, 1 if normalized_score else self.num_bytes))
+                result[q].append((i, o, w / self._weight_norm, 1))
 
             # search the indexed items with similar value
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.nsw_search(
@@ -101,9 +100,7 @@ class BIndexer(BaseVectorIndexer):
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 if d == 0:
                     continue
-                result[q].append(
-                    (i, o, w / self._weight_norm,
-                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
+                result[q].append((i, o, w / self._weight_norm, self.normalize_score(d)))
 
             # get the top-k
             for q in range(num_rows):
@@ -112,10 +109,11 @@ class BIndexer(BaseVectorIndexer):
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-                result[q].append(
-                    (i, o, w / self._weight_norm,
-                     (1. - d / self.num_bytes) if normalized_score else self.num_bytes - d))
+                result[q].append((i, o, w / self._weight_norm, self.normalize_score(d)))
         return result
+
+    def normalize_score(self, distance: int, *args) -> float:
+        return 1. - distance / self.num_bytes
 
     def __getstate__(self):
         self.bindexer.save(self.data_path)

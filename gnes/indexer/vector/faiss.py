@@ -61,15 +61,22 @@ class FaissIndexer(BaseVectorIndexer):
             raise ValueError("vectors should be ndarray of float32")
 
         score, ids = self._faiss_index.search(keys, top_k)
+        score = self.normalize_score(score)
         ret = []
         for _id, _score in zip(ids, score):
             ret_i = []
             chunk_info = self._key_info_indexer.query(_id)
             for c_info, _score_i in zip(chunk_info, _score):
-                ret_i.append((*c_info, -_score_i))
+                ret_i.append((*c_info, _score_i))
             ret.append(ret_i)
 
         return ret
+
+    def normalize_score(self, score: np.ndarray, *args) -> np.ndarray:
+        if 'HNSW' in self.index_key:
+            return 1 / (1 + np.sqrt(score) / self.num_dim)
+        elif 'PQ' or 'Flat' in self.index_key:
+            return 1 / (1 + np.abs(np.sqrt(score)))
 
     @property
     def size(self):
