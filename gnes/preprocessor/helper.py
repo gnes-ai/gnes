@@ -59,10 +59,22 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                 Image.open(io.BytesIO(b'\x89PNG' + _)) for _ in stream[1:]
             ]
         elif image_format == 'cv2':
-            frames = [
-                cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), 1)
-                for _ in stream[1:]
-            ]
+            # frames = [
+            #     cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
+            #     for _ in stream[1:]
+            # ]
+
+            # TODO: to figure out the exception reason
+            frames = []
+            for _ in stream[1:]:
+                image = cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
+                try:
+                    cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    frames.append(image)
+                except Exception as e:
+                    # raise e
+                    pass
+
         else:
             raise NotImplementedError
 
