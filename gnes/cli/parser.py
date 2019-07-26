@@ -47,7 +47,7 @@ def set_composer_parser(parser=None):
                         help='host port of the grpc service')
     parser.add_argument('--name',
                         type=str,
-                        default='GNES instance',
+                        default='GNES app',
                         help='name of the instance')
     parser.add_argument('--yaml_path', type=argparse.FileType('r'),
                         default=resource_stream(
