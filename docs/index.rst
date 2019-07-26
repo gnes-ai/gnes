@@ -67,13 +67,13 @@ Highlights
    :maxdepth: 2
    :caption: Contributing
 
-   chapter/CONTRIBUTING.md
+   CONTRIBUTING.md
 
 .. toctree::
    :maxdepth: 1
    :caption: Changelog
 
-   chapter/CHANGELOG.md
+   CHANGELOG.md
 
 
 Tutorials

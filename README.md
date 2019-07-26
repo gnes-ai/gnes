@@ -167,7 +167,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 
 ### 🐣 Preliminaries
 
-Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. 
+Before we start, let me first introduce two important concepts serving as the backbone of GNES: **microservice** and **runtime**. 
 
 #### Microservice
 

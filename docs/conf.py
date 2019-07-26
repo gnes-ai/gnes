@@ -17,7 +17,6 @@ from os import path
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'GNES Documentation'

@@ -42,7 +42,8 @@ steps:
   - pip install -e .[all]
   - pip uninstall -y torchvision
   - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-  - "python -c 'import torchvision'"
+  - "python -c 'import torchvision; print(torchvision.__version__)'"
+  - "python -c 'import torch; print(torch.__version__)'"
   - python -m unittest tests/*.py -v
 
 
