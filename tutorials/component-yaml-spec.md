@@ -6,7 +6,12 @@ Essentially, GNES requires two types of YAML config:
 - [GNES-compose YAML](gnes-compose-yaml-spec.md)
 - Component-wise YAML
 
-![](./img/mermaid-diagram-20190726180826.svg)
+<p align="center">
+<a href="https://gnes.ai">
+    <img src="./img/mermaid-diagram-20190726180826.svg" width="60%">
+</a>
+</p>
+
 
 All other YAML files, including the docker-compose YAML config and Kubernetes config generated from the [GNES Board](https://board.gnes.ai) or `gnes compose` command are not a part of this tutorial. Interested readers are welcome to read their [YAML specification](https://docs.docker.com/compose/compose-file/) respectively.
 
@@ -241,10 +246,22 @@ You can find a lot of examples in the [unittest](../tests/yaml)
 For many real-world applications, a single encoder is often not enough. For example, the output of a `BertEncoder` is 768-dimensional. One may want to append it with some dimensional reduction or quantization models. Of course one can spawn every encoder as an independent container and then connect them together via GNES Board/`gnes compose`. But if you don't need them to be elastic, why bother? This is where `PipelineEncoder` can be very useful: it stacks multiple `BaseEncoder` together, simplifying data-flow in all runtimes (i.e. training, indexing and querying).
 
 #### PipelineEncoder in the training runtime
-![](./img/mermaid-diagram-20190726183010.svg)
+
+<p align="center">
+<a href="https://gnes.ai">
+    <img src="./img/mermaid-diagram-20190726183010.svg" width="60%">
+</a>
+</p>
+
 
 #### PipelineEncoder in the indexing and querying runtimes
-![](./img/mermaid-diagram-20190726183216.svg)
+
+
+<p align="center">
+<a href="https://gnes.ai">
+    <img src="./img/mermaid-diagram-20190726183216.svg" width="60%">
+</a>
+</p>
 
 
 To define a `PipelineEncoder`, you just need to sort the encoders in the right order and put them in a list under the `component` field. Let's look at the following example:

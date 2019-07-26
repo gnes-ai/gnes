@@ -102,7 +102,7 @@ services:
 <tr>
 <td>
 <a href="https://gnes.ai">
-  <img src="./img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 1">
+  <img src="./img/mermaid-diagram-20190726150644.svg" alt="GNES workflow of example 1">
   </a>
 </td>
 <td>
@@ -136,7 +136,7 @@ which results a topology like the following:
 
 <p align="center">
 <a href="https://gnes.ai">
-    <img src="./img/mermaid-diagram-20190726154922.svg">
+    <img src="./img/mermaid-diagram-20190726154922.svg" width="60%">
 </a>
 </p>
 
