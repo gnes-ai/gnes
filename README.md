@@ -545,8 +545,8 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 > 🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES! 
 
-- [How to write your GNES YAML config](tutorials/gnes-yaml-specifications.md)
-- How to write a component-wise YAML config
+- [How to write your GNES YAML config](tutorials/gnes-compose-yaml-spec.md)
+- [How to write a component-wise YAML config](tutorials/component-yaml-spec.md)
 - Understanding preprocessor, encoder, indexer and router
 - Index and query text data with GNES
 - Index and query image data with GNES

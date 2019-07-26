@@ -1,3 +1,2 @@
 sphinx-argparse
 sphinxcontrib-apidoc
-sphinx-markdown-tables

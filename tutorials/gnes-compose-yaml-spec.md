@@ -2,11 +2,23 @@
 
 YAML is everywhere. This is pretty much your impression when first trying GNES. Understanding the YAML config is therefore extremely important to use GNES.
 
-Essentially, GNES only requires two types of YAML config:
+Essentially, GNES requires two types of YAML config:
 - GNES-compose YAML
-- Component-wise YAML
+- [Component-wise YAML](component-yaml-spec.md)
+
+![](./img/mermaid-diagram-20190726180826.svg)
 
 All other YAML files, including the docker-compose YAML config and Kubernetes config generated from the [GNES Board](https://board.gnes.ai) or `gnes compose` command are not a part of this tutorial. Interested readers are welcome to read their [YAML specification](https://docs.docker.com/compose/compose-file/) respectively.
+
+## Table of Content
+
+
+* [GNES-compose YAML specification](#gnes-compose-yaml-specification)
++ [`services` specification](#-services--specification)
++ [Sequential and parallel services](#sequential-and-parallel-services)
+* [`gRPCFrontend` and `Router`, why are they in my graph?](#-grpcfrontend--and--router---why-are-they-in-my-graph-)
+* [What's Next?](#what-s-next-)
+
 
 ## GNES-compose YAML specification
 
@@ -90,12 +102,12 @@ services:
 <tr>
 <td>
 <a href="https://gnes.ai">
-  <img src="img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 1">
+  <img src="./img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 1">
   </a>
 </td>
 <td>
 <a href="https://gnes.ai">
-  <img src="img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2">
+  <img src="./img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2">
   </a>
 </td>
 </tr>
@@ -122,9 +134,19 @@ services:
 
 which results a topology like the following:
 
-![](img/mermaid-diagram-20190726154922.svg)
+<p align="center">
+<a href="https://gnes.ai">
+    <img src="./img/mermaid-diagram-20190726154922.svg">
+</a>
+</p>
 
+## `gRPCFrontend` and `Router`, why are they in my graph?
+
+Careful readers may notice that `gRPCFrontend` and `Router` components may be added to the workflow graph, even though they are not defined in the YAML file. Here is the explanation:
+
+- `gRPCFrontend` serves as **the only interface** between GNES and the outside. All data must be sent to it and all results will be returned from it, which likes a hole on the black-box. Its data-flow pattern and the role it's playing in GNES is *so deterministic* that we don't even want to bother users to define it.
+- Put simply, `Router` forwards messages. It is often required when `replicas` > 1. However, the behavior of a router depends on the topology and the runtime (i.e. training, indexing and querying). Sometimes it serves as a mapper, other times it serves as a reducer or an aggregator, or even not required. In general, it might not be very straightforward for beginners to choose the right router. Fortunately, the type of the router can often be determined by the two consecutive layers, which is exactly what GNES Board (`gnes compose`) does.
 
 ## What's Next?
 
-The GNES-compose YAML describes a high-level picture of the GNES topology, the detailed specification of each component is defined in `yaml_path` respectively, namely the *component-wise YAML config*. In the next tutorial, you will learn how to write a component-wise YAML config.
+The GNES-compose YAML describes a high-level picture of the GNES topology. Having it only is not enough. The detailed specification of each component is defined in `yaml_path` respectively, namely the *component-wise YAML config*. In the next tutorial, you will learn how to write a component-wise YAML config.

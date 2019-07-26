@@ -83,9 +83,6 @@ Tutorials
    🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES!
 
 
-Miscs
------
-
 .. toctree::
    :maxdepth: 1
    :caption: Miscs

@@ -55,7 +55,6 @@ extensions = [
     'sphinxcontrib.apidoc',
     'sphinxarg.ext',
     'recommonmark',
-    'sphinx_markdown_tables',
 ]
 
 
