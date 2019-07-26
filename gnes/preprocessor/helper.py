@@ -23,6 +23,9 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from ..helper import set_logger
+
+logger = set_logger(__name__, True)
 
 def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                      **kwargs) -> List['np.ndarray']:
@@ -59,11 +62,22 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                 Image.open(io.BytesIO(b'\x89PNG' + _)) for _ in stream[1:]
             ]
         elif image_format == 'cv2':
-            frames = [
-                cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), 1)
-                for _ in stream[1:]
-            ]
+            # frames = [
+            #     cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
+            #     for _ in stream[1:]
+            # ]
+
+            # TODO: to figure out the exception reason
+            frames = []
+            for _ in stream[1:]:
+                image = cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
+                try:
+                    cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    frames.append(image)
+                except Exception as e:
+                    logger.warning("The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
         else:
+            logger.error("The image format [%s] is not supported so far!" % image_format)
             raise NotImplementedError
 
     return frames
