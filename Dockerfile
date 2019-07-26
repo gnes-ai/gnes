@@ -1,4 +1,4 @@
-FROM gnes/build-base:latest AS dependency
+FROM gnes/ci-base:latest AS dependency
 
 WORKDIR /gnes/
 
