@@ -41,8 +41,9 @@ class EncoderService(BS):
         vecs = self._model.encode(chunks)
         s = 0
         for d in msg.request.index.docs:
-            d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
-            s += len(d.chunks)
+            if len(d.chunks):
+                d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
+                s += len(d.chunks)
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):

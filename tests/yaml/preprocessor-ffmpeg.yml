@@ -1,8 +1,8 @@
 !FFmpegPreprocessor
 parameter:
   frame_size: "192*168"
-  duplicate_rm: True
-  use_phash_weight: False
+  duplicate_rm: true
+  use_phash_weight: true
   phash_thresh: 5
 
   kwargs:
