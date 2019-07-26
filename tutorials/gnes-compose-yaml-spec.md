@@ -6,7 +6,12 @@ Essentially, GNES requires two types of YAML config:
 - GNES-compose YAML
 - [Component-wise YAML](component-yaml-spec.md)
 
-![](./img/mermaid-diagram-20190726180826.svg)
+<p align="center">
+<a href="https://gnes.ai">
+    <img src="./img/mermaid-diagram-20190726180826.svg" width="80%">
+</a>
+</p>
+
 
 All other YAML files, including the docker-compose YAML config and Kubernetes config generated from the [GNES Board](https://board.gnes.ai) or `gnes compose` command are not a part of this tutorial. Interested readers are welcome to read their [YAML specification](https://docs.docker.com/compose/compose-file/) respectively.
 
@@ -102,12 +107,12 @@ services:
 <tr>
 <td>
 <a href="https://gnes.ai">
-  <img src="./img/mermaid-diagram-20190726150644.svg" alt="GNES workflow of example 1">
+  <img src="./img/mermaid-diagram-20190726150644.svg" alt="GNES workflow of example 1" height="200px">
   </a>
 </td>
 <td>
 <a href="https://gnes.ai">
-  <img src="./img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2">
+  <img src="./img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2" height="200px">
   </a>
 </td>
 </tr>

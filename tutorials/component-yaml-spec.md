@@ -8,7 +8,7 @@ Essentially, GNES requires two types of YAML config:
 
 <p align="center">
 <a href="https://gnes.ai">
-    <img src="./img/mermaid-diagram-20190726180826.svg" width="60%">
+    <img src="./img/mermaid-diagram-20190726180826.svg" width="80%">
 </a>
 </p>
 
@@ -249,7 +249,7 @@ For many real-world applications, a single encoder is often not enough. For exam
 
 <p align="center">
 <a href="https://gnes.ai">
-    <img src="./img/mermaid-diagram-20190726183010.svg" width="60%">
+    <img src="./img/mermaid-diagram-20190726183010.svg" width="80%">
 </a>
 </p>
 
