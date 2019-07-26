@@ -28,7 +28,7 @@ __all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2
 
 class RequestGenerator:
     @staticmethod
-    def index(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = 1, *args, **kwargs):
+    def index(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
 
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
@@ -42,7 +42,7 @@ class RequestGenerator:
             start_id += 1
 
     @staticmethod
-    def train(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = 1, *args, **kwargs):
+    def train(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
             req.request_id = str(start_id)
@@ -59,7 +59,7 @@ class RequestGenerator:
         start_id += 1
 
     @staticmethod
-    def query(query: bytes, top_k: int, start_id: int = 0, doc_type: int = 1, *args, **kwargs):
+    def query(query: bytes, top_k: int, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
         if top_k <= 0:
             raise ValueError('"top_k: %d" is not a valid number' % top_k)
 
