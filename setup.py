@@ -49,7 +49,7 @@ extras_dep = {
     'flair': ['flair>=0.4.1'],
     'annoy': ['annoy==1.15.2'],
     'chinese': ['jieba'],
-    'vision': ['opencv-python>=4.0.0', 'torchvision==0.3.0', 'imagehash>=4.0'],
+    'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0'],
     'leveldb': ['plyvel>=1.0.5'],
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
     'http': ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'aiohttp==3.5.4']

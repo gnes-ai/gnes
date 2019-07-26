@@ -1,0 +1,399 @@
+<svg id="mermaid-1564124727216" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width: 297.734375px;" viewBox="0 0 297.734375 526.8125"><style>
+
+
+#mermaid-1564124727216 .label {
+  font-family: 'trebuchet ms', verdana, arial;
+  color: #333; }
+
+#mermaid-1564124727216 .label text {
+  fill: #333; }
+
+#mermaid-1564124727216 .node rect,
+#mermaid-1564124727216 .node circle,
+#mermaid-1564124727216 .node ellipse,
+#mermaid-1564124727216 .node polygon {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1px; }
+
+#mermaid-1564124727216 .node.clickable {
+  cursor: pointer; }
+
+#mermaid-1564124727216 .arrowheadPath {
+  fill: #333333; }
+
+#mermaid-1564124727216 .edgePath .path {
+  stroke: #333333;
+  stroke-width: 1.5px; }
+
+#mermaid-1564124727216 .edgeLabel {
+  background-color: #e8e8e8; }
+
+#mermaid-1564124727216 .cluster rect {
+  fill: #ffffde;
+  stroke: #aaaa33;
+  stroke-width: 1px; }
+
+#mermaid-1564124727216 .cluster text {
+  fill: #333; }
+
+#mermaid-1564124727216 div.mermaidTooltip {
+  position: absolute;
+  text-align: center;
+  max-width: 200px;
+  padding: 2px;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 12px;
+  background: #ffffde;
+  border: 1px solid #aaaa33;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 100; }
+
+#mermaid-1564124727216 .actor {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1564124727216 text.actor {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1564124727216 .actor-line {
+  stroke: grey; }
+
+#mermaid-1564124727216 .messageLine0 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1564124727216 .messageLine1 {
+  stroke-width: 1.5;
+  stroke-dasharray: '2 2';
+  stroke: #333; }
+
+#mermaid-1564124727216 #arrowhead {
+  fill: #333; }
+
+#mermaid-1564124727216 .sequenceNumber {
+  fill: white; }
+
+#mermaid-1564124727216 #sequencenumber {
+  fill: #333; }
+
+#mermaid-1564124727216 #crosshead path {
+  fill: #333 !important;
+  stroke: #333 !important; }
+
+#mermaid-1564124727216 .messageText {
+  fill: #333;
+  stroke: none; }
+
+#mermaid-1564124727216 .labelBox {
+  stroke: #CCCCFF;
+  fill: #ECECFF; }
+
+#mermaid-1564124727216 .labelText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1564124727216 .loopText {
+  fill: black;
+  stroke: none; }
+
+#mermaid-1564124727216 .loopLine {
+  stroke-width: 2;
+  stroke-dasharray: '2 2';
+  stroke: #CCCCFF; }
+
+#mermaid-1564124727216 .note {
+  stroke: #aaaa33;
+  fill: #fff5ad; }
+
+#mermaid-1564124727216 .noteText {
+  fill: black;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 14px; }
+
+#mermaid-1564124727216 .activation0 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1564124727216 .activation1 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+#mermaid-1564124727216 .activation2 {
+  fill: #f4f4f4;
+  stroke: #666; }
+
+
+#mermaid-1564124727216 .section {
+  stroke: none;
+  opacity: 0.2; }
+
+#mermaid-1564124727216 .section0 {
+  fill: rgba(102, 102, 255, 0.49); }
+
+#mermaid-1564124727216 .section2 {
+  fill: #fff400; }
+
+#mermaid-1564124727216 .section1,
+#mermaid-1564124727216 .section3 {
+  fill: white;
+  opacity: 0.2; }
+
+#mermaid-1564124727216 .sectionTitle0 {
+  fill: #333; }
+
+#mermaid-1564124727216 .sectionTitle1 {
+  fill: #333; }
+
+#mermaid-1564124727216 .sectionTitle2 {
+  fill: #333; }
+
+#mermaid-1564124727216 .sectionTitle3 {
+  fill: #333; }
+
+#mermaid-1564124727216 .sectionTitle {
+  text-anchor: start;
+  font-size: 11px;
+  text-height: 14px; }
+
+
+#mermaid-1564124727216 .grid .tick {
+  stroke: lightgrey;
+  opacity: 0.3;
+  shape-rendering: crispEdges; }
+
+#mermaid-1564124727216 .grid path {
+  stroke-width: 0; }
+
+
+#mermaid-1564124727216 .today {
+  fill: none;
+  stroke: red;
+  stroke-width: 2px; }
+
+
+
+#mermaid-1564124727216 .task {
+  stroke-width: 2; }
+
+#mermaid-1564124727216 .taskText {
+  text-anchor: middle;
+  font-size: 11px; }
+
+#mermaid-1564124727216 .taskTextOutsideRight {
+  fill: black;
+  text-anchor: start;
+  font-size: 11px; }
+
+#mermaid-1564124727216 .taskTextOutsideLeft {
+  fill: black;
+  text-anchor: end;
+  font-size: 11px; }
+
+
+#mermaid-1564124727216 .task.clickable {
+  cursor: pointer; }
+
+#mermaid-1564124727216 .taskText.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+#mermaid-1564124727216 .taskTextOutsideLeft.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+#mermaid-1564124727216 .taskTextOutsideRight.clickable {
+  cursor: pointer;
+  fill: #003163 !important;
+  font-weight: bold; }
+
+
+#mermaid-1564124727216 .taskText0,
+#mermaid-1564124727216 .taskText1,
+#mermaid-1564124727216 .taskText2,
+#mermaid-1564124727216 .taskText3 {
+  fill: white; }
+
+#mermaid-1564124727216 .task0,
+#mermaid-1564124727216 .task1,
+#mermaid-1564124727216 .task2,
+#mermaid-1564124727216 .task3 {
+  fill: #8a90dd;
+  stroke: #534fbc; }
+
+#mermaid-1564124727216 .taskTextOutside0,
+#mermaid-1564124727216 .taskTextOutside2 {
+  fill: black; }
+
+#mermaid-1564124727216 .taskTextOutside1,
+#mermaid-1564124727216 .taskTextOutside3 {
+  fill: black; }
+
+
+#mermaid-1564124727216 .active0,
+#mermaid-1564124727216 .active1,
+#mermaid-1564124727216 .active2,
+#mermaid-1564124727216 .active3 {
+  fill: #bfc7ff;
+  stroke: #534fbc; }
+
+#mermaid-1564124727216 .activeText0,
+#mermaid-1564124727216 .activeText1,
+#mermaid-1564124727216 .activeText2,
+#mermaid-1564124727216 .activeText3 {
+  fill: black !important; }
+
+
+#mermaid-1564124727216 .done0,
+#mermaid-1564124727216 .done1,
+#mermaid-1564124727216 .done2,
+#mermaid-1564124727216 .done3 {
+  stroke: grey;
+  fill: lightgrey;
+  stroke-width: 2; }
+
+#mermaid-1564124727216 .doneText0,
+#mermaid-1564124727216 .doneText1,
+#mermaid-1564124727216 .doneText2,
+#mermaid-1564124727216 .doneText3 {
+  fill: black !important; }
+
+
+#mermaid-1564124727216 .crit0,
+#mermaid-1564124727216 .crit1,
+#mermaid-1564124727216 .crit2,
+#mermaid-1564124727216 .crit3 {
+  stroke: #ff8888;
+  fill: red;
+  stroke-width: 2; }
+
+#mermaid-1564124727216 .activeCrit0,
+#mermaid-1564124727216 .activeCrit1,
+#mermaid-1564124727216 .activeCrit2,
+#mermaid-1564124727216 .activeCrit3 {
+  stroke: #ff8888;
+  fill: #bfc7ff;
+  stroke-width: 2; }
+
+#mermaid-1564124727216 .doneCrit0,
+#mermaid-1564124727216 .doneCrit1,
+#mermaid-1564124727216 .doneCrit2,
+#mermaid-1564124727216 .doneCrit3 {
+  stroke: #ff8888;
+  fill: lightgrey;
+  stroke-width: 2;
+  cursor: pointer;
+  shape-rendering: crispEdges; }
+
+#mermaid-1564124727216 .milestone {
+  transform: rotate(45deg) scale(0.8, 0.8); }
+
+#mermaid-1564124727216 .milestoneText {
+  font-style: italic; }
+
+#mermaid-1564124727216 .doneCritText0,
+#mermaid-1564124727216 .doneCritText1,
+#mermaid-1564124727216 .doneCritText2,
+#mermaid-1564124727216 .doneCritText3 {
+  fill: black !important; }
+
+#mermaid-1564124727216 .activeCritText0,
+#mermaid-1564124727216 .activeCritText1,
+#mermaid-1564124727216 .activeCritText2,
+#mermaid-1564124727216 .activeCritText3 {
+  fill: black !important; }
+
+#mermaid-1564124727216 .titleText {
+  text-anchor: middle;
+  font-size: 18px;
+  fill: black; }
+
+#mermaid-1564124727216 g.classGroup text {
+  fill: #9370DB;
+  stroke: none;
+  font-family: 'trebuchet ms', verdana, arial;
+  font-size: 10px; }
+
+#mermaid-1564124727216 g.classGroup rect {
+  fill: #ECECFF;
+  stroke: #9370DB; }
+
+#mermaid-1564124727216 g.classGroup line {
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 .classLabel .box {
+  stroke: none;
+  stroke-width: 0;
+  fill: #ECECFF;
+  opacity: 0.5; }
+
+#mermaid-1564124727216 .classLabel .label {
+  fill: #9370DB;
+  font-size: 10px; }
+
+#mermaid-1564124727216 .relation {
+  stroke: #9370DB;
+  stroke-width: 1;
+  fill: none; }
+
+#mermaid-1564124727216 #compositionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #compositionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #aggregationStart {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #aggregationEnd {
+  fill: #ECECFF;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #dependencyStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #dependencyEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #extensionStart {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 #extensionEnd {
+  fill: #9370DB;
+  stroke: #9370DB;
+  stroke-width: 1; }
+
+#mermaid-1564124727216 .commit-id,
+#mermaid-1564124727216 .commit-msg,
+#mermaid-1564124727216 .branch-label {
+  fill: lightgrey;
+  color: lightgrey; }
+
+#mermaid-1564124727216 .gRPCFrontendCLS &gt; * { fill:#FFAA04 !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1564124727216 .EncoderCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1564124727216 .IndexerCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1564124727216 .RouterCLS &gt; * { fill:#2BFFCB !important; stroke:#277CE8 !important; stroke-width:1px !important; }
+#mermaid-1564124727216 .PreprocessorCLS &gt; * { fill:#27E1E8 !important; stroke:#277CE8 !important; stroke-width:1px !important; }</style><style>#mermaid-1564124727216 {
+    color: rgba(0, 0, 0, 0.65);
+    font: ;
+  }</style><g transform="translate(-12, -12)"><g class="output"><g class="clusters"></g><g class="edgePaths"><g class="edgePath" style="opacity: 1;"><path class="path" d="M153.61261858258928,61L121.453125,96.5L121.453125,132" marker-end="url(#arrowhead78)" style="fill:none"></path><defs><marker id="arrowhead78" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M121.453125,173L121.453125,208.5L121.453125,244" marker-end="url(#arrowhead79)" style="fill:none"></path><defs><marker id="arrowhead79" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M98.30768694196428,285L58.2265625,320.5L58.2265625,356" marker-end="url(#arrowhead80)" style="fill:none"></path><defs><marker id="arrowhead80" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M144.59856305803572,285L184.6796875,320.5L184.6796875,356" marker-end="url(#arrowhead81)" style="fill:none"></path><defs><marker id="arrowhead81" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M58.2265625,397L58.2265625,432.5L156.91963634777792,484.71842854518536" marker-end="url(#arrowhead82)" style="fill:none"></path><defs><marker id="arrowhead82" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M184.6796875,397L184.6796875,432.5L184.6796875,468" marker-end="url(#arrowhead83)" style="fill:none"></path><defs><marker id="arrowhead83" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g><g class="edgePath" style="opacity: 1;"><path class="path" d="M209.61178166712497,480.30799826053146L272.0234375,432.5L272.0234375,376.5L272.0234375,320.5L272.0234375,264.5L272.0234375,208.5L272.0234375,152.5L272.0234375,96.5L208.73210797991072,61" marker-end="url(#arrowhead84)" style="fill:none"></path><defs><marker id="arrowhead84" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="8" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker></defs></g></g><g class="edgeLabels"><g class="edgeLabel" style="opacity: 1;" transform="translate(121.453125,96.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(121.453125,208.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(58.2265625,320.5)"><g transform="translate(-26.515625,-10.5)" class="label"><foreignObject width="53.03125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">pub/sub</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(184.6796875,320.5)"><g transform="translate(-26.515625,-10.5)" class="label"><foreignObject width="53.03125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">pub/sub</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(58.2265625,432.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(184.6796875,432.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g><g class="edgeLabel" style="opacity: 1;" transform="translate(272.0234375,264.5)"><g transform="translate(-29.7109375,-10.5)" class="label"><foreignObject width="59.421875" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;"><span class="edgeLabel">push/pull</span></div></foreignObject></g></g></g><g class="nodes"><g class="node gRPCFrontendCLS" id="gRPCFrontend000" transform="translate(172.18359375,40.5)" style="opacity: 1;"><rect rx="5" ry="5" x="-57.0625" y="-20.5" width="114.125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-47.0625,-10.5)"><foreignObject width="94.125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">gRPCFrontend</div></foreignObject></g></g></g><g class="node PreprocessorCLS" style="opacity: 1;" id="Preprocessor100" transform="translate(121.453125,152.5)"><rect rx="5" ry="5" x="-53.0546875" y="-20.5" width="106.109375" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-43.0546875,-10.5)"><foreignObject width="86.109375" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Preprocessor</div></foreignObject></g></g></g><g class="node EncoderCLS" style="opacity: 1;" id="Encoder200" transform="translate(121.453125,264.5)"><rect rx="5" ry="5" x="-36.75" y="-20.5" width="73.5" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-26.75,-10.5)"><foreignObject width="53.5" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Encoder</div></foreignObject></g></g></g><g class="node IndexerCLS" style="opacity: 1;" id="Indexer300" transform="translate(58.2265625,376.5)"><rect rx="5" ry="5" x="-38.2265625" y="-20.5" width="76.453125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-28.2265625,-10.5)"><foreignObject width="56.453125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Indexer0</div></foreignObject></g></g></g><g class="node IndexerCLS" style="opacity: 1;" id="Indexer310" transform="translate(184.6796875,376.5)"><rect rx="5" ry="5" x="-38.2265625" y="-20.5" width="76.453125" height="41"></rect><g class="label" transform="translate(0,0)"><g transform="translate(-28.2265625,-10.5)"><foreignObject width="56.453125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Indexer1</div></foreignObject></g></g></g><g class="node RouterCLS" style="opacity: 1;" id="Router400" transform="translate(184.6796875,499.40625)"><circle x="-31.40625" y="-20.5" r="31.40625"></circle><g class="label" transform="translate(0,0)"><g transform="translate(-21.40625,-10.5)"><foreignObject width="42.8125" height="21"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; white-space: nowrap;">Router</div></foreignObject></g></g></g></g></g></g></svg>

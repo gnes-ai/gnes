@@ -6,9 +6,9 @@ Essentially, GNES only requires two types of YAML config:
 - GNES-compose YAML
 - Component-wise YAML
 
-All other YAML files, including the docker-compose YAML config and Kubernetes config generated from the [GNES Board](https://board.gnes.ai) or `$ gnes compose` command are not a part of this tutorial. Interested readers are welcome to read their [YAML specification](https://docs.docker.com/compose/compose-file/) respectively.
+All other YAML files, including the docker-compose YAML config and Kubernetes config generated from the [GNES Board](https://board.gnes.ai) or `gnes compose` command are not a part of this tutorial. Interested readers are welcome to read their [YAML specification](https://docs.docker.com/compose/compose-file/) respectively.
 
-## GNES-compose YAML
+## GNES-compose YAML specification
 
 The GNES-compose YAML defines a high-level service topology behind the GNES app. It is designed for simplicity and clarity, allowing the user to quickly get started with GNES. 
 
@@ -37,7 +37,7 @@ In this example, our GNES app is composed of three microservices: `Preprocessor`
 | `networks`| map/dict | network mapping used in Docker-Compose/Swarm mode, default `{gnes-net: {driver: overlay, attachable: true}}` |
 
 
-### The service specification
+### `services` specification
 
 For each service defined in `services`, it accepts the following arguments.
 
@@ -48,7 +48,7 @@ For each service defined in `services`, it accepts the following arguments.
 | `replicas` | int | the number of replica services you want to start, default `1` |
 | `income` | str | choose from `[pull, sub]`. Only applicable when `replicas>1`, where `pull` means competing for the income data and only one replica read the data; `sub` is like a broadcast, all replicas receive the same data, default `pull` |
 
-#### Sequential and parallel services
+### Sequential and parallel services
 
 When specifying `services`, please kindly note the difference between a list and a nested list:
 
@@ -59,6 +59,7 @@ When specifying `services`, please kindly note the difference between a list and
 <tr>
 <td>
    <pre lang="yaml">
+```yaml
 services:
 - name: Preprocessor
   yaml_path: text-prep.yml
@@ -68,6 +69,7 @@ services:
   yaml_path: faiss-indexer.yml
 - name: Indexer
   yaml_path: fulltext-indexer.yml
+```
    </pre>
 </td>
 <td>
@@ -88,16 +90,41 @@ services:
 <tr>
 <td>
 <a href="https://gnes.ai">
-  <img src="img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 2">
+  <img src="img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 1">
   </a>
 </td>
 <td>
 <a href="https://gnes.ai">
-  <img src="img/mermaid-diagram-20190726144822.svg" alt="GNES workflow of example 2">
+  <img src="img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2">
   </a>
 </td>
 </tr>
 </table>
 
+In the parallel mode, two heterogeneous indexers receive the incoming data from the last encoder in a simultaneous manner. This is particular useful when you have multiple heterogeneous models (e.g. VGG and inception, or Faiss indexer and key-value database), you don't want to wait for one after another as their executions are essentially independent.      
+
+You may also scale up the parallel mode by setting `replicas`, e.g.
+
+```yaml
+services:
+- name: Preprocessor
+  yaml_path: text-prep.yml
+- name: Encoder
+  yaml_path: gpt2.yml
+- 
+  - name: Indexer
+    yaml_path: faiss-indexer.yml
+    replicas: 2
+  - name: Indexer
+    yaml_path: fulltext-indexer.yml
+    replicas: 3
+```
+
+which results a topology like the following:
+
+![](img/mermaid-diagram-20190726154922.svg)
 
 
+## What's Next?
+
+The GNES-compose YAML describes a high-level picture of the GNES topology, the detailed specification of each component is defined in `yaml_path` respectively, namely the *component-wise YAML config*. In the next tutorial, you will learn how to write a component-wise YAML config.

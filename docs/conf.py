@@ -54,8 +54,10 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxcontrib.apidoc',
     'sphinxarg.ext',
-    'recommonmark'
+    'recommonmark',
+    'sphinx_markdown_tables',
 ]
+
 
 apidoc_module_dir = '../gnes'
 apidoc_output_dir = 'api'

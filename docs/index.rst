@@ -51,14 +51,14 @@ Highlights
 
 .. toctree::
    :maxdepth: 3
-   :caption: Microservices API
+   :caption: GNES Microservices API
 
    chapter/microservice.rst
 
 
 .. toctree::
    :maxdepth: 3
-   :caption: Module API
+   :caption: GNES Modules
 
    api/gnes
 
@@ -83,11 +83,13 @@ Tutorials
    🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES!
 
 
+Miscs
+-----
+
 .. toctree::
    :maxdepth: 1
+   :caption: Miscs
 
-   chapter/overview.md
-   chapter/yaml-config.md
    chapter/troubleshooting.md
    chapter/protobuf-dev.md
 
