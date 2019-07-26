@@ -101,6 +101,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
                     if dist < self.phash_thresh:
                         flag = 0
                         break
+
             if flag:
                 ret.append((i, h))
 
