@@ -32,6 +32,7 @@ class Router2(RouterService):
         super()._handler_default(msg)
 
 
+@unittest.SkipTest
 class TestStreamgRPC(unittest.TestCase):
 
     def setUp(self):
