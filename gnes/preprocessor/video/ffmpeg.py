@@ -89,27 +89,19 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def duplicate_rm_hash(self,
                           images: List['np.ndarray']) -> List['np.ndarray']:
-        hash_list = []
-        for _ in images:
-            try:
-                hash_list.append(phash_descriptor(_))
-            except Exception:
-                hash_list.append(False)
-                self.logger.info('Broken image: ignored !')
+        hash_list = [phash_descriptor(_) for _ in images]
         ret = []
         for i, h in enumerate(hash_list):
             flag = 1
             if len(ret) >= 1:
                 # only keep images with high phash diff
                 # comparing only last kept 9 pics
-                if h:
-                    for j in range(1, min(len(ret) + 1, 9)):
-                        dist = abs(ret[-j][1] - h)
-                        if dist < self.phash_thresh:
-                            flag = 0
-                            break
-                else:
-                    flag = 0
+                for j in range(1, min(len(ret) + 1, 9)):
+                    dist = abs(ret[-j][1] - h)
+                    if dist < self.phash_thresh:
+                        flag = 0
+                        break
+
             if flag:
                 ret.append((i, h))
 
