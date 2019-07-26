@@ -174,10 +174,10 @@ Before we start, let me first introduce two important concepts serving as the ba
 
 For machine learning engineers and data scientists who are not familiar with the concept of *cloud-native* and *microservice*, one can picture a microservice as an app (on your smartphone). Each app runs independently, and an app may cooperate with other apps to accomplish a task. In GNES, we have four fundamental apps, aka. microservices, they are:
 
-- **Preprocessor**: transforming a real-world object to a list of workable semantic units;
-- **Encoder**: representing a semantic unit with vector representation;
-- **Indexer**: storing the vectors into memory/disk that allows fast-access;
-- **Router**: forwarding messages between microservices: e.g. batching, mapping, reducing.
+- [**Preprocessor**](http://doc.gnes.ai/en/latest/chapter/microservice.html#preprocess): transforming a real-world object to a list of workable semantic units;
+- [**Encoder**](http://doc.gnes.ai/en/latest/chapter/microservice.html#encode): representing a semantic unit with vector representation;
+- [**Indexer**](http://doc.gnes.ai/en/latest/chapter/microservice.html#index): storing the vectors into memory/disk that allows fast-access;
+- [**Router**](http://doc.gnes.ai/en/latest/chapter/microservice.html#route): forwarding messages between microservices: e.g. batching, mapping, reducing.
 
 In GNES, we have implemented dozens of preprocessor, encoder, indexer to process different content forms, such as image, text, video. It is also super easy to plug in your own implementation, which we shall see an example in the sequel.
 
