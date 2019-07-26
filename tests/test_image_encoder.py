@@ -1,12 +1,11 @@
+import copy
 import os
 import unittest
 import zipfile
-import copy
-import numpy as np
 
 from gnes.encoder.image.base import BasePytorchEncoder
+from gnes.preprocessor.base import BaseUnaryPreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
-from gnes.preprocessor.base import BaseSingletonPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
 
@@ -20,7 +19,7 @@ def img_process_for_test(dirname):
         test_img.append(d)
 
     test_img_all_preprocessor = []
-    for preprocessor in [BaseSingletonPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
+    for preprocessor in [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
                          VanillaSlidingPreprocessor()]:
         test_img_copy = copy.deepcopy(test_img)
         for img in test_img_copy:

@@ -292,7 +292,7 @@ class YamlComposer:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef FrontendCLS fill:#ffb347,stroke:#277CE8,stroke-width:1px,stroke-dasharray:5;',
+        style = ['classDef gRPCFrontendCLS fill:#FFAA04,stroke:#277CE8,stroke-width:1px;',
                  'classDef EncoderCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
                  'classDef IndexerCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
                  'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',

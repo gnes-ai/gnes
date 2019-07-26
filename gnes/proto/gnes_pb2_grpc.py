@@ -34,8 +34,8 @@ class GnesRPCStub(object):
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
-    self.RequestStreamCall = channel.stream_unary(
-        '/gnes.GnesRPC/RequestStreamCall',
+    self.StreamCall = channel.stream_stream(
+        '/gnes.GnesRPC/StreamCall',
         request_serializer=gnes__pb2.Request.SerializeToString,
         response_deserializer=gnes__pb2.Response.FromString,
         )
@@ -74,7 +74,7 @@ class GnesRPCServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def RequestStreamCall(self, request_iterator, context):
+  def StreamCall(self, request_iterator, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -104,8 +104,8 @@ def add_GnesRPCServicer_to_server(servicer, server):
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),
-      'RequestStreamCall': grpc.stream_unary_rpc_method_handler(
-          servicer.RequestStreamCall,
+      'StreamCall': grpc.stream_stream_rpc_method_handler(
+          servicer.StreamCall,
           request_deserializer=gnes__pb2.Request.FromString,
           response_serializer=gnes__pb2.Response.SerializeToString,
       ),

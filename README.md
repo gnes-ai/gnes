@@ -144,8 +144,9 @@ pip install gnes[all]
 </table>
 </details>
 
+> 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance. 
 
-Either way, if you see the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
+Either way, if you end up reading the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
 
 <p align="center">
 <a href="https://gnes.ai">
@@ -167,7 +168,7 @@ Either way, if you see the following message after `$ gnes` or `$ docker run gne
 
 ### 🐣 Preliminaries
 
-Before we start, let me first introduce two basic concepts serving as the backbone of GNES: **microservice** and **runtime**. 
+Before we start, let me first introduce two important concepts serving as the backbone of GNES: **microservice** and **runtime**. 
 
 #### Microservice
 

@@ -39,6 +39,7 @@ def register_all_class(cls2file_map: Dict, module_name: str):
         try:
             getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
         except ImportError:
+            # print(e)
             pass
     load_contrib_module()
 

@@ -12,13 +12,13 @@ class TestProto(unittest.TestCase):
 
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
-        self.singleton_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-singleton-image-prep.yml')
+        self.unary_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-unary-image-prep.yml')
         self.slidingwindow_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-vanilla_sldwin-image-prep.yml')
         self.segmentation_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'base-segmentation-image-prep.yml')
 
-    def test_singleton_preprocessor_service_empty(self):
+    def test_unary_preprocessor_service_empty(self):
         args = set_preprocessor_service_parser().parse_args([
-            '--yaml_path', self.singleton_img_pre_yaml
+            '--yaml_path', self.unary_img_pre_yaml
         ])
         with PreprocessorService(args):
             pass
@@ -37,9 +37,9 @@ class TestProto(unittest.TestCase):
         with PreprocessorService(args):
             pass
 
-    def test_singleton_preprocessor_service_echo(self):
+    def test_unary_preprocessor_service_echo(self):
         args = set_preprocessor_service_parser().parse_args([
-            '--yaml_path', self.singleton_img_pre_yaml
+            '--yaml_path', self.unary_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
@@ -94,9 +94,9 @@ class TestProto(unittest.TestCase):
             r = client.recv_message()
             # print(r)
 
-    def test_singleton_preprocessor_service_realdata(self):
+    def test_unary_preprocessor_service_realdata(self):
         args = set_preprocessor_service_parser().parse_args([
-            '--yaml_path', self.singleton_img_pre_yaml
+            '--yaml_path', self.unary_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
@@ -111,7 +111,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:BaseSingletonPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:BaseUnaryPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(d.chunks), 1)
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)

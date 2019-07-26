@@ -207,7 +207,7 @@ service GnesRPC {
     }
     rpc Call (Request) returns (Response) {
     }
-    rpc RequestStreamCall (stream Request) returns (Response) {
+    rpc StreamCall (stream Request) returns (stream Response) {
     }
 }
 

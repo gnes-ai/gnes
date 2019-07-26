@@ -154,6 +154,7 @@ def set_preprocessor_service_parser(parser=None):
         parser = set_base_parser()
     from pkg_resources import resource_stream
     set_loadable_service_parser(parser)
+    parser.get_default('yaml_path').close()
     parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))))
 
@@ -166,6 +167,7 @@ def set_router_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
+    parser.get_default('yaml_path').close()
     parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'router', 'default.yml'))))
 
@@ -180,6 +182,7 @@ def set_indexer_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
+    parser.get_default('yaml_path').close()
     parser.set_defaults(yaml_path=resource_stream(
         'gnes', '/'.join(('resources', 'config', 'indexer', 'default.yml'))))
 
