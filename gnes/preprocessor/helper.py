@@ -23,6 +23,9 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from ..helper import set_logger
+
+logger = set_logger(__name__, True)
 
 def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                      **kwargs) -> List['np.ndarray']:
@@ -72,10 +75,9 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                     cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     frames.append(image)
                 except Exception as e:
-                    # raise e
-                    pass
-
+                    logger.warning("The decoded cv2 image from keyframe buffer is not in BGR format")
         else:
+            logger.error("The image format [%s] is not supported so far!" % image_format)
             raise NotImplementedError
 
     return frames
