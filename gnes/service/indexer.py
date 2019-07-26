@@ -36,7 +36,7 @@ class IndexerService(BS):
         weights = []
 
         for d in msg.request.index.docs:
-            if d.chunks:
+            if len(d.chunks):
                 all_vecs.append(blob2array(d.chunk_embeddings))
                 doc_ids += [d.doc_id] * len(d.chunks)
                 if d.doc_type == 'TEXT':
