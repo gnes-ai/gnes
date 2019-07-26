@@ -39,11 +39,11 @@ class IndexerService(BS):
             if d.chunks:
                 all_vecs.append(blob2array(d.chunk_embeddings))
                 doc_ids += [d.doc_id] * len(d.chunks)
-                if msg.request.index.docs.doc_type == 'TEXT':
+                if d.doc_type == 'TEXT':
                     offsets += [c.offset_1d for c in d.chunks]
-                elif msg.request.index.docs.doc_type == 'IMAGE':
+                elif d.doc_type == 'IMAGE':
                     offsets += [c.offset_nd for c in d.chunks]
-                elif msg.request.index.docs.doc_type == 'VIDEO':
+                elif d.doc_type == 'VIDEO':
                     offsets += [c.offset_1d for c in d.chunks]
                 weights += [c.weight for c in d.chunks]
 
