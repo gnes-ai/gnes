@@ -33,4 +33,7 @@ class BaseMapRouter(BaseRouter):
 class BaseReduceRouter(BaseRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs) -> None:
         merge_routes(msg, accum_msgs)
-        msg.envelope.num_part = 1
+        if len(msg.envelope.num_part) > 1:
+            msg.envelope.num_part.pop()
+        else:
+            self.logger.error('can not reduce the message further, as num_part="%s"' % msg.envelope.num_part)

@@ -97,7 +97,7 @@ def new_envelope(client_id: str,
     evlp.client_id = client_id
     evlp.request_id = request_id
     evlp.part_id = part_id
-    evlp.num_part = num_part
+    evlp.num_part.append(num_part)
     evlp.timeout = timeout
     add_route(evlp, client_id)
     return evlp

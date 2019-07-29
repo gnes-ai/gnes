@@ -74,9 +74,8 @@ When specifying `services`, please kindly note the difference between a list and
 <th>Sequential</th><th>Parallel</th>
 </tr>
 <tr>
-<td>
+<td width="50%">
    <pre lang="yaml">
-```yaml
 services:
 - name: Preprocessor
   yaml_path: text-prep.yml
@@ -86,10 +85,9 @@ services:
   yaml_path: faiss-indexer.yml
 - name: Indexer
   yaml_path: fulltext-indexer.yml
-```
    </pre>
 </td>
-<td>
+<td width="50%">
 <pre lang="yaml">
 services:
 - name: Preprocessor
@@ -105,14 +103,14 @@ services:
 </td>
 </tr>
 <tr>
-<td>
+<td width="50%">
 <a href="https://gnes.ai">
-  <img src="./img/mermaid-diagram-20190726150644.svg" alt="GNES workflow of example 1" height="200px">
+  <img src="./img/mermaid-diagram-20190729105252.svg" alt="GNES workflow of example 1">
   </a>
 </td>
-<td>
+<td width="50%">
 <a href="https://gnes.ai">
-  <img src="./img/mermaid-diagram-20190726150531.svg" alt="GNES workflow of example 2" height="200px">
+  <img src="./img/mermaid-diagram-20190729105330.svg" alt="GNES workflow of example 2">
   </a>
 </td>
 </tr>

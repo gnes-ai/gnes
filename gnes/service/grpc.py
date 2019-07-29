@@ -103,7 +103,7 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
             msg.envelope.request_id = str(uuid.uuid4())
             self.logger.warning('request_id is missing, filled it with a random uuid!')
         msg.envelope.part_id = 1
-        msg.envelope.num_part = 1
+        msg.envelope.num_part.append(1)
         msg.envelope.timeout = 5000
         r = msg.envelope.routes.add()
         r.service = zmq_client.__class__.__name__

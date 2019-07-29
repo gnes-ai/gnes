@@ -27,7 +27,7 @@ class PublishRouter(BaseMapRouter):
         self.num_part = num_part
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
-        msg.envelope.num_part = self.num_part
+        msg.envelope.num_part.append(self.num_part)
         yield msg
 
 
@@ -46,5 +46,5 @@ class DocBatchRouter(BaseMapRouter):
                 _msg.request.index.ClearField('docs')
                 _msg.request.index.docs.extend(b)
                 _msg.envelope.part_id = p_idx
-                _msg.envelope.num_part = num_part
+                _msg.envelope.num_part.append(num_part)
                 yield _msg

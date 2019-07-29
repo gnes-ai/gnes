@@ -58,11 +58,12 @@ class TestProto(unittest.TestCase):
         with RouterService(args), ZmqClient(c_args) as c1, ZmqClient(c_args) as c2:
             msg = gnes_pb2.Message()
             msg.request.index.docs.extend([gnes_pb2.Document() for _ in range(5)])
+            msg.envelope.num_part.append(1)
             c1.send_message(msg)
             r = c1.recv_message()
-            self.assertEqual(r.envelope.num_part, 2)
+            self.assertSequenceEqual(r.envelope.num_part, [1, 2])
             r = c2.recv_message()
-            self.assertEqual(r.envelope.num_part, 2)
+            self.assertSequenceEqual(r.envelope.num_part, [1, 2])
 
     def test_reduce_router(self):
         args = set_router_service_parser().parse_args([
@@ -77,12 +78,12 @@ class TestProto(unittest.TestCase):
         with RouterService(args), ZmqClient(c_args) as c1, ZmqClient(c_args) as c2:
             msg = gnes_pb2.Message()
             msg.request.index.docs.extend([gnes_pb2.Document() for _ in range(5)])
-            msg.envelope.num_part = 3
+            msg.envelope.num_part.extend([1, 3])
             c1.send_message(msg)
             c1.send_message(msg)
             c1.send_message(msg)
             r = c1.recv_message()
-            self.assertEqual(r.envelope.num_part, 1)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
             print(r.envelope.routes)
 
     def test_chunk_reduce_router(self):
@@ -112,7 +113,7 @@ class TestProto(unittest.TestCase):
             s.score_explained = '1-c3'
             s.chunk.doc_id = 1
 
-            msg.envelope.num_part = 2
+            msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
 
             msg.response.search.ClearField('topk_results')
@@ -131,10 +132,9 @@ class TestProto(unittest.TestCase):
             s.score = 0.3
             s.score_explained = '2-c3'
             s.chunk.doc_id = 3
-            msg.envelope.num_part = 2
             c1.send_message(msg)
             r = c1.recv_message()
-            self.assertEqual(r.envelope.num_part, 1)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
             self.assertEqual(len(r.response.search.topk_results), 3)
             self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
             print(r.response.search.topk_results)
@@ -173,7 +173,7 @@ class TestProto(unittest.TestCase):
             s.score = 0.3
             s.chunk.doc_id = 3
 
-            msg.envelope.num_part = 2
+            msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
 
             msg.response.search.ClearField('topk_results')
@@ -194,12 +194,11 @@ class TestProto(unittest.TestCase):
             s.doc.raw_text = 'd3'
 
             msg.response.search.top_k = 5
-            msg.envelope.num_part = 2
             c1.send_message(msg)
             r = c1.recv_message()
 
             print(r.response.search.topk_results)
-            self.assertEqual(r.envelope.num_part, 1)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
             self.assertEqual(len(r.response.search.topk_results), 3)
             self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
 
@@ -216,12 +215,12 @@ class TestProto(unittest.TestCase):
         with RouterService(args), ZmqClient(c_args) as c1:
             msg = gnes_pb2.Message()
             msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2])))
-            msg.envelope.num_part = 3
+            msg.envelope.num_part.extend([1, 3])
             c1.send_message(msg)
             c1.send_message(msg)
             c1.send_message(msg)
             r = c1.recv_message()
-            self.assertEqual(r.envelope.num_part, 1)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
             print(r.envelope.routes)
             self.assertEqual(r.request.search.query.chunk_embeddings.shape, [5, 6])
 
@@ -229,11 +228,100 @@ class TestProto(unittest.TestCase):
                 d = msg.request.index.docs.add()
                 d.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2 * j])))
 
-            msg.envelope.num_part = 3
             c1.send_message(msg)
             c1.send_message(msg)
             c1.send_message(msg)
             r = c1.recv_message()
-            self.assertEqual(r.envelope.num_part, 1)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
             for j in range(1, 4):
                 self.assertEqual(r.request.index.docs[j - 1].chunk_embeddings.shape, [5, 6 * j])
+
+    def test_multimap_multireduce(self):
+        # p1 ->
+        #      p21 ->
+        #              r311
+        #              r312
+        #                   ->  r41
+        #                             -> r5
+        #      p22 ->
+        #              r321
+        #              r322
+        #                   -> r42
+        #                             -> r5
+        #                                       -> client
+        p1 = set_router_service_parser().parse_args([
+            '--yaml_path', self.publish_router_yaml,
+            '--socket_in', str(SocketType.PULL_CONNECT),
+            '--socket_out', str(SocketType.PUB_BIND),
+        ])
+        r5 = set_router_service_parser().parse_args([
+            '--yaml_path', self.reduce_router_yaml,
+            '--socket_in', str(SocketType.PULL_BIND),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+        ])
+        r41 = set_router_service_parser().parse_args([
+            '--yaml_path', self.reduce_router_yaml,
+            '--socket_in', str(SocketType.PULL_BIND),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_out', str(r5.port_in)
+        ])
+        r42 = set_router_service_parser().parse_args([
+            '--yaml_path', self.reduce_router_yaml,
+            '--socket_in', str(SocketType.PULL_BIND),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_out', str(r5.port_in)
+        ])
+        p21 = set_router_service_parser().parse_args([
+            '--yaml_path', self.publish_router_yaml,
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUB_BIND),
+            '--port_in', str(p1.port_out)
+        ])
+        p22 = set_router_service_parser().parse_args([
+            '--yaml_path', self.publish_router_yaml,
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUB_BIND),
+            '--port_in', str(p1.port_out)
+        ])
+        r311 = set_router_service_parser().parse_args([
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_in', str(p21.port_out),
+            '--port_out', str(r41.port_in)
+        ])
+        r312 = set_router_service_parser().parse_args([
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_in', str(p21.port_out),
+            '--port_out', str(r41.port_in)
+        ])
+        r321 = set_router_service_parser().parse_args([
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_in', str(p22.port_out),
+            '--port_out', str(r42.port_in)
+        ])
+        r322 = set_router_service_parser().parse_args([
+            '--socket_in', str(SocketType.SUB_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_in', str(p22.port_out),
+            '--port_out', str(r42.port_in)
+        ])
+
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(r5.port_out),
+            '--port_out', str(p1.port_in),
+            '--socket_in', str(SocketType.PULL_BIND),
+            '--socket_out', str(SocketType.PUSH_BIND),
+        ])
+        with RouterService(p1), RouterService(r5), \
+             RouterService(p21), RouterService(p22), \
+             RouterService(r311), RouterService(r312), RouterService(r321), RouterService(r322), \
+             RouterService(r41), RouterService(r42), \
+             ZmqClient(c_args) as c1:
+            msg = gnes_pb2.Message()
+            msg.envelope.num_part.append(1)
+            c1.send_message(msg)
+            r = c1.recv_message()
+            self.assertSequenceEqual(r.envelope.num_part, [1])
+            print(r.envelope.routes)

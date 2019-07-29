@@ -90,12 +90,14 @@ def set_composer_flask_parser(parser=None):
 
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService
+    import random
     if not parser:
         parser = set_base_parser()
-    parser.add_argument('--port_in', type=int, default=5310,
-                        help='port for input data')
-    parser.add_argument('--port_out', type=int, default=5311,
-                        help='port for output data')
+    min_port, max_port = 49152, 65536
+    parser.add_argument('--port_in', type=int, default=random.randrange(min_port, max_port),
+                        help='port for input data, default a random port between [49152, 65536]')
+    parser.add_argument('--port_out', type=int, default=random.randrange(min_port, max_port),
+                        help='port for output data, default a random port between [49152, 65536]')
     parser.add_argument('--host_in', type=str, default=BaseService.default_host,
                         help='host address for input')
     parser.add_argument('--host_out', type=str, default=BaseService.default_host,
