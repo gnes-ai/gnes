@@ -83,7 +83,7 @@ message Envelope {
 
     // for multi-part message
     uint32 part_id = 3;
-    uint32 num_part = 4;
+    repeated uint32 num_part = 4;
 
     uint32 timeout = 5;
 
