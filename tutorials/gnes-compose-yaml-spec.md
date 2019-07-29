@@ -74,7 +74,7 @@ When specifying `services`, please kindly note the difference between a list and
 <th>Sequential</th><th>Parallel</th>
 </tr>
 <tr>
-<td>
+<td width="50%">
    <pre lang="yaml">
 services:
 - name: Preprocessor
@@ -87,7 +87,7 @@ services:
   yaml_path: fulltext-indexer.yml
    </pre>
 </td>
-<td>
+<td width="50%">
 <pre lang="yaml">
 services:
 - name: Preprocessor
