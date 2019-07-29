@@ -103,12 +103,12 @@ services:
 </td>
 </tr>
 <tr>
-<td>
+<td width="50%">
 <a href="https://gnes.ai">
   <img src="./img/mermaid-diagram-20190729105252.svg" alt="GNES workflow of example 1">
   </a>
 </td>
-<td>
+<td width="50%">
 <a href="https://gnes.ai">
   <img src="./img/mermaid-diagram-20190729105330.svg" alt="GNES workflow of example 2">
   </a>
