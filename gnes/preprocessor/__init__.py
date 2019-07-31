@@ -30,6 +30,7 @@ _cls2file_map = {
     'BaseUnaryPreprocessor': 'base',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
+    'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
 }
 

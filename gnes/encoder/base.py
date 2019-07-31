@@ -38,6 +38,12 @@ class BaseImageEncoder(BaseEncoder):
         pass
 
 
+class BaseVideoEncoder(BaseEncoder):
+
+    def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+        pass
+
+
 class BaseTextEncoder(BaseEncoder):
 
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
