@@ -110,13 +110,12 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
 class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def __init__(self,
-                 frame_size: str = "299*299",
-                 segment_method: str = 'uniform',
+                 segment_method: str = 'cut_by_frame',
                  segment_interval: int = -1,
+                 segment_num: int = 3,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self.frame_size = frame_size
         self.segment_method = segment_method
         self.segment_interval = segment_interval
         self._ffmpeg_kwargs = kwargs
@@ -124,26 +123,33 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
         if doc.raw_bytes:
-            frames = get_video_frames(
-                doc.raw_bytes,
-                s=self.frame_size,
-                vsync=self._ffmpeg_kwargs.get("vsync", "vfr"),
-                vf=self._ffmpeg_kwargs.get("vf", "select=eq(pict_type\\,I)"))
+            frames = get_video_frames(doc.raw_bytes, **kwargs)
 
             sub_videos = []
             if len(frames) >= 1:
-                if self.segment_method == 'uniform':
+                # cut by frame: should specify how many frames to cut
+                if self.segment_method == 'cut_by_frame':
                     if self.segment_interval == -1:
                         sub_videos = [frames]
                     else:
                         sub_videos = [frames[_: _+self.segment_interval]
                                       for _ in range(0, len(frames), self.segment_interval)]
-                    for ci, chunk in enumerate(sub_videos):
-                        c = doc.chunks.add()
-                        c.doc_id = doc.doc_id
-                        c.blob.CopyFrom(array2blob(np.array(chunk, dtype=np.uint8)))
-                        c.offset_1d = ci
-                        c.weight = 1 / len(sub_videos)
+                # cut by num: should specify how many chunks for each doc
+                elif self.segment_method == 'cut_by_num':
+                    if self.segment_num >= 2:
+                        _interval = int(len(frames)/self.segment_num)
+                        sub_videos = [frames[_: _+_interval]
+                                      for _ in range(0, len(frames), _interval)]
+                    else:
+                        sub_videos = [frames]
+
+                for ci, c hunk in enumerate(sub_videos):
+                    c = doc.chunks.add()
+                    c.doc_id = doc.doc_id
+                    c.blob.CopyFrom(array2blob(np.array(chunk, dtype=np.uint8)))
+                    c.offset_1d = ci
+                    c.weight = 1 / len(sub_videos)
+
             else:
                 self.logger.info('bad document: no key frames extracted')
         else:

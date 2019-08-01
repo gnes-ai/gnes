@@ -27,6 +27,7 @@ from ..helper import set_logger
 
 logger = set_logger(__name__, True)
 
+
 def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                      **kwargs) -> List['np.ndarray']:
     ffmpeg_cmd = ['ffmpeg', '-i', '-', '-f', 'image2pipe']
