@@ -48,8 +48,8 @@ def get_first_available_gpu():
     try:
         import GPUtil
         r = GPUtil.getAvailable(order='random',
-                                maxMemory=0.1,
-                                maxLoad=0.1,
+                                maxMemory=0.5,
+                                maxLoad=0.5,
                                 limit=1)
         if r:
             return r[0]
