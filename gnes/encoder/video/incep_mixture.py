@@ -106,8 +106,8 @@ class IncepMixtureEncoder(BaseImageEncoder):
     def encode(self, videos: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
         v_len = [len(v) for v in videos]
-        pos_start = [0] + [sum(v_len[:i]) for i in range(1, len(v_len)-1)]
-        pos_end = [sum(v_len[:i]) for i in range(len(v_len))]
+        pos_start = [0] + [sum(v_len[:i+1]) for i in range(len(v_len)-1)]
+        pos_end = [sum(v_len[:i+1]) for i in range(len(v_len))]
         max_len = min(max(v_len), self.max_frames)
 
         img = [im for v in videos for im in v]
