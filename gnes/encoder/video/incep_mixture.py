@@ -107,7 +107,7 @@ class IncepMixtureEncoder(BaseImageEncoder):
         ret = []
         v_len = [len(v) for v in videos]
         pos_start = [0] + [sum(v_len[:i]) for i in range(1, len(v_len)-1)]
-        pos_end = [sum(v_len[:i]) for i in range(1, len(v_len))]
+        pos_end = [sum(v_len[:i]) for i in range(len(v_len))]
         max_len = min(max(v_len), self.max_frames)
 
         img = [im for v in videos for im in v]
