@@ -37,6 +37,8 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     #    (-vsync, vfr)
     #    (-vf, select=eq(pict_type\,I))
     for k, v in kwargs.items():
+        if type(v) in [int, float]:
+            v = str(v)
         ffmpeg_cmd.append('-' + k)
         ffmpeg_cmd.append(v)
 
