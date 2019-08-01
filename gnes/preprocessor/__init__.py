@@ -32,6 +32,7 @@ _cls2file_map = {
     'ResizeChunkPreprocessor': 'image.resize',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
+    'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
 }
 
