@@ -28,7 +28,7 @@ import ruamel.yaml.constructor
 
 from ..helper import set_logger, profiling, yaml, parse_arg, load_contrib_module
 
-__all__ = ['TrainableBase']
+__all__ = ['TrainableBase', 'CompositionalTrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
 

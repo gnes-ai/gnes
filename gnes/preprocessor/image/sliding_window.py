@@ -29,13 +29,11 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
     def __init__(self, window_size: int = 64,
                  stride_height: int = 64,
                  stride_wide: int = 64,
-                 target_img_size: int = 224,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.window_size = window_size
         self.stride_height = stride_height
         self.stride_wide = stride_wide
-        self.target_img_size = target_img_size
 
     def apply(self, doc: 'gnes_pb2.Document'):
         super().apply(doc)
