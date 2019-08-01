@@ -110,7 +110,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
 class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def __init__(self,
-                 frame_size: str = "192*168",
+                 frame_size: str = "299*299",
                  segment_method: str = 'uniform',
                  segment_interval: int = -1,
                  *args,
