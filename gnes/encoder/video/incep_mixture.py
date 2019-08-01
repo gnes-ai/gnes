@@ -103,14 +103,14 @@ class IncepMixtureEncoder(BaseVideoEncoder):
             saver.restore(self.sess2, self.model_dir_mixture)
 
     @batching
-    def encode(self, videos: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
-        v_len = [len(v) for v in videos]
+        v_len = [len(v) for v in data]
         pos_start = [0] + [sum(v_len[:i+1]) for i in range(len(v_len)-1)]
         pos_end = [sum(v_len[:i+1]) for i in range(len(v_len))]
         max_len = min(max(v_len), self.max_frames)
 
-        img = [im for v in videos for im in v]
+        img = [im for v in data for im in v]
         img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
                                                      self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
                in img]
