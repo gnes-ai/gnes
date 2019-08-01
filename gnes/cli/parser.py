@@ -54,7 +54,6 @@ def set_composer_parser(parser=None):
                             'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
-                        default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
     parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the shell-based starting script')

@@ -292,11 +292,11 @@ class YamlComposer:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef gRPCFrontendCLS fill:#FFAA04,stroke:#277CE8,stroke-width:1px;',
-                 'classDef EncoderCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
-                 'classDef IndexerCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
-                 'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',
-                 'classDef PreprocessorCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;']
+        style = ['classDef gRPCFrontendCLS fill:#FFE0E0,stroke:#FFE0E0,stroke-width:1px;',
+                 'classDef EncoderCLS fill:#FFDAAF,stroke:#FFDAAF,stroke-width:1px;',
+                 'classDef IndexerCLS fill:#FFFBC1,stroke:#FFFBC1,stroke-width:1px;',
+                 'classDef RouterCLS fill:#C9E8D2,stroke:#C9E8D2,stroke-width:1px;',
+                 'classDef PreprocessorCLS fill:#CEEEEF,stroke:#CEEEEF,stroke-width:1px;']
         class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
         mermaid_str = '\n'.join(
             ['graph %s' % ('LR' if mermaid_leftright else 'TD')] + mermaid_graph + style + class_def)

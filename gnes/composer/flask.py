@@ -12,8 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-import tempfile
+import io
 
 from .base import YamlComposer
 from ..cli.parser import set_composer_parser
@@ -37,23 +36,25 @@ class YamlComposerFlask:
 
         # support up to 10 concurrent HTTP requests
         app = Flask(__name__)
+        args = set_composer_parser().parse_args([])
+        default_html = YamlComposer(args).build_all()['html']
 
         @app.route('/', methods=['GET'])
         def _get_homepage():
-            return YamlComposer(set_composer_parser().parse_args([])).build_all()['html']
+            return default_html
 
         @app.route('/generate', methods=['POST'])
         def _regenerate():
             data = request.form if request.form else request.json
             if not data or 'yaml-config' not in data:
                 return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
-            f = tempfile.NamedTemporaryFile('w', delete=False).name
-            with open(f, 'w', encoding='utf8') as fp:
-                fp.write(data['yaml-config'])
             try:
-                return YamlComposer(set_composer_parser().parse_args([
-                    '--yaml_path', f
-                ])).build_all()['html']
+                args.yaml_path = io.StringIO(data['yaml-config'])
+                if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
+                    args.mermaid_leftright = True
+                if 'docker-image' in data:
+                    args.docker_img = data['docker-image']
+                return YamlComposer(args).build_all()['html']
             except Exception as e:
                 self.logger.error(e)
                 return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
