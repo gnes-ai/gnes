@@ -123,7 +123,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
         if doc.raw_bytes:
-            frames = get_video_frames(doc.raw_bytes, **kwargs)
+            frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
 
             sub_videos = []
             if len(frames) >= 1:
@@ -143,7 +143,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                     else:
                         sub_videos = [frames]
 
-                for ci, c hunk in enumerate(sub_videos):
+                for ci, chunk in enumerate(sub_videos):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
                     c.blob.CopyFrom(array2blob(np.array(chunk, dtype=np.uint8)))
