@@ -18,11 +18,11 @@ from typing import List
 import numpy as np
 from PIL import Image
 
-from gnes.encoder.base import BaseImageEncoder
-from gnes.helper import batching, batch_iterator, get_first_available_gpu
+from ..base import BaseVideoEncoder
+from ...helper import batching, batch_iterator, get_first_available_gpu
 
 
-class IncepMixtureEncoder(BaseImageEncoder):
+class IncepMixtureEncoder(BaseVideoEncoder):
 
     def __init__(self, model_dir_inception: str,
                  model_dir_mixture: str,
@@ -57,9 +57,9 @@ class IncepMixtureEncoder(BaseImageEncoder):
 
     def post_init(self):
         import tensorflow as tf
-        from gnes.encoder.image.inception_cores.inception_v4 import inception_v4
-        from gnes.encoder.image.inception_cores.inception_utils import inception_arg_scope
-        from gnes.encoder.video.mixture_core.model import NetFV
+        from ..image.inception_cores.inception_v4 import inception_v4
+        from ..image.inception_cores.inception_utils import inception_arg_scope
+        from .mixture_core.model import NetFV
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
 
