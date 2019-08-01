@@ -21,7 +21,7 @@ import random
 import numpy as np
 from PIL import Image
 
-from ..base import TrainableBase
+from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, array2blob
 
 
@@ -36,6 +36,22 @@ class BasePreprocessor(TrainableBase):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         doc.doc_id = self.start_doc_id if not self.random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
         doc.doc_type = self.doc_type
+
+
+class PipelinePreprocessor(CompositionalTrainableBase):
+    def apply(self, doc: 'gnes_pb2.Document') -> None:
+        if not self.component:
+            raise NotImplementedError
+        for be in self.component:
+            be.apply(doc)
+
+    def train(self, data, *args, **kwargs):
+        if not self.component:
+            raise NotImplementedError
+        for idx, be in enumerate(self.component):
+            be.train(data, *args, **kwargs)
+            if idx + 1 < len(self.component):
+                data = be.apply(data, *args, **kwargs)
 
 
 class BaseUnaryPreprocessor(BasePreprocessor):
