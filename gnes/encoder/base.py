@@ -40,7 +40,7 @@ class BaseImageEncoder(BaseEncoder):
 
 class BaseVideoEncoder(BaseEncoder):
 
-    def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+    def encode(self, videos: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         pass
 
 
