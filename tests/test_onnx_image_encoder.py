@@ -4,7 +4,7 @@ import unittest
 import zipfile
 
 from gnes.encoder.image.onnx import BaseONNXImageEncoder
-from gnes.preprocessor.base import BaseUnaryPreprocessor
+from gnes.preprocessor.base import BaseUnaryPreprocessor, PipelinePreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
