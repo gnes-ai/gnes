@@ -295,7 +295,7 @@ class TrainableBase(metaclass=TrainableType):
             if stop_on_import_error:
                 raise RuntimeError('Cannot import module, pip install may required') from ex
 
-        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+        if node.tag in {'!PipelineEncoder', '!CompositionalTrainableBase'}:
             os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '0'
 
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
@@ -325,7 +325,7 @@ class TrainableBase(metaclass=TrainableType):
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
 
-        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+        if node.tag in {'!PipelineEncoder', '!CompositionalTrainableBase'}:
             os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
 
         return obj, data, load_from_dump
