@@ -85,7 +85,8 @@ class TrainableType(type):
 
         obj = type.__call__(cls, *args, **kwargs)
 
-        # set attribute
+        # set attribute with priority
+        # gnes_config in YAML > class attribute > default_gnes_config
         for k, v in TrainableType.default_gnes_config.items():
             if k in gnes_config:
                 v = gnes_config[k]
@@ -163,7 +164,6 @@ class TrainableBase(metaclass=TrainableType):
     store_args_kwargs = False
 
     def __init__(self, *args, **kwargs):
-        self.is_trained = False
         self.verbose = 'verbose' in kwargs and kwargs['verbose']
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         self._post_init_vars = set()

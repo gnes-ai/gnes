@@ -23,6 +23,8 @@ from ...helper import batching, train_required
 
 
 class HashEncoder(BaseNumericEncoder):
+    batch_size = 2048
+
     def __init__(self, num_bytes: int,
                  num_bits: int = 8,
                  num_idx: int = 3,
@@ -105,7 +107,7 @@ class HashEncoder(BaseNumericEncoder):
             return np.concatenate(ret, axis=1).astype(np.uint32)
 
     @train_required
-    @batching(batch_size=2048)
+    @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         if vecs.shape[1] != self.vec_dim:
             raise ValueError('input dimension error')

@@ -23,6 +23,8 @@ from ...helper import batching, train_required
 
 
 class PQEncoder(BaseBinaryEncoder):
+    batch_size = 2048
+
     def __init__(self, num_bytes: int, cluster_per_byte: int = 255, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
@@ -49,7 +51,7 @@ class PQEncoder(BaseBinaryEncoder):
                                                 dim_per_byte])
 
     @train_required
-    @batching(batch_size=2048)
+    @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         dim_per_byte = self._get_dim_per_byte(vecs)
 
