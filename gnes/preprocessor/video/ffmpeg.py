@@ -25,14 +25,12 @@ from ...proto import gnes_pb2, array2blob
 class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
-                 frame_size: str = '192*168',
                  duplicate_rm: bool = True,
                  use_phash_weight: bool = False,
                  phash_thresh: int = 5,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self.frame_size = frame_size
         self.phash_thresh = phash_thresh
         self.duplicate_rm = duplicate_rm
         self.use_phash_weight = use_phash_weight
@@ -45,11 +43,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         # video could't be processed from ndarray!
         # only bytes can be passed into ffmpeg pipeline
         if doc.raw_bytes:
-            frames = get_video_frames(
-                doc.raw_bytes,
-                s=self.frame_size,
-                vsync=self._ffmpeg_kwargs.get('vsync', 'vfr'),
-                vf=self._ffmpeg_kwargs.get('vf', 'select=eq(pict_type\\,I)'))
+            frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
 
             # remove dupliated key frames by phash value
             if self.duplicate_rm:
