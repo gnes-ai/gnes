@@ -160,7 +160,7 @@ class YamlComposer:
 
         # gRPCfrontend should always on the bind role
         assert all_layers[0].is_single_component
-        assert all_layers[0].components[0].name == 'gRPCFrontend'
+        assert all_layers[0].components[0]['name'] == 'gRPCFrontend'
 
         if all_layers[0].components[0]['socket_in'] == str(SocketType.SUB_CONNECT):
             # change to sub bind
@@ -173,7 +173,7 @@ class YamlComposer:
             all_layers[0].components[0]['socket_in'] = str(SocketType.PULL_BIND)
             for c in all_layers[-1].components:
                 c['socket_out'] = str(SocketType.PUSH_CONNECT)
-         
+
         return all_layers
 
     @staticmethod
