@@ -22,13 +22,13 @@ import pickle
 import tempfile
 import uuid
 from functools import wraps
-from typing import Dict, Any, Union, TextIO, TypeVar, Type
+from typing import Dict, Any, Union, TextIO, TypeVar, Type, List, Callable
 
 import ruamel.yaml.constructor
 
 from ..helper import set_logger, profiling, yaml, parse_arg, load_contrib_module
 
-__all__ = ['TrainableBase']
+__all__ = ['TrainableBase', 'CompositionalTrainableBase']
 
 T = TypeVar('T', bound='TrainableBase')
 
@@ -295,7 +295,7 @@ class TrainableBase(metaclass=TrainableType):
             if stop_on_import_error:
                 raise RuntimeError('Cannot import module, pip install may required') from ex
 
-        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+        if node.tag in {'!PipelineEncoder', '!CompositionalTrainableBase'}:
             os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '0'
 
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
@@ -325,7 +325,7 @@ class TrainableBase(metaclass=TrainableType):
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
 
-        if node.tag in {'!PipelineEncoder', '!CompositionalEncoder'}:
+        if node.tag in {'!PipelineEncoder', '!CompositionalTrainableBase'}:
             os.environ['GNES_WARN_UNNAMED_COMPONENT'] = '1'
 
         return obj, data, load_from_dump
@@ -355,3 +355,69 @@ class TrainableBase(metaclass=TrainableType):
         if p:
             r['gnes_config'] = p
         return r
+
+    def _copy_from(self, x: 'TrainableBase') -> None:
+        pass
+
+
+class CompositionalTrainableBase(TrainableBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._component = None  # type: List[T]
+
+    @property
+    def component(self) -> Union[List[T], Dict[str, T]]:
+        return self._component
+
+    @property
+    def is_pipeline(self):
+        return isinstance(self.component, list)
+
+    @component.setter
+    def component(self, comps: Callable[[], Union[list, dict]]):
+        if not callable(comps):
+            raise TypeError('component must be a callable function that returns '
+                            'a List[BaseEncoder]')
+        if not getattr(self, 'init_from_yaml', False):
+            self._component = comps()
+        else:
+            self.logger.info('component is omitted from construction, '
+                             'as it is initialized from yaml config')
+
+    def close(self):
+        super().close()
+        # pipeline
+        if isinstance(self.component, list):
+            for be in self.component:
+                be.close()
+        # no typology
+        elif isinstance(self.component, dict):
+            for be in self.component.values():
+                be.close()
+        elif self.component is None:
+            pass
+        else:
+            raise TypeError('component must be dict or list, received %s' % type(self.component))
+
+    def _copy_from(self, x: T):
+        if isinstance(self.component, list):
+            for be1, be2 in zip(self.component, x.component):
+                be1._copy_from(be2)
+        elif isinstance(self.component, dict):
+            for k, v in self.component.items():
+                v._copy_from(x.component[k])
+        else:
+            raise TypeError('component must be dict or list, received %s' % type(self.component))
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        tmp = super()._dump_instance_to_yaml(data)
+        tmp['component'] = data.component
+        return representer.represent_mapping('!' + cls.__name__, tmp)
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        obj, data, from_dump = super()._get_instance_from_yaml(constructor, node)
+        if not from_dump and 'component' in data:
+            obj.component = lambda: data['component']
+        return obj

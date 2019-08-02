@@ -194,6 +194,7 @@ class ColoredFormatter(Formatter):
         'WARNING': dict(color='red', on_color='on_yellow'),  # yellow
         'ERROR': dict(color='white', on_color='on_red'),  # 31 for red
         'CRITICAL': dict(color='red', on_color='on_white'),  # white on red bg
+        'SUCCESS': dict(color='white', on_color='on_green'),  # green
     }
 
     PREFIX = '\033['
@@ -535,4 +536,3 @@ default_logger = set_logger('GNES')
 profiling = time_profile
 
 yaml = _get_yaml()
-

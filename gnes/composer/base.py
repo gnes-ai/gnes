@@ -156,10 +156,24 @@ class YamlComposer:
             last_layer = self._layers[idx - 1]
             for l in self._add_router(last_layer, layer):
                 all_layers.append(copy.deepcopy(l))
-        # # add frontend
-        # for l in self._add_router(all_layers[-1], all_layers[0]):
-        #     all_layers.append(copy.deepcopy(l))
         all_layers[0] = copy.deepcopy(self._layers[0])
+
+        # gRPCfrontend should always on the bind role
+        assert all_layers[0].is_single_component
+        assert all_layers[0].components[0]['name'] == 'gRPCFrontend'
+
+        if all_layers[0].components[0]['socket_in'] == str(SocketType.SUB_CONNECT):
+            # change to sub bind
+            all_layers[0].components[0]['socket_in'] = str(SocketType.SUB_BIND)
+            for c in all_layers[-1].components:
+                c['socket_out'] = str(SocketType.PUB_CONNECT)
+
+        if all_layers[0].components[0]['socket_in'] == str(SocketType.PULL_CONNECT):
+            # change to sub bind
+            all_layers[0].components[0]['socket_in'] = str(SocketType.PULL_BIND)
+            for c in all_layers[-1].components:
+                c['socket_out'] = str(SocketType.PUSH_CONNECT)
+
         return all_layers
 
     @staticmethod
@@ -292,11 +306,11 @@ class YamlComposer:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef gRPCFrontendCLS fill:#FFAA04,stroke:#277CE8,stroke-width:1px;',
-                 'classDef EncoderCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
-                 'classDef IndexerCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;',
-                 'classDef RouterCLS fill:#2BFFCB,stroke:#277CE8,stroke-width:1px;',
-                 'classDef PreprocessorCLS fill:#27E1E8,stroke:#277CE8,stroke-width:1px;']
+        style = ['classDef gRPCFrontendCLS fill:#FFE0E0,stroke:#FFE0E0,stroke-width:1px;',
+                 'classDef EncoderCLS fill:#FFDAAF,stroke:#FFDAAF,stroke-width:1px;',
+                 'classDef IndexerCLS fill:#FFFBC1,stroke:#FFFBC1,stroke-width:1px;',
+                 'classDef RouterCLS fill:#C9E8D2,stroke:#C9E8D2,stroke-width:1px;',
+                 'classDef PreprocessorCLS fill:#CEEEEF,stroke:#CEEEEF,stroke-width:1px;']
         class_def = ['class %s %s;' % (','.join(v), k) for k, v in cls_dict.items()]
         mermaid_str = '\n'.join(
             ['graph %s' % ('LR' if mermaid_leftright else 'TD')] + mermaid_graph + style + class_def)

@@ -54,7 +54,6 @@ def set_composer_parser(parser=None):
                             'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
-                        default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
     parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the shell-based starting script')
@@ -214,10 +213,11 @@ def set_grpc_frontend_parser(parser=None):
     from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
-    _set_client_parser(parser)
+    set_service_parser(parser)
     _set_grpc_parser(parser)
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUSH_BIND)
+                        socket_out=SocketType.PUSH_BIND,
+                        read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent client allowed')
     parser.add_argument('--max_send_size', type=int, default=100,
