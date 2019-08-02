@@ -19,20 +19,19 @@ import numpy as np
 from PIL import Image
 
 from ..base import BaseImageEncoder
-from ...helper import batching, batch_iterator, get_first_available_gpu
+from ...helper import batching, get_first_available_gpu
 
 
 class TFInceptionEncoder(BaseImageEncoder):
+    batch_size = 64
 
     def __init__(self, model_dir: str,
-                 batch_size: int = 64,
                  select_layer: str = 'PreLogitsFlatten',
                  use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
-        self.batch_size = batch_size
         self.select_layer = select_layer
         self._use_cuda = use_cuda
         self.inception_size_x = 299
@@ -64,14 +63,15 @@ class TFInceptionEncoder(BaseImageEncoder):
             self.saver = tf.train.Saver()
             self.saver.restore(self.sess, self.model_dir)
 
-    @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
-        ret = []
         img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
                                                      self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
                in img]
-        for _im in batch_iterator(img, self.batch_size):
+
+        @batching
+        def _encode(_, data):
             _, end_points_ = self.sess.run((self.logits, self.end_points),
-                                           feed_dict={self.inputs: _im})
-            ret.append(end_points_[self.select_layer])
-        return np.concatenate(ret, axis=0).astype(np.float32)
+                                           feed_dict={self.inputs: data})
+            return end_points_[self.select_layer]
+
+        return _encode(None, img).astype(np.float32)

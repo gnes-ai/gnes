@@ -19,14 +19,14 @@ import numpy as np
 from PIL import Image
 
 from ..base import BaseVideoEncoder
-from ...helper import batching, batch_iterator, get_first_available_gpu
+from ...helper import batching, get_first_available_gpu
 
 
 class IncepMixtureEncoder(BaseVideoEncoder):
+    batch_size = 64
 
     def __init__(self, model_dir_inception: str,
                  model_dir_mixture: str,
-                 batch_size: int = 64,
                  select_layer: str = 'PreLogitsFlatten',
                  use_cuda: bool = False,
                  feature_size: int = 300,
@@ -41,7 +41,6 @@ class IncepMixtureEncoder(BaseVideoEncoder):
         super().__init__(*args, **kwargs)
         self.model_dir_inception = model_dir_inception
         self.model_dir_mixture = model_dir_mixture
-        self.batch_size = batch_size
         self.select_layer = select_layer
         self.use_cuda = use_cuda
         self.cluster_size = cluster_size
@@ -102,31 +101,33 @@ class IncepMixtureEncoder(BaseVideoEncoder):
             self.sess2.run(tf.global_variables_initializer())
             saver.restore(self.sess2, self.model_dir_mixture)
 
-    @batching
     def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         ret = []
         v_len = [len(v) for v in data]
-        pos_start = [0] + [sum(v_len[:i+1]) for i in range(len(v_len)-1)]
-        pos_end = [sum(v_len[:i+1]) for i in range(len(v_len))]
+        pos_start = [0] + [sum(v_len[:i + 1]) for i in range(len(v_len) - 1)]
+        pos_end = [sum(v_len[:i + 1]) for i in range(len(v_len))]
         max_len = min(max(v_len), self.max_frames)
 
         img = [im for v in data for im in v]
         img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
                                                      self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
                in img]
-        for _im in batch_iterator(img, self.batch_size):
+
+        @batching(concat_axis=None)
+        def _encode1(_, data):
             _, end_points_ = self.sess.run((self.logits, self.end_points),
-                                           feed_dict={self.inputs: _im})
-            ret.append(end_points_[self.select_layer])
-        v = [_ for vi in ret for _ in vi]
+                                           feed_dict={self.inputs: data})
+            return end_points_[self.select_layer]
+
+        v = [_ for vi in _encode1(None, img) for _ in vi]
 
         v_input = [v[s:e] for s, e in zip(pos_start, pos_end)]
-        v_input = [(vi + [[0.0]*self.input_size]*(max_len-len(vi)))[:max_len] for vi in v_input]
+        v_input = [(vi + [[0.0] * self.input_size] * (max_len - len(vi)))[:max_len] for vi in v_input]
         v_input = [np.array(vi, dtype=np.float32) for vi in v_input]
 
-        ret = []
-        for _vi in batch_iterator(v_input, self.batch_size):
-            repre = self.sess2.run(self.mix_model.repre,
-                                   feed_dict={self.mix_model.feeds: v_input})
-            ret.append(repre)
-        return np.concatenate(ret, axis=1).astype(np.float32)
+        @batching
+        def _encode2(_, data):
+            return self.sess2.run(self.mix_model.repre,
+                                  feed_dict={self.mix_model.feeds: data})
+
+        return _encode2(None, v_input).astype(np.float32)

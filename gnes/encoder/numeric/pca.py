@@ -23,6 +23,8 @@ from ...helper import get_perm, batching, get_optimal_sample_size, train_require
 
 
 class PCALocalEncoder(BaseNumericEncoder):
+    batch_size = 2048
+
     def __init__(self, output_dim: int, num_locals: int,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,7 +34,6 @@ class PCALocalEncoder(BaseNumericEncoder):
         self.num_locals = num_locals
         self.pca_components = None
         self.mean = None
-        self.batch_size = 2048
 
     @batching(batch_size=get_optimal_sample_size, num_batch=1)
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:

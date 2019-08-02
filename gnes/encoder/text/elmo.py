@@ -26,14 +26,14 @@ from ...helper import batching, pooling_np
 
 class ElmoEncoder(BaseTextEncoder):
     is_trained = True
+    batch_size = 64
 
-    def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
+    def __init__(self, model_dir: str, pooling_layer: int = -1,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
 
-        self.batch_size = batch_size
         if pooling_layer > 2:
             raise ValueError('pooling_layer = %d is not supported now!' %
                              pooling_layer)

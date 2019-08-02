@@ -32,9 +32,6 @@ class PublishRouter(BaseMapRouter):
 
 
 class DocBatchRouter(BaseMapRouter):
-    def __init__(self, batch_size: int, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.batch_size = batch_size
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         if self.batch_size and self.batch_size > 0:

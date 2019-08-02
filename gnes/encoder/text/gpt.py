@@ -26,10 +26,10 @@ from ...helper import batching, pooling_torch
 
 class GPTEncoder(BaseTextEncoder):
     is_trained = True
+    batch_size = 64
 
     def __init__(self,
                  model_dir: str,
-                 batch_size: int = 64,
                  use_cuda: bool = False,
                  pooling_strategy: str = 'REDUCE_MEAN',
                  *args,
@@ -37,7 +37,6 @@ class GPTEncoder(BaseTextEncoder):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
-        self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
         self._use_cuda = use_cuda
 

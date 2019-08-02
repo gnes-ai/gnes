@@ -28,13 +28,10 @@ class FlairEncoder(BaseTextEncoder):
     is_trained = True
 
     def __init__(self, model_name: str = 'multi-forward-fast',
-                 batch_size: int = 64,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_name = model_name
-
-        self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
 
     def post_init(self):

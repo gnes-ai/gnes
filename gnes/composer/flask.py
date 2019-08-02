@@ -28,20 +28,18 @@ class YamlComposerFlask:
         try:
             from flask import Flask, request
             from flask_compress import Compress
-            from flask_cors import CORS
         except ImportError:
             raise ImportError('Flask or its dependencies are not fully installed, '
                               'they are required for serving HTTP requests.'
                               'Please use "pip install gnes[http]" to install it.')
 
-        # support up to 10 concurrent HTTP requests
         app = Flask(__name__)
         args = set_composer_parser().parse_args([])
         default_html = YamlComposer(args).build_all()['html']
 
         @app.errorhandler(500)
         def exception_handler(error):
-            self.logger.error('unhandled error, i better quit and restart!')
+            self.logger.error('unhandled error, i better quit and restart! %s' % error)
             return '<h1>500 Internal Error</h1> ' \
                    'While we are fixing the issue, do you know you can deploy GNES board locally on your machine? ' \
                    'Simply run <pre>docker run -d -p 0.0.0.0:80:8080/tcp gnes/gnes compose --flask</pre>', 500
@@ -66,7 +64,6 @@ class YamlComposerFlask:
                 self.logger.error(e)
                 return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
 
-        CORS(app, origins=self.args.cors)
         Compress().init_app(app)
         return app
 
