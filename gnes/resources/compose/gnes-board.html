@@ -123,18 +123,22 @@
         }
     </style>
     <title>GNES Board</title>
-    <meta name="description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content form.">
+    <meta name="description"
+          content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content form.">
     <meta name="author" content="Han Xiao">
-    <meta name="keywords" content="GNES, neual network, deep learning, search, elastic search, cloud-native, kubernetes, docker swarm, docker container, semantic search, bert, vgg, alexnet, resnet, elmo, faiss, annoy">
+    <meta name="keywords"
+          content="GNES, neual network, deep learning, search, elastic search, cloud-native, kubernetes, docker swarm, docker container, semantic search, bert, vgg, alexnet, resnet, elmo, faiss, annoy">
     <meta property="og:type" content="website">
     <meta property="og:title" content="GNES is Generic Neural Elastic Search">
     <meta property="og:site_name" content="GNES is Generic Neural Elastic Search">
-    <meta property="og:description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
+    <meta property="og:description"
+          content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
     <meta property="og:locale" content="default">
     <meta property="og:image" content="https://gnes.ai/img/thumbnail.png">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="GNES is Generic Neural Elastic Search">
-    <meta name="twitter:description" content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
+    <meta name="twitter:description"
+          content="GNES [jee-nes] is a cloud-native semantic search system based on deep neural network. It enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any content">
     <meta name="twitter:image" content="https://gnes.ai/img/thumbnail.png">
     <meta name="twitter:creator" content="@hxiao">
     <link rel="icon" type="image/png" href="https://gnes.ai/favicon.png">
@@ -215,24 +219,35 @@
                     YAML config
                 </div>
                 <div class="card-body">
-                    <form action="/generate" method="post">
+                    <form action="/generate" method="post" class="board-form">
                         <div class="card-title">
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <button type="button" class="btn btn-secondary"
                                         data-clipboard-target="#simple-yaml-config">
                                     Copy
                                 </button>
-                                <input type="submit" class="btn btn-primary" value="Generate">
+                                <button type="submit" class="btn btn-primary">Generate</button>
                             </div>
                         </div>
                         <div class="card-text">
-
-
-                            <div class="form-group">
+                            <div class="form-group row">
                             <textarea name="yaml-config" class="form-control" id="simple-yaml-config" rows="20"
-                                      placeholder="your YAML config here" required autofocus style="font-family: monospace, monospace">
+                                      placeholder="your YAML config here" required autofocus
+                                      style="font-family: monospace, monospace">
 {{gnes-yaml}}
                             </textarea>
+                            </div>
+                            <div class="form-group row">
+                                <label for="mermaid_direction">Rendering direction</label>
+                                <select name="mermaid_direction" class="form-control" id="mermaid_direction">
+                                    <option>Top-down</option>
+                                    <option>Left-right</option>
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label for="docker-image">Docker image</label>
+                                <input name="docker-image" type="text" class="form-control" id="docker-image"
+                                       value="gnes/gnes:latest">
                             </div>
 
                         </div>

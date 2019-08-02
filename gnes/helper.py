@@ -48,8 +48,8 @@ def get_first_available_gpu():
     try:
         import GPUtil
         r = GPUtil.getAvailable(order='random',
-                                maxMemory=0.1,
-                                maxLoad=0.1,
+                                maxMemory=0.5,
+                                maxLoad=0.5,
                                 limit=1)
         if r:
             return r[0]
@@ -194,6 +194,7 @@ class ColoredFormatter(Formatter):
         'WARNING': dict(color='red', on_color='on_yellow'),  # yellow
         'ERROR': dict(color='white', on_color='on_red'),  # 31 for red
         'CRITICAL': dict(color='red', on_color='on_white'),  # white on red bg
+        'SUCCESS': dict(color='white', on_color='on_green'),  # green
     }
 
     PREFIX = '\033['
@@ -374,7 +375,7 @@ def pooling_torch(data_tensor, mask_tensor, pooling_strategy):
 
 def batching(func: Callable[[Any], np.ndarray] = None, *,
              batch_size: Union[int, Callable] = None, num_batch=None,
-             axis: int = 0):
+             iter_axis: int = 0, concat_axis: int = 0):
     def _batching(func):
         @wraps(func)
         def arg_wrapper(self, data, label=None, *args, **kwargs):
@@ -390,9 +391,9 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
             if hasattr(self, 'logger'):
                 self.logger.info(
                     'batching enabled for %s(). batch_size=%s\tnum_batch=%s\taxis=%s' % (
-                        func.__qualname__, b_size, num_batch, axis))
+                        func.__qualname__, b_size, num_batch, iter_axis))
 
-            total_size1 = get_size(data, axis)
+            total_size1 = get_size(data, iter_axis)
             total_size2 = b_size * num_batch if num_batch else None
 
             if total_size1 is not None and total_size2 is not None:
@@ -400,42 +401,25 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
             else:
                 total_size = total_size1 or total_size2
 
-            final_result = None
+            final_result = []
 
-            done_size = 0
             if label is not None:
                 data = (data, label)
-            for b in batch_iterator(data[:total_size], b_size, axis):
+
+            for b in batch_iterator(data[:total_size], b_size, iter_axis):
                 if label is None:
                     r = func(self, b, *args, **kwargs)
                 else:
                     r = func(self, b[0], b[1], *args, **kwargs)
-                if isinstance(r, np.ndarray):
-                    # first result kicks in
-                    if final_result is None:
-                        if total_size is None:
-                            final_result = []
-                        else:
-                            d_shape = list(r.shape)
-                            d_shape[axis] = total_size
-                            final_result = np.zeros(d_shape, dtype=r.dtype)
 
-                    # fill the data into final_result
-                    cur_size = get_size(r)
+                if r is not None:
+                    final_result.append(r)
 
-                    if total_size is None:
-                        final_result.append(r)
-                    else:
-                        final_result[done_size:(done_size + cur_size)] = r
+            if len(final_result) and concat_axis is not None and isinstance(final_result[0], np.ndarray):
+                final_result = np.concatenate(final_result, concat_axis)
 
-                    done_size += cur_size
-
-                    if total_size is not None and done_size >= total_size:
-                        break
-
-            if isinstance(final_result, list):
-                final_result = np.concatenate(final_result, 0)
-            return final_result
+            if len(final_result):
+                return final_result
 
         return arg_wrapper
 
@@ -535,4 +519,3 @@ default_logger = set_logger('GNES')
 profiling = time_profile
 
 yaml = _get_yaml()
-

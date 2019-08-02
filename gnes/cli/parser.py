@@ -54,7 +54,6 @@ def set_composer_parser(parser=None):
                             'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
-                        default='./gnes-board.html',
                         help='output path of the HTML file, will contain all possible generations')
     parser.add_argument('--shell_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the shell-based starting script')
@@ -80,9 +79,7 @@ def set_composer_flask_parser(parser=None):
         parser = set_base_parser()
     set_composer_parser(parser)
     parser.add_argument('--flask', action='store_true', default=False,
-                        help='using Flask to serve GNES composer in interactive mode')
-    parser.add_argument('--cors', type=str, default='*',
-                        help='setting "Access-Control-Allow-Origin" for HTTP requests')
+                        help='using Flask to serve a composer in interactive mode, aka GNES board')
     parser.add_argument('--http_port', type=int, default=8080,
                         help='server port for receiving HTTP requests')
     return parser
@@ -214,10 +211,11 @@ def set_grpc_frontend_parser(parser=None):
     from ..service.base import SocketType
     if not parser:
         parser = set_base_parser()
-    _set_client_parser(parser)
+    set_service_parser(parser)
     _set_grpc_parser(parser)
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
-                        socket_out=SocketType.PUSH_BIND)
+                        socket_out=SocketType.PUSH_BIND,
+                        read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent client allowed')
     parser.add_argument('--max_send_size', type=int, default=100,

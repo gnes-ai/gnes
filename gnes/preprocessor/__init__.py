@@ -20,6 +20,7 @@ from ..base import register_all_class
 
 _cls2file_map = {
     'BasePreprocessor': 'base',
+    'PipelinePreprocessor': 'base',
     'TextPreprocessor': 'text.simple',
     'BaseImagePreprocessor': 'image.base',
     'BaseTextPreprocessor': 'text.base',
@@ -28,8 +29,10 @@ _cls2file_map = {
     'WeightedSlidingPreprocessor': 'image.sliding_window',
     'SegmentPreprocessor': 'image.segmentation',
     'BaseUnaryPreprocessor': 'base',
+    'ResizeChunkPreprocessor': 'image.resize',
     'BaseVideoPreprocessor': 'video.base',
     'FFmpegPreprocessor': 'video.ffmpeg',
+    'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
 }
 

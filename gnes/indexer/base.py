@@ -19,8 +19,7 @@ from typing import List, Any, Union, Callable, Tuple
 
 import numpy as np
 
-from ..base import TrainableBase
-from ..encoder.base import CompositionalEncoder
+from ..base import TrainableBase, CompositionalTrainableBase
 
 
 class BaseIndexer(TrainableBase):
@@ -71,7 +70,7 @@ class BaseKeyIndexer(BaseIndexer):
         pass
 
 
-class JointIndexer(CompositionalEncoder):
+class JointIndexer(CompositionalTrainableBase):
 
     @property
     def component(self):
