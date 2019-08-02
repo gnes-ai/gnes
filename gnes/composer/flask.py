@@ -39,6 +39,13 @@ class YamlComposerFlask:
         args = set_composer_parser().parse_args([])
         default_html = YamlComposer(args).build_all()['html']
 
+        @app.errorhandler(500)
+        def exception_handler(error):
+            self.logger.error('unhandled error, i better quit and restart!')
+            return '<h1>500 Internal Error</h1> ' \
+                   'While we are fixing the issue, do you know you can deploy GNES board locally on your machine? ' \
+                   'Simply run <pre>docker run -d -p 0.0.0.0:80:8080/tcp gnes/gnes compose --flask</pre>', 500
+
         @app.route('/', methods=['GET'])
         def _get_homepage():
             return default_html
