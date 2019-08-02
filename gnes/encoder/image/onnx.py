@@ -23,15 +23,14 @@ from ...helper import batching
 
 
 class BaseONNXImageEncoder(BaseImageEncoder):
+    batch_size = 64
 
     def __init__(self, model_name: str,
                  model_dir: str,
-                 batch_size: int = 64,
                  use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.batch_size = batch_size
         self.model_dir = model_dir
         self.model_name = model_name
         self._use_cuda = use_cuda
