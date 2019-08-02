@@ -13,8 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-from typing import List, Callable
+from typing import List
 
 import numpy as np
 
@@ -54,7 +53,7 @@ class BaseONNXImageEncoder(BaseImageEncoder):
         pad_batch = 0
         if len(img) != self.input_shape[0]:
             pad_batch = self.input_shape[0] - len(img)
-            for i in range(pad_batch):
+            for _ in range(pad_batch):
                 img.append(np.zeros_like(img[0]))
 
         img_ = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
