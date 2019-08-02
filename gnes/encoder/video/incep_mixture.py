@@ -102,7 +102,6 @@ class IncepMixtureEncoder(BaseVideoEncoder):
             saver.restore(self.sess2, self.model_dir_mixture)
 
     def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
-        ret = []
         v_len = [len(v) for v in data]
         pos_start = [0] + [sum(v_len[:i + 1]) for i in range(len(v_len) - 1)]
         pos_end = [sum(v_len[:i + 1]) for i in range(len(v_len))]
