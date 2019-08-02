@@ -20,7 +20,7 @@ from typing import List
 
 import numpy as np
 
-from ..base import CompositionalEncoder, BaseTextEncoder
+from ..base import CompositionalTrainableBase, BaseTextEncoder
 from ...helper import batching
 
 
@@ -45,7 +45,7 @@ class BertEncoder(BaseTextEncoder):
         self.bc_encoder.close()
 
 
-class BertEncoderWithServer(CompositionalEncoder):
+class BertEncoderWithServer(CompositionalTrainableBase):
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         return self.component['bert_client'].encode(text, *args, **kwargs)
 

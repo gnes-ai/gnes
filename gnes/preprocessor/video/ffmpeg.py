@@ -25,7 +25,7 @@ from ...proto import gnes_pb2, array2blob
 class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
-                 frame_size: str = "192*168",
+                 frame_size: str = '192*168',
                  duplicate_rm: bool = True,
                  use_phash_weight: bool = False,
                  phash_thresh: int = 5,
@@ -48,8 +48,8 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
             frames = get_video_frames(
                 doc.raw_bytes,
                 s=self.frame_size,
-                vsync=self._ffmpeg_kwargs.get("vsync", "vfr"),
-                vf=self._ffmpeg_kwargs.get("vf", "select=eq(pict_type\\,I)"))
+                vsync=self._ffmpeg_kwargs.get('vsync', 'vfr'),
+                vf=self._ffmpeg_kwargs.get('vf', 'select=eq(pict_type\\,I)'))
 
             # remove dupliated key frames by phash value
             if self.duplicate_rm:

@@ -4,13 +4,14 @@ import unittest
 import zipfile
 
 from gnes.encoder.image.base import BasePytorchEncoder
-from gnes.preprocessor.base import BaseUnaryPreprocessor
+from gnes.preprocessor.base import BaseUnaryPreprocessor, PipelinePreprocessor
+from gnes.preprocessor.image.resize import ResizeChunkPreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
 
 def img_process_for_test(dirname):
-    zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'), "r")
+    zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'))
     all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
     test_img = []
     for raw_bytes in all_bytes:
@@ -19,7 +20,10 @@ def img_process_for_test(dirname):
         test_img.append(d)
 
     test_img_all_preprocessor = []
-    for preprocessor in [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
+    pipline_prep1 = PipelinePreprocessor()
+    pipline_prep1.component = lambda: [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
+                                       ResizeChunkPreprocessor()]
+    for preprocessor in [pipline_prep1,
                          VanillaSlidingPreprocessor()]:
         test_img_copy = copy.deepcopy(test_img)
         for img in test_img_copy:

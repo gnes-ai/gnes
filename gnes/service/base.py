@@ -264,7 +264,7 @@ class BaseService(threading.Thread):
             self.is_ready.set()
             self.is_event_loop.set()
             self._start_auto_dump()
-            self.logger.info('ready and listening')
+            self.logger.info(colored('ready and listening', color='white', on_color='on_green'))
             while self.is_event_loop.is_set():
                 pull_sock = None
                 socks = dict(poller.poll())
