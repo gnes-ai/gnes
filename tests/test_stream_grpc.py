@@ -81,7 +81,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--socket_out', str(SocketType.PUSH_CONNECT),
         ])
 
-        with Router1(p1_args), Router2(p2_args), GRPCFrontend(args), grpc.insecure_channel(
+        with GRPCFrontend(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
