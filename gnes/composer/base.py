@@ -156,10 +156,10 @@ class YamlComposer:
             last_layer = self._layers[idx - 1]
             for l in self._add_router(last_layer, layer):
                 all_layers.append(copy.deepcopy(l))
-        # # add frontend
-        # for l in self._add_router(all_layers[-1], all_layers[0]):
-        #     all_layers.append(copy.deepcopy(l))
         all_layers[0] = copy.deepcopy(self._layers[0])
+
+        # gRPCfrontend should always on the bind role
+
         return all_layers
 
     @staticmethod
