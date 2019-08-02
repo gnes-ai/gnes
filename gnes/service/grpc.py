@@ -106,7 +106,7 @@ class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
         msg.envelope.num_part.append(1)
         msg.envelope.timeout = 5000
         r = msg.envelope.routes.add()
-        r.service = zmq_client.__class__.__name__
+        r.service = GRPCFrontend.__name__
         r.timestamp.GetCurrentTime()
         msg.request.CopyFrom(body)
         return msg
@@ -161,4 +161,4 @@ class GRPCFrontend:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        self.server.stop()
