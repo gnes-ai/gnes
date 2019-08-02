@@ -5,9 +5,10 @@ from gnes.encoder.base import BaseEncoder, PipelineEncoder
 
 
 class DummyTFEncoder(BaseEncoder):
+    is_trained = True
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.is_trained = True
 
     def post_init(self):
         import tensorflow as tf

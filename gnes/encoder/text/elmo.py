@@ -25,6 +25,7 @@ from ...helper import batching, pooling_np
 
 
 class ElmoEncoder(BaseTextEncoder):
+    is_trained = True
 
     def __init__(self, model_dir: str, batch_size: int = 64, pooling_layer: int = -1,
                  pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
@@ -38,7 +39,6 @@ class ElmoEncoder(BaseTextEncoder):
                              pooling_layer)
         self.pooling_layer = pooling_layer
         self.pooling_strategy = pooling_strategy
-        self.is_trained = True
 
     def post_init(self):
         from elmoformanylangs import Embedder

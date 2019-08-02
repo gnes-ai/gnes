@@ -35,12 +35,7 @@ class TestCompose(unittest.TestCase):
 
     @unittest.SkipTest
     def test_flask_local(self):
-        yaml_path = os.path.join(self.dirname, 'yaml', 'topology1.yml')
-        args = set_composer_flask_parser().parse_args([
-            '--flask',
-            '--yaml_path', yaml_path,
-            '--html_path', self.html_path
-        ])
+        args = set_composer_flask_parser().parse_args(['--flask'])
         YamlComposerFlask(args).run()
 
     def test_flask(self):

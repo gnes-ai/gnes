@@ -25,6 +25,7 @@ from ...helper import batching, pooling_np
 
 
 class FlairEncoder(BaseTextEncoder):
+    is_trained = True
 
     def __init__(self, model_name: str = 'multi-forward-fast',
                  batch_size: int = 64,
@@ -35,7 +36,6 @@ class FlairEncoder(BaseTextEncoder):
 
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
-        self.is_trained = True
 
     def post_init(self):
         from flair.embeddings import FlairEmbeddings

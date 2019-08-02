@@ -25,6 +25,8 @@ from ...helper import batching, pooling_simple
 
 
 class Word2VecEncoder(BaseTextEncoder):
+    is_trained = True
+
     def __init__(self, model_dir: str,
                  skiprows: int = 1,
                  batch_size: int = 64,
@@ -35,7 +37,6 @@ class Word2VecEncoder(BaseTextEncoder):
         self.skiprows = skiprows
         self.batch_size = batch_size
         self.pooling_strategy = pooling_strategy
-        self.is_trained = True
         self.dimension = dimension
 
     def post_init(self):
