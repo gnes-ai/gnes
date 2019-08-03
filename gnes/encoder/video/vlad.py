@@ -23,12 +23,13 @@ from ...helper import batching, train_required
 
 
 class VladEncoder(BaseNumericEncoder):
+    batch_size = 2048
+
     def __init__(self, num_clusters: int, segment_interval: int = 4, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_clusters = num_clusters
         self.segment_interval = segment_interval
         self.centroids = None
-        self.batch_size = 2048
 
     def kmeans_train(self, data: np.array):
         import faiss
@@ -74,4 +75,3 @@ class VladEncoder(BaseNumericEncoder):
         self.num_clusters = x.num_clusters
         self.segment_interval = x.segment_interval
         self.centroids = x.centroids
-        self.batch_size = x.batch_size
