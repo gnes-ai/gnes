@@ -112,13 +112,15 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def __init__(self,
                  frame_size: str = "299*299",
                  segment_method: str = 'uniform',
-                 segment_interval: int = -1,
+                 segment_interval: int = 4,
+                 chunks_per_doc: int = 5,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_size = frame_size
         self.segment_method = segment_method
         self.segment_interval = segment_interval
+        self.chunks_per_doc = chunks_per_doc
         self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
@@ -138,6 +140,23 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                     else:
                         sub_videos = [frames[_: _+self.segment_interval]
                                       for _ in range(0, len(frames), self.segment_interval)]
+
+                        # padding in each chunk to ensure that every chunk has the same frame
+                        while len(sub_videos[-1]) < self.segment_interval:
+                            sub_videos[-1].append(np.zeros((int(self.frame_size.split('*')[0]),
+                                                            int(self.frame_size.split('*')[1]),
+                                                            3), dtype=np.uint8))
+
+                        # padding chunk to ensure that every doc has the same number of chunk
+                        if len(sub_videos) > self.chunks_per_doc:
+                            sub_videos = sub_videos[:self.chunks_per_doc]
+                        elif len(sub_videos) < self.chunks_per_doc:
+                            while len(sub_videos) < self.chunks_per_doc:
+                                sub_videos.append([np.zeros((int(self.frame_size.split('*')[0]),
+                                                             int(self.frame_size.split('*')[1]),
+                                                             3), dtype=np.uint8)
+                                                   for _ in range(self.segment_interval)])
+
                     for ci, chunk in enumerate(sub_videos):
                         c = doc.chunks.add()
                         c.doc_id = doc.doc_id

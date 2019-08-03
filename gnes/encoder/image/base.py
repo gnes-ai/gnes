@@ -79,9 +79,14 @@ class BasePytorchEncoder(BaseImageEncoder):
         import torch
         self._model.eval()
 
-        img_ = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
+        if len(img[0].shape) == 4:
+            img_ = copy.deepcopy(img)
+            img_ = np.concatenate((list(img_[i] for i in range(len(img_)))), axis=0)
+            img_for_torch = np.array(img_, dtype=np.float32).transpose(0, 3, 1, 2)
+        else:
+            img_for_torch = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
 
-        img_tensor = torch.from_numpy(img_)
+        img_tensor = torch.from_numpy(img_for_torch)
         if self._use_cuda:
             img_tensor = img_tensor.cuda()
 
@@ -92,4 +97,9 @@ class BasePytorchEncoder(BaseImageEncoder):
             encodes = torch.squeeze(encodes, 0)
             result_npy.append(encodes.data.cpu().numpy())
 
-        return np.array(result_npy, dtype=np.float32)
+        output = np.array(result_npy, dtype=np.float32)
+
+        if len(img[0].shape) == 4:
+            output = output.reshape((len(img), len(img[0]), -1))
+
+        return output
