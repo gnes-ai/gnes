@@ -42,7 +42,7 @@ _cls2file_map = {
     'TFInceptionEncoder': 'image.inception',
     'CVAEEncoder': 'image.cvae',
     'IncepMixtureEncoder': 'video.incep_mixture',
-    'VladEncoder': 'video.vlad'
+    'VladEncoder': 'numeric.vlad'
 }
 
 register_all_class(_cls2file_map, 'encoder')

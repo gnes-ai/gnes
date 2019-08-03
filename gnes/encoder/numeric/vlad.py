@@ -18,8 +18,8 @@
 
 import numpy as np
 import copy
-from ..base import BaseNumericEncoder
-from ...helper import batching, train_required
+from gnes.gnes.encoder.base import BaseNumericEncoder
+from gnes.gnes.helper import batching, train_required
 
 
 class VladEncoder(BaseNumericEncoder):
@@ -31,14 +31,14 @@ class VladEncoder(BaseNumericEncoder):
         self.segment_interval = segment_interval
         self.centroids = None
 
-    def kmeans_train(self, vecs: np.array):
+    def kmeans_train(self, vecs):
         import faiss
 
         kmeans = faiss.Kmeans(vecs.shape[1], self.num_clusters, niter=5, verbose=False)
         kmeans.train(vecs)
         self.centroids = kmeans.centroids
 
-    def kmeans_pred(self, vecs: np.array):
+    def kmeans_pred(self, vecs):
         vecs = np.reshape(vecs, [vecs.shape[0], 1, 1, vecs.shape[1]])
         dist = np.sum(np.square(vecs - self.centroids), -1)
         return np.argmax(-dist, axis=-1).astype(np.int64)
