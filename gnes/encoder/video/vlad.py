@@ -31,40 +31,40 @@ class VladEncoder(BaseNumericEncoder):
         self.segment_interval = segment_interval
         self.centroids = None
 
-    def kmeans_train(self, data: np.array):
+    def kmeans_train(self, vecs: np.array):
         import faiss
 
-        kmeans = faiss.Kmeans(data.shape[1], self.num_clusters, niter=5, verbose=False)
-        kmeans.train(data)
+        kmeans = faiss.Kmeans(vecs.shape[1], self.num_clusters, niter=5, verbose=False)
+        kmeans.train(vecs)
         self.centroids = kmeans.centroids
 
-    def kmeans_pred(self, data: np.array):
-        data = np.reshape(data, [data.shape[0], 1, 1, data.shape[1]])
-        dist = np.sum(np.square(data - self.centroids), -1)
+    def kmeans_pred(self, vecs: np.array):
+        vecs = np.reshape(vecs, [vecs.shape[0], 1, 1, vecs.shape[1]])
+        dist = np.sum(np.square(vecs - self.centroids), -1)
         return np.argmax(-dist, axis=-1).astype(np.int64)
 
     @batching
-    def train(self, data: np.ndarray, *args, **kwargs):
-        assert len(data) > self.num_clusters, 'number of data should be larger than number of clusters'
-        data_ = copy.deepcopy(data)
-        data_ = np.concatenate((list(data_[i] for i in range(len(data_)))), axis=0)
-        self.kmeans_train(data_)
+    def train(self, vecs: np.ndarray, *args, **kwargs):
+        assert len(vecs) > self.num_clusters, 'number of data should be larger than number of clusters'
+        vecs_ = copy.deepcopy(vecs)
+        vecs_ = np.concatenate((list(vecs_[i] for i in range(len(vecs_)))), axis=0)
+        self.kmeans_train(vecs_)
 
     @train_required
     @batching
-    def encode(self, data: np.ndarray, *args, **kwargs) -> np.ndarray:
-        data_ = copy.deepcopy(data)
-        data_ = np.concatenate((list(data_[i] for i in range(len(data_)))), axis=0)
+    def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
+        vecs_ = copy.deepcopy(vecs)
+        vecs_ = np.concatenate((list(vecs_[i] for i in range(len(vecs_)))), axis=0)
 
-        knn_output = self.kmeans_pred(data_)
+        knn_output = self.kmeans_pred(vecs_)
         knn_output = [knn_output[i:i + self.segment_interval] for i in range(0, len(knn_output), self.segment_interval)]
 
         output = []
-        for chunk_count in range(len(data)):
+        for chunk_count, chunk in enumerate(vecs):
             res = np.zeros((self.centroids.shape[0], self.centroids.shape[1]))
-            for frame_count in range(len(data[chunk_count])):
+            for frame_count, frame in enumerate(chunk):
                 center_index = knn_output[chunk_count][frame_count][0]
-                res[center_index] += (data[chunk_count][frame_count] - self.centroids[center_index])
+                res[center_index] += (frame - self.centroids[center_index])
             output.append(res)
 
         output = np.array(list(map(lambda x: x.reshape(1, -1), output)), dtype=np.float32)
