@@ -29,10 +29,11 @@ logger = set_logger(__name__, True)
 
 
 def get_video_length(video_path):
-    import subprocess
     import re
-    process = subprocess.Popen(['ffmpeg',  '-i', video_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout, stderr = process.communicate()
+    process = sp.Popen(['ffmpeg',  '-i', video_path],
+                       stdout=sp.PIPE,
+                       stderr=sp.STDOUT)
+    stdout, _ = process.communicate()
     stdout = str(stdout)
     matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
     h = float(matches['hours'])
@@ -55,8 +56,8 @@ def split_mp4_random(video_path, avg_length, max_clip_second=10):
 
     ts_group = [[] for _ in range(num_part)]
 
-    for i in range(len(s)):
-        ts_group[i % num_part].append(' -ss {} -t {} -i {} '.format(start[i], s[i], video_path))
+    for i, (_start, _du) in enumerate(zip(start, s)):
+        ts_group[i % num_part].append(' -ss {} -t {} -i {} '.format(_start, _du, video_path))
 
     prefix = os.path.basename(video_path).replace('.mp4', '')
     for i in range(num_part):
@@ -74,7 +75,7 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     #    (-vsync, vfr)
     #    (-vf, select=eq(pict_type\,I))
     for k, v in kwargs.items():
-        if type(v) in [int, float]:
+        if isinstance(v, (float, int)):
             v = str(v)
         ffmpeg_cmd.append('-' + k)
         ffmpeg_cmd.append(v)
