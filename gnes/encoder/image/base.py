@@ -113,7 +113,6 @@ class BasePytorchEncoder(BaseImageEncoder):
 
             if len(img[0].shape) == 4:
                 output = output.reshape((len(img), max_lenth, -1))
-
             return output
 
         # for video
