@@ -81,14 +81,14 @@ class BasePytorchEncoder(BaseImageEncoder):
 
         # padding to ensure that every chunk has the same number of frame
         def _padding(img: List['np.ndarray']):
-            max_lenth = max(list(map(lambda x: len(x), img)))
+            max_lenth = max([len(x) for x in img])
             img = [np.concatenate((im, np.zeros((max_lenth - im.shape[0], im.shape[1], im.shape[2], 3), dtype=np.uint8))
                                   , axis=0)
                    if im.shape[0] < max_lenth else im for im in img]
             return img, max_lenth
 
         @batching
-        def _encode(img: List['np.ndarray']):
+        def _encode(_, img: List['np.ndarray']):
             import copy
 
             if len(img[0].shape) == 4:
