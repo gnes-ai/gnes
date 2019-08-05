@@ -1,12 +1,10 @@
 !FFmpegPreprocessor
 parameter:
-  frame_size: "192*168"
   duplicate_rm: true
   use_phash_weight: true
   phash_thresh: 5
-
-  kwargs:
-    vsync: vfr
-    vf: select=eq(pict_type\,I)
+  s: "192*168"
+  vsync: vfr
+  vf: select=eq(pict_type\,I)
 gnes_config:
   is_trained: true
