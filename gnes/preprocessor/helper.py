@@ -44,7 +44,6 @@ def get_video_length(video_path):
 
 def split_mp4_random(video_path, avg_length, max_clip_second=10):
     import random
-
     l = get_video_length(video_path)
     s = []
     num_part = max(int(l / avg_length), 2)
