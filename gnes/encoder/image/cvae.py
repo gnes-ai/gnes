@@ -19,14 +19,13 @@ import numpy as np
 from PIL import Image
 
 from ..base import BaseImageEncoder
-from ...helper import batch_iterator
 
 
 class CVAEEncoder(BaseImageEncoder):
+    batch_size = 64
 
     def __init__(self, model_dir: str,
                  latent_dim: int = 300,
-                 batch_size: int = 64,
                  select_method: str = 'MEAN',
                  l2_normalize: bool = False,
                  use_gpu: bool = True,
@@ -35,7 +34,6 @@ class CVAEEncoder(BaseImageEncoder):
 
         self.model_dir = model_dir
         self.latent_dim = latent_dim
-        self.batch_size = batch_size
         self.select_method = select_method
         self.l2_normalize = l2_normalize
         self.use_gpu = use_gpu
@@ -59,19 +57,22 @@ class CVAEEncoder(BaseImageEncoder):
             self.saver.restore(self.sess, self.model_dir)
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
-        ret = []
         img = [(np.array(Image.fromarray(im).resize((120, 120)),
                          dtype=np.float32) / 255) for im in img]
-        for _im in batch_iterator(img, self.batch_size):
+
+        def _encode(_, data):
             _mean, _var = self.sess.run((self.mean, self.var),
-                                        feed_dict={self.inputs: _im})
+                                        feed_dict={self.inputs: data})
             if self.select_method == 'MEAN':
-                ret.append(_mean)
+                return _mean
             elif self.select_method == 'VAR':
-                ret.append(_var)
+                return _var
             elif self.select_method == 'MEAN_VAR':
-                ret.append(np.concatenate([_mean, _var]), axis=1)
-        v = np.concatenate(ret, axis=0).astype(np.float32)
+                return np.concatenate([_mean, _var], axis=1)
+            else:
+                raise NotImplementedError
+
+        v = _encode(None, img).astype(np.float32)
         if self.l2_normalize:
-            v = v / (v**2).sum(axis=1, keepdims=True)**0.5
+            v = v / (v ** 2).sum(axis=1, keepdims=True) ** 0.5
         return v
