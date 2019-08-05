@@ -74,32 +74,53 @@ class BasePytorchEncoder(BaseImageEncoder):
             self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             self._model = self._model.to(self._device)
 
-    @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         import torch
         self._model.eval()
 
+        # padding to ensure that every chunk has the same number of frame
+        def _padding(img: List['np.ndarray']):
+            max_lenth = max(list(map(lambda x: len(x), img)))
+            img = [np.concatenate((im, np.zeros((max_lenth - im.shape[0], im.shape[1], im.shape[2], 3), dtype=np.uint8))
+                                  , axis=0)
+                if im.shape[0] < max_lenth else im for im in img]
+            return img, max_lenth
+
+        @batching
+        def _encode(img: List['np.ndarray']):
+            import copy
+
+            if len(img[0].shape) == 4:
+                img_ = copy.deepcopy(img)
+                img_ = np.concatenate((list(img_[i] for i in range(len(img_)))), axis=0)
+                img_for_torch = np.array(img_, dtype=np.float32).transpose(0, 3, 1, 2)
+            else:
+                img_for_torch = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
+
+            img_tensor = torch.from_numpy(img_for_torch)
+            if self._use_cuda:
+                img_tensor = img_tensor.cuda()
+
+            result_npy = []
+            for t in img_tensor:
+                t = torch.unsqueeze(t, 0)
+                encodes = self._model(t)
+                encodes = torch.squeeze(encodes, 0)
+                result_npy.append(encodes.data.cpu().numpy())
+
+            output = np.array(result_npy, dtype=np.float32)
+
+            if len(img[0].shape) == 4:
+                output = output.reshape((len(img), max_lenth, -1))
+
+            return output
+
+        # for video
         if len(img[0].shape) == 4:
-            img_ = copy.deepcopy(img)
-            img_ = np.concatenate((list(img_[i] for i in range(len(img_)))), axis=0)
-            img_for_torch = np.array(img_, dtype=np.float32).transpose(0, 3, 1, 2)
+            padding_image, max_lenth = _padding(img)
+            output = _encode(None, padding_image)
+        # for image
         else:
-            img_for_torch = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
-
-        img_tensor = torch.from_numpy(img_for_torch)
-        if self._use_cuda:
-            img_tensor = img_tensor.cuda()
-
-        result_npy = []
-        for t in img_tensor:
-            t = torch.unsqueeze(t, 0)
-            encodes = self._model(t)
-            encodes = torch.squeeze(encodes, 0)
-            result_npy.append(encodes.data.cpu().numpy())
-
-        output = np.array(result_npy, dtype=np.float32)
-
-        if len(img[0].shape) == 4:
-            output = output.reshape((len(img), len(img[0]), -1))
+            output = _encode(None, img)
 
         return output

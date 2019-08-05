@@ -25,10 +25,9 @@ from gnes.gnes.helper import batching, train_required
 class VladEncoder(BaseNumericEncoder):
     batch_size = 2048
 
-    def __init__(self, num_clusters: int, segment_interval: int = 4, *args, **kwargs):
+    def __init__(self, num_clusters: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_clusters = num_clusters
-        self.segment_interval = segment_interval
         self.centroids = None
 
     def kmeans_train(self, vecs):
@@ -57,7 +56,7 @@ class VladEncoder(BaseNumericEncoder):
         vecs_ = np.concatenate((list(vecs_[i] for i in range(len(vecs_)))), axis=0)
 
         knn_output = self.kmeans_pred(vecs_)
-        knn_output = [knn_output[i:i + self.segment_interval] for i in range(0, len(knn_output), self.segment_interval)]
+        knn_output = [knn_output[i:i + vecs.shape[1]] for i in range(0, len(knn_output), vecs.shape[1])]
 
         output = []
         for chunk_count, chunk in enumerate(vecs):
@@ -73,5 +72,4 @@ class VladEncoder(BaseNumericEncoder):
 
     def _copy_from(self, x: 'VladEncoder') -> None:
         self.num_clusters = x.num_clusters
-        self.segment_interval = x.segment_interval
         self.centroids = x.centroids
