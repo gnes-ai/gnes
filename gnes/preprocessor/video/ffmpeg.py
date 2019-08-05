@@ -112,6 +112,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         super().__init__(*args, **kwargs)
         self.segment_method = segment_method
         self.segment_interval = segment_interval
+        self.segment_num = segment_num
         self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
