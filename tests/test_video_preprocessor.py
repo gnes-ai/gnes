@@ -86,4 +86,4 @@ class TestFFmpeg(unittest.TestCase):
                 client.send_message(msg)
                 r = client.recv_message()
                 for d in r.request.index.docs:
-                    self.assertEqual(len(d.chunks), 5)
+                    self.assertEqual(len(d.chunks), 6)
