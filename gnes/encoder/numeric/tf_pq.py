@@ -25,14 +25,12 @@ from ...helper import batching, train_required, get_first_available_gpu
 
 
 class TFPQEncoder(PQEncoder):
+    batch_size = 8192
+
     @classmethod
     def pre_init(cls):
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.batch_size = 8192
 
     def post_init(self):
         import tensorflow as tf

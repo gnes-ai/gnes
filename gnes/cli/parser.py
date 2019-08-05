@@ -79,9 +79,7 @@ def set_composer_flask_parser(parser=None):
         parser = set_base_parser()
     set_composer_parser(parser)
     parser.add_argument('--flask', action='store_true', default=False,
-                        help='using Flask to serve GNES composer in interactive mode')
-    parser.add_argument('--cors', type=str, default='*',
-                        help='setting "Access-Control-Allow-Origin" for HTTP requests')
+                        help='using Flask to serve a composer in interactive mode, aka GNES board')
     parser.add_argument('--http_port', type=int, default=8080,
                         help='server port for receiving HTTP requests')
     return parser

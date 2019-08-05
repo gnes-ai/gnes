@@ -90,3 +90,12 @@ class TestBatching(unittest.TestCase):
         _test_fn(b.foo2)
         _test_fn(b.foo3)
         self.assertEqual(b.train([1]), None)
+
+    def test_mini_batch(self):
+        x = list(range(10))
+
+        @batching(batch_size=4)
+        def _do_mini_batch(_, y):
+            return y
+
+        self.assertEqual(_do_mini_batch(None, x), [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9]])
