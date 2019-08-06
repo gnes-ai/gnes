@@ -191,17 +191,17 @@ class YamlComposer:
                     args.append('--yaml_path /%s_yaml' % c_name)
                     config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
 
-                # if l_idx + 1 < len(all_layers):
-                #     next_layer = all_layers[l_idx + 1]
-                #     _l_idx = l_idx + 1
-                # else:
-                #     next_layer = all_layers[0]
-                #     _l_idx = 0
-                # host_out_name = ''
-                # for _c_idx, _c in enumerate(next_layer.components):
-                #     if _c['port_in'] == c['port_out']:
-                #         host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
-                #         break
+                if l_idx + 1 < len(all_layers):
+                    next_layer = all_layers[l_idx + 1]
+                    _l_idx = l_idx + 1
+                else:
+                    next_layer = all_layers[0]
+                    _l_idx = 0
+                host_out_name = ''
+                for _c_idx, _c in enumerate(next_layer.components):
+                    if _c['port_in'] == c['port_out']:
+                        host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
+                        break
 
                 if l_idx - 1 >= 0:
                     last_layer = all_layers[l_idx - 1]
@@ -216,8 +216,10 @@ class YamlComposer:
                         host_in_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
                         break
 
-                args += ['--host_in %s' % host_in_name]
-                # '--host_out %s' % host_out_name]
+                if 'BIND' not in c['socket_out']:
+                    args.append('--host_out %s' % host_out_name)
+                if 'BIND' not in c['socket_in']:
+                    args.append('--host_in %s' % host_in_name)
 
                 cmd = '%s %s' % (YamlComposer.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = CommentedMap({
