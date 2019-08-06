@@ -31,6 +31,9 @@ def resolve_yaml_path(path):
     elif path.isidentifier():
         # possible class name
         return io.StringIO('!%s {}' % path)
+    elif path.startswith('!'):
+        # possible YAML content
+        return io.StringIO(path)
     else:
         raise argparse.ArgumentTypeError('%s can not be resolved, it should be a readable stream,'
                                          ' or a valid file path, or a supported class name.' % path)

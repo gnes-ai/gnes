@@ -14,8 +14,8 @@ class TestProto(unittest.TestCase):
 
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
-        self.publish_router_yaml = os.path.join(self.dirname, 'yaml', 'router-publish.yml')
-        self.batch_router_yaml = os.path.join(self.dirname, 'yaml', 'router-batch.yml')
+        self.publish_router_yaml = '!PublishRouter {parameter: {num_part: 2}}'
+        self.batch_router_yaml = '!DocBatchRouter {gnes_config: {batch_size: 2}}'
         self.reduce_router_yaml = 'BaseReduceRouter'
         self.chunk_router_yaml = 'ChunkReduceRouter'
         self.doc_router_yaml = 'DocReduceRouter'
