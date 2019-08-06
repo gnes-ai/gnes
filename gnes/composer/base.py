@@ -188,8 +188,11 @@ class YamlComposer:
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
                         a in YamlComposer.comp2args[c['name']] and a != 'yaml_path' and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
-                    args.append('--yaml_path /%s_yaml' % c_name)
-                    config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
+                    if c['yaml_path'].endswith('.yml') or c['yaml_path'].endswith('.yaml'):
+                        args.append('--yaml_path /%s_yaml' % c_name)
+                        config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
+                    else:
+                        args.append('--yaml_path %s' % c['yaml_path'])
 
                 if l_idx + 1 < len(all_layers):
                     next_layer = all_layers[l_idx + 1]
@@ -237,7 +240,8 @@ class YamlComposer:
                         }
                     })
 
-                if 'yaml_path' in c and c['yaml_path'] is not None:
+                if 'yaml_path' in c and c['yaml_path'] is not None \
+                        and (c['yaml_path'].endswith('.yml') or c['yaml_path'].endswith('.yaml')):
                     swarm_lines['services'][c_name]['configs'] = ['%s_yaml' % c_name]
 
                 if c['name'] == 'gRPCFrontend':
