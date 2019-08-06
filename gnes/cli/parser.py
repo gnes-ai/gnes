@@ -19,6 +19,23 @@
 import argparse
 
 
+def resolve_yaml_path(path):
+    # priority, filepath > classname > default
+    import os
+    import io
+    if hasattr(path, 'read'):
+        # already a readable stream
+        return path
+    elif os.path.exists(path):
+        return open(path, encoding='utf8')
+    elif path.isidentifier():
+        # possible class name
+        return io.StringIO('!%s {}' % path)
+    else:
+        raise argparse.ArgumentTypeError('%s can not be resolved, it should be a readable stream,'
+                                         ' or a valid file path, or a supported class name.' % path)
+
+
 def set_base_parser():
     from .. import __version__
     from termcolor import colored
@@ -49,7 +66,7 @@ def set_composer_parser(parser=None):
                         type=str,
                         default='GNES app',
                         help='name of the instance')
-    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
+    parser.add_argument('--yaml_path', type=resolve_yaml_path,
                         default=resource_stream(
                             'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
                         help='yaml config of the service')
@@ -134,14 +151,12 @@ def _set_client_parser(parser=None):
 def set_loadable_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    from pkg_resources import resource_stream
     from ..service.base import SocketType
     set_service_parser(parser)
 
-    parser.add_argument('--yaml_path', type=argparse.FileType('r'),
-                        default=resource_stream(
-                            'gnes', '/'.join(('resources', 'config', 'encoder', 'default.yml'))),
-                        help='yaml config of the service')
+    parser.add_argument('--yaml_path', type=resolve_yaml_path,
+                        help='yaml config of the service, it should be a readable stream,'
+                             ' or a valid file path, or a supported class name.')
 
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
                         socket_out=SocketType.PUSH_BIND)
@@ -151,24 +166,17 @@ def set_loadable_service_parser(parser=None):
 def set_preprocessor_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    from pkg_resources import resource_stream
     set_loadable_service_parser(parser)
-    parser.get_default('yaml_path').close()
-    parser.set_defaults(yaml_path=resource_stream(
-        'gnes', '/'.join(('resources', 'config', 'preprocessor', 'default.yml'))))
 
     parser.set_defaults(read_only=True)
     return parser
 
 
 def set_router_service_parser(parser=None):
-    from pkg_resources import resource_stream
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.get_default('yaml_path').close()
-    parser.set_defaults(yaml_path=resource_stream(
-        'gnes', '/'.join(('resources', 'config', 'router', 'default.yml'))))
+    parser.set_defaults(yaml_path='BaseRouter')
 
     parser.set_defaults(read_only=True)
     return parser
@@ -176,14 +184,10 @@ def set_router_service_parser(parser=None):
 
 def set_indexer_service_parser(parser=None):
     from ..service.base import SocketType
-    from pkg_resources import resource_stream
 
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.get_default('yaml_path').close()
-    parser.set_defaults(yaml_path=resource_stream(
-        'gnes', '/'.join(('resources', 'config', 'indexer', 'default.yml'))))
 
     # encoder's port_out is indexer's port_in
     parser.set_defaults(port_in=parser.get_default('port_out'),
