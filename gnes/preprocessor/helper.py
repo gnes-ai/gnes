@@ -18,7 +18,7 @@
 import io
 import subprocess as sp
 from typing import List, Callable
-
+import os
 import cv2
 import numpy as np
 from PIL import Image
@@ -26,6 +26,45 @@ from PIL import Image
 from ..helper import set_logger
 
 logger = set_logger(__name__, True)
+
+
+def get_video_length(video_path):
+    import re
+    process = sp.Popen(['ffmpeg',  '-i', video_path],
+                       stdout=sp.PIPE,
+                       stderr=sp.STDOUT)
+    stdout, _ = process.communicate()
+    stdout = str(stdout)
+    matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
+    h = float(matches['hours'])
+    m = float(matches['minutes'])
+    s = float(matches['seconds'])
+
+    return 3600 * h + 60 * m + s
+
+
+def split_mp4_random(video_path, avg_length, max_clip_second=10):
+    import random
+    l = get_video_length(video_path)
+    s = []
+    num_part = max(int(l / avg_length), 2)
+
+    while sum(s) < l:
+        s.append(random.randint(3, max_clip_second))
+    s[-1] = int(l - sum(s[:-1]))
+    start = [sum(s[:i]) for i in range(len(s))]
+
+    ts_group = [[] for _ in range(num_part)]
+
+    for i, (_start, _du) in enumerate(zip(start, s)):
+        ts_group[i % num_part].append(' -ss {} -t {} -i {} '.format(_start, _du, video_path))
+
+    prefix = os.path.basename(video_path).replace('.mp4', '')
+    for i in range(num_part):
+        i_len = len(ts_group[i])
+        cmd = 'ffmpeg' + ''.join(ts_group[i]) + '-filter_complex "{}concat=n={}:v=1:a=1" -strict -2 {}_{}.mp4 -y'.format(''.join(['[{}]'.format(k) for k in range(i_len)]), i_len, prefix, i)
+        os.system(cmd)
+
 
 def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                      **kwargs) -> List['np.ndarray']:
@@ -36,6 +75,8 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     #    (-vsync, vfr)
     #    (-vf, select=eq(pict_type\,I))
     for k, v in kwargs.items():
+        if isinstance(v, (float, int)):
+            v = str(v)
         ffmpeg_cmd.append('-' + k)
         ffmpeg_cmd.append(v)
 

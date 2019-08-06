@@ -41,7 +41,8 @@ _cls2file_map = {
     'BasePytorchEncoder': 'image.base',
     'TFInceptionEncoder': 'image.inception',
     'CVAEEncoder': 'image.cvae',
-    'IncepMixtureEncoder': 'video.incep_mixture'
+    'IncepMixtureEncoder': 'video.incep_mixture',
+    'VladEncoder': 'numeric.vlad'
 }
 
 register_all_class(_cls2file_map, 'encoder')
