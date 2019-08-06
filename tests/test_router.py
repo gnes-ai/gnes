@@ -16,10 +16,10 @@ class TestProto(unittest.TestCase):
         self.dirname = os.path.dirname(__file__)
         self.publish_router_yaml = os.path.join(self.dirname, 'yaml', 'router-publish.yml')
         self.batch_router_yaml = os.path.join(self.dirname, 'yaml', 'router-batch.yml')
-        self.reduce_router_yaml = os.path.join(self.dirname, 'yaml', 'router-reduce.yml')
-        self.chunk_router_yaml = os.path.join(self.dirname, 'yaml', 'router-chunk-reduce.yml')
-        self.doc_router_yaml = os.path.join(self.dirname, 'yaml', 'router-doc-reduce.yml')
-        self.concat_router_yaml = os.path.join(self.dirname, 'yaml', 'router-concat.yml')
+        self.reduce_router_yaml = 'BaseReduceRouter'
+        self.chunk_router_yaml = 'ChunkReduceRouter'
+        self.doc_router_yaml = 'DocReduceRouter'
+        self.concat_router_yaml = 'ConcatEmbedRouter'
 
     def test_service_empty(self):
         args = set_router_service_parser().parse_args([])
