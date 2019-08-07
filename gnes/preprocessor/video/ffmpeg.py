@@ -18,7 +18,7 @@ from typing import List
 import numpy as np
 
 from .base import BaseVideoPreprocessor
-from ..helper import get_video_frames, get_audio, phash_descriptor, get_video_length_from_raw
+from ..helper import get_video_frames, phash_descriptor
 from ...proto import gnes_pb2, array2blob
 
 

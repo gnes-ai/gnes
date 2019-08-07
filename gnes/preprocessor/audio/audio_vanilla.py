@@ -16,7 +16,7 @@
 from .base import BaseAudioPreprocessor
 import numpy as np
 from ..helper import get_video_length_from_raw, get_audio
-from ...proto import gnes_pb2, array2blob
+from ...proto import array2blob
 
 
 class AudioVanilla(BaseAudioPreprocessor):
