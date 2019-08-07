@@ -74,4 +74,4 @@ class TFInceptionEncoder(BaseImageEncoder):
                                            feed_dict={self.inputs: data})
             return end_points_[self.select_layer]
 
-        return _encode(None, img).astype(np.float32)
+        return _encode(self, img).astype(np.float32)

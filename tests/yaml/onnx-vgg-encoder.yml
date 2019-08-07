@@ -1,0 +1,6 @@
+!BaseONNXImageEncoder
+parameter:
+  model_dir: ${VGG_MODEL}
+  model_name: vgg16.onnx
+gnes_config:
+  is_trained: true

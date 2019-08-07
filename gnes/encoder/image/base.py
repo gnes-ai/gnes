@@ -118,9 +118,9 @@ class BasePytorchEncoder(BaseImageEncoder):
         # for video
         if len(img[0].shape) == 4:
             padding_image, max_lenth = _padding(img)
-            output = _encode(None, padding_image)
+            output = _encode(self, padding_image)
         # for image
         else:
-            output = _encode(None, img)
+            output = _encode(self, img)
 
         return output

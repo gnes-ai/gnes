@@ -43,11 +43,11 @@ class YamlComposer:
     }
 
     comp2args = {
-        'Encoder': set_loadable_service_parser().parse_args([]),
-        'Router': set_router_service_parser().parse_args([]),
-        'Indexer': set_indexer_service_parser().parse_args([]),
+        'Encoder': set_loadable_service_parser().parse_args(['--yaml_path', 'BaseEncoder']),
+        'Router': set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter']),
+        'Indexer': set_indexer_service_parser().parse_args(['--yaml_path', 'BaseIndexer']),
         'gRPCFrontend': set_grpc_frontend_parser().parse_args([]),
-        'Preprocessor': set_preprocessor_service_parser().parse_args([])
+        'Preprocessor': set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
     }
 
     class Layer:
@@ -188,20 +188,23 @@ class YamlComposer:
                 args = ['--%s %s' % (a, str(v) if ' ' not in str(v) else ('"%s"' % str(v))) for a, v in c.items() if
                         a in YamlComposer.comp2args[c['name']] and a != 'yaml_path' and v]
                 if 'yaml_path' in c and c['yaml_path'] is not None:
-                    args.append('--yaml_path /%s_yaml' % c_name)
-                    config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
+                    if c['yaml_path'].endswith('.yml') or c['yaml_path'].endswith('.yaml'):
+                        args.append('--yaml_path /%s_yaml' % c_name)
+                        config_dict['%s_yaml' % c_name] = {'file': c['yaml_path']}
+                    else:
+                        args.append('--yaml_path %s' % c['yaml_path'])
 
-                # if l_idx + 1 < len(all_layers):
-                #     next_layer = all_layers[l_idx + 1]
-                #     _l_idx = l_idx + 1
-                # else:
-                #     next_layer = all_layers[0]
-                #     _l_idx = 0
-                # host_out_name = ''
-                # for _c_idx, _c in enumerate(next_layer.components):
-                #     if _c['port_in'] == c['port_out']:
-                #         host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
-                #         break
+                if l_idx + 1 < len(all_layers):
+                    next_layer = all_layers[l_idx + 1]
+                    _l_idx = l_idx + 1
+                else:
+                    next_layer = all_layers[0]
+                    _l_idx = 0
+                host_out_name = ''
+                for _c_idx, _c in enumerate(next_layer.components):
+                    if _c['port_in'] == c['port_out']:
+                        host_out_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
+                        break
 
                 if l_idx - 1 >= 0:
                     last_layer = all_layers[l_idx - 1]
@@ -216,8 +219,10 @@ class YamlComposer:
                         host_in_name = '%s%d%d' % (_c['name'], _l_idx, _c_idx)
                         break
 
-                args += ['--host_in %s' % host_in_name]
-                # '--host_out %s' % host_out_name]
+                if 'BIND' not in c['socket_out']:
+                    args.append('--host_out %s' % host_out_name)
+                if 'BIND' not in c['socket_in']:
+                    args.append('--host_in %s' % host_in_name)
 
                 cmd = '%s %s' % (YamlComposer.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = CommentedMap({
@@ -235,7 +240,8 @@ class YamlComposer:
                         }
                     })
 
-                if 'yaml_path' in c and c['yaml_path'] is not None:
+                if 'yaml_path' in c and c['yaml_path'] is not None \
+                        and (c['yaml_path'].endswith('.yml') or c['yaml_path'].endswith('.yaml')):
                     swarm_lines['services'][c_name]['configs'] = ['%s_yaml' % c_name]
 
                 if c['name'] == 'gRPCFrontend':
@@ -382,7 +388,7 @@ class YamlComposer:
             self._num_layer += 1
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             r = CommentedMap({'name': 'Router',
-                              'yaml_path': None,
+                              'yaml_path': 'BaseRouter',
                               'socket_in': str(SocketType.PULL_BIND),
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': last_layer.components[0]['port_out'],
@@ -403,6 +409,8 @@ class YamlComposer:
             # a shortcut fn: based on c3(): (N)-2-(N) with pub sub connection
             rule3()
             router_layers[0].components[0]['socket_out'] = str(SocketType.PUB_BIND)
+            router_layers[0].components[0]['yaml_path'] = '"!PublishRouter {parameter: {num_part: %d}}"' \
+                                                          % len(layer.components)
             for c in layer.components:
                 c['socket_in'] = str(SocketType.SUB_CONNECT)
 
@@ -413,7 +421,7 @@ class YamlComposer:
             for c in layer.components:
                 income = self.Layer.get_value(c, 'income')
                 r = CommentedMap({'name': 'Router',
-                                  'yaml_path': None,
+                                  'yaml_path': 'BaseReduceRouter',
                                   'socket_in': str(SocketType.SUB_CONNECT),
                                   'socket_out': str(SocketType.PUSH_BIND) if income == 'pull' else str(
                                       SocketType.PUB_BIND),
@@ -430,7 +438,7 @@ class YamlComposer:
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
-                               'yaml_path': None,
+                               'yaml_path': '"!PublishRouter {parameter: {num_part: %d}}"' % len(layer.components),
                                'socket_in': str(SocketType.PULL_BIND),
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),
@@ -443,7 +451,7 @@ class YamlComposer:
             self._num_layer += 1
             for c in layer.components:
                 r = CommentedMap({'name': 'Router',
-                                  'yaml_path': None,
+                                  'yaml_path': 'BaseRouter',
                                   'socket_in': str(SocketType.SUB_CONNECT),
                                   'socket_out': str(SocketType.PUSH_BIND),
                                   'port_in': r0['port_out'],
@@ -459,7 +467,7 @@ class YamlComposer:
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
-                               'yaml_path': None,
+                               'yaml_path': '"!PublishRouter {parameter: {num_part: %d}}"' % len(layer.components),
                                'socket_in': str(SocketType.PULL_BIND),
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),
@@ -476,7 +484,7 @@ class YamlComposer:
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r = CommentedMap({'name': 'Router',
-                              'yaml_path': None,
+                              'yaml_path': 'BaseReduceRouter',
                               'socket_in': str(SocketType.PULL_BIND),
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': self._get_random_port(),
@@ -487,7 +495,7 @@ class YamlComposer:
                 if last_income == 'sub':
                     c['socket_out'] = str(SocketType.PUSH_CONNECT)
                     r_c = CommentedMap({'name': 'Router',
-                                        'yaml_path': None,
+                                        'yaml_path': 'BaseReduceRouter',
                                         'socket_in': str(SocketType.PULL_BIND),
                                         'socket_out': str(SocketType.PUSH_CONNECT),
                                         'port_in': self._get_random_port(),
@@ -516,26 +524,6 @@ class YamlComposer:
             # a shortcut fn: push connect the last and current
             last_layer.components[0]['socket_out'] = str(SocketType.PUSH_CONNECT)
             layer.components[0]['socket_in'] = str(SocketType.PULL_BIND)
-
-        def rule11():
-            # a shortcut fn: (N)-2-(N) with push pull connection
-            router_layer = YamlComposer.Layer(layer_id=self._num_layer)
-            self._num_layer += 1
-            r = CommentedMap({'name': 'Router',
-                              'yaml_path': None,
-                              'socket_in': str(SocketType.PULL_BIND),
-                              'socket_out': str(SocketType.PUSH_BIND),
-                              'port_in': self._get_random_port(),
-                              'port_out': self._get_random_port()})
-
-            for c in last_layer.components:
-                c['socket_out'] = str(SocketType.PUSH_CONNECT)
-                c['port_out'] = r['port_in']
-            for c in layer.components:
-                c['socket_in'] = str(SocketType.PULL_CONNECT)
-                c['port_in'] = r['port_out']
-            router_layer.append(r)
-            router_layers.append(router_layer)
 
         router_layers = []  # type: List['self.Layer']
         # bind the last out to current in

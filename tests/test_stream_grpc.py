@@ -49,6 +49,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', 'BaseRouter'
         ])
 
         with RouterService(p_args), GRPCFrontend(args), grpc.insecure_channel(
@@ -72,6 +73,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--port_out', '8899',
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', 'BaseRouter'
         ])
 
         p2_args = set_router_service_parser().parse_args([
@@ -79,6 +81,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_BIND),
             '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', 'BaseRouter'
         ])
 
         with GRPCFrontend(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
