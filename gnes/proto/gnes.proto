@@ -72,6 +72,14 @@ message Document {
     }
 
     float weight = 10;
+
+    // another type of chunks
+    repeated Chunk chunks_additional = 11;
+
+    // another type of vector encode
+    NdArray chunk_embeddings_additional = 12;
+
+    float weight_additional = 13;
 }
 
 message Envelope {

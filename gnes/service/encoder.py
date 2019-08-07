@@ -33,7 +33,7 @@ class EncoderService(BS):
         if getattr(docs, 'doc_type', None) is not None:
             docs = [docs]
         return [c.text if d.doc_type == gnes_pb2.Document.TEXT else blob2array(c.blob)
-                for d in docs for c in d.chunks]
+                                                            for d in docs for c in d.chunks]
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
@@ -51,7 +51,6 @@ class EncoderService(BS):
             chunks = self.get_chunks_from_docs(msg.request.train.docs)
             self.train_data.extend(chunks)
             msg.response.train.status = gnes_pb2.Response.PENDING
-            # raise BlockMessage
         if msg.request.train.flush:
             self._model.train(self.train_data)
             self.logger.info('%d samples is flushed for training' % len(self.train_data))
