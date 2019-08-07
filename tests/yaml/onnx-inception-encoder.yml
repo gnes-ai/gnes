@@ -1,0 +1,6 @@
+!BaseONNXImageEncoder
+parameter:
+  model_dir: ${INCEPTION_MODEL}
+  model_name: inception_v2.onnx
+gnes_config:
+  is_trained: true
