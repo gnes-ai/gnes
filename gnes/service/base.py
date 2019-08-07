@@ -14,8 +14,7 @@
 #  limitations under the License.
 
 # pylint: disable=low-comment-ratio
-
-
+import multiprocessing
 import threading
 import time
 import types
@@ -152,21 +151,58 @@ class MessageHandler:
         return fn
 
 
-class BaseService(threading.Thread):
+class ConcurrentService(type):
+    _dct = {}
+
+    def __new__(cls, name, bases, dct):
+        _cls = super().__new__(cls, name, bases, dct)
+        ConcurrentService._dct.update({name: {'cls': cls,
+                                              'name': name,
+                                              'bases': bases,
+                                              'dct': dct}})
+        return _cls
+
+    def __call__(cls, *args, **kwargs):
+        # switch to the new backend
+        _cls = {
+            'thread': threading.Thread,
+            'process': multiprocessing.Process
+        }[args[0].concurrency_backend]
+
+        # rebuild the class according to mro
+        for c in cls.mro()[-2::-1]:
+            arg_cls = ConcurrentService._dct[c.__name__]['cls']
+            arg_name = ConcurrentService._dct[c.__name__]['name']
+            arg_dct = ConcurrentService._dct[c.__name__]['dct']
+            _cls = super().__new__(arg_cls, arg_name, (_cls,), arg_dct)
+
+        return type.__call__(_cls, *args, **kwargs)
+
+
+class BaseService(metaclass=ConcurrentService):
     handler = MessageHandler()
     default_host = '0.0.0.0'
 
-    def __init__(self, args, use_event_loop=True):
+    def _get_event(self):
+        if isinstance(self, threading.Thread):
+            return threading.Event()
+        elif isinstance(self, multiprocessing.Process):
+            return multiprocessing.Event()
+        else:
+            raise NotImplementedError
+
+    def __init__(self, args):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.is_ready = threading.Event()
-        self.is_event_loop = threading.Event()
-        self.is_model_changed = threading.Event()
-        self.is_handler_done = threading.Event()
+        self.is_ready = self._get_event()
+        self.is_event_loop = self._get_event()
+        self.is_model_changed = self._get_event()
+        self.is_handler_done = self._get_event()
         self._model = None
         self.identity = args.identity if 'identity' in args else None
-        self.use_event_loop = use_event_loop
+        self.use_event_loop = True
+        self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
 
     def run(self):
         self._run()
@@ -197,7 +233,7 @@ class BaseService(threading.Thread):
         else:
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
-    def message_handler(self, msg: 'gnes_pb2.Message'):
+    def message_handler(self, msg: 'gnes_pb2.Message', out_sck, ctrl_sck):
         try:
             fn = self.handler.serve(msg)
             if fn:
@@ -206,9 +242,9 @@ class BaseService(threading.Thread):
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
                 if msg.request and msg.request.WhichOneof('body') and \
                         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                    out_sock = self.ctrl_sock
+                    out_sock = ctrl_sck
                 else:
-                    out_sock = self.out_sock
+                    out_sock = out_sck
                 try:
                     # NOTE that msg is mutable object, it may be modified in fn()
                     ret = fn(self, msg)
@@ -230,14 +266,6 @@ class BaseService(threading.Thread):
         except ServiceError as e:
             self.logger.error(e)
 
-    def send_message(self, *args, **kwargs):
-        send_message(self.out_sock, *args, **kwargs)
-
-    def recv_message(self, *args, **kwargs):
-        m = recv_message(self.in_sock, *args, **kwargs)
-        self.is_handler_done.set()
-        return m
-
     @zmqd.context()
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
@@ -246,14 +274,13 @@ class BaseService(threading.Thread):
                                   getattr(self, 'identity', None))
         out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                    getattr(self, 'identity', None))
-        ctrl_sock, self.ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
-        self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
+        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
 
         self.logger.info(
             'input %s:%s\t output %s:%s\t control over %s' % (
                 self.args.host_in, colored(self.args.port_in, 'yellow'),
                 self.args.host_out, colored(self.args.port_out, 'yellow'),
-                colored(self.ctrl_addr, 'yellow')))
+                colored(ctrl_addr, 'yellow')))
 
         poller = zmq.Poller()
         poller.register(in_sock, zmq.POLLIN)
@@ -277,7 +304,7 @@ class BaseService(threading.Thread):
                 if self.use_event_loop or pull_sock == ctrl_sock:
                     self.is_handler_done.clear()
                     msg = recv_message(pull_sock)
-                    self.message_handler(msg)
+                    self.message_handler(msg, out_sock, ctrl_sock)
                     self.is_handler_done.set()
                 else:
                     self.logger.warning(
@@ -294,9 +321,9 @@ class BaseService(threading.Thread):
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
-            self.in_sock.close()
-            self.out_sock.close()
-            self.ctrl_sock.close()
+            in_sock.close()
+            out_sock.close()
+            ctrl_sock.close()
         self.logger.info('terminated')
 
     def post_init(self):
