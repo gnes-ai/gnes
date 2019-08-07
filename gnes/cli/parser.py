@@ -157,7 +157,7 @@ def set_loadable_service_parser(parser=None):
     from ..service.base import SocketType
     set_service_parser(parser)
 
-    parser.add_argument('--yaml_path', type=resolve_yaml_path,
+    parser.add_argument('--yaml_path', type=resolve_yaml_path, required=True,
                         help='yaml config of the service, it should be a readable stream,'
                              ' or a valid file path, or a supported class name.')
 
@@ -179,8 +179,6 @@ def set_router_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.set_defaults(yaml_path='BaseRouter')
-
     parser.set_defaults(read_only=True)
     return parser
 

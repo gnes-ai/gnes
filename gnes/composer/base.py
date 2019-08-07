@@ -43,11 +43,11 @@ class YamlComposer:
     }
 
     comp2args = {
-        'Encoder': set_loadable_service_parser().parse_args([]),
-        'Router': set_router_service_parser().parse_args([]),
-        'Indexer': set_indexer_service_parser().parse_args([]),
+        'Encoder': set_loadable_service_parser().parse_args(['--yaml_path', 'BaseEncoder']),
+        'Router': set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter']),
+        'Indexer': set_indexer_service_parser().parse_args(['--yaml_path', 'BaseIndexer']),
         'gRPCFrontend': set_grpc_frontend_parser().parse_args([]),
-        'Preprocessor': set_preprocessor_service_parser().parse_args([])
+        'Preprocessor': set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
     }
 
     class Layer:

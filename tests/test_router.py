@@ -22,7 +22,7 @@ class TestProto(unittest.TestCase):
         self.concat_router_yaml = 'ConcatEmbedRouter'
 
     def test_service_empty(self):
-        args = set_router_service_parser().parse_args([])
+        args = set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter'])
         with RouterService(args):
             pass
 
@@ -287,25 +287,29 @@ class TestProto(unittest.TestCase):
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
-            '--port_out', str(r41.port_in)
+            '--port_out', str(r41.port_in),
+            '--yaml_path', 'BaseRouter'
         ])
         r312 = set_router_service_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
-            '--port_out', str(r41.port_in)
+            '--port_out', str(r41.port_in),
+            '--yaml_path', 'BaseRouter'
         ])
         r321 = set_router_service_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),
-            '--port_out', str(r42.port_in)
+            '--port_out', str(r42.port_in),
+            '--yaml_path', 'BaseRouter'
         ])
         r322 = set_router_service_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),
-            '--port_out', str(r42.port_in)
+            '--port_out', str(r42.port_in),
+            '--yaml_path', 'BaseRouter'
         ])
 
         c_args = _set_client_parser().parse_args([
