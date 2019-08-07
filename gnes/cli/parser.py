@@ -71,7 +71,7 @@ def set_composer_parser(parser=None):
                         help='name of the instance')
     parser.add_argument('--yaml_path', type=resolve_yaml_path,
                         default=resource_stream(
-                            'gnes', '/'.join(('resources', 'config', 'compose', 'default.yml'))),
+                            'gnes', '/'.join(('resources', 'compose', 'gnes-example.yml'))),
                         help='yaml config of the service')
     parser.add_argument('--html_path', type=argparse.FileType('w', encoding='utf8'),
                         help='output path of the HTML file, will contain all possible generations')
