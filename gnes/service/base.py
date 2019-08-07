@@ -170,7 +170,7 @@ class ConcurrentService(type):
         }[args[0].concurrency_backend]
 
         # rebuild the class according to mro
-        for c in cls.mro()[::-1][1:]:
+        for c in cls.mro()[-2::-1]:
             arg_cls = ConcurrentService._dct[c.__name__]['cls']
             arg_name = ConcurrentService._dct[c.__name__]['name']
             arg_dct = ConcurrentService._dct[c.__name__]['dct']
