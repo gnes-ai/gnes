@@ -1,4 +1,50 @@
 
+# Release Note (`v0.0.26`)
+> Release time: 2019-08-02 18:18:45
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  Larry Yan,  🙇
+
+
+### 🆕 New Features
+
+ - [[```d0b2ef0b```](https://github.com/gnes-ai/gnes/commit/d0b2ef0b1c8d781e558d1a7f0d7708c355f09d37)] __-__ __composer__: more interaction for gnes board (*hanhxiao*)
+ - [[```9c33dc66```](https://github.com/gnes-ai/gnes/commit/9c33dc66a2d1eb478138851ebb0fa27ebfcad9c5)] __-__ __router__: allow consecutive mapping and reducing ops (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```fc5026da```](https://github.com/gnes-ai/gnes/commit/fc5026da1ee0021abfefcefaee2ec41c0583b2c2)] __-__ __board__: improve gnes board 500 message (*hanhxiao*)
+ - [[```823bdeda```](https://github.com/gnes-ai/gnes/commit/823bdeda9ead30ae989a8c46cb32a51581bc4753)] __-__ __test__: fix grpc gentle shutdown (*hanhxiao*)
+ - [[```f6a801f7```](https://github.com/gnes-ai/gnes/commit/f6a801f7b18a5df435335778deaba790df09526c)] __-__ __test__: fix preprocessor building for image test (*hanhxiao*)
+ - [[```50fdc041```](https://github.com/gnes-ai/gnes/commit/50fdc0414659d7fe0acf858fe23e67c1be1bee0b)] __-__ __base__: fix ref to CompositionalTrainableBase (*hanhxiao*)
+ - [[```54a931c7```](https://github.com/gnes-ai/gnes/commit/54a931c78345617014229792d9e9ac6ca6ae4f71)] __-__ __test__: fix test images by removing mac stuff (*hanhxiao*)
+ - [[```14cdfabe```](https://github.com/gnes-ai/gnes/commit/14cdfabed5bb1ac8e75f1944f31323c69df6d9d8)] __-__ __sliding window__: fix the boundary (*Jem*)
+ - [[```46b5c94e```](https://github.com/gnes-ai/gnes/commit/46b5c94eea4973e3f1b2dcb05e85981f316a4ca3)] __-__ __encoder__: fix name for video encoder (*Larry Yan*)
+ - [[```15eb50b4```](https://github.com/gnes-ai/gnes/commit/15eb50b4d1a85e3b3ddd8ceeb7e3fd0b2b45b428)] __-__ __encoder__: fix params in basevideo encoder (*Larry Yan*)
+ - [[```5b0fe7c6```](https://github.com/gnes-ai/gnes/commit/5b0fe7c6c3c5f2fa433c090fdad9c8c80d59f4df)] __-__ __preprocessor__: fix FFmpegVideoSegmentor (*Larry Yan*)
+ - [[```d6a46fa6```](https://github.com/gnes-ai/gnes/commit/d6a46fa6b6a931b4dc0e334f5a89bb66460a84b0)] __-__ __encoder__: fix import path for mixture encoder (*Larry Yan*)
+ - [[```17779676```](https://github.com/gnes-ai/gnes/commit/17779676bd452b2679ba7e64918721cf85e0bec1)] __-__ __encoder__: fix mixture encoder (*Larry Yan*)
+ - [[```95f03c56```](https://github.com/gnes-ai/gnes/commit/95f03c56701f4a691f8412490f6dcf9565751da1)] __-__ __encoder__: fix bug in video mixture encoder (*Larry Yan*)
+ - [[```3fdf1c06```](https://github.com/gnes-ai/gnes/commit/3fdf1c06e302a5c3e32d28de431e076802ff5c9e)] __-__ __encoder__: fix mixture (*Larry Yan*)
+ - [[```67991533```](https://github.com/gnes-ai/gnes/commit/679915336a2d3d99041844717723e8a06dae5899)] __-__ __encoder__: add netvlad and netfv register class (*Larry Yan*)
+ - [[```92500f0f```](https://github.com/gnes-ai/gnes/commit/92500f0f1451914a7c68efdd71158b8cd03103c1)] __-__ __encoder__: add netvlad and netfv (*Larry Yan*)
+
+### 🚧 Code Refactoring
+
+ - [[```c430ef64```](https://github.com/gnes-ai/gnes/commit/c430ef64eaa6960a9768b006c1959630ae4f18d4)] __-__ __base__: better batch_size control (*hanhxiao*)
+ - [[```58217d8c```](https://github.com/gnes-ai/gnes/commit/58217d8cd3deaad6dbca6e8683e5baeea370593f)] __-__ __base__: moving is_trained to class attribute (*hanhxiao*)
+ - [[```7126d496```](https://github.com/gnes-ai/gnes/commit/7126d496e1195c7469e417672329145e326d5c1c)] __-__ __preprocessor__: separate resize logic from the unary preprocessor (*hanhxiao*)
+ - [[```52f87c7f```](https://github.com/gnes-ai/gnes/commit/52f87c7fa2d54b25a6b075cf549ce960ed63b59d)] __-__ __base__: make pipelineencoder more general and allow pipelinepreprocessor (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```3ab3723e```](https://github.com/gnes-ai/gnes/commit/3ab3723e9f1fc9b095ad6d7a808330d47d28f2c6)] __-__ __tutorial__: fix image and code layout (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```635ba37f```](https://github.com/gnes-ai/gnes/commit/635ba37f6970bb0c2d5cb3919df673d0327a9593)] __-__ __changelog__: update change log to v0.0.25 (*hanhxiao*)
+
 # Release Note (`v0.0.25`)
 > Release time: 2019-07-26 19:45:21
 
