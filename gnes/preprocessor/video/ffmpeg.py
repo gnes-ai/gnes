@@ -18,7 +18,7 @@ from typing import List
 import numpy as np
 
 from .base import BaseVideoPreprocessor
-from ..helper import get_video_frames, phash_descriptor
+from ..helper import get_video_frames, get_audio, phash_descriptor, get_video_length_from_raw
 from ...proto import gnes_pb2, array2blob
 
 
@@ -107,18 +107,34 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  segment_method: str = 'cut_by_frame',
                  segment_interval: int = -1,
                  segment_num: int = 3,
+                 audio_interval: int = 30,
+                 sample_rate: int = 16000,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.segment_method = segment_method
         self.segment_interval = segment_interval
         self.segment_num = segment_num
+        self.audio_interval = audio_interval
+        self.sample_rate = sample_rate
         self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
         if doc.raw_bytes:
             frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
+            audio = get_audio(doc.raw_bytes, self.sample_rate,
+                              self.audio_interval, get_video_length_from_raw(doc.raw_bytes))
+
+            if len(audio) >= 1:
+                for ci, chunks_additional in enumerate(audio):
+                    c = doc.chunks_additional.add()
+                    c.doc_id = doc.doc_id
+                    c.blob.CopyFrom(array2blob(np.array(chunks_additional, dtype=np.float32)))
+                    c.offset_1d = ci
+                    c.weight = 1 / len(audio)
+            else:
+                self.logger.info('bad document: no audio extracted')
 
             sub_videos = []
             if len(frames) >= 1:
