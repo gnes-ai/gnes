@@ -119,7 +119,6 @@ class IncepMixtureEncoder(BaseVideoEncoder):
             return end_points_[self.select_layer]
 
         v = [_ for vi in _encode1(self, img) for _ in vi]
-        print(np.array(v).shape)
 
         v_input = [v[s:e] for s, e in zip(pos_start, pos_end)]
         v_input = [(vi + [[0.0] * self.input_size] * (max_len - len(vi)))[:max_len] for vi in v_input]
