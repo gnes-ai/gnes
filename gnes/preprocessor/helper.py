@@ -47,7 +47,6 @@ def get_video_length(video_path):
 
 def get_video_length_from_raw(buffer_data):
     import re
-    import datetime
     ffmpeg_cmd = ['ffmpeg', '-i', '-', '-']
     with sp.Popen(ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE,
                   bufsize=-1, shell=False) as pipe:
