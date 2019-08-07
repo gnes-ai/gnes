@@ -1,10 +1,6 @@
-!FFmpegVideoSegmentor
+!AudioVanilla
 parameter:
-  segment_method: cut_by_frame
-  segment_interval: 30
   audio_interval: 30
   sample_rate: 16000
-  s: "192*168"
-  r: 1
 gnes_config:
   is_trained: true

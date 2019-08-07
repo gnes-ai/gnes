@@ -40,7 +40,7 @@ class TestAudioPreprocessor(unittest.TestCase):
                 client.send_message(msg)
                 r = client.recv_message()
                 for d in r.request.index.docs:
-                    self.assertGreater(len(d.chunks_additional), 0)
-                    for _ in range(len(d.chunks_additional)):
-                        shape = blob2array(d.chunks_additional[_].blob).shape
+                    self.assertGreater(len(d.chunks), 0)
+                    for _ in range(len(d.chunks)):
+                        shape = blob2array(d.chunks[_].blob).shape
                         self.assertEqual(len(shape), 1)

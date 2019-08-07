@@ -123,18 +123,6 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         super().apply(doc)
         if doc.raw_bytes:
             frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
-            audio = get_audio(doc.raw_bytes, self.sample_rate,
-                              self.audio_interval, get_video_length_from_raw(doc.raw_bytes))
-
-            if len(audio) >= 1:
-                for ci, chunks_additional in enumerate(audio):
-                    c = doc.chunks_additional.add()
-                    c.doc_id = doc.doc_id
-                    c.blob.CopyFrom(array2blob(np.array(chunks_additional, dtype=np.float32)))
-                    c.offset_1d = ci
-                    c.weight = 1 / len(audio)
-            else:
-                self.logger.info('bad document: no audio extracted')
 
             sub_videos = []
             if len(frames) >= 1:
