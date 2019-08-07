@@ -118,7 +118,7 @@ class IncepMixtureEncoder(BaseVideoEncoder):
                                            feed_dict={self.inputs: data})
             return end_points_[self.select_layer]
 
-        v = [_ for vi in _encode1(None, img) for _ in vi]
+        v = [_ for vi in _encode1(self, img) for _ in vi]
 
         v_input = [v[s:e] for s, e in zip(pos_start, pos_end)]
         v_input = [(vi + [[0.0] * self.input_size] * (max_len - len(vi)))[:max_len] for vi in v_input]
@@ -129,4 +129,4 @@ class IncepMixtureEncoder(BaseVideoEncoder):
             return self.sess2.run(self.mix_model.repre,
                                   feed_dict={self.mix_model.feeds: data})
 
-        return _encode2(None, v_input).astype(np.float32)
+        return _encode2(self, v_input).astype(np.float32)
