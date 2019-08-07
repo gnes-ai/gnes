@@ -125,8 +125,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int, default=None,
-                        help='port for control the service')
+    parser.add_argument('--port_ctrl', type=int, default=random.randrange(min_port, max_port),
+                        help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
     parser.add_argument('--dump_interval', type=int, default=5,
@@ -134,6 +134,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
                              'dump_interval will be ignored')
+    parser.add_argument('--concurrency_backend', type=str, choices=['thread', 'process'], default='thread',
+                        help='concurrency backend of the service')
     return parser
 
 
