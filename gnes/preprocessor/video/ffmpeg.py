@@ -108,6 +108,8 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  segment_interval: int = -1,
                  segment_num: int = 3,
                  max_frames_per_doc: int = -1,
+                 audio_interval: int = 30,
+                 sample_rate: int = 16000,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
@@ -115,6 +117,8 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         self.segment_interval = segment_interval
         self.segment_num = segment_num
         self.max_frames_per_doc = max_frames_per_doc
+        self.audio_interval = audio_interval
+        self.sample_rate = sample_rate
         self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:

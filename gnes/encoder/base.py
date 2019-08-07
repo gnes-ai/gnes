@@ -56,6 +56,12 @@ class BaseNumericEncoder(BaseEncoder):
         pass
 
 
+class BaseAudioEncoder(BaseEncoder):
+
+    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+        pass
+
+
 class BaseBinaryEncoder(BaseEncoder):
 
     def encode(self, data: np.ndarray, *args, **kwargs) -> bytes:

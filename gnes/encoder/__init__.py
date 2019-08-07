@@ -36,13 +36,15 @@ _cls2file_map = {
     'BaseTextEncoder': 'base',
     'BaseVideoEncoder': 'base',
     'BaseNumericEncoder': 'base',
+    'BaseAudioEncoder': 'base',
     'PipelineEncoder': 'base',
     'HashEncoder': 'numeric.hash',
     'BasePytorchEncoder': 'image.base',
     'TFInceptionEncoder': 'image.inception',
     'CVAEEncoder': 'image.cvae',
     'IncepMixtureEncoder': 'video.incep_mixture',
-    'VladEncoder': 'numeric.vlad'
+    'VladEncoder': 'numeric.vlad',
+    'MfccEncoder': 'audio.mfcc'
 }
 
 register_all_class(_cls2file_map, 'encoder')
