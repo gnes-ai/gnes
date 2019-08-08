@@ -56,13 +56,17 @@ class YamlComposerFlask:
             if not data or 'yaml-config' not in data:
                 return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
             try:
-                _args = copy.deepcopy(args)
-                _args.yaml_path = io.StringIO(data['yaml-config'])
+                args.yaml_path = io.StringIO(data['yaml-config'])
                 if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
-                    _args.mermaid_leftright = True
+                    args.mermaid_leftright = True
+                else:
+                    args.mermaid_leftright = False
                 if 'docker-image' in data:
-                    _args.docker_img = data['docker-image']
-                return YamlComposer(_args).build_all()['html']
+                    args.docker_img = data['docker-image']
+                else:
+                    args.docker_img = 'gnes/gnes:latest'
+
+                return YamlComposer(args).build_all()['html']
             except Exception as e:
                 self.logger.error(e)
                 return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
