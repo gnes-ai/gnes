@@ -13,11 +13,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import copy
 # pylint: disable=low-comment-ratio
 import multiprocessing
+import random
 import threading
 import time
 import types
+from contextlib import ExitStack
 from enum import Enum
 from typing import Tuple, List, Union, Type
 
@@ -26,6 +29,7 @@ import zmq.decorators as zmqd
 from termcolor import colored
 
 from ..base import TrainableBase, T
+from ..cli.parser import resolve_yaml_path
 from ..helper import set_logger
 from ..proto import gnes_pb2, add_route, send_message, recv_message
 
@@ -45,6 +49,21 @@ class BetterEnum(Enum):
 class ReduceOp(BetterEnum):
     CONCAT = 0
     ALWAYS_ONE = 1
+
+
+class ParallelType(BetterEnum):
+    PUSH_BLOCK = 0
+    PUSH_NONBLOCK = 1
+    PUB_BLOCK = 2
+    PUB_NONBLOCK = 3
+
+    @property
+    def is_push(self):
+        return self.value == 0 or self.value == 1
+
+    @property
+    def is_block(self):
+        return self.value == 0 or self.value == 2
 
 
 class SocketType(BetterEnum):
@@ -167,7 +186,7 @@ class ConcurrentService(type):
         _cls = {
             'thread': threading.Thread,
             'process': multiprocessing.Process
-        }[args[0].concurrency_backend]
+        }[args[0].parallel_backend]
 
         # rebuild the class according to mro
         for c in cls.mro()[-2::-1]:
@@ -384,3 +403,68 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
         r = recv_message(sock, timeout)
         sock.close()
         return r
+
+
+class ServiceManager:
+    def __init__(self, service_cls, args):
+        self.logger = set_logger(self.__class__.__name__, args.verbose)
+        self.services = []  # type: List['BaseService']
+        if args.num_parallel > 1:
+            from .router import RouterService
+            _head_router = copy.deepcopy(args)
+            _head_router.port_ctrl = self._get_random_port()
+            port_out = self._get_random_port()
+            _head_router.port_out = port_out
+
+            _tail_router = copy.deepcopy(args)
+            port_in = self._get_random_port()
+            _tail_router.port_in = port_in
+            _tail_router.port_ctrl = self._get_random_port()
+
+            _tail_router.socket_in = SocketType.PULL_BIND
+
+            if args.parallel_type.is_push:
+                _head_router.socket_out = SocketType.PUSH_BIND
+            else:
+                _head_router.socket_out = SocketType.PUB_BIND
+                _head_router.yaml_path = resolve_yaml_path(
+                    '!PublishRouter {parameter: {num_part: %d}}' % args.num_parallel)
+
+            if args.parallel_type.is_block:
+                _tail_router.yaml_path = resolve_yaml_path('BaseReduceRouter')
+                _tail_router.num_part = args.num_parallel
+
+            self.services.append(RouterService(_head_router))
+            self.services.append(RouterService(_tail_router))
+
+            for j in range(args.num_parallel):
+                _args = copy.deepcopy(args)
+                _args.port_in = port_out
+                _args.port_out = port_in
+                _args.port_ctrl = self._get_random_port()
+                _args.socket_out = SocketType.PUSH_CONNECT
+                if args.parallel_type.is_push:
+                    _args.socket_in = SocketType.PULL_CONNECT
+                else:
+                    _args.socket_in = SocketType.SUB_CONNECT
+                self.services.append(service_cls(_args))
+            self.logger.info('num_parallel=%d, add a router with port_in=%d and a router with port_out=%d' % (
+                args.num_parallel, _head_router.port_in, _tail_router.port_out))
+        else:
+            self.services.append(service_cls(args))
+
+    @staticmethod
+    def _get_random_port(min_port: int = 49152, max_port: int = 65536) -> int:
+        return random.randrange(min_port, max_port)
+
+    def __enter__(self):
+        self.stack = ExitStack()
+        for s in self.services:
+            self.stack.enter_context(s)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stack.close()
+
+    def join(self):
+        for s in self.services:
+            s.join()

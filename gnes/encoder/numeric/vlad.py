@@ -16,8 +16,10 @@
 # pylint: disable=low-comment-ratio
 
 
-import numpy as np
 import copy
+
+import numpy as np
+
 from ..base import BaseNumericEncoder
 from ...helper import batching, train_required
 

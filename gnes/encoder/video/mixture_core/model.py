@@ -14,6 +14,7 @@
 #  limitations under the License.
 
 import math
+
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
@@ -52,11 +53,11 @@ class NetFV():
 
     @staticmethod
     def rand_init(feature_size):
-        return tf.random_normal_initializer(stddev=1/math.sqrt(feature_size))
+        return tf.random_normal_initializer(stddev=1 / math.sqrt(feature_size))
 
     def build_model(self):
         self.feeds = tf.placeholder(tf.float32, [None, None, self.input_size])
-        #self.inputs = self.feeds
+        # self.inputs = self.feeds
         self.inputs = tf.layers.dense(self.feeds, self.feature_size)
         self.weights = tf.placeholder(tf.float32, [None, self.vocab_size])
         self.max_frames = tf.shape(self.inputs)[1]
@@ -83,7 +84,7 @@ class NetFV():
 
         covar_weights = tf.square(covar_weights)
         eps = tf.constant([1e-6])
-        covar_weights = tf.add(covar_weights,eps)
+        covar_weights = tf.add(covar_weights, eps)
 
         tf.summary.histogram("cluster_weights", cluster_weights)
         activation = tf.matmul(reshaped_input, cluster_weights)
@@ -111,7 +112,7 @@ class NetFV():
 
         a = tf.multiply(a_sum, cluster_weights2)
 
-        activation = tf.transpose(activation,perm=[0, 2, 1])
+        activation = tf.transpose(activation, perm=[0, 2, 1])
 
         reshaped_input = tf.reshape(reshaped_input,
                                     [-1, self.max_frames, self.feature_size])
@@ -131,15 +132,15 @@ class NetFV():
         fv2 = tf.divide(fv2, tf.square(covar_weights))
         fv2 = tf.subtract(fv2, a_sum)
 
-        fv2 = tf.reshape(fv2, [-1, self.cluster_size*self.feature_size])
+        fv2 = tf.reshape(fv2, [-1, self.cluster_size * self.feature_size])
         fv2 = tf.nn.l2_normalize(fv2, 1)
-        fv2 = tf.reshape(fv2, [-1, self.cluster_size*self.feature_size])
+        fv2 = tf.reshape(fv2, [-1, self.cluster_size * self.feature_size])
         fv2 = tf.nn.l2_normalize(fv2, 1)
 
         fv1 = tf.subtract(fv1, a)
         fv1 = tf.divide(fv1, covar_weights)
         fv1 = tf.nn.l2_normalize(fv1, 1)
-        fv1 = tf.reshape(fv1, [-1, self.cluster_size*self.feature_size])
+        fv1 = tf.reshape(fv1, [-1, self.cluster_size * self.feature_size])
         fv1 = tf.nn.l2_normalize(fv1, 1)
 
         self.repre = tf.concat([fv1, fv2], 1)
@@ -197,9 +198,9 @@ class NetFV():
         logits = tf.cast(self.label, tf.float32)
         if self.use_weights:
             logits = logits * self.weights
-        self.loss = - tf.log(tf.reduce_sum(logits * self.probabilities, axis=1)+1e-9)
+        self.loss = - tf.log(tf.reduce_sum(logits * self.probabilities, axis=1) + 1e-9)
         self.loss = tf.reduce_mean(self.loss)
-        self.pred =tf.argmax(self.probabilities, 1)
+        self.pred = tf.argmax(self.probabilities, 1)
         self.avg_diff = tf.cast(tf.equal(tf.argmax(self.label, 1), self.pred), tf.float32)
         self.avg_diff = tf.reduce_mean(self.avg_diff)
 
@@ -230,7 +231,7 @@ class NetFV():
                 self.probabilities2 = tf.nn.softmax(self.probabilities2)
 
             self.loss += tf.reduce_mean(-tf.log(
-                         tf.reduce_sum(logits2*self.probabilities2, axis=1)+1e-9))
+                tf.reduce_sum(logits2 * self.probabilities2, axis=1) + 1e-9))
             self.pred2 = tf.argmax(self.probabilities2, 1)
             self.avg_diff2 = tf.cast(tf.equal(tf.argmax(self.label_2, 1), self.pred2), tf.float32)
             self.avg_diff2 = tf.reduce_mean(self.avg_diff2)
@@ -242,4 +243,3 @@ class NetFV():
         self.eval_res = {'loss': self.loss, 'avg_diff': self.avg_diff}
         if self.use_2nd_label:
             self.eval_res['avg_diff2'] = self.avg_diff2
-

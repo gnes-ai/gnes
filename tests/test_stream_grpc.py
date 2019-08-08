@@ -37,8 +37,9 @@ class TestStreamgRPC(unittest.TestCase):
     def setUp(self):
         self.all_bytes = [b'abc', b'def', b'cde'] * 10
         self.all_bytes2 = [b'abc', b'def', b'cde']
+        os.unsetenv('http_proxy')
+        os.unsetenv('https_proxy')
 
-    # @unittest.mock.patch.dict(os.environ, {'http_proxy': '', 'https_proxy': ''})
     def test_grpc_frontend(self):
         args = set_grpc_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
@@ -62,7 +63,6 @@ class TestStreamgRPC(unittest.TestCase):
 
             self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
 
-    # @unittest.mock.patch.dict(os.environ, {'http_proxy': '', 'https_proxy': ''})
     def test_async_block(self):
         args = set_grpc_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
