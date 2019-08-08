@@ -17,16 +17,16 @@ class TestServiceManager(unittest.TestCase):
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
 
-    def _test_multiple_router(self, backend='thread'):
+    def _test_multiple_router(self, backend='thread', num_parallel=5):
         a = set_router_service_parser().parse_args([
             '--yaml_path', 'BaseRouter',
-            '--num_parallel', '5',
+            '--num_parallel', str(num_parallel),
             '--parallel_backend', backend
         ])
         with ServiceManager(RouterService, a):
             pass
 
-    def _test_grpc_multiple_router(self, backend='thread'):
+    def _test_grpc_multiple_router(self, backend='thread', num_parallel=5):
         args = set_grpc_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
@@ -37,11 +37,11 @@ class TestServiceManager(unittest.TestCase):
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--yaml_path', 'BaseRouter',
-            '--num_parallel', '5',
+            '--num_parallel', str(num_parallel),
             '--parallel_backend', backend
         ])
 
-        with ServiceManager(RouterService, p_args) as sm, GRPCFrontend(args), grpc.insecure_channel(
+        with ServiceManager(RouterService, p_args), GRPCFrontend(args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
@@ -49,7 +49,7 @@ class TestServiceManager(unittest.TestCase):
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
             self.assertEqual(resp.request_id, '0')
 
-    def _test_grpc_multiple_pub(self, backend='thread'):
+    def _test_grpc_multiple_pub(self, backend='thread', num_parallel=5):
         args = set_grpc_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
@@ -60,12 +60,12 @@ class TestServiceManager(unittest.TestCase):
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--yaml_path', 'BaseRouter',
-            '--num_parallel', '5',
+            '--num_parallel', str(num_parallel),
             '--parallel_backend', backend,
             '--parallel_type', str(ParallelType.PUB_BLOCK)
         ])
 
-        with ServiceManager(RouterService, p_args) as sm, GRPCFrontend(args), grpc.insecure_channel(
+        with ServiceManager(RouterService, p_args), GRPCFrontend(args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
@@ -74,13 +74,19 @@ class TestServiceManager(unittest.TestCase):
             self.assertEqual(resp.request_id, '0')
 
     def test_grpc_with_pub(self):
-        self._test_grpc_multiple_pub('thread')
-        self._test_grpc_multiple_pub('process')
+        self._test_grpc_multiple_pub('thread', 1)
+        self._test_grpc_multiple_pub('process', 1)
+        self._test_grpc_multiple_pub('thread', 5)
+        self._test_grpc_multiple_pub('process', 5)
 
     def test_grpc_with_multi_service(self):
-        self._test_grpc_multiple_router('thread')
-        self._test_grpc_multiple_router('process')
+        self._test_grpc_multiple_router('thread', 1)
+        self._test_grpc_multiple_router('process', 1)
+        self._test_grpc_multiple_router('thread', 5)
+        self._test_grpc_multiple_router('process', 5)
 
     def test_multiple_router(self):
-        self._test_multiple_router('thread')
-        self._test_multiple_router('process')
+        self._test_multiple_router('thread', 1)
+        self._test_multiple_router('process', 1)
+        self._test_multiple_router('thread', 5)
+        self._test_multiple_router('process', 5)

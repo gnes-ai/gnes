@@ -91,7 +91,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
                 expanded_input], center_point_list
 
     def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> \
-    List[int]:
+            List[int]:
         location_list = self._get_location(all_subareas, center_point)
         location = [i for i in range(len(location_list)) if location_list[i] is True][0]
         return index[location][:2]
