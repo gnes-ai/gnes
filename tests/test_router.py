@@ -171,7 +171,7 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.chunk.doc_id = 3
+            s.doc.doc_id = 3
 
             msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
@@ -190,7 +190,7 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.chunk.doc_id = 3
+            s.doc.doc_id = 3
             s.doc.raw_text = 'd3'
 
             msg.response.search.top_k = 5
