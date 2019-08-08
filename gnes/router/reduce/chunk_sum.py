@@ -29,9 +29,9 @@ class ChunkSumRouter(BaseReduceRouter):
         doc_score = defaultdict(float)
         doc_score_explained = defaultdict(str)
 
-        for id, s, ex in zip(all_docs_id, all_docs_socres, all_score_explained):
-            doc_score[id] += s
-            doc_score_explained[id] += '%s\n' % ex
+        for id_, s, ex in zip(all_docs_id, all_docs_socres, all_score_explained):
+            doc_score[id_] += s
+            doc_score_explained[id_] += '%s\n' % ex
 
         msg.response.search.ClearField('topk_results')
 
