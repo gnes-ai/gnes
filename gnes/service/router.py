@@ -32,7 +32,7 @@ class RouterService(BS):
 
     def _is_msg_complete(self, msg: 'gnes_pb2.Message', num_req: int) -> bool:
         return (num_req == msg.envelope.num_part[-1]) or \
-               (hasattr(self.args, 'num_part') and num_req == self.args.num_part)
+               (num_req == self.args.num_part)
 
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):

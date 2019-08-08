@@ -436,7 +436,7 @@ class ServiceManager:
             self.services.append(RouterService(_head_router))
             self.services.append(RouterService(_tail_router))
 
-            for j in range(args.num_parallel):
+            for _ in range(args.num_parallel):
                 _args = copy.deepcopy(args)
                 _args.port_in = port_out
                 _args.port_out = port_in

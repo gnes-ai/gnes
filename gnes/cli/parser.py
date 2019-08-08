@@ -185,7 +185,7 @@ def set_router_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-    parser.add_argument('--num_part', type=int, default=1,
+    parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
     return parser
