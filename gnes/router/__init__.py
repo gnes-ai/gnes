@@ -27,7 +27,8 @@ _cls2file_map = {
     'ConcatEmbedRouter': 'reduce.concat',
     'PublishRouter': 'map.simple',
     'DocBatchRouter': 'map.simple',
-
+    'ChunkRouterReduceRouter': 'reduce.chunk_router',
+    'DocRouterReduceRouter': 'reduce.doc_text_router'
 }
 
 register_all_class(_cls2file_map, 'router')
