@@ -14,8 +14,6 @@
 #  limitations under the License.
 import io
 
-import copy
-
 from .base import YamlComposer
 from ..cli.parser import set_composer_parser
 from ..helper import set_logger
