@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .base import BaseAudioPreprocessor
 import numpy as np
+
+from .base import BaseAudioPreprocessor
 from ..helper import get_video_length_from_raw, get_audio
 from ...proto import array2blob
 

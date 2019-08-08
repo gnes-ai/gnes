@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
+
 
 # A key-value map for Class to the (module)file it located in
 from ..base import register_all_class

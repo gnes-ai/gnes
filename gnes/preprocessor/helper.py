@@ -13,16 +13,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
+import datetime
 import io
-import subprocess as sp
-from typing import List, Callable
 import os
+import subprocess as sp
+from datetime import timedelta
+from typing import List, Callable
+
 import cv2
 import numpy as np
-import datetime
-from datetime import timedelta
 from PIL import Image
 
 from ..helper import set_logger
@@ -32,12 +32,13 @@ logger = set_logger(__name__, True)
 
 def get_video_length(video_path):
     import re
-    process = sp.Popen(['ffmpeg',  '-i', video_path],
+    process = sp.Popen(['ffmpeg', '-i', video_path],
                        stdout=sp.PIPE,
                        stderr=sp.STDOUT)
     stdout, _ = process.communicate()
     stdout = str(stdout)
-    matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
+    matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout,
+                        re.DOTALL).groupdict()
     h = float(matches['hours'])
     m = float(matches['minutes'])
     s = float(matches['seconds'])
@@ -120,7 +121,9 @@ def split_mp4_random(video_path, avg_length, max_clip_second=10):
     prefix = os.path.basename(video_path).replace('.mp4', '')
     for i in range(num_part):
         i_len = len(ts_group[i])
-        cmd = 'ffmpeg' + ''.join(ts_group[i]) + '-filter_complex "{}concat=n={}:v=1:a=1" -strict -2 {}_{}.mp4 -y'.format(''.join(['[{}]'.format(k) for k in range(i_len)]), i_len, prefix, i)
+        cmd = 'ffmpeg' + ''.join(
+            ts_group[i]) + '-filter_complex "{}concat=n={}:v=1:a=1" -strict -2 {}_{}.mp4 -y'.format(
+            ''.join(['[{}]'.format(k) for k in range(i_len)]), i_len, prefix, i)
         os.system(cmd)
 
 
@@ -174,7 +177,8 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                     cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     frames.append(image)
                 except Exception as e:
-                    logger.warning("The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
+                    logger.warning(
+                        "The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
         else:
             logger.error("The image format [%s] is not supported so far!" % image_format)
             raise NotImplementedError

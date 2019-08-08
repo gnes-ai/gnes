@@ -57,8 +57,13 @@ class YamlComposerFlask:
                 args.yaml_path = io.StringIO(data['yaml-config'])
                 if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
                     args.mermaid_leftright = True
+                else:
+                    args.mermaid_leftright = False
                 if 'docker-image' in data:
                     args.docker_img = data['docker-image']
+                else:
+                    args.docker_img = 'gnes/gnes:latest'
+
                 return YamlComposer(args).build_all()['html']
             except Exception as e:
                 self.logger.error(e)
