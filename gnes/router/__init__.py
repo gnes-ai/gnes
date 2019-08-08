@@ -21,11 +21,13 @@ _cls2file_map = {
     'BaseRouter': 'base',
     'BaseMapRouter': 'base',
     'BaseReduceRouter': 'base',
-    'ChunkReduceRouter': 'reduce.chunk',
-    'DocReduceRouter': 'reduce.document',
+    'ChunkToDocumentRouter': 'reduce.chunk',
+    'DocFillRouter': 'reduce.document',
     'ConcatEmbedRouter': 'reduce.concat',
     'PublishRouter': 'map.simple',
     'DocBatchRouter': 'map.simple',
+    'ChunkSumRouter': 'reduce.chunk_sum',
+    'DocSumRouter': 'reduce.doc_sum'
 
 }
 
