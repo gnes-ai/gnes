@@ -14,6 +14,8 @@
 #  limitations under the License.
 import io
 
+import copy
+
 from .base import YamlComposer
 from ..cli.parser import set_composer_parser
 from ..helper import set_logger
@@ -54,12 +56,13 @@ class YamlComposerFlask:
             if not data or 'yaml-config' not in data:
                 return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
             try:
-                args.yaml_path = io.StringIO(data['yaml-config'])
+                _args = copy.deepcopy(args)
+                _args.yaml_path = io.StringIO(data['yaml-config'])
                 if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
-                    args.mermaid_leftright = True
+                    _args.mermaid_leftright = True
                 if 'docker-image' in data:
-                    args.docker_img = data['docker-image']
-                return YamlComposer(args).build_all()['html']
+                    _args.docker_img = data['docker-image']
+                return YamlComposer(_args).build_all()['html']
             except Exception as e:
                 self.logger.error(e)
                 return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
