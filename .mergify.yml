@@ -1,0 +1,21 @@
+pull_request_rules:
+  - name: automatic merge on CI success and review
+    conditions:
+      - status-success=continuous-integration/drone/pr
+      - status-success=Codacy/PR Quality Review
+      - "#approved-reviews-by>=1"
+    actions:
+      merge:
+        method: merge
+  - name: automatic merge on new-release label
+    conditions:
+      - base=master
+      - label=new-release
+    actions:
+      merge:
+        method: merge
+        strict: true
+  - name: delete head branch after merge
+    conditions: []
+    actions:
+      delete_head_branch: {}

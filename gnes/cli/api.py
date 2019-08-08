@@ -16,6 +16,12 @@
 # pylint: disable=low-comment-ratio
 
 
+def preprocess(args):
+    from ..service.preprocessor import PreprocessorService
+    with PreprocessorService(args) as es:
+        es.join()
+
+
 def encode(args):
     from ..service.encoder import EncoderService
     with EncoderService(args) as es:
@@ -34,28 +40,12 @@ def route(args):
         es.join()
 
 
-def compose(args):
-    from ..composer.base import YamlComposer
-    from ..composer.flask import YamlComposerFlask
-
-    if args.flask:
-        YamlComposerFlask(args).run()
-    else:
-        YamlComposer(args).build_all()
-
-
 def frontend(args):
     from ..service.grpc import GRPCFrontend
     import threading
     with GRPCFrontend(args):
         forever = threading.Event()
         forever.wait()
-
-
-def preprocess(args):
-    from ..service.preprocessor import PreprocessorService
-    with PreprocessorService(args) as es:
-        es.join()
 
 
 def client_http(args):
@@ -66,3 +56,13 @@ def client_http(args):
 def client_cli(args):
     from ..client.cli import CLIClient
     CLIClient(args)
+
+
+def compose(args):
+    from ..composer.base import YamlComposer
+    from ..composer.flask import YamlComposerFlask
+
+    if args.flask:
+        YamlComposerFlask(args).run()
+    else:
+        YamlComposer(args).build_all()
