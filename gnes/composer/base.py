@@ -38,7 +38,7 @@ class YamlComposer:
         'Encoder': 'encode',
         'Router': 'route',
         'Indexer': 'index',
-        'gRPCFrontend': 'frontend',
+        'Frontend': 'frontend',
         'Preprocessor': 'preprocess'
     }
 
@@ -46,7 +46,7 @@ class YamlComposer:
         'Encoder': set_loadable_service_parser().parse_args(['--yaml_path', 'BaseEncoder']),
         'Router': set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter']),
         'Indexer': set_indexer_service_parser().parse_args(['--yaml_path', 'BaseIndexer']),
-        'gRPCFrontend': set_frontend_parser().parse_args([]),
+        'Frontend': set_frontend_parser().parse_args([]),
         'Preprocessor': set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
     }
 
@@ -115,7 +115,7 @@ class YamlComposer:
 
         if 'services' in tmp:
             self.add_layer()
-            self.add_comp(CommentedMap({'name': 'gRPCFrontend', 'grpc_port': self._port}))
+            self.add_comp(CommentedMap({'name': 'Frontend', 'grpc_port': self._port}))
             for comp in tmp['services']:
                 self.add_layer()
                 if isinstance(comp, list):
@@ -158,9 +158,9 @@ class YamlComposer:
                 all_layers.append(copy.deepcopy(l))
         all_layers[0] = copy.deepcopy(self._layers[0])
 
-        # gRPCfrontend should always on the bind role
+        # Frontend should always on the bind role
         assert all_layers[0].is_single_component
-        assert all_layers[0].components[0]['name'] == 'gRPCFrontend'
+        assert all_layers[0].components[0]['name'] == 'Frontend'
 
         if all_layers[0].components[0]['socket_in'] == str(SocketType.SUB_CONNECT):
             # change to sub bind
@@ -244,7 +244,7 @@ class YamlComposer:
                         and (c['yaml_path'].endswith('.yml') or c['yaml_path'].endswith('.yaml')):
                     swarm_lines['services'][c_name]['configs'] = ['%s_yaml' % c_name]
 
-                if c['name'] == 'gRPCFrontend':
+                if c['name'] == 'Frontend':
                     swarm_lines['services'][c_name]['ports'] = ['%d:%d' % (c['grpc_port'], c['grpc_port'])]
 
         if volumes:
@@ -312,7 +312,7 @@ class YamlComposer:
                 # if len(last_layer.components) > 1:
                 #     self.mermaid_graph.append('\tend')
 
-        style = ['classDef gRPCFrontendCLS fill:#FFE0E0,stroke:#FFE0E0,stroke-width:1px;',
+        style = ['classDef FrontendCLS fill:#FFE0E0,stroke:#FFE0E0,stroke-width:1px;',
                  'classDef EncoderCLS fill:#FFDAAF,stroke:#FFDAAF,stroke-width:1px;',
                  'classDef IndexerCLS fill:#FFFBC1,stroke:#FFFBC1,stroke-width:1px;',
                  'classDef RouterCLS fill:#C9E8D2,stroke:#C9E8D2,stroke-width:1px;',
