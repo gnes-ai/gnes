@@ -59,15 +59,16 @@ class TestGRPCService(unittest.TestCase):
         ])
 
     def test_grpc_empty_service(self):
-        with DummyServer('127.0.0.1:5678'), GRPCService(self.s_args):
+        with DummyServer('%s:%d' % (self.s_args.grpc_host, self.s_args.grpc_port)), GRPCService(self.s_args):
             pass
 
     @unittest.SkipTest
     def test_grpc_real_service(self):
-        with DummyServer('127.0.0.1:5678'), GRPCService(self.s_args), FrontendService(self.args), grpc.insecure_channel(
-                '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
-                options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
+        with DummyServer('%s:%d' % (self.s_args.grpc_host, self.s_args.grpc_port)), GRPCService(
+                self.s_args), FrontendService(self.args), grpc.insecure_channel(
+            '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
+            options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
+                     ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
             self.assertEqual(resp.request_id, '0')  # idx start with 0, but +1 for final FLUSH
