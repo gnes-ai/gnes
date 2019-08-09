@@ -146,8 +146,8 @@ class GRPCFrontend:
         self.logger = set_logger(self.__class__.__name__, args.verbose)
         self.server = grpc.server(
             futures.ThreadPoolExecutor(max_workers=args.max_concurrency),
-            options=[('grpc.max_send_message_length', args.max_send_size * 1024 * 1024),
-                     ('grpc.max_receive_message_length', args.max_receive_size * 1024 * 1024)])
+            options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
+                     ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)])
         self.logger.info('start a grpc server with %d workers' % args.max_concurrency)
         gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), self.server)
 
