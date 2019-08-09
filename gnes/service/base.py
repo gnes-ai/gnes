@@ -114,6 +114,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
     }[socket_type]()
 
     if socket_type.is_bind:
+        host = BaseService.default_host
         if port is None:
             sock.bind_to_random_port('tcp://%s' % host)
         else:

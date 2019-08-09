@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 from typing import List, Any
 
 import numpy as np

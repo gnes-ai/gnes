@@ -4,9 +4,9 @@ import unittest
 import numpy as np
 
 from gnes.cli.parser import set_router_service_parser, _set_client_parser
+from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2, array2blob
 from gnes.service.base import SocketType
-from gnes.service.grpc import ZmqClient
 from gnes.service.router import RouterService
 
 

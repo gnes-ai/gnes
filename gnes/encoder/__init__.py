@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 # A key-value map for Class to the (module)file it located in
 from ..base import register_all_class
 
