@@ -46,9 +46,9 @@ def route(args):
 
 
 def frontend(args):
-    from ..service.grpc import GRPCFrontend
+    from gnes.service.frontend import FrontendService
     import threading
-    with GRPCFrontend(args):
+    with FrontendService(args):
         forever = threading.Event()
         forever.wait()
 
