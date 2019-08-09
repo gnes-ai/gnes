@@ -64,6 +64,8 @@ class TestGRPCService(unittest.TestCase):
 
     @unittest.SkipTest
     def test_grpc_real_service(self):
+        # to fix
+
         with DummyServer('%s:%d' % (self.s_args.grpc_host, self.s_args.grpc_port)), GRPCService(
                 self.s_args), FrontendService(self.args), grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
