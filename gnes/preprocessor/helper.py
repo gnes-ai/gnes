@@ -186,6 +186,12 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     return frames
 
 
+def split_video_frames(buffer_data: bytes,
+                       splitter: str = '__split__'):
+    chunks = buffer_data.split(splitter.encode())
+    return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
+
+
 def block_descriptor(image: 'np.ndarray',
                      descriptor_fn: Callable,
                      num_blocks: int = 3) -> 'np.ndarray':
