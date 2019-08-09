@@ -460,6 +460,7 @@ class ServiceManager:
         self.stack = ExitStack()
         for s in self.services:
             self.stack.enter_context(s)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stack.close()
