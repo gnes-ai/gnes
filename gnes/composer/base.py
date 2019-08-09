@@ -24,7 +24,7 @@ from ruamel.yaml import YAML, StringIO
 from ruamel.yaml.comments import CommentedMap
 
 from .. import __version__
-from ..cli.parser import set_grpc_frontend_parser, \
+from ..cli.parser import set_frontend_parser, \
     set_router_service_parser, set_loadable_service_parser, set_preprocessor_service_parser, \
     set_indexer_service_parser
 from ..helper import set_logger
@@ -46,7 +46,7 @@ class YamlComposer:
         'Encoder': set_loadable_service_parser().parse_args(['--yaml_path', 'BaseEncoder']),
         'Router': set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter']),
         'Indexer': set_indexer_service_parser().parse_args(['--yaml_path', 'BaseIndexer']),
-        'gRPCFrontend': set_grpc_frontend_parser().parse_args([]),
+        'gRPCFrontend': set_frontend_parser().parse_args([]),
         'Preprocessor': set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
     }
 

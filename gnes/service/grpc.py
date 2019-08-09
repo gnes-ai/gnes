@@ -20,9 +20,34 @@ from concurrent import futures
 
 import grpc
 
+from .base import BaseService as BS, MessageHandler
 from ..client.base import ZmqClient
 from ..helper import set_logger
 from ..proto import gnes_pb2, gnes_pb2_grpc
+
+
+class GRPCService(BS):
+    handler = MessageHandler(BS.handler)
+
+    def post_init(self):
+        self.channel = grpc.insecure_channel(
+            '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
+            options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
+                     ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
+
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('gnes.contrib', self.args.pb2_grpc_path)
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        self.stub = getattr(foo, self.args.grpc_stub_name)(self.channel)
+
+    def close(self):
+        self.channel.close()
+        super().close()
+
+    @handler.register(NotImplementedError)
+    def _handler_default(self, msg: 'gnes_pb2.Message'):
+        yield getattr(self.stub, self.args.grpc_api_name)(msg)
 
 
 class GRPCFrontend:

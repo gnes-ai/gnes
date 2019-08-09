@@ -14,32 +14,35 @@
 #  limitations under the License.
 
 
-def preprocess(args):
+def _start_service(cls, args):
     from ..service.base import ServiceManager
-    from ..service.preprocessor import PreprocessorService
-    with ServiceManager(PreprocessorService, args) as es:
+    with ServiceManager(cls, args) as es:
         es.join()
+
+
+def grpc(args):
+    from ..service.grpc import GRPCService
+    _start_service(GRPCService, args)
+
+
+def preprocess(args):
+    from ..service.preprocessor import PreprocessorService
+    _start_service(PreprocessorService, args)
 
 
 def encode(args):
-    from ..service.base import ServiceManager
     from ..service.encoder import EncoderService
-    with ServiceManager(EncoderService, args) as es:
-        es.join()
+    _start_service(EncoderService, args)
 
 
 def index(args):
-    from ..service.base import ServiceManager
     from ..service.indexer import IndexerService
-    with ServiceManager(IndexerService, args) as es:
-        es.join()
+    _start_service(IndexerService, args)
 
 
 def route(args):
-    from ..service.base import ServiceManager
     from ..service.router import RouterService
-    with ServiceManager(RouterService, args) as es:
-        es.join()
+    _start_service(RouterService, args)
 
 
 def frontend(args):

@@ -4,7 +4,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_grpc_frontend_parser, set_router_service_parser
+from gnes.cli.parser import set_frontend_parser, set_router_service_parser
 from gnes.helper import TimeContext
 from gnes.proto import RequestGenerator, gnes_pb2_grpc
 from gnes.service.base import SocketType, MessageHandler, BaseService as BS
@@ -41,7 +41,7 @@ class TestStreamgRPC(unittest.TestCase):
         os.unsetenv('https_proxy')
 
     def test_grpc_frontend(self):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -64,7 +64,7 @@ class TestStreamgRPC(unittest.TestCase):
             self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
 
     def test_async_block(self):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 

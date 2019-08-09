@@ -3,7 +3,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_router_service_parser, set_grpc_frontend_parser
+from gnes.cli.parser import set_router_service_parser, set_frontend_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType, ParallelType
 from gnes.service.grpc import GRPCFrontend
@@ -27,7 +27,7 @@ class TestServiceManager(unittest.TestCase):
             pass
 
     def _test_grpc_multiple_router(self, backend='thread', num_parallel=5):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -50,7 +50,7 @@ class TestServiceManager(unittest.TestCase):
             self.assertEqual(resp.request_id, '0')
 
     def _test_grpc_multiple_pub(self, backend='thread', num_parallel=5):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
