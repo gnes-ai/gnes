@@ -16,7 +16,7 @@
 from typing import List
 
 import numpy as np
-
+import random
 from .base import BaseVideoPreprocessor
 from ..helper import get_video_frames, phash_descriptor
 from ...proto import gnes_pb2, array2blob
@@ -107,6 +107,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  segment_method: str = 'cut_by_frame',
                  segment_interval: int = -1,
                  segment_num: int = 3,
+                 max_frames_per_doc: int = -1,
                  audio_interval: int = 30,
                  sample_rate: int = 16000,
                  *args,
@@ -115,6 +116,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         self.segment_method = segment_method
         self.segment_interval = segment_interval
         self.segment_num = segment_num
+        self.max_frames_per_doc = max_frames_per_doc
         self.audio_interval = audio_interval
         self.sample_rate = sample_rate
         self._ffmpeg_kwargs = kwargs
@@ -123,6 +125,10 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         super().apply(doc)
         if doc.raw_bytes:
             frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
+            if self.max_frames_per_doc > 0:
+                random_id = random.sample(range(len(frames)),
+                                          k=min(self.max_frames_per_doc, len(frames)))
+                frames = [frames[i] for i in sorted(random_id)]
 
             sub_videos = []
             if len(frames) >= 1:
