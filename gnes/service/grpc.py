@@ -19,45 +19,10 @@ import uuid
 from concurrent import futures
 
 import grpc
-import zmq
 
-from .base import build_socket
+from ..client.base import ZmqClient
 from ..helper import set_logger
-from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
-
-__all__ = ['GRPCFrontend']
-
-
-class ZmqClient:
-
-    def __init__(self, args):
-        self.args = args
-        self.identity = args.identity if 'identity' in args else None
-        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.ctx = zmq.Context()
-        self.ctx.setsockopt(zmq.LINGER, 0)
-        self.receiver, recv_addr = build_socket(self.ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
-                                                getattr(self, 'identity', None))
-        self.sender, send_addr = build_socket(self.ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
-                                              getattr(self, 'identity', None))
-        self.logger.info('send via %s, receive via %s' % (send_addr, recv_addr))
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
-    def close(self):
-        self.sender.close()
-        self.receiver.close()
-        self.ctx.term()
-
-    def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
-        send_message(self.sender, message, timeout=timeout)
-
-    def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        return recv_message(self.receiver, timeout=timeout)
+from ..proto import gnes_pb2, gnes_pb2_grpc
 
 
 class GRPCFrontend:
