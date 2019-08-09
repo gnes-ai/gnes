@@ -23,6 +23,7 @@ class NetFV():
                  cluster_size,
                  vocab_size,
                  method='netvlad',
+                 use_length=False,
                  input_size=None,
                  use_2nd_label=False,
                  vocab_size_2=None,
@@ -37,6 +38,7 @@ class NetFV():
         else:
             self.input_size = input_size
         self.feature_size = feature_size
+        self.use_length = use_length
         self.is_training = is_training
         self.vocab_size = vocab_size
         self.use_2nd_label = use_2nd_label
@@ -56,10 +58,14 @@ class NetFV():
 
     def build_model(self):
         self.feeds = tf.placeholder(tf.float32, [None, None, self.input_size])
+        self.feeds_length = tf.placeholder(tf.int32, [None])
         #self.inputs = self.feeds
         self.inputs = tf.layers.dense(self.feeds, self.feature_size)
+
         self.weights = tf.placeholder(tf.float32, [None, self.vocab_size])
         self.max_frames = tf.shape(self.inputs)[1]
+        self.seq_length = tf.cast(tf.sequence_mask(self.feeds_length,
+                                                   self.max_frames), tf.float32)
         if self.method == 'fvnet':
             self.build_fvnet()
         elif self.method == 'netvlad':
@@ -164,8 +170,13 @@ class NetFV():
             activation += cluster_biases
         activation = tf.nn.softmax(activation)
         activation = tf.reshape(activation, [-1, self.max_frames, self.cluster_size])
+        if self.use_length:
+            activation *= tf.reshape(self.seq_length, [-1, self.max_frames, 1])
 
         a_sum = tf.reduce_sum(activation, -2, keep_dims=True)
+
+        if self.use_length:
+            a_sum = a_sum / tf.cast(tf.reshape(self.feeds_length, [-1, 1, 1]), tf.float32)
 
         cluster_weights2 = tf.get_variable("cluster_weights2",
                                            [1, self.feature_size, self.cluster_size],
@@ -177,6 +188,8 @@ class NetFV():
         reshaped_input = tf.reshape(reshaped_input,
                                     [-1, self.max_frames, self.feature_size])
         vlad = tf.matmul(activation, reshaped_input)
+        if self.use_length:
+            vlad = vlad / tf.cast(tf.reshape(self.feeds_length, [-1, 1, 1]), tf.float32)
         vlad = tf.transpose(vlad, perm=[0, 2, 1])
         vlad = tf.subtract(vlad, a)
 
