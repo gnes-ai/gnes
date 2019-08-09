@@ -13,8 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
-
 
 import argparse
 
@@ -106,7 +104,7 @@ def set_composer_flask_parser(parser=None):
 
 
 def set_service_parser(parser=None):
-    from ..service.base import SocketType, BaseService
+    from ..service.base import SocketType, BaseService, ParallelType
     import random
     if not parser:
         parser = set_base_parser()
@@ -134,8 +132,15 @@ def set_service_parser(parser=None):
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
                              'dump_interval will be ignored')
-    parser.add_argument('--concurrency_backend', type=str, choices=['thread', 'process'], default='thread',
-                        help='concurrency backend of the service')
+    parser.add_argument('--parallel_backend', type=str, choices=['thread', 'process'], default='thread',
+                        help='parallel backend of the service')
+    parser.add_argument('--num_parallel', type=int, default=1,
+                        help='number of parallel services running at the same time, '
+                             '`port_in` and `port_out` will be set to random, '
+                             'and routers will be added automatically when necessary')
+    parser.add_argument('--parallel_type', type=ParallelType.from_string, choices=list(ParallelType),
+                        default=ParallelType.PUSH_NONBLOCK,
+                        help='parallel type of the concurrent services')
     return parser
 
 
@@ -172,7 +177,6 @@ def set_preprocessor_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
-
     parser.set_defaults(read_only=True)
     return parser
 
@@ -181,6 +185,8 @@ def set_router_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
+    parser.add_argument('--num_part', type=int, default=None,
+                        help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
     return parser
 

@@ -13,12 +13,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
+
+
+from typing import List
+
+import numpy as np
 
 from ..base import BaseAudioEncoder
 from ...helper import batching
-import numpy as np
-from typing import List
 
 
 class MfccEncoder(BaseAudioEncoder):
@@ -37,7 +39,6 @@ class MfccEncoder(BaseAudioEncoder):
                  for audio in data]
 
         max_lenth = max([len(mf) for mf in mfccs])
-
 
         mfccs = [np.concatenate((mf, np.zeros((max_lenth - mf.shape[0], self.n_mfcc), dtype=np.float32)), axis=0)
                  if mf.shape[0] < max_lenth else mf for mf in mfccs]

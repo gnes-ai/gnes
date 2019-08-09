@@ -137,13 +137,13 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                     if self.segment_interval == -1:
                         sub_videos = [frames]
                     else:
-                        sub_videos = [frames[_: _+self.segment_interval]
+                        sub_videos = [frames[_: _ + self.segment_interval]
                                       for _ in range(0, len(frames), self.segment_interval)]
                 # cut by num: should specify how many chunks for each doc
                 elif self.segment_method == 'cut_by_num':
                     if self.segment_num >= 2:
-                        _interval = int(len(frames)/self.segment_num)
-                        sub_videos = [frames[_: _+_interval]
+                        _interval = int(len(frames) / self.segment_num)
+                        sub_videos = [frames[_: _ + _interval]
                                       for _ in range(0, len(frames), _interval)]
                     else:
                         sub_videos = [frames]

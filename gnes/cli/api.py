@@ -13,30 +13,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
-
 
 def preprocess(args):
+    from ..service.base import ServiceManager
     from ..service.preprocessor import PreprocessorService
-    with PreprocessorService(args) as es:
+    with ServiceManager(PreprocessorService, args) as es:
         es.join()
 
 
 def encode(args):
+    from ..service.base import ServiceManager
     from ..service.encoder import EncoderService
-    with EncoderService(args) as es:
+    with ServiceManager(EncoderService, args) as es:
         es.join()
 
 
 def index(args):
+    from ..service.base import ServiceManager
     from ..service.indexer import IndexerService
-    with IndexerService(args) as es:
+    with ServiceManager(IndexerService, args) as es:
         es.join()
 
 
 def route(args):
+    from ..service.base import ServiceManager
     from ..service.router import RouterService
-    with RouterService(args) as es:
+    with ServiceManager(RouterService, args) as es:
         es.join()
 
 

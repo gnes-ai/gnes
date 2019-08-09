@@ -17,8 +17,10 @@ class TestProto(unittest.TestCase):
         self.publish_router_yaml = '!PublishRouter {parameter: {num_part: 2}}'
         self.batch_router_yaml = '!DocBatchRouter {gnes_config: {batch_size: 2}}'
         self.reduce_router_yaml = 'BaseReduceRouter'
-        self.chunk_router_yaml = 'ChunkReduceRouter'
-        self.doc_router_yaml = 'DocReduceRouter'
+        self.chunk_router_yaml = 'ChunkToDocumentRouter'
+        self.chunk_sum_yaml = 'ChunkSumRouter'
+        self.doc_router_yaml = 'DocFillRouter'
+        self.doc_sum_yaml = 'DocSumRouter'
         self.concat_router_yaml = 'ConcatEmbedRouter'
 
     def test_service_empty(self):
@@ -171,7 +173,7 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.chunk.doc_id = 3
+            s.doc.doc_id = 3
 
             msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
@@ -190,8 +192,131 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.chunk.doc_id = 3
+            s.doc.doc_id = 3
             s.doc.raw_text = 'd3'
+
+            msg.response.search.top_k = 5
+            c1.send_message(msg)
+            r = c1.recv_message()
+
+            print(r.response.search.topk_results)
+            self.assertSequenceEqual(r.envelope.num_part, [1])
+            self.assertEqual(len(r.response.search.topk_results), 3)
+            self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
+
+    def test_chunk_sum_reduce_router(self):
+        args = set_router_service_parser().parse_args([
+            '--yaml_path', self.chunk_sum_yaml,
+            '--socket_out', str(SocketType.PUB_BIND)
+        ])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.SUB_CONNECT)
+        ])
+        with RouterService(args), ZmqClient(c_args) as c1:
+            msg = gnes_pb2.Message()
+            s = msg.response.search.topk_results.add()
+            s.score = 0.6
+            s.score_explained = '1-c1\n1-c3\n2-c1\n'
+            s.doc.doc_id = 1
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.4
+            s.score_explained = '1-c2\n2-c2\n'
+            s.doc.doc_id = 2
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.3
+            s.score_explained = '2-c3\n'
+            s.doc.doc_id = 3
+
+            msg.envelope.num_part.extend([1, 2])
+            c1.send_message(msg)
+
+            msg.response.search.ClearField('topk_results')
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.5
+            s.score_explained = '2-c1\n1-c2\n1-c1\n'
+            s.doc.doc_id = 2
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.3
+            s.score_explained = '1-c3\n2-c2\n'
+            s.doc.doc_id = 3
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.1
+            s.score_explained = '2-c3\n'
+            s.doc.doc_id = 1
+            c1.send_message(msg)
+            r = c1.recv_message()
+            self.assertSequenceEqual(r.envelope.num_part, [1])
+            self.assertEqual(len(r.response.search.topk_results), 3)
+            self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
+            print(r.response.search.topk_results)
+            self.assertEqual(r.response.search.topk_results[0].score_explained, '1-c2\n2-c2\n\n2-c1\n1-c2\n1-c1\n\n')
+            self.assertEqual(r.response.search.topk_results[1].score_explained, '1-c1\n1-c3\n2-c1\n\n2-c3\n\n')
+            self.assertEqual(r.response.search.topk_results[2].score_explained, '2-c3\n\n1-c3\n2-c2\n\n')
+
+            self.assertAlmostEqual(r.response.search.topk_results[0].score, 0.9)
+            self.assertAlmostEqual(r.response.search.topk_results[1].score, 0.7)
+            self.assertAlmostEqual(r.response.search.topk_results[2].score, 0.6)
+
+    def test_doc_sum_reduce_router(self):
+        args = set_router_service_parser().parse_args([
+            '--yaml_path', self.doc_sum_yaml,
+            '--socket_out', str(SocketType.PUB_BIND)
+        ])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.SUB_CONNECT)
+        ])
+        with RouterService(args), ZmqClient(c_args) as c1:
+            msg = gnes_pb2.Message()
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.4
+            s.doc.doc_id = 1
+            s.doc.raw_text = 'd3'
+            s.score_explained = '1-d3\n'
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.3
+            s.doc.doc_id = 2
+            s.doc.raw_text = 'd2'
+            s.score_explained = '1-d2\n'
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.2
+            s.doc.doc_id = 3
+            s.doc.raw_text = 'd1'
+            s.score_explained = '1-d3\n'
+
+            msg.envelope.num_part.extend([1, 2])
+            c1.send_message(msg)
+
+            msg.response.search.ClearField('topk_results')
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.5
+            s.doc.doc_id = 1
+            s.doc.raw_text = 'd2'
+            s.score_explained = '2-d2\n'
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.2
+            s.doc.doc_id = 2
+            s.doc.raw_text = 'd1'
+            s.score_explained = '2-d1\n'
+
+            s = msg.response.search.topk_results.add()
+            s.score = 0.1
+            s.doc.doc_id = 3
+            s.doc.raw_text = 'd3'
+            s.score_explained = '2-d3\n'
 
             msg.response.search.top_k = 5
             c1.send_message(msg)

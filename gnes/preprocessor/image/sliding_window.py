@@ -90,7 +90,8 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
                 expanded_input], center_point_list
 
-    def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> List[int]:
+    def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> \
+            List[int]:
         location_list = self._get_location(all_subareas, center_point)
         location = [i for i in range(len(location_list)) if location_list[i] is True][0]
         return index[location][:2]
@@ -104,9 +105,11 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
             if center_point[0] in range(int(area[0]), int(area[2])) and center_point[1] in range(int(area[1]),
                                                                                                  int(area[3])):
                 location_list.append(True)
-            elif center_point[0] in range(int(area[0]), int(area[2])) and y_boundary == area[3] and center_point[1] > y_boundary:
+            elif center_point[0] in range(int(area[0]), int(area[2])) and y_boundary == area[3] and center_point[
+                1] > y_boundary:
                 location_list.append(True)
-            elif center_point[1] in range(int(area[1]), int(area[3])) and x_boundary == area[2] and center_point[0] > x_boundary:
+            elif center_point[1] in range(int(area[1]), int(area[3])) and x_boundary == area[2] and center_point[
+                0] > x_boundary:
                 location_list.append(True)
             else:
                 location_list.append(False)

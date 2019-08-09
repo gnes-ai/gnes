@@ -14,22 +14,32 @@
 #  limitations under the License.
 
 from typing import List
+from collections import defaultdict
 
 from ..base import BaseReduceRouter
 from ...proto import gnes_pb2
 
 
-class DocFillRouter(BaseReduceRouter):
+class ChunkSumRouter(BaseReduceRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
-        final_docs = []
-        for idx, r in enumerate(msg.response.search.topk_results):
-            # get result from all shards, some may return None, we only take the first non-None doc
-            final_docs.append([m.response.search.topk_results[idx] for m in accum_msgs if
-                               m.response.search.topk_results[idx].doc.WhichOneof('raw_data') is not None][0])
+        all_docs_id = [top_k.doc.doc_id for m in accum_msgs for top_k in m.response.search.topk_results]
+        all_docs_socres = [top_k.score for m in accum_msgs for top_k in m.response.search.topk_results]
+        all_score_explained = [top_k.score_explained for m in accum_msgs for top_k in m.response.search.topk_results]
 
-        # resort all doc result as the doc_weight has been applied
-        final_docs = sorted(final_docs, key=lambda x: x.score, reverse=True)
+        doc_score = defaultdict(float)
+        doc_score_explained = defaultdict(str)
+
+        for id_, s, ex in zip(all_docs_id, all_docs_socres, all_score_explained):
+            doc_score[id_] += s
+            doc_score_explained[id_] += '%s\n' % ex
+
         msg.response.search.ClearField('topk_results')
-        msg.response.search.topk_results.extend(final_docs[:msg.response.search.top_k])
+
+        # sort and add docs
+        for k, v in sorted(doc_score.items(), key=lambda kv: -kv[1]):
+            r = msg.response.search.topk_results.add()
+            r.doc.doc_id = k
+            r.score = v
+            r.score_explained = doc_score_explained[k]
 
         super().apply(msg, accum_msgs)
