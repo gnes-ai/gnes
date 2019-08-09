@@ -44,6 +44,8 @@ class IndexerService(BS):
                     offsets += [c.offset_nd for c in d.chunks]
                 elif d.doc_type == gnes_pb2.Document.VIDEO:
                     offsets += [c.offset_1d for c in d.chunks]
+                elif d.doc_type == gnes_pb2.Document.AUDIO:
+                    offsets += [c.offset_1d for c in d.chunks]
                 weights += [c.weight for c in d.chunks]
 
         from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
