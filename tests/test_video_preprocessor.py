@@ -14,7 +14,7 @@ class TestFFmpeg(unittest.TestCase):
         self.yml_path = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg.yml')
         self.yml_path_2 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg2.yml')
         self.yml_path_3 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg3.yml')
-        self.yml_path_3 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg4.yml')
+        self.yml_path_4 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg4.yml')
         self.video_path = os.path.join(self.dirname, 'videos')
         self.video_bytes = [open(os.path.join(self.video_path, _), 'rb').read()
                             for _ in os.listdir(self.video_path)]
