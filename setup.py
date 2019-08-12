@@ -22,12 +22,12 @@ extensions = [
     Extension(
         'gnes.indexer.vector.bindexer.cython',
         ['gnes/indexer/vector/bindexer/bindexer.pyx'],
-        extra_compile_args=['-O3', '-Wl', '-g0', '--strip-all'],
+        extra_compile_args=['-O3', '-g0'],
     ),
     Extension(
         'gnes.indexer.vector.hbindexer.cython',
         ['gnes/indexer/vector/hbindexer/hbindexer.pyx'],
-        extra_compile_args=['-O3', '-Wl', '-g0', '--strip-all'],
+        extra_compile_args=['-O3', '-g0'],
     ),
 ]
 
