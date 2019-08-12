@@ -14,6 +14,7 @@ class TestFFmpeg(unittest.TestCase):
         self.yml_path = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg.yml')
         self.yml_path_2 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg2.yml')
         self.yml_path_3 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg3.yml')
+        self.yml_path_4 = os.path.join(self.dirname, 'yaml', 'preprocessor-ffmpeg4.yml')
         self.video_path = os.path.join(self.dirname, 'videos')
         self.video_bytes = [open(os.path.join(self.video_path, _), 'rb').read()
                             for _ in os.listdir(self.video_path)]
@@ -73,6 +74,24 @@ class TestFFmpeg(unittest.TestCase):
     def test_video_cut_by_num(self):
         args = set_preprocessor_service_parser().parse_args([
             '--yaml_path', self.yml_path_3
+        ])
+        c_args = _set_client_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in)
+        ])
+
+        with PreprocessorService(args), ZmqClient(c_args) as client:
+            for req in RequestGenerator.index(self.video_bytes):
+                msg = gnes_pb2.Message()
+                msg.request.index.CopyFrom(req.index)
+                client.send_message(msg)
+                r = client.recv_message()
+                for d in r.request.index.docs:
+                    self.assertEqual(len(d.chunks), 6)
+
+    def test_video_cut_by_clustering(self):
+        args = set_preprocessor_service_parser().parse_args([
+            '--yaml_path', self.yml_path_4
         ])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),

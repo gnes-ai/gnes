@@ -18,7 +18,7 @@ from typing import List
 import numpy as np
 import random
 from .base import BaseVideoPreprocessor
-from ..helper import get_video_frames, phash_descriptor
+from ..helper import get_video_frames, split_video_frames, phash_descriptor
 from ...proto import gnes_pb2, array2blob
 
 
@@ -108,6 +108,8 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  segment_interval: int = -1,
                  segment_num: int = 3,
                  max_frames_per_doc: int = -1,
+                 use_image_input: bool = False,
+                 splitter: str = '__split__',
                  audio_interval: int = 30,
                  sample_rate: int = 16000,
                  *args,
@@ -119,12 +121,18 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         self.max_frames_per_doc = max_frames_per_doc
         self.audio_interval = audio_interval
         self.sample_rate = sample_rate
+        self.splitter = splitter
+        self.use_image_input = use_image_input
         self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
+        from sklearn.cluster import KMeans
         if doc.raw_bytes:
-            frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
+            if self.use_image_input:
+                frames = split_video_frames(doc.raw_bytes, self.splitter)
+            else:
+                frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
             if self.max_frames_per_doc > 0:
                 random_id = random.sample(range(len(frames)),
                                           k=min(self.max_frames_per_doc, len(frames)))
@@ -145,6 +153,17 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                         _interval = int(len(frames) / self.segment_num)
                         sub_videos = [frames[_: _ + _interval]
                                       for _ in range(0, len(frames), _interval)]
+                    else:
+                        sub_videos = [frames]
+
+                # cut by clustering: params required
+                #   segment_num
+                elif self.segment_method == 'cut_by_clustering':
+                    if self.segment_num >= 2:
+                        hash_v = [phash_descriptor(_).hash for _ in frames]
+                        hash_v = np.array(hash_v, dtype=np.int32).reshape([len(hash_v), -1])
+                        label_v = KMeans(n_clusters=self.segment_num).fit_predict(hash_v)
+                        sub_videos = [[frames[i] for i, j in enumerate(label_v) if j == _] for _ in range(self.segment_num)]
                     else:
                         sub_videos = [frames]
 
