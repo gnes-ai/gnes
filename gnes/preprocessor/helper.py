@@ -95,7 +95,8 @@ def get_audio(buffer_data, sample_rate, interval,
             # has multiple channels, do average
             if len(data.shape) == 2:
                 data = np.mean(data, axis=1)
-            audio_list.append(data)
+            if data.shape[0] != 0:
+                audio_list.append(data)
 
         start_time = end_time
 
