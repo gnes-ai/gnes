@@ -37,8 +37,8 @@ class CLIClient:
 
         with grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
-                options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
+                options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
+                         ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             if args.mode == 'train':

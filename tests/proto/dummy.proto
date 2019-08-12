@@ -1,0 +1,36 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+
+package dummy;
+
+
+message Envelope {
+    // unique id of the sender of the message
+    string client_id = 1;
+
+    // unique id of the request
+    string request_id = 2;
+
+    // for multi-part message
+    uint32 part_id = 3;
+    repeated uint32 num_part = 4;
+
+    uint32 timeout = 5;
+
+    // list of string represent the route of the message
+    message route {
+        string service = 1;
+        google.protobuf.Timestamp timestamp = 2;
+    }
+    repeated route routes = 6;
+}
+
+message Message {
+    Envelope envelope = 1;
+}
+
+service DummyGRPCService {
+    rpc dummyAPI (Message) returns (Message) {}
+}
+

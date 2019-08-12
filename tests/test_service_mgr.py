@@ -3,10 +3,10 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_router_service_parser, set_grpc_frontend_parser
+from gnes.cli.parser import set_router_service_parser, set_frontend_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType, ParallelType
-from gnes.service.grpc import GRPCFrontend
+from gnes.service.frontend import FrontendService
 from gnes.service.router import RouterService
 
 
@@ -27,7 +27,7 @@ class TestServiceManager(unittest.TestCase):
             pass
 
     def _test_grpc_multiple_router(self, backend='thread', num_parallel=5):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -41,7 +41,7 @@ class TestServiceManager(unittest.TestCase):
             '--parallel_backend', backend
         ])
 
-        with ServiceManager(RouterService, p_args), GRPCFrontend(args), grpc.insecure_channel(
+        with ServiceManager(RouterService, p_args), FrontendService(args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
@@ -50,7 +50,7 @@ class TestServiceManager(unittest.TestCase):
             self.assertEqual(resp.request_id, '0')
 
     def _test_grpc_multiple_pub(self, backend='thread', num_parallel=5):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -65,7 +65,7 @@ class TestServiceManager(unittest.TestCase):
             '--parallel_type', str(ParallelType.PUB_BLOCK)
         ])
 
-        with ServiceManager(RouterService, p_args), GRPCFrontend(args), grpc.insecure_channel(
+        with ServiceManager(RouterService, p_args), FrontendService(args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
