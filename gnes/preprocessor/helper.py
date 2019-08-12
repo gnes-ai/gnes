@@ -248,7 +248,7 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 
 def phash_descriptor(image: 'np.ndarray'):
-    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image = Image.fromarray(image)
     import imagehash
     return imagehash.phash(image)
 

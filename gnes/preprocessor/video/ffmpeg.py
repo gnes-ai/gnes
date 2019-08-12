@@ -127,6 +127,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
+        from sklearn.cluster import KMeans
         if doc.raw_bytes:
             if self.use_image_input:
                 frames = split_video_frames(doc.raw_bytes, self.splitter)
@@ -152,6 +153,17 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                         _interval = int(len(frames) / self.segment_num)
                         sub_videos = [frames[_: _ + _interval]
                                       for _ in range(0, len(frames), _interval)]
+                    else:
+                        sub_videos = [frames]
+
+                # cut by clustering: params required
+                #   segment_num
+                elif self.segment_method == 'cut_by_clustering':
+                    if self.segment_num >= 2:
+                        hash_v = [phash_descriptor(_).hash for _ in frames]
+                        label_v = KMeans(n_clusters=self.segment_num
+                                         ).fit_predict(np.array(hash_v, dtype=np.int32))
+                        sub_videos = [[frames[i] for i, j in enumerate(label_v) if j == _] for _ in range(self.segment_num)]
                     else:
                         sub_videos = [frames]
 
