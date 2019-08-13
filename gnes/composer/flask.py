@@ -27,7 +27,6 @@ class YamlComposerFlask:
     def _create_flask_app(self):
         try:
             from flask import Flask, request
-            from flask_compress import Compress
         except ImportError:
             raise ImportError('Flask or its dependencies are not fully installed, '
                               'they are required for serving HTTP requests.'
@@ -69,7 +68,6 @@ class YamlComposerFlask:
                 self.logger.error(e)
                 return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
 
-        Compress().init_app(app)
         return app
 
     def run(self):
