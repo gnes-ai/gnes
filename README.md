@@ -36,7 +36,8 @@
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
-  <a href="./CHANGELOG.md">Release Notes</a>  
+  <a href="./CHANGELOG.md">Release Notes</a>
+  <a href="https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/">Blog</a>  
 </p>
 
 <h2 align="center">What is it</h2>

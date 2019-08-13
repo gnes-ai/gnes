@@ -19,7 +19,7 @@ from ..base import BaseReduceRouter
 from ...proto import gnes_pb2
 
 
-class DocReduceRouter(BaseReduceRouter):
+class DocFillRouter(BaseReduceRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
         final_docs = []
         for idx, r in enumerate(msg.response.search.topk_results):

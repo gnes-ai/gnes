@@ -13,8 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
-
 
 from typing import List, Any
 
@@ -53,6 +51,12 @@ class BaseTextEncoder(BaseEncoder):
 class BaseNumericEncoder(BaseEncoder):
 
     def encode(self, text: np.ndarray, *args, **kwargs) -> np.ndarray:
+        pass
+
+
+class BaseAudioEncoder(BaseEncoder):
+
+    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         pass
 
 

@@ -13,49 +13,44 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
-
-def encode(args):
-    from ..service.encoder import EncoderService
-    with EncoderService(args) as es:
+def _start_service(cls, args):
+    from ..service.base import ServiceManager
+    with ServiceManager(cls, args) as es:
         es.join()
 
 
-def index(args):
-    from ..service.indexer import IndexerService
-    with IndexerService(args) as es:
-        es.join()
-
-
-def route(args):
-    from ..service.router import RouterService
-    with RouterService(args) as es:
-        es.join()
-
-
-def compose(args):
-    from ..composer.base import YamlComposer
-    from ..composer.flask import YamlComposerFlask
-
-    if args.flask:
-        YamlComposerFlask(args).run()
-    else:
-        YamlComposer(args).build_all()
-
-
-def frontend(args):
-    from ..service.grpc import GRPCFrontend
-    import threading
-    with GRPCFrontend(args):
-        forever = threading.Event()
-        forever.wait()
+def grpc(args):
+    from ..service.grpc import GRPCService
+    _start_service(GRPCService, args)
 
 
 def preprocess(args):
     from ..service.preprocessor import PreprocessorService
-    with PreprocessorService(args) as es:
-        es.join()
+    _start_service(PreprocessorService, args)
+
+
+def encode(args):
+    from ..service.encoder import EncoderService
+    _start_service(EncoderService, args)
+
+
+def index(args):
+    from ..service.indexer import IndexerService
+    _start_service(IndexerService, args)
+
+
+def route(args):
+    from ..service.router import RouterService
+    _start_service(RouterService, args)
+
+
+def frontend(args):
+    from gnes.service.frontend import FrontendService
+    import threading
+    with FrontendService(args):
+        forever = threading.Event()
+        forever.wait()
 
 
 def client_http(args):
@@ -66,3 +61,13 @@ def client_http(args):
 def client_cli(args):
     from ..client.cli import CLIClient
     CLIClient(args)
+
+
+def compose(args):
+    from ..composer.base import YamlComposer
+    from ..composer.flask import YamlComposerFlask
+
+    if args.flask:
+        YamlComposerFlask(args).run()
+    else:
+        YamlComposer(args).build_all()

@@ -74,7 +74,6 @@ class BasePytorchEncoder(BaseImageEncoder):
             self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             self._model = self._model.to(self._device)
 
-    @batching
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
         import torch
         self._model.eval()
@@ -87,13 +86,21 @@ class BasePytorchEncoder(BaseImageEncoder):
                    if im.shape[0] < max_lenth else im for im in img]
             return img, max_lenth
 
-        @batching
+        # for video
+        if len(img[0].shape) == 4:
+            img, max_lenth = _padding(img)
+        # for image
+        else:
+            max_lenth = -1
+
+        @batching(chunk_dim=max_lenth)
         def _encode(_, img: List['np.ndarray']):
             import copy
 
             if len(img[0].shape) == 4:
                 img_ = copy.deepcopy(img)
                 img_ = np.concatenate((list(img_[i] for i in range(len(img_)))), axis=0)
+
                 img_for_torch = np.array(img_, dtype=np.float32).transpose(0, 3, 1, 2)
             else:
                 img_for_torch = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
@@ -110,17 +117,8 @@ class BasePytorchEncoder(BaseImageEncoder):
                 result_npy.append(encodes.data.cpu().numpy())
 
             output = np.array(result_npy, dtype=np.float32)
-
-            if len(img[0].shape) == 4:
-                output = output.reshape((len(img), max_lenth, -1))
             return output
 
-        # for video
-        if len(img[0].shape) == 4:
-            padding_image, max_lenth = _padding(img)
-            output = _encode(self, padding_image)
-        # for image
-        else:
-            output = _encode(self, img)
+        output = _encode(self, img)
 
         return output

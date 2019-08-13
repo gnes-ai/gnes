@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
 from .base import BaseService as BS, MessageHandler
 from ..proto import gnes_pb2

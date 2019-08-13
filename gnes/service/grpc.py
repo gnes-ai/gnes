@@ -13,152 +13,60 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
-import threading
-import uuid
-from concurrent import futures
+import importlib.util
+import os
+import sys
 
 import grpc
-import zmq
 
-from .base import build_socket
-from ..helper import set_logger
-from ..proto import gnes_pb2, gnes_pb2_grpc, send_message, recv_message
-
-__all__ = ['GRPCFrontend']
+from .base import BaseService as BS, MessageHandler
+from ..proto import gnes_pb2
 
 
-class ZmqContext:
-    """The zmq context class."""
+class GRPCService(BS):
+    handler = MessageHandler(BS.handler)
 
-    def __init__(self, args):
-        """Database connection context.
+    def post_init(self):
+        self.channel = grpc.insecure_channel(
+            '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
+            options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
+                     ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
 
-        Args:
-            servers: a list of config dicts for connecting to database
-            dbapi_name: the name of database engine
-        """
-        self.args = args
+        foo = self.PathImport().add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
 
-        self.tlocal = threading.local()
-        self.tlocal.client = None
-
-    def __enter__(self):
-        """Enter the context."""
-        client = ZmqClient(self.args)
-        self.tlocal.client = client
-        return client
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        """Exit the context."""
-        self.tlocal.client.close()
-        self.tlocal.client = None
-
-
-class ZmqClient:
-
-    def __init__(self, args):
-        self.args = args
-        self.identity = args.identity if 'identity' in args else None
-        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.ctx = zmq.Context()
-        self.ctx.setsockopt(zmq.LINGER, 0)
-        self.receiver, _ = build_socket(self.ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
-                                        getattr(self, 'identity', None))
-        self.sender, _ = build_socket(self.ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
-                                      getattr(self, 'identity', None))
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+        # build stub
+        self.stub = getattr(foo, self.args.stub_name)(self.channel)
 
     def close(self):
-        self.sender.close()
-        self.receiver.close()
-        self.ctx.term()
+        self.channel.close()
+        super().close()
 
-    def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
-        send_message(self.sender, message, timeout=timeout)
+    @handler.register(NotImplementedError)
+    def _handler_default(self, msg: 'gnes_pb2.Message'):
+        yield getattr(self.stub, self.args.api_name)(msg)
 
-    def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        return recv_message(self.receiver, timeout=timeout)
+    class PathImport:
 
+        @staticmethod
+        def get_module_name(absolute_path):
+            module_name = os.path.basename(absolute_path)
+            module_name = module_name.replace('.py', '')
+            return module_name
 
-class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
+        def add_modules(self, pb2_path, pb2_grpc_path):
+            (module, spec) = self.path_import(pb2_path)
+            sys.modules[spec.name] = module
 
-    def __init__(self, args):
-        self.args = args
-        self.logger = set_logger(self.__class__.__name__, args.verbose)
-        self.zmq_context = ZmqContext(args)
+            (module, spec) = self.path_import(pb2_grpc_path)
+            sys.modules[spec.name] = module
 
-    def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
-        msg = gnes_pb2.Message()
-        msg.envelope.client_id = zmq_client.identity if zmq_client.identity else ''
-        if body.request_id:
-            msg.envelope.request_id = body.request_id
-        else:
-            msg.envelope.request_id = str(uuid.uuid4())
-            self.logger.warning('request_id is missing, filled it with a random uuid!')
-        msg.envelope.part_id = 1
-        msg.envelope.num_part.append(1)
-        msg.envelope.timeout = 5000
-        r = msg.envelope.routes.add()
-        r.service = GRPCFrontend.__name__
-        r.timestamp.GetCurrentTime()
-        msg.request.CopyFrom(body)
-        return msg
+            return module
 
-    def remove_envelope(self, m: 'gnes_pb2.Message'):
-        resp = m.response
-        resp.request_id = m.envelope.request_id
-        return resp
-
-    def Call(self, request, context):
-        self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
-        with self.zmq_context as zmq_client:
-            zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
-            return self.remove_envelope(zmq_client.recv_message(self.args.timeout))
-
-    def Train(self, request, context):
-        return self.Call(request, context)
-
-    def Index(self, request, context):
-        return self.Call(request, context)
-
-    def Search(self, request, context):
-        return self.Call(request, context)
-
-    def StreamCall(self, request_iterator, context):
-        num_result = 0
-        with self.zmq_context as zmq_client:
-            for request in request_iterator:
-                zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
-                num_result += 1
-            for _ in range(num_result):
-                yield self.remove_envelope(zmq_client.recv_message(self.args.timeout))
-
-
-class GRPCFrontend:
-    def __init__(self, args):
-        self.logger = set_logger(self.__class__.__name__, args.verbose)
-        self.server = grpc.server(
-            futures.ThreadPoolExecutor(max_workers=args.max_concurrency),
-            options=[('grpc.max_send_message_length', args.max_send_size * 1024 * 1024),
-                     ('grpc.max_receive_message_length', args.max_receive_size * 1024 * 1024)])
-        self.logger.info('start a grpc server with %d workers' % args.max_concurrency)
-        gnes_pb2_grpc.add_GnesRPCServicer_to_server(GNESServicer(args), self.server)
-
-        # Start GRPC Server
-        self.bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
-        self.server.add_insecure_port(self.bind_address)
-
-    def __enter__(self):
-        self.server.start()
-        self.logger.info('grpc service is listening at: %s' % self.bind_address)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.server.stop(None)
+        def path_import(self, absolute_path):
+            module_name = self.get_module_name(absolute_path)
+            spec = importlib.util.spec_from_file_location(module_name, absolute_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            sys.modules[spec.name] = module
+            return module, spec

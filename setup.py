@@ -54,7 +54,8 @@ extras_dep = {
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
     'http': ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'aiohttp==3.5.4'],
     'onnx': ['onnxruntime'],
-    'pytorch-transformers': ['pytorch-transformers']
+    'pytorch-transformers': ['pytorch-transformers'],
+    'librosa': ['librosa>=0.7.0']
 }
 
 
