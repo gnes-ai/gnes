@@ -282,7 +282,21 @@ def set_cli_client_parser(parser=None):
                         help='the mode of the client and the server')
     parser.add_argument('--top_k', type=int,
                         default=10,
-                        help='default top_k for query mode')
+                        help='top_k results returned in the query mode')
+    return parser
+
+
+def set_benchmark_client_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    _set_grpc_parser(parser)
+
+    parser.add_argument('--request_length', type=int,
+                        default=1024,
+                        help='binary string length of each request')
+    parser.add_argument('--num_requests', type=int,
+                        default=1024,
+                        help='number of total requests')
     return parser
 
 
@@ -318,12 +332,14 @@ def get_main_parser():
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
 
-    spp = parser.add_subparsers(dest='client', title='GNES client sub-commands',
-                                description='use "gnes client [sub-command] --help" '
-                                            'to get detailed information about each client sub-command')
+    pp = sp.add_parser('client', help='start a GNES client of the selected type')
+    spp = pp.add_subparsers(dest='client', title='GNES client sub-commands',
+                            description='use "gnes client [sub-command] --help" '
+                                        'to get detailed information about each client sub-command')
     # clients
     set_http_service_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
-    set_cli_client_parser(spp.add_parser('cli', help='start a client that allows STDIN as input'))
+    set_cli_client_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
+    set_benchmark_client_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
 
     # others
     set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))

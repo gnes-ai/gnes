@@ -8,14 +8,20 @@ _docker_push() {
     TARGET="base"
     GIT_TAG=$(git rev-parse --short HEAD)
     printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
-    IMAGE_FULL_TAG="${DOCKER_NAMESPACE}/${PROJ_NAME}:${OS_TAG}-${GIT_TAG}"
+    IMAGE_FULL_TAG="${DOCKER_NAMESPACE}${PROJ_NAME}:${OS_TAG}-${GIT_TAG}"
     printf "image you are building is named as \e[1;33m$IMAGE_FULL_TAG\e[0m\n"
     docker build --rm --target $TARGET -t $IMAGE_FULL_TAG -f $DOCKER_FILE .
     IMAGE_SIZE=$(docker images ${IMAGE_FULL_TAG} --format "{{.Size}}")
     printf "your image size is \e[1;33m$IMAGE_SIZE\e[0m\n"
-    docker push ${IMAGE_FULL_TAG}
-    printf 'done! and to run the container simply do:\n'
-    printf "\e[1;33mdocker run --entrypoint "/bin/bash" --rm -v /data/ext_models/ext_models:/ext_data -it $IMAGE_FULL_TAG\e[0m\n"
+
+    if [ -z "$DOCKER_NAMESPACE" ]
+    then
+          printf "\e[1;33m\$DOCKER_NAMESPACE is empty, pushing is ignored\e[0m\n"
+    else
+        docker push ${IMAGE_FULL_TAG}
+        printf 'done! and to run the container simply do:\n'
+        printf "\e[1;33mdocker run --entrypoint "/bin/bash" --rm -v /data/ext_models/ext_models:/ext_data -it $IMAGE_FULL_TAG\e[0m\n"
+    fi
 }
 
 _select_dockerfile() {
@@ -52,16 +58,20 @@ _select_dockerfile() {
 
 _select_namespace() {
     PS3='Please select the namespace you want to push (type 1 or 2): '
-    options=("docker.oa" "Tencent Cloud")
+    options=("docker.oa" "Tencent Cloud" "do not upload")
     select opt in "${options[@]}"
     do
         case $opt in
             "docker.oa")
-                export DOCKER_NAMESPACE='docker.oa.com/public'
+                export DOCKER_NAMESPACE='docker.oa.com/public/'
                 break
                 ;;
             "Tencent Cloud")
-                export DOCKER_NAMESPACE='ccr.ccs.tencentyun.com/gnes'
+                export DOCKER_NAMESPACE='ccr.ccs.tencentyun.com/gnes/'
+                break
+                ;;
+            "do not upload")
+                export DOCKER_NAMESPACE=''
                 break
                 ;;
             *) printf "invalid option $REPLY";;
