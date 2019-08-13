@@ -94,10 +94,10 @@ We provide GNES as a Docker image to simplify the installation. The Docker image
 #### via [Docker cloud](https://cloud.docker.com/u/gnes/repository/list)
 
 ```bash
-docker run gnes/gnes:latest
+docker run gnes/gnes:alpine-latest
 ```
 
-This command downloads the latest GNES image and runs it in a container. When the container runs, it prints an informational message and exits.
+This command downloads the latest GNES image (based on [Alpine Linux](https://alpinelinux.org/)) and runs it in a container. When the container runs, it prints an informational message and exits.
 
 #### via Tencent container service
 
@@ -105,10 +105,46 @@ We also provide a public mirror hosted on Tencent Cloud, from which Chinese main
 
 ```bash
 docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
-docker run ccr.ccs.tencentyun.com/gnes/gnes:latest
+docker run ccr.ccs.tencentyun.com/gnes/gnes:alpine-latest
 ```
 
-> 💡 Please note that version `latest` refers to the latest master of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`.
+> 💡 The tag `alpine` refers to the [Alpine Linux](https://alpinelinux.org/) GNES based on. We also provide Buster (Debian 10.0) and Ubuntu 18.04-based images, which can be pulled with tag `buster` and `ubuntu`, respectively. Note that they are larger in terms of the image size. 
+
+> 💡 The tag `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the latest release.
+
+
+#### Choose the GNES image for your need
+
+The table below summarizes all GNES images and tags, for `{version}` one can choose from `latest`, `stable`, `x.x.xx`.
+
+<table>
+  <tr>
+    <th>GNES image</th>
+    <th>Size</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>gnes:alpine-{version}</code></td>
+    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:alpine-latest.svg"></td>
+    <td>based on Alpine Linux, no deep learning libraries. Lightweight and portable, enables extremely fast scaling on even edge devices.</td>
+  </tr>
+  <tr>
+    <td><code>gnes:buster-{version}</code></td>
+    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:buster-latest.svg"></td>
+    <td>based on Debian 10.0, no deep learning libraries. Recommended for building or extending a GNES-Hub image.</td>
+  </tr>
+  <tr>
+    <td><code>gnes:ubuntu-{version}</code></td>
+    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:ubuntu-latest.svg"></td>
+    <td>based on Ubuntu 18.04, no deep learning libraries.</td>
+  </tr>
+  <tr>
+    <td><code>gnes:full-{version}</code></td>
+    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
+    <td>based on Ubuntu 16.04, installed with tensorflow, PyTorch, faiss, torchvision and several pretrained models. Heavy but self-contained, useful in testing GNES.</td>
+  </tr>
+</table>
+ 
 
 ### Install GNES via `pip`
 
@@ -117,33 +153,7 @@ You can also install GNES as a Python package via:
 pip install gnes
 ```
 
-Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior as in GNES models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
-
-To enable the full functionalities and dependencies, you may install GNES via:
-```bash
-pip install gnes[all]
-```
-
-🍒 Or cherry-picking the dependencies according to the table below:
-
-<details>
- <summary>List of cherry-picked dependencies (click to expand...)</summary>
-
-
-<table>
-<tr><td><pre>pip install gnes[bert]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6</td>
-<tr><td><pre>pip install gnes[flair]</pre></td><td>flair>=0.4.1</td>
-<tr><td><pre>pip install gnes[annoy]</pre></td><td>annoy==1.15.2</td>
-<tr><td><pre>pip install gnes[chinese]</pre></td><td>jieba</td>
-<tr><td><pre>pip install gnes[vision]</pre></td><td>opencv-python>=4.0.0, torchvision==0.3.0, imagehash>=4.0</td>
-<tr><td><pre>pip install gnes[leveldb]</pre></td><td>plyvel>=1.0.5</td>
-<tr><td><pre>pip install gnes[test]</pre></td><td>pylint, memory_profiler>=0.55.0, psutil>=5.6.1, gputil>=1.4.0</td>
-<tr><td><pre>pip install gnes[http]</pre></td><td>flask, flask-compress, flask-cors, flask-json, aiohttp==3.5.4</td>
-<tr><td><pre>pip install gnes[nlp]</pre></td><td>flair>=0.4.1, bert-serving-client>=1.8.6, bert-serving-server>=1.8.6</td>
-<tr><td><pre>pip install gnes[cn_nlp]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6, jieba, flair>=0.4.1</td>
-<tr><td><pre>pip install gnes[all]</pre></td><td>bert-serving-client>=1.8.6, bert-serving-server>=1.8.6, imagehash>=4.0, gputil>=1.4.0, flask, flask-cors, flask-compress, jieba, flair>=0.4.1, opencv-python>=4.0.0, torchvision==0.3.0, pylint, aiohttp==3.5.4, psutil>=5.6.1, flask-json, plyvel>=1.0.5, annoy==1.15.2, memory_profiler>=0.55.0</td>
-</table>
-</details>
+Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior, as in GNES, models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
 
 > 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance. 
 
@@ -317,27 +327,27 @@ wait
 version: '3.4'
 services:
   gRPCFrontend00:
-    image: gnes/gnes:latest
+    image: gnes/gnes-full:latest
     command: frontend --grpc_port 5566 --port_out 49668 --socket_out PUSH_BIND --port_in
       60654 --socket_in PULL_CONNECT --host_in Indexer30
     ports:
     - 5566:5566
   Preprocessor10:
-    image: gnes/gnes:latest
+    image: gnes/gnes-full:latest
     command: preprocess --port_in 49668 --socket_in PULL_CONNECT
       --port_out 61911 --socket_out PUSH_BIND --yaml_path /Preprocessor10_yaml --host_in
       gRPCFrontend00
     configs:
     - Preprocessor10_yaml
   Encoder20:
-    image: gnes/gnes:latest
+    image: gnes/gnes-full:latest
     command: encode --port_in 61911 --socket_in PULL_CONNECT
       --port_out 49947 --socket_out PUSH_BIND --yaml_path /Encoder20_yaml --host_in
       Preprocessor10
     configs:
     - Encoder20_yaml
   Indexer30:
-    image: gnes/gnes:latest
+    image: gnes/gnes-full:latest
     command: index --port_in 49947 --socket_in PULL_CONNECT
       --port_out 60654 --socket_out PUSH_BIND --yaml_path /Indexer30_yaml --host_in
       Encoder20
