@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-import time
-
 import grpc
 
 from ..helper import TimeContext

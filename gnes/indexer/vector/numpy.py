@@ -14,7 +14,6 @@
 #  limitations under the License.
 
 
-
 from typing import List, Tuple, Any
 
 import numpy as np

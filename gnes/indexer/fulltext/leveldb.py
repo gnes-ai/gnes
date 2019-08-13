@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 import pickle
 from threading import Thread, Event
 from typing import List, Any
