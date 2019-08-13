@@ -110,8 +110,8 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 |`!BaseRouter`|Router|
 |`!BaseMapRouter`|Router|
 |`!BaseReduceRouter`|Router|
-|`!ChunkReduceRouter`|Router|
-|`!DocReduceRouter`|Router|
+|`!ChunkToDocumentRouter`|Router|
+|`!DocFillRouter`|Router|
 |`!ConcatEmbedRouter`|Router|
 |`!PublishRouter`|Router|
 |`!DocBatchRouter`|Router|

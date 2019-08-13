@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
+
 from typing import List, Generator
 
 from ..base import TrainableBase
@@ -36,4 +36,6 @@ class BaseReduceRouter(BaseRouter):
         if len(msg.envelope.num_part) > 1:
             msg.envelope.num_part.pop()
         else:
-            self.logger.error('can not reduce the message further, as num_part="%s"' % msg.envelope.num_part)
+            self.logger.warning(
+                'message envelope says num_part=%s, means no further message reducing. '
+                'ignore this if you explicitly set "num_part" in RouterService' % msg.envelope.num_part)

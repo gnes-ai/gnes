@@ -37,15 +37,15 @@ class CLIClient:
 
         with grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
-                options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
+                options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
+                         ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             if args.mode == 'train':
                 resp = list(stub.StreamCall(RequestGenerator.train(all_bytes, args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'index':
-                resp = list(stub.StreamCall(RequestGenerator.train(all_bytes, args.batch_size)))[-1]
+                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'query':
                 for idx, q in enumerate(all_bytes):

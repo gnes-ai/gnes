@@ -13,12 +13,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
+import datetime
 import io
-import subprocess as sp
-from typing import List, Callable
 import os
+import subprocess as sp
+from datetime import timedelta
+from typing import List, Callable
+
 import cv2
 import numpy as np
 from PIL import Image
@@ -30,17 +32,75 @@ logger = set_logger(__name__, True)
 
 def get_video_length(video_path):
     import re
-    process = sp.Popen(['ffmpeg',  '-i', video_path],
+    process = sp.Popen(['ffmpeg', '-i', video_path],
                        stdout=sp.PIPE,
                        stderr=sp.STDOUT)
     stdout, _ = process.communicate()
     stdout = str(stdout)
-    matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
+    matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout,
+                        re.DOTALL).groupdict()
     h = float(matches['hours'])
     m = float(matches['minutes'])
     s = float(matches['seconds'])
 
     return 3600 * h + 60 * m + s
+
+
+def get_video_length_from_raw(buffer_data):
+    import re
+    ffmpeg_cmd = ['ffmpeg', '-i', '-', '-']
+    with sp.Popen(ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE,
+                  bufsize=-1, shell=False) as pipe:
+        _, stdout = pipe.communicate(buffer_data)
+        stdout = stdout.decode()
+        matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout,
+                            re.DOTALL).groupdict()
+        h = str(int(matches['hours']))
+        m = str(int(matches['minutes']))
+        s = str(round(float(matches['seconds'])))
+        duration = datetime.datetime.strptime(h + ':' + m + ':' + s, '%H:%M:%S')
+    return duration
+
+
+def get_audio(buffer_data, sample_rate, interval,
+              duration) -> List['np.ndarray']:
+    import soundfile as sf
+
+    audio_list = []
+    start_time = datetime.datetime.strptime('00:00:00', '%H:%M:%S')
+    while True:
+        if start_time == duration:
+            break
+
+        end_time = start_time + timedelta(seconds=interval)
+        if end_time > duration:
+            end_time = duration
+        ffmpeg_cmd = ['ffmpeg', '-i', '-',
+                      '-f', 'wav',
+                      '-ar', str(sample_rate),
+                      '-ss', str(start_time).split(' ')[1],
+                      '-to', str(end_time).split(' ')[1],
+                      '-']
+
+        # (-f, wav) output bytes in wav format
+        # (-ar) sample rate
+        # (-) output to stdout pipeline
+
+        with sp.Popen(
+                ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, bufsize=-1,
+                shell=False) as pipe:
+            raw_audio, _ = pipe.communicate(buffer_data)
+            tmp_stream = io.BytesIO(raw_audio)
+            data, sample_rate = sf.read(tmp_stream)
+            # has multiple channels, do average
+            if len(data.shape) == 2:
+                data = np.mean(data, axis=1)
+            if data.shape[0] != 0:
+                audio_list.append(data)
+
+        start_time = end_time
+
+    return audio_list
 
 
 def split_mp4_random(video_path, avg_length, max_clip_second=10):
@@ -62,7 +122,9 @@ def split_mp4_random(video_path, avg_length, max_clip_second=10):
     prefix = os.path.basename(video_path).replace('.mp4', '')
     for i in range(num_part):
         i_len = len(ts_group[i])
-        cmd = 'ffmpeg' + ''.join(ts_group[i]) + '-filter_complex "{}concat=n={}:v=1:a=1" -strict -2 {}_{}.mp4 -y'.format(''.join(['[{}]'.format(k) for k in range(i_len)]), i_len, prefix, i)
+        cmd = 'ffmpeg' + ''.join(
+            ts_group[i]) + '-filter_complex "{}concat=n={}:v=1:a=1" -strict -2 {}_{}.mp4 -y'.format(
+            ''.join(['[{}]'.format(k) for k in range(i_len)]), i_len, prefix, i)
         os.system(cmd)
 
 
@@ -116,12 +178,19 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
                     cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     frames.append(image)
                 except Exception as e:
-                    logger.warning("The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
+                    logger.warning(
+                        "The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
         else:
             logger.error("The image format [%s] is not supported so far!" % image_format)
             raise NotImplementedError
 
     return frames
+
+
+def split_video_frames(buffer_data: bytes,
+                       splitter: str = '__split__'):
+    chunks = buffer_data.split(splitter.encode())
+    return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
 
 
 def block_descriptor(image: 'np.ndarray',
@@ -179,7 +248,7 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 
 def phash_descriptor(image: 'np.ndarray'):
-    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image = Image.fromarray(image)
     import imagehash
     return imagehash.phash(image)
 
