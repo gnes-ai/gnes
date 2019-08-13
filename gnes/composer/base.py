@@ -177,7 +177,7 @@ class YamlComposer:
         return all_layers
 
     @staticmethod
-    def build_dockerswarm(all_layers: List['YamlComposer.Layer'], docker_img: str = 'gnes/gnes:latest',
+    def build_dockerswarm(all_layers: List['YamlComposer.Layer'], docker_img: str = 'gnes/gnes:alpine-latest',
                           volumes: Dict = None, networks: Dict = None) -> str:
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
             swarm_lines = _yaml.load(r)
@@ -347,6 +347,7 @@ class YamlComposer:
             'mermaid': self.build_mermaid(all_layers, self.args.mermaid_leftright),
             'shell': self.build_shell(all_layers, self.args.shell_log_redirect),
             'yaml': self.original_yaml,
+            'image': self.args.docker_img,
             'docker': self.build_dockerswarm(all_layers, self.args.docker_img,
                                              volumes=self._volumes, networks=self._networks),
             'k8s': self.build_kubernetes(all_layers),
