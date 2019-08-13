@@ -113,7 +113,7 @@ class IncepMixtureEncoder(BaseVideoEncoder):
                in img]
 
         @batching(concat_axis=None)
-        def _encode1(_, data):
+        def _encode1(self, data):
             _, end_points_ = self.sess.run((self.logits, self.end_points),
                                            feed_dict={self.inputs: data})
             return end_points_[self.select_layer]
@@ -125,7 +125,7 @@ class IncepMixtureEncoder(BaseVideoEncoder):
         v_input = [np.array(vi, dtype=np.float32) for vi in v_input]
 
         @batching
-        def _encode2(_, data):
+        def _encode2(self, data):
             return self.sess2.run(self.mix_model.repre,
                                   feed_dict={self.mix_model.feeds: data})
 

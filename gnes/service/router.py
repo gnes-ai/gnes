@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
 from collections import defaultdict
 from typing import Dict, List
@@ -32,7 +31,8 @@ class RouterService(BS):
         self._pending = defaultdict(list)  # type: Dict[str, List]
 
     def _is_msg_complete(self, msg: 'gnes_pb2.Message', num_req: int) -> bool:
-        return (hasattr(self.args, 'num_part') and num_req == self.args.num_part[-1]) or (num_req == msg.envelope.num_part[-1])
+        return (num_req == msg.envelope.num_part[-1]) or \
+               (num_req == self.args.num_part)
 
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):

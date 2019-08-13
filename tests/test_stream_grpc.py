@@ -4,11 +4,12 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_grpc_frontend_parser, set_router_service_parser
+from gnes.cli.parser import set_frontend_parser, set_router_service_parser, set_benchmark_client_parser
+from gnes.client.benchmark import BenchmarkClient
 from gnes.helper import TimeContext
 from gnes.proto import RequestGenerator, gnes_pb2_grpc
 from gnes.service.base import SocketType, MessageHandler, BaseService as BS
-from gnes.service.grpc import GRPCFrontend
+from gnes.service.frontend import FrontendService
 from gnes.service.router import RouterService
 
 
@@ -37,10 +38,11 @@ class TestStreamgRPC(unittest.TestCase):
     def setUp(self):
         self.all_bytes = [b'abc', b'def', b'cde'] * 10
         self.all_bytes2 = [b'abc', b'def', b'cde']
+        os.unsetenv('http_proxy')
+        os.unsetenv('https_proxy')
 
-    # @unittest.mock.patch.dict(os.environ, {'http_proxy': '', 'https_proxy': ''})
-    def test_grpc_frontend(self):
-        args = set_grpc_frontend_parser().parse_args([
+    def test_bm_frontend(self):
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -52,7 +54,27 @@ class TestStreamgRPC(unittest.TestCase):
             '--yaml_path', 'BaseRouter'
         ])
 
-        with RouterService(p_args), GRPCFrontend(args), grpc.insecure_channel(
+        b_args = set_benchmark_client_parser().parse_args([
+            '--num_requests', '10',
+            '--request_length', '65536'
+        ])
+        with RouterService(p_args), FrontendService(args):
+            BenchmarkClient(b_args)
+
+    def test_grpc_frontend(self):
+        args = set_frontend_parser().parse_args([
+            '--grpc_host', '127.0.0.1',
+        ])
+
+        p_args = set_router_service_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.PULL_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', 'BaseRouter'
+        ])
+
+        with RouterService(p_args), FrontendService(args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
@@ -62,9 +84,8 @@ class TestStreamgRPC(unittest.TestCase):
 
             self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
 
-    # @unittest.mock.patch.dict(os.environ, {'http_proxy': '', 'https_proxy': ''})
     def test_async_block(self):
-        args = set_grpc_frontend_parser().parse_args([
+        args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
         ])
 
@@ -84,7 +105,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--yaml_path', 'BaseRouter'
         ])
 
-        with GRPCFrontend(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
+        with FrontendService(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:

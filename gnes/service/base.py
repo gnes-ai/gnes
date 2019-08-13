@@ -13,12 +13,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
-
-
+import copy
+import multiprocessing
+import random
 import threading
 import time
 import types
+from contextlib import ExitStack
 from enum import Enum
 from typing import Tuple, List, Union, Type
 
@@ -27,8 +28,9 @@ import zmq.decorators as zmqd
 from termcolor import colored
 
 from ..base import TrainableBase, T
+from ..cli.parser import resolve_yaml_path
 from ..helper import set_logger
-from ..proto import gnes_pb2, add_route, send_message, recv_message
+from ..proto import gnes_pb2, add_route, send_message, recv_message, router2str
 
 
 class BetterEnum(Enum):
@@ -46,6 +48,21 @@ class BetterEnum(Enum):
 class ReduceOp(BetterEnum):
     CONCAT = 0
     ALWAYS_ONE = 1
+
+
+class ParallelType(BetterEnum):
+    PUSH_BLOCK = 0
+    PUSH_NONBLOCK = 1
+    PUB_BLOCK = 2
+    PUB_NONBLOCK = 3
+
+    @property
+    def is_push(self):
+        return self.value == 0 or self.value == 1
+
+    @property
+    def is_block(self):
+        return self.value == 0 or self.value == 2
 
 
 class SocketType(BetterEnum):
@@ -97,6 +114,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
     }[socket_type]()
 
     if socket_type.is_bind:
+        host = BaseService.default_host
         if port is None:
             sock.bind_to_random_port('tcp://%s' % host)
         else:
@@ -152,21 +170,58 @@ class MessageHandler:
         return fn
 
 
-class BaseService(threading.Thread):
+class ConcurrentService(type):
+    _dct = {}
+
+    def __new__(cls, name, bases, dct):
+        _cls = super().__new__(cls, name, bases, dct)
+        ConcurrentService._dct.update({name: {'cls': cls,
+                                              'name': name,
+                                              'bases': bases,
+                                              'dct': dct}})
+        return _cls
+
+    def __call__(cls, *args, **kwargs):
+        # switch to the new backend
+        _cls = {
+            'thread': threading.Thread,
+            'process': multiprocessing.Process
+        }[args[0].parallel_backend]
+
+        # rebuild the class according to mro
+        for c in cls.mro()[-2::-1]:
+            arg_cls = ConcurrentService._dct[c.__name__]['cls']
+            arg_name = ConcurrentService._dct[c.__name__]['name']
+            arg_dct = ConcurrentService._dct[c.__name__]['dct']
+            _cls = super().__new__(arg_cls, arg_name, (_cls,), arg_dct)
+
+        return type.__call__(_cls, *args, **kwargs)
+
+
+class BaseService(metaclass=ConcurrentService):
     handler = MessageHandler()
     default_host = '0.0.0.0'
 
-    def __init__(self, args, use_event_loop=True):
+    def _get_event(self):
+        if isinstance(self, threading.Thread):
+            return threading.Event()
+        elif isinstance(self, multiprocessing.Process):
+            return multiprocessing.Event()
+        else:
+            raise NotImplementedError
+
+    def __init__(self, args):
         super().__init__()
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.is_ready = threading.Event()
-        self.is_event_loop = threading.Event()
-        self.is_model_changed = threading.Event()
-        self.is_handler_done = threading.Event()
+        self.is_ready = self._get_event()
+        self.is_event_loop = self._get_event()
+        self.is_model_changed = self._get_event()
+        self.is_handler_done = self._get_event()
         self._model = None
         self.identity = args.identity if 'identity' in args else None
-        self.use_event_loop = use_event_loop
+        self.use_event_loop = True
+        self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
 
     def run(self):
         self._run()
@@ -197,18 +252,17 @@ class BaseService(threading.Thread):
         else:
             self.logger.warning('dumping is not allowed as "read_only" is set to true.')
 
-    def message_handler(self, msg: 'gnes_pb2.Message'):
+    def message_handler(self, msg: 'gnes_pb2.Message', out_sck, ctrl_sck):
         try:
             fn = self.handler.serve(msg)
             if fn:
-                add_route(msg.envelope, '%s:%s' % (self.__class__.__name__, self._model.__class__.__name__))
-                self.logger.info(
-                    'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
+                add_route(msg.envelope, self._model.__class__.__name__)
+                self.logger.info('handling a message with route: %s' % router2str(msg))
                 if msg.request and msg.request.WhichOneof('body') and \
                         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
-                    out_sock = self.ctrl_sock
+                    out_sock = ctrl_sck
                 else:
-                    out_sock = self.out_sock
+                    out_sock = out_sck
                 try:
                     # NOTE that msg is mutable object, it may be modified in fn()
                     ret = fn(self, msg)
@@ -230,14 +284,6 @@ class BaseService(threading.Thread):
         except ServiceError as e:
             self.logger.error(e)
 
-    def send_message(self, *args, **kwargs):
-        send_message(self.out_sock, *args, **kwargs)
-
-    def recv_message(self, *args, **kwargs):
-        m = recv_message(self.in_sock, *args, **kwargs)
-        self.is_handler_done.set()
-        return m
-
     @zmqd.context()
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
@@ -246,14 +292,13 @@ class BaseService(threading.Thread):
                                   getattr(self, 'identity', None))
         out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                    getattr(self, 'identity', None))
-        ctrl_sock, self.ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
-        self.in_sock, self.out_sock, self.ctrl_sock = in_sock, out_sock, ctrl_sock
+        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
 
         self.logger.info(
             'input %s:%s\t output %s:%s\t control over %s' % (
                 self.args.host_in, colored(self.args.port_in, 'yellow'),
                 self.args.host_out, colored(self.args.port_out, 'yellow'),
-                colored(self.ctrl_addr, 'yellow')))
+                colored(ctrl_addr, 'yellow')))
 
         poller = zmq.Poller()
         poller.register(in_sock, zmq.POLLIN)
@@ -277,7 +322,7 @@ class BaseService(threading.Thread):
                 if self.use_event_loop or pull_sock == ctrl_sock:
                     self.is_handler_done.clear()
                     msg = recv_message(pull_sock)
-                    self.message_handler(msg)
+                    self.message_handler(msg, out_sock, ctrl_sock)
                     self.is_handler_done.set()
                 else:
                     self.logger.warning(
@@ -294,9 +339,9 @@ class BaseService(threading.Thread):
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
-            self.in_sock.close()
-            self.out_sock.close()
-            self.ctrl_sock.close()
+            in_sock.close()
+            out_sock.close()
+            ctrl_sock.close()
         self.logger.info('terminated')
 
     def post_init(self):
@@ -357,3 +402,69 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
         r = recv_message(sock, timeout)
         sock.close()
         return r
+
+
+class ServiceManager:
+    def __init__(self, service_cls, args):
+        self.logger = set_logger(self.__class__.__name__, args.verbose)
+        self.services = []  # type: List['BaseService']
+        if args.num_parallel > 1:
+            from .router import RouterService
+            _head_router = copy.deepcopy(args)
+            _head_router.port_ctrl = self._get_random_port()
+            port_out = self._get_random_port()
+            _head_router.port_out = port_out
+
+            _tail_router = copy.deepcopy(args)
+            port_in = self._get_random_port()
+            _tail_router.port_in = port_in
+            _tail_router.port_ctrl = self._get_random_port()
+
+            _tail_router.socket_in = SocketType.PULL_BIND
+
+            if args.parallel_type.is_push:
+                _head_router.socket_out = SocketType.PUSH_BIND
+            else:
+                _head_router.socket_out = SocketType.PUB_BIND
+                _head_router.yaml_path = resolve_yaml_path(
+                    '!PublishRouter {parameter: {num_part: %d}}' % args.num_parallel)
+
+            if args.parallel_type.is_block:
+                _tail_router.yaml_path = resolve_yaml_path('BaseReduceRouter')
+                _tail_router.num_part = args.num_parallel
+
+            self.services.append(RouterService(_head_router))
+            self.services.append(RouterService(_tail_router))
+
+            for _ in range(args.num_parallel):
+                _args = copy.deepcopy(args)
+                _args.port_in = port_out
+                _args.port_out = port_in
+                _args.port_ctrl = self._get_random_port()
+                _args.socket_out = SocketType.PUSH_CONNECT
+                if args.parallel_type.is_push:
+                    _args.socket_in = SocketType.PULL_CONNECT
+                else:
+                    _args.socket_in = SocketType.SUB_CONNECT
+                self.services.append(service_cls(_args))
+            self.logger.info('num_parallel=%d, add a router with port_in=%d and a router with port_out=%d' % (
+                args.num_parallel, _head_router.port_in, _tail_router.port_out))
+        else:
+            self.services.append(service_cls(args))
+
+    @staticmethod
+    def _get_random_port(min_port: int = 49152, max_port: int = 65536) -> int:
+        return random.randrange(min_port, max_port)
+
+    def __enter__(self):
+        self.stack = ExitStack()
+        for s in self.services:
+            self.stack.enter_context(s)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stack.close()
+
+    def join(self):
+        for s in self.services:
+            s.join()

@@ -13,8 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
-
 
 import asyncio
 import json
@@ -96,8 +94,8 @@ class HttpClient:
 
         with grpc.insecure_channel(
                 '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
-                options=[('grpc.max_send_message_length', 100 * 1024 * 1024),
-                         ('grpc.max_receive_message_length', 100 * 1024 * 1024),
+                options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
+                         ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024),
                          ('grpc.keepalive_timeout_ms', 100 * 1000)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             loop.run_until_complete(init(loop))

@@ -1,4 +1,74 @@
 
+# Release Note (`v0.0.27`)
+> Release time: 2019-08-09 19:51:57
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  Larry Yan,  raccoonliu,  Han Xiao,  raccoonliukai,  🙇
+
+
+### 🆕 New Features
+
+ - [[```55126f2b```](https://github.com/gnes-ai/gnes/commit/55126f2b3aea915d6ee3be84698ce800ff55383d)] __-__ __grpc__: add a general purpose grpc service (*hanhxiao*)
+ - [[```23c6e68a```](https://github.com/gnes-ai/gnes/commit/23c6e68aff81fbd4c0f063846637a9b939e53745)] __-__ __reduce router__: add chunk and doc reduce routers for audio (*Jem*)
+ - [[```6d3d2b4c```](https://github.com/gnes-ai/gnes/commit/6d3d2b4c4ae216f0a5f3d36ee8310558b1519e82)] __-__ __cli__: use ServiceManager as default service runner (*hanhxiao*)
+ - [[```ccfd474a```](https://github.com/gnes-ai/gnes/commit/ccfd474ae6546004f1545da5a4fa514ec4d09405)] __-__ __service__: add ServiceManager and enable parallel services in one container (*hanhxiao*)
+ - [[```63f9173f```](https://github.com/gnes-ai/gnes/commit/63f9173f3ecbd6d2e4836fa7b1d01736f854c002)] __-__ __service__: enabling the choose of thread or process as the backend (*hanhxiao*)
+ - [[```2647b848```](https://github.com/gnes-ai/gnes/commit/2647b8481a46d3fd1e5550b4a7b9e2855e058121)] __-__ __audio__: add preprocess and mfcc encoder for audio (*Jem*)
+ - [[```208e1937```](https://github.com/gnes-ai/gnes/commit/208e19377ad1b023fdb7949e30433c30bb08cace)] __-__ __audio__: add preprocess and mfcc encoder for audio, update protobuf (*Jem*)
+ - [[```77a2ea42```](https://github.com/gnes-ai/gnes/commit/77a2ea42374a29615ac70d42d4c3e2abc91b7034)] __-__ __parser__: improve yaml_path parsing (*hanhxiao*)
+ - [[```762535ca```](https://github.com/gnes-ai/gnes/commit/762535cac166379119ffd8d80bf40b5f561f9ecb)] __-__ __vlad__: add vlad and enable multiple chunks and frames (*Jem*)
+ - [[```64e948d4```](https://github.com/gnes-ai/gnes/commit/64e948d4ef31ccdc7618275c764bffdafc897072)] __-__ __encoder__: add onnxruntime for image encoder (*raccoonliukai*)
+ - [[```f03e6fc2```](https://github.com/gnes-ai/gnes/commit/f03e6fc20125d6d877f80ae462546cdde96a62a0)] __-__ __encoder__: add onnxruntime suport for image encoder (*raccoonliukai*)
+
+### 🐞 Bug fixes
+
+ - [[```5ae46d61```](https://github.com/gnes-ai/gnes/commit/5ae46d61153ef6ac8bd86fb4ef093d08d4e037e1)] __-__ __composer__: rename grpcfrontend to frontend (*hanhxiao*)
+ - [[```4cb83383```](https://github.com/gnes-ai/gnes/commit/4cb83383c341799536b8337eedfec8be13eeb912)] __-__ __audio__: restrict max length for mfcc encoding (*Jem*)
+ - [[```e516646f```](https://github.com/gnes-ai/gnes/commit/e516646f09db17069ed96d591f3bbcc4243e47f4)] __-__ __grpc__: add max_message_size to the argparser (*hanhxiao*)
+ - [[```0493e6fc```](https://github.com/gnes-ai/gnes/commit/0493e6fc497e801b17f517f6e8544e70425d4c15)] __-__ __encoder__: fix netvlad (*Larry Yan*)
+ - [[```e773aa33```](https://github.com/gnes-ai/gnes/commit/e773aa3340181fae9f9ad29ed1afe8a80c0b7abb)] __-__ __service manager__: fix nonetype for service manager (*Jem*)
+ - [[```d5d15d7f```](https://github.com/gnes-ai/gnes/commit/d5d15d7f9f66a25f257cb8b618413d544a6120d7)] __-__ __compose__: fix a bug in doc_reduce_test (*hanhxiao*)
+ - [[```6856cb0a```](https://github.com/gnes-ai/gnes/commit/6856cb0a591b7a23a0ebea98d7ace2f8930811cb)] __-__ __compose__: copy args on every request (*hanhxiao*)
+ - [[```f80e8c03```](https://github.com/gnes-ai/gnes/commit/f80e8c03a468e3e028832a02385e2327373e0c82)] __-__ __cli__: set default num_part is None (*hanhxiao*)
+ - [[```7031fe20```](https://github.com/gnes-ai/gnes/commit/7031fe20e9583720fb2f4b1b930f029e50f55303)] __-__ __preprocessor__: add random sampling to ffmpeg (*Larry Yan*)
+ - [[```fd37e6d9```](https://github.com/gnes-ai/gnes/commit/fd37e6d94ec0deee71582dddd0d91ee49028ef25)] __-__ __encoder__: fix bug caused by batching in inception_mixture (*Larry Yan*)
+ - [[```2191b27b```](https://github.com/gnes-ai/gnes/commit/2191b27b4f1f0cf027cd00058c85bc795eeb682c)] __-__ __composer__: fix yaml generation (*hanhxiao*)
+ - [[```e5fefcee```](https://github.com/gnes-ai/gnes/commit/e5fefcee9ea003c7d244bd58c889606a03e12936)] __-__ __encoder__: fix batching in encoder (*hanhxiao*)
+ - [[```e35e3b3c```](https://github.com/gnes-ai/gnes/commit/e35e3b3c1385cd18f102143b8d56247313aa9bab)] __-__ __composer__: fix composer router generation logic (*hanhxiao*)
+ - [[```7300e055```](https://github.com/gnes-ai/gnes/commit/7300e055770147557c56a1de680e87931ba6523b)] __-__ __preprocessor__: quanlity improvement (*Larry Yan*)
+ - [[```47efaba4```](https://github.com/gnes-ai/gnes/commit/47efaba4ae4dcae4cfe67366a42204142a3170ed)] __-__ __unittest__: fix unittest of video preprocessor 2 (*Larry Yan*)
+ - [[```a6efb4af```](https://github.com/gnes-ai/gnes/commit/a6efb4af5d3a510c5728d3ddb893e78c408f6911)] __-__ __unittest__: fix unittest of video preprocessor (*Larry Yan*)
+ - [[```dd1216bb```](https://github.com/gnes-ai/gnes/commit/dd1216bb8c735a27a399409957411a1f3d115263)] __-__ __unittest__: fix unittest for video processor (*Larry Yan*)
+ - [[```8e6dc4c6```](https://github.com/gnes-ai/gnes/commit/8e6dc4c648e592cdb2e5dcb7e2d1cd0a890ac0df)] __-__ __encoder__: add func for preprocessor (*Larry Yan*)
+ - [[```2b21dc5a```](https://github.com/gnes-ai/gnes/commit/2b21dc5ab1e40cd69c2011c4c0d03b15f69559c6)] __-__ __encoder__: fix unused import and variable (*raccoonliu*)
+ - [[```fd576915```](https://github.com/gnes-ai/gnes/commit/fd5769158fb28a25b51be3e9e2a2dd4ae084a5dc)] __-__ __test__: fix import (*Han Xiao*)
+ - [[```a0fdad36```](https://github.com/gnes-ai/gnes/commit/a0fdad36d4f5d139012cdc540266bb836c2ebf41)] __-__ __test__: fix broken code (*Han Xiao*)
+ - [[```8ca07a74```](https://github.com/gnes-ai/gnes/commit/8ca07a74da0501b92bb2c7b0b193a7327aaf9413)] __-__ __test__: fix img_process_for_test (*Han Xiao*)
+ - [[```7c16fb8b```](https://github.com/gnes-ai/gnes/commit/7c16fb8b221accfbbf0afd77d63d908938ca808a)] __-__ __preprocessor__: fix bug in ffmpeg.py and add more func to helper (*Larry Yan*)
+ - [[```e6a37119```](https://github.com/gnes-ai/gnes/commit/e6a3711911f6bfc9631aec4590502a71e52f84f3)] __-__ __preprocessor__: fix bug in params in ffmepg (*Larry Yan*)
+ - [[```f8d2abe5```](https://github.com/gnes-ai/gnes/commit/f8d2abe546a00bdcdabd207490b4a64e577b2ffb)] __-__ __preprocessor__: fix bug in ffmpeg (*Larry Yan*)
+ - [[```67610f86```](https://github.com/gnes-ai/gnes/commit/67610f86c2ecc0d39d376c6af8441b34dada4e17)] __-__ __preprocessor__: add more method for cutting video (*Larry Yan*)
+
+### 🚧 Code Refactoring
+
+ - [[```8516096d```](https://github.com/gnes-ai/gnes/commit/8516096d053e0a216440f2f78cafdab088eaeb43)] __-__ __grpc__: moving zmqclient to client module (*hanhxiao*)
+ - [[```5e3409e1```](https://github.com/gnes-ai/gnes/commit/5e3409e192d76e4d059dc592b6a33a7ab3d12dde)] __-__ __grpc__: hide private class inside gRPCfrontend (*hanhxiao*)
+ - [[```6407cc8d```](https://github.com/gnes-ai/gnes/commit/6407cc8d8e515648b3219b0d5603ae9ac3eba918)] __-__ __yaml__: remove useless default yaml config (*hanhxiao*)
+ - [[```c1e406ae```](https://github.com/gnes-ai/gnes/commit/c1e406ae40a53de086873b84669ce20dee0db076)] __-__ __onnx__: move batch_size to class attribute (*Han Xiao*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```5503dbe7```](https://github.com/gnes-ai/gnes/commit/5503dbe7d5d88bc7e3423fbb2184269c6b36fca9)] __-__ skip joint indexer test as it is not even used (*hanhxiao*)
+ - [[```8ab101ca```](https://github.com/gnes-ai/gnes/commit/8ab101caeff72f751a7b74251cdb75e9182e92b5)] __-__ add mergify for auto merging (*hanhxiao*)
+ - [[```203d1697```](https://github.com/gnes-ai/gnes/commit/203d1697a5a670f0957a5ca3cc3dc6e79dbc7c0b)] __-__ __chore__: exclude chore job from ci pipeline (*hanhxiao*)
+ - [[```24f9fd1c```](https://github.com/gnes-ai/gnes/commit/24f9fd1c7e7e58ff56d9b1f1f5cf8ceb18d7f12c)] __-__ fix yaml_path missing in the test (*hanhxiao*)
+ - [[```23a83a40```](https://github.com/gnes-ai/gnes/commit/23a83a40c3b5ba094c155e67717da272527888a4)] __-__ simplify yaml naming (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```e8e3b9b9```](https://github.com/gnes-ai/gnes/commit/e8e3b9b985e8e9ca18600ee9ee6cb5a95742fe54)] __-__ __changelog__: update change log to v0.0.26 (*hanhxiao*)
+
 # Release Note (`v0.0.26`)
 > Release time: 2019-08-02 18:18:45
 

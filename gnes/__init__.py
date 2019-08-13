@@ -13,8 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
 # do not change this line
 # this is managed by git tag and replaced on every release
-__version__ = '0.0.26'
+__version__ = '0.0.27'

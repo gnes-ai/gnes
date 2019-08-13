@@ -13,13 +13,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
+import copy
 
 import numpy as np
-import copy
-from gnes.gnes.encoder.base import BaseNumericEncoder
-from gnes.gnes.helper import batching, train_required
+
+from ..base import BaseNumericEncoder
+from ...helper import batching, train_required
 
 
 class VladEncoder(BaseNumericEncoder):

@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
 # A key-value map for Class to the (module)file it located in
 from ..base import register_all_class
@@ -22,11 +21,13 @@ _cls2file_map = {
     'BaseRouter': 'base',
     'BaseMapRouter': 'base',
     'BaseReduceRouter': 'base',
-    'ChunkReduceRouter': 'reduce.chunk',
-    'DocReduceRouter': 'reduce.document',
+    'ChunkToDocumentRouter': 'reduce.chunk',
+    'DocFillRouter': 'reduce.document',
     'ConcatEmbedRouter': 'reduce.concat',
     'PublishRouter': 'map.simple',
     'DocBatchRouter': 'map.simple',
+    'ChunkSumRouter': 'reduce.chunk_sum',
+    'DocSumRouter': 'reduce.doc_sum'
 
 }
 
