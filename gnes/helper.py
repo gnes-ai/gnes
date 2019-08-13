@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 import fcntl
 import logging
 import os
@@ -256,10 +254,12 @@ class NTLogger:
 class TimeContext:
     def __init__(self, msg):
         self._msg = msg
+        self.duration = 0
 
     def __enter__(self):
         self.start = time.perf_counter()
         print(self._msg, end=' ...\t', flush=True)
+        return self
 
     def __exit__(self, typ, value, traceback):
         self.duration = time.perf_counter() - self.start

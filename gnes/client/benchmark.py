@@ -14,6 +14,8 @@
 #  limitations under the License.
 
 
+import time
+
 import grpc
 
 from ..helper import TimeContext
@@ -32,16 +34,22 @@ class BenchmarkClient:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             id = 0
-
-            with TimeContext('StreamCall num_requests=%d request_length=%d' % (args.num_requests, args.request_length)):
-                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size)))[-1]
+            with TimeContext('StreamCall') as tc:
+                resp = stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size))
                 for r in resp:
                     assert r.request_id == str(id)
                     id += 1
+            stream_call_el = tc.duration
 
             id = 0
-            with TimeContext('Call num_requests=%d request_length=%d' % (args.num_requests, args.request_length)):
+            with TimeContext('Call') as tc:
                 for req in RequestGenerator.index(all_bytes, 1):
                     r = stub.Call(req)
                     assert r.request_id == str(id)
                     id += 1
+            call_el = tc.duration
+
+        print('num_requests     %d\n'
+              'request_length   %d' % (args.num_requests, args.request_length))
+        print('StreamCall       %3.3f s\n'
+              'Call             %3.3f s\n' % (stream_call_el, call_el))

@@ -46,7 +46,7 @@ def route(args):
 
 
 def frontend(args):
-    from gnes.service.frontend import FrontendService
+    from ..service.frontend import FrontendService
     import threading
     with FrontendService(args):
         forever = threading.Event()
@@ -61,7 +61,7 @@ def client(args):
     elif args.client == 'benchmark':
         return _client_bm(args)
     else:
-        raise ValueError('gnes client must follow a client type from {"http", "cli", "benchmark"...}\n'
+        raise ValueError('gnes client must follow with a client type from {http, cli, benchmark...}\n'
                          'see "gnes client --help" for details')
 
 

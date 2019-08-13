@@ -290,12 +290,13 @@ def set_benchmark_client_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
-
+    parser.add_argument('--batch_size', type=int, default=64,
+                        help='the size of the request to split')
     parser.add_argument('--request_length', type=int,
                         default=1024,
                         help='binary string length of each request')
     parser.add_argument('--num_requests', type=int,
-                        default=1024,
+                        default=128,
                         help='number of total requests')
     return parser
 
