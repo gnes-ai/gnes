@@ -19,6 +19,7 @@ from typing import Optional
 
 import numpy as np
 import zmq
+from termcolor import colored
 
 from . import gnes_pb2
 from ..helper import batch_iterator
@@ -28,7 +29,8 @@ __all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2
 
 class RequestGenerator:
     @staticmethod
-    def index(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
+    def index(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+              **kwargs):
 
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
@@ -42,7 +44,8 @@ class RequestGenerator:
             start_id += 1
 
     @staticmethod
-    def train(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
+    def train(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+              **kwargs):
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
             req.request_id = str(start_id)
@@ -86,6 +89,10 @@ def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
     blob.shape.extend(list(x.shape))
     blob.dtype = x.dtype.name
     return blob
+
+
+def router2str(m: 'gnes_pb2.Message') -> str:
+    return colored('▸', 'green').join([r.service for r in m.envelope.routes])
 
 
 def new_envelope(client_id: str,

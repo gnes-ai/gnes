@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 import numpy as np
 
 from ..base import BaseBinaryEncoder

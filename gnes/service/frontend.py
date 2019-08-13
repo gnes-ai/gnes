@@ -6,7 +6,7 @@ import grpc
 
 from ..client.base import ZmqClient
 from ..helper import set_logger
-from ..proto import gnes_pb2_grpc, gnes_pb2
+from ..proto import gnes_pb2_grpc, gnes_pb2, router2str
 
 
 class FrontendService:
@@ -17,8 +17,8 @@ class FrontendService:
             ThreadPoolExecutor(max_workers=args.max_concurrency),
             options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
                      ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)])
-        self.logger.info('start a grpc server with %d workers' % args.max_concurrency)
-        gnes_pb2_grpc.add_GnesRPCServicer_to_server(self.GNESServicer(args), self.server)
+        self.logger.info('start a frontend with %d workers' % args.max_concurrency)
+        gnes_pb2_grpc.add_GnesRPCServicer_to_server(self._Servicer(args), self.server)
 
         self.bind_address = '{0}:{1}'.format(args.grpc_host, args.grpc_port)
         self.server.add_insecure_port(self.bind_address)
@@ -31,7 +31,7 @@ class FrontendService:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.server.stop(None)
 
-    class GNESServicer(gnes_pb2_grpc.GnesRPCServicer):
+    class _Servicer(gnes_pb2_grpc.GnesRPCServicer):
 
         def __init__(self, args):
             self.args = args
@@ -58,6 +58,7 @@ class FrontendService:
         def remove_envelope(self, m: 'gnes_pb2.Message'):
             resp = m.response
             resp.request_id = m.envelope.request_id
+            self.logger.info('unpacking a message and return to client: %s' % router2str(m))
             return resp
 
         def Call(self, request, context):

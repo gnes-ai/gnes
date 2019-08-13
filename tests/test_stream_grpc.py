@@ -4,7 +4,8 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_frontend_parser, set_router_service_parser
+from gnes.cli.parser import set_frontend_parser, set_router_service_parser, set_benchmark_client_parser
+from gnes.client.benchmark import BenchmarkClient
 from gnes.helper import TimeContext
 from gnes.proto import RequestGenerator, gnes_pb2_grpc
 from gnes.service.base import SocketType, MessageHandler, BaseService as BS
@@ -39,6 +40,26 @@ class TestStreamgRPC(unittest.TestCase):
         self.all_bytes2 = [b'abc', b'def', b'cde']
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
+
+    def test_bm_frontend(self):
+        args = set_frontend_parser().parse_args([
+            '--grpc_host', '127.0.0.1',
+        ])
+
+        p_args = set_router_service_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.PULL_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', 'BaseRouter'
+        ])
+
+        b_args = set_benchmark_client_parser().parse_args([
+            '--num_requests', '10',
+            '--request_length', '65536'
+        ])
+        with RouterService(p_args), FrontendService(args):
+            BenchmarkClient(b_args)
 
     def test_grpc_frontend(self):
         args = set_frontend_parser().parse_args([

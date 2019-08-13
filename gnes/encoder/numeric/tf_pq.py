@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-
-
 from typing import Dict, Any
 
 import numpy as np

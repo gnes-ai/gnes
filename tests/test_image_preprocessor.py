@@ -112,7 +112,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:BaseUnaryPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'BaseUnaryPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(d.chunks), 1)
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
@@ -135,7 +135,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:PipelinePreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'PipelinePreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(d.chunks), 1)
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
@@ -161,7 +161,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:VanillaSlidingPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'VanillaSlidingPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[-1], 3)
@@ -186,7 +186,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'PreprocessorService:SegmentPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'SegmentPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[-1], 3)

@@ -22,18 +22,17 @@ extensions = [
     Extension(
         'gnes.indexer.vector.bindexer.cython',
         ['gnes/indexer/vector/bindexer/bindexer.pyx'],
-        extra_compile_args=['-O3'],
+        extra_compile_args=['-O3', '-g0'],
     ),
     Extension(
         'gnes.indexer.vector.hbindexer.cython',
         ['gnes/indexer/vector/hbindexer/hbindexer.pyx'],
-        extra_compile_args=['-O3'],
+        extra_compile_args=['-O3', '-g0'],
     ),
 ]
 
 base_dep = [
     'numpy',
-    'scipy',
     'termcolor',
     'protobuf',
     'grpcio',
@@ -54,7 +53,8 @@ extras_dep = {
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
     'http': ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'aiohttp==3.5.4'],
     'onnx': ['onnxruntime'],
-    'librosa': ['librosa>=0.7.0']
+    'librosa': ['librosa>=0.7.0'],
+    'scipy': ['scipy']
 }
 
 

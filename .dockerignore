@@ -1,3 +1,4 @@
+# my ignore file
 .git/
 .pyre/
 .idea/
@@ -16,3 +17,5 @@ shell/
 .tmp/
 .git/
 .github/
+Dockerfiles/
+.dockerignore

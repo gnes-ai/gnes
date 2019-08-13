@@ -265,24 +265,39 @@ def set_cli_client_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
-    parser.add_argument('--txt_file', type=argparse.FileType('r'),
-                        default=sys.stdin,
-                        help='text file to be used, each line is a doc/query')
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument('--txt_file', type=argparse.FileType('r'),
+                       default=sys.stdin,
+                       help='text file to be used, each line is a doc/query')
+    group.add_argument('--image_zip_file', type=str,
+                       help='image zip file to be used, consists of multiple images')
+    group.add_argument('--video_zip_file', type=str,
+                       help='video zip file to be used, consists of multiple videos')
+
     parser.add_argument('--batch_size', type=int, default=100,
                         help='the size of the request to split')
     parser.add_argument('--mode', choices=['index', 'query', 'train'], type=str,
                         required=True,
                         help='the mode of the client and the server')
-    parser.add_argument('--data_type', choices=['text', 'image', 'video'], type=str,
-                        required=True,
-                        help='type of data, available choice: text, image, video')
-    parser.add_argument('--image_zip_file', type=str,
-                        help='image zip file to be used, consists of multiple images')
-    parser.add_argument('--video_zip_file', type=str,
-                        help='video zip file to be used, consists of multiple videos')
     parser.add_argument('--top_k', type=int,
                         default=10,
-                        help='default top_k for query mode')
+                        help='top_k results returned in the query mode')
+    return parser
+
+
+def set_benchmark_client_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    _set_grpc_parser(parser)
+    parser.add_argument('--batch_size', type=int, default=64,
+                        help='the size of the request to split')
+    parser.add_argument('--request_length', type=int,
+                        default=1024,
+                        help='binary string length of each request')
+    parser.add_argument('--num_requests', type=int,
+                        default=128,
+                        help='number of total requests')
     return parser
 
 
@@ -312,16 +327,21 @@ def get_main_parser():
 
     # microservices
     set_frontend_parser(sp.add_parser('frontend', help='start a frontend service'))
-    set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_loadable_service_parser(sp.add_parser('encode', help='start an encoder service'))
+    set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
     set_router_service_parser(sp.add_parser('route', help='start a router service'))
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
 
+    pp = sp.add_parser('client', help='start a GNES client of the selected type')
+    spp = pp.add_subparsers(dest='client', title='GNES client sub-commands',
+                            description='use "gnes client [sub-command] --help" '
+                                        'to get detailed information about each client sub-command')
     # clients
-    set_http_service_parser(sp.add_parser('client_http', help='start a http service'))
-    set_cli_client_parser(sp.add_parser('client_cli', help='start a grpc client'))
+    set_http_service_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
+    set_cli_client_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
+    set_benchmark_client_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
 
     # others
-    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board and visualize YAML config'))
+    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))
     return parser

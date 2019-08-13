@@ -13,10 +13,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import random
 from typing import List
 
 import numpy as np
-import random
+
 from .base import BaseVideoPreprocessor
 from ..helper import get_video_frames, split_video_frames, phash_descriptor
 from ...proto import gnes_pb2, array2blob

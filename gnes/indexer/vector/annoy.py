@@ -72,14 +72,14 @@ class AnnoyIndexer(BaseVectorIndexer):
 
     def normalize_score(self, score: List[float], metrics: str, *args, **kwargs) -> List[float]:
         if metrics == 'angular':
-            return list(map(lambda x:1 / (1 + x), score))
+            return list(map(lambda x: 1 / (1 + x), score))
         elif metrics == 'euclidean':
             import math
-            return list(map(lambda x:1 / (1 + math.sqrt(x) / self.num_dim), score))
+            return list(map(lambda x: 1 / (1 + math.sqrt(x) / self.num_dim), score))
         elif metrics == 'manhattan':
-            return list(map(lambda x:1 / (1 + x / self.num_dim), score))
+            return list(map(lambda x: 1 / (1 + x / self.num_dim), score))
         elif metrics == 'hamming':
-            return list(map(lambda x:1 / (1 + x), score))
+            return list(map(lambda x: 1 / (1 + x), score))
         elif metrics == 'dot':
             raise NotImplementedError
 
