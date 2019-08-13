@@ -67,7 +67,7 @@ class TorchTransformersEncoder(BaseTextEncoder):
         batch_data = np.zeros([batch_size, max_len], dtype=np.int64)
         # batch_mask = np.zeros([batch_size, max_len], dtype=np.float32)
         for i, ids in enumerate(tokens_ids):
-            batch_data[i, :tokens_lens[i]] = tokens_ids[i]
+            batch_data[i, :tokens_lens[i]] = ids
             # batch_mask[i, :tokens_lens[i]] = 1
 
         # Convert inputs to PyTorch tensors
@@ -85,8 +85,7 @@ class TorchTransformersEncoder(BaseTextEncoder):
         with torch.no_grad():
             out_tensor = self.model(tokens_tensor)[0]
             out_tensor = torch.mul(out_tensor, mask_tensor.unsqueeze(2))
-
-        if self.use_cuda:
-            output_tensor = output_tensor.cpu()
+            if self.use_cuda:
+                out_tensor = out_tensor.cpu()
 
         return out_tensor.numpy()
