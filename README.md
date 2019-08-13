@@ -113,7 +113,7 @@ docker run ccr.ccs.tencentyun.com/gnes/gnes:alpine-latest
 
 > 💡 The tag `alpine` refers to the [Alpine Linux](https://alpinelinux.org/) GNES based on. We also provide Buster (Debian 10.0) and Ubuntu 18.04-based images, which can be pulled with tag `buster` and `ubuntu`, respectively. Note that they are larger in terms of the image size. 
 
-> 💡 The tag `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the latest release.
+> 🚸 The tag `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the latest release.
 
 
 #### Choose the right GNES image
@@ -144,7 +144,7 @@ Besides the `alpine` image optimized for the space, the table below summarizes a
   <tr>
     <td><code>gnes:full-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
-    <td>based on Ubuntu 16.04;<br>Tensorflow, PyTorch, faiss, torchvision, multiple pretrained models included; <br>Heavy but self-contained, useful in testing GNES end-to-endly.</td>
+    <td>based on Ubuntu 16.04;<br>python-3.6.8, cuda-10.0, tf1.14, pytorch1.1, faiss and multiple pretrained models; <br>Heavy but self-contained, useful in testing GNES end-to-endly.</td>
   </tr>
 </table>
  
