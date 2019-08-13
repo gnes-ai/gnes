@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# pylint: disable=low-comment-ratio
 
 import numpy as np
 
@@ -45,6 +44,8 @@ class IndexerService(BS):
                     offsets += [c.offset_nd for c in d.chunks]
                 elif d.doc_type == gnes_pb2.Document.VIDEO:
                     offsets += [c.offset_1d for c in d.chunks]
+                elif d.doc_type == gnes_pb2.Document.AUDIO:
+                    offsets += [c.offset_1d for c in d.chunks]
                 weights += [c.weight for c in d.chunks]
 
         from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
@@ -70,7 +71,7 @@ class IndexerService(BS):
             if not len(q_offset) == 2 and len(i_offset) == 2:
                 raise ValueError("Length of qc_offset and offset should be (2, 2), "
                                  "but actually we got (%d, %d)" % (len(q_offset), len(i_offset)))
-            return 1 / (1 + math.sqrt((q_offset[0] - i_offset[0])**2 + (q_offset[1] - i_offset[1])**2))
+            return 1 / (1 + math.sqrt((q_offset[0] - i_offset[0]) ** 2 + (q_offset[1] - i_offset[1]) ** 2))
 
         vecs = blob2array(msg.request.search.query.chunk_embeddings)
         q_offset = [c.offset_nd if msg.request.search.query.doc_type == 'IMAGE'
