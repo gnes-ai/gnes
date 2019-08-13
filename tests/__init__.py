@@ -51,7 +51,7 @@ env_dict = {
         'MOBILENET_MODEL': '/',
         'FASTERRCNN_MODEL': '/',
         'GNES_PROFILING': '',
-        'TORCH_TRANSFORMERS_MODEL': 'bert-base-uncased',
+        'TORCH_TRANSFORMERS_MODEL': '/torch_transformer'
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
