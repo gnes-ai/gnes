@@ -375,7 +375,7 @@ def pooling_torch(data_tensor, mask_tensor, pooling_strategy):
 
 def batching(func: Callable[[Any], np.ndarray] = None, *,
              batch_size: Union[int, Callable] = None, num_batch=None,
-             iter_axis: int = 0, concat_axis: int = 0):
+             iter_axis: int = 0, concat_axis: int = 0, chunk_dim=-1):
     def _batching(func):
         @wraps(func)
         def arg_wrapper(self, data, label=None, *args, **kwargs):
@@ -417,6 +417,9 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
 
             if len(final_result) and concat_axis is not None and isinstance(final_result[0], np.ndarray):
                 final_result = np.concatenate(final_result, concat_axis)
+
+            if chunk_dim != -1:
+                final_result = final_result.reshape((-1, chunk_dim, final_result.shape[1]))
 
             if len(final_result):
                 return final_result
