@@ -36,7 +36,7 @@
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
-  <a href="./CHANGELOG.md">Release Notes</a>
+  <a href="./CHANGELOG.md">Release Notes</a> •
   <a href="https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/">Blog</a>  
 </p>
 
@@ -49,6 +49,9 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
 
 
 <h2 align="center">Highlights</h2>
+
+[To know more about the key tenets of GNES, read this blog post](https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/)
+
 <center>
 <table>
   <tr>
