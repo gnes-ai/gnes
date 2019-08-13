@@ -50,7 +50,9 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
 
 <h2 align="center">Highlights</h2>
 
-[To know more about the key tenets of GNES, read this blog post](https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/)
+<p align="center">
+  <a href="https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/">💭 To know more about the key tenets of GNES, read this blog post</a>
+</p>
 
 <center>
 <table>
