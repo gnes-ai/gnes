@@ -187,6 +187,12 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     return frames
 
 
+def split_video_frames(buffer_data: bytes,
+                       splitter: str = '__split__'):
+    chunks = buffer_data.split(splitter.encode())
+    return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
+
+
 def block_descriptor(image: 'np.ndarray',
                      descriptor_fn: Callable,
                      num_blocks: int = 3) -> 'np.ndarray':
@@ -242,7 +248,7 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 
 def phash_descriptor(image: 'np.ndarray'):
-    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image = Image.fromarray(image)
     import imagehash
     return imagehash.phash(image)
 
