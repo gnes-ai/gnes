@@ -45,7 +45,7 @@ class CLIClient:
                 resp = list(stub.StreamCall(RequestGenerator.train(all_bytes, args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'index':
-                resp = list(stub.StreamCall(RequestGenerator.train(all_bytes, args.batch_size)))[-1]
+                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'query':
                 for idx, q in enumerate(all_bytes):
