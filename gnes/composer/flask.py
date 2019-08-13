@@ -62,7 +62,7 @@ class YamlComposerFlask:
                 if 'docker-image' in data:
                     args.docker_img = data['docker-image']
                 else:
-                    args.docker_img = 'gnes/gnes:latest'
+                    args.docker_img = 'gnes/gnes:alpine-latest'
 
                 return YamlComposer(args).build_all()['html']
             except Exception as e:

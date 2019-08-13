@@ -116,9 +116,9 @@ docker run ccr.ccs.tencentyun.com/gnes/gnes:alpine-latest
 > 💡 The tag `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the latest release.
 
 
-#### Choose the GNES image for your need
+#### Choose the right GNES image
 
-The table below summarizes all GNES images and tags, for `{version}` one can choose from `latest`, `stable`, `x.x.xx`.
+Besides the `alpine` image optimized for the space, the table below summarizes all available GNES images and tags. One can fill in `{version}` with `latest`, `stable` or `x.x.xx`.
 
 <table>
   <tr>
@@ -129,7 +129,7 @@ The table below summarizes all GNES images and tags, for `{version}` one can cho
   <tr>
     <td><code>gnes:alpine-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:alpine-latest.svg"></td>
-    <td>based on Alpine Linux, no deep learning libraries. Lightweight and portable, enables extremely fast scaling on even edge devices.</td>
+    <td>based on Alpine Linux, no deep learning libraries. Extremely lightweight and portable, enables fast scaling on even edge devices.</td>
   </tr>
   <tr>
     <td><code>gnes:buster-{version}</code></td>
