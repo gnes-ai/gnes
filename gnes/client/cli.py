@@ -23,17 +23,16 @@ from ..proto import gnes_pb2_grpc, RequestGenerator
 
 class CLIClient:
     def __init__(self, args):
-        if args.data_type == 'text':
+        if args.txt_file:
             all_bytes = [v.encode() for v in args.txt_file]
-        elif args.data_type == 'image':
+        elif args.image_zip_file:
             zipfile_ = zipfile.ZipFile(args.image_zip_file, "r")
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
-        elif args.data_type == 'video':
+        elif args.video_zip_file:
             zipfile_ = zipfile.ZipFile(args.video_zip_file, "r")
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
         else:
-            raise ValueError(
-                '--data_type can only be text, image or video')
+            raise AttributeError('--txt_file, --image_zip_file, --video_zip_file one must be given')
 
         with grpc.insecure_channel(
                 '%s:%s' % (args.grpc_host, args.grpc_port),

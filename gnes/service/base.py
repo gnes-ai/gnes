@@ -256,7 +256,7 @@ class BaseService(metaclass=ConcurrentService):
         try:
             fn = self.handler.serve(msg)
             if fn:
-                add_route(msg.envelope, '%s:%s' % (self.__class__.__name__, self._model.__class__.__name__))
+                add_route(msg.envelope, self._model.__class__.__name__)
                 self.logger.info(
                     'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
                 if msg.request and msg.request.WhichOneof('body') and \
