@@ -280,9 +280,6 @@ def set_cli_client_parser(parser=None):
     parser.add_argument('--mode', choices=['index', 'query', 'train'], type=str,
                         required=True,
                         help='the mode of the client and the server')
-    parser.add_argument('--data_type', choices=['text', 'image', 'video'], type=str,
-                        required=True,
-                        help='type of data, available choice: text, image, video')
     parser.add_argument('--top_k', type=int,
                         default=10,
                         help='default top_k for query mode')
@@ -321,9 +318,12 @@ def get_main_parser():
     set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
 
+    spp = parser.add_subparsers(dest='client', title='GNES client sub-commands',
+                                description='use "gnes client [sub-command] --help" '
+                                            'to get detailed information about each client sub-command')
     # clients
-    set_http_service_parser(sp.add_parser('client_http', help='start a client that allows HTTP requests as input'))
-    set_cli_client_parser(sp.add_parser('client_cli', help='start a client that allows STDIN as input'))
+    set_http_service_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
+    set_cli_client_parser(spp.add_parser('cli', help='start a client that allows STDIN as input'))
 
     # others
     set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))

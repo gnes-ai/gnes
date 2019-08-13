@@ -20,7 +20,7 @@ _docker_push() {
 
 _select_dockerfile() {
     PS3='Please select the Dockerfile you want to build (type 1, 2, 3, ...): '
-    options=("full(~7.2GB)" "alpine(~300MB)" "buster(~800MB)" "ubuntu")
+    options=("full(~7.2GB)" "alpine(~300MB)" "buster(~800MB)" "ubuntu(~650MB)")
     select opt in "${options[@]}"
     do
         case $opt in
@@ -39,7 +39,7 @@ _select_dockerfile() {
                 export OS_TAG='buster'
                 break
                 ;;
-            "ubuntu")
+            "ubuntu(~650MB)")
                 export DOCKER_FILE='Dockerfiles/ubuntu.Dockerfile'
                 export OS_TAG='ubuntu'
                 break

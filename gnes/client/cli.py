@@ -26,10 +26,10 @@ class CLIClient:
         if args.txt_file:
             all_bytes = [v.encode() for v in args.txt_file]
         elif args.image_zip_file:
-            zipfile_ = zipfile.ZipFile(args.image_zip_file, "r")
+            zipfile_ = zipfile.ZipFile(args.image_zip_file)
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
         elif args.video_zip_file:
-            zipfile_ = zipfile.ZipFile(args.video_zip_file, "r")
+            zipfile_ = zipfile.ZipFile(args.video_zip_file)
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
         else:
             raise AttributeError('--txt_file, --image_zip_file, --video_zip_file one must be given')

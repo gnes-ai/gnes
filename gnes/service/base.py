@@ -30,7 +30,7 @@ from termcolor import colored
 from ..base import TrainableBase, T
 from ..cli.parser import resolve_yaml_path
 from ..helper import set_logger
-from ..proto import gnes_pb2, add_route, send_message, recv_message
+from ..proto import gnes_pb2, add_route, send_message, recv_message, router2str
 
 
 class BetterEnum(Enum):
@@ -257,8 +257,7 @@ class BaseService(metaclass=ConcurrentService):
             fn = self.handler.serve(msg)
             if fn:
                 add_route(msg.envelope, self._model.__class__.__name__)
-                self.logger.info(
-                    'handling a message with route: %s' % '->'.join([r.service for r in msg.envelope.routes]))
+                self.logger.info('handling a message with route: %s' % router2str(msg))
                 if msg.request and msg.request.WhichOneof('body') and \
                         type(getattr(msg.request, msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
                     out_sock = ctrl_sck

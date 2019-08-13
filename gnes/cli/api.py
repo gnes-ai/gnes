@@ -53,12 +53,19 @@ def frontend(args):
         forever.wait()
 
 
-def client_http(args):
+def client(args):
+    if args.client == 'http':
+        return _client_http(args)
+    elif args.client == 'cli':
+        return _client_cli(args)
+
+
+def _client_http(args):
     from ..client.http import HttpClient
     HttpClient(args).start()
 
 
-def client_cli(args):
+def _client_cli(args):
     from ..client.cli import CLIClient
     CLIClient(args)
 
