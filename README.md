@@ -129,22 +129,22 @@ Besides the `alpine` image optimized for the space, the table below summarizes a
   <tr>
     <td><code>gnes:alpine-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:alpine-latest.svg"></td>
-    <td>based on Alpine Linux, no deep learning libraries. Extremely lightweight and portable, enables fast scaling on even edge devices.</td>
+    <td>based on Alpine Linux;<br>no deep learning libraries;<br>Extremely lightweight and portable, enables fast scaling on even edge devices.</td>
   </tr>
   <tr>
     <td><code>gnes:buster-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:buster-latest.svg"></td>
-    <td>based on Debian 10.0, no deep learning libraries. Recommended for building or extending a GNES-Hub image.</td>
+    <td>based on Debian 10.0;<br>no deep learning libraries;<br>Recommended for building or extending a GNES-Hub image.</td>
   </tr>
   <tr>
     <td><code>gnes:ubuntu-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:ubuntu-latest.svg"></td>
-    <td>based on Ubuntu 18.04, no deep learning libraries.</td>
+    <td>based on Ubuntu 18.04;<br>no deep learning libraries.</td>
   </tr>
   <tr>
     <td><code>gnes:full-{version}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
-    <td>based on Ubuntu 16.04, installed with tensorflow, PyTorch, faiss, torchvision and several pretrained models. Heavy but self-contained, useful in testing GNES.</td>
+    <td>based on Ubuntu 16.04;<br>Tensorflow, PyTorch, faiss, torchvision, multiple pretrained models included; <br>Heavy but self-contained, useful in testing GNES end-to-endly.</td>
   </tr>
 </table>
  
