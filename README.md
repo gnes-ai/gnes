@@ -92,8 +92,6 @@ There are two ways to get GNES, either as a Docker image or as a PyPi package. F
 
 ### Run GNES as a Docker Container
 
-We provide GNES as a Docker image to simplify the installation.
-
 ```bash
 docker run gnes/gnes:alpine-latest
 ```
@@ -102,11 +100,11 @@ This command downloads the latest GNES image (based on [Alpine Linux](https://al
 
 #### Choose the right GNES image
 
-Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0) and Ubuntu 18.04-based images. The table below summarizes [all available GNES images and tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `x.x.xx`. `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). Therefore, we recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the latest release.
+Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0) and Ubuntu 18.04-based images. The table below summarizes [all available GNES images and tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `x.x.xx`. `latest` refers to the **latest master** of this repository, which is [mutable and may not always be a stable](./CONTRIBUTING.md#Merging-Process). We recommend you to use an official release by changing the `latest` to a version tag, say `v0.0.24`. Or you may simply use `stable` for the last release.
 
 <table>
   <tr>
-    <th>GNES image</th>
+    <th>Image</th>
     <th>Size and layers</th>
     <th>Description</th>
   </tr>
@@ -128,7 +126,7 @@ Besides the `alpine` image optimized for the space, we also provide Buster (Debi
   <tr>
     <td><code>gnes:full-{ver}</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
-    <td>based on Ubuntu 16.04;<br>python-3.6.8, cuda-10.0, tf1.14, pytorch1.1, faiss and multiple pretrained models; <br>Heavy but self-contained, useful in testing GNES end-to-endly.</td>
+    <td>based on Ubuntu 16.04;<br>python-3.6.8, cuda-10.0, tf1.14, pytorch1.1, faiss, multiple pretrained models; <br>Heavy but self-contained, useful in testing GNES end-to-endly.</td>
   </tr>
 </table>
  
@@ -140,7 +138,7 @@ You can also install GNES as a Python package via:
 pip install gnes
 ```
 
-Note that this will only install a *"barebone"* version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior, as in GNES, models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
+Note that this will only install a "*barebone*" version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior, as in GNES, models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
 
 > 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance. 
 
