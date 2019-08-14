@@ -93,7 +93,6 @@
 #
 #---
 
----
 kind: pipeline
 name: default
 
@@ -118,7 +117,7 @@ services:
 volumes:
 - name: dockersock
   temp: {}
-#
+
 #kind: pipeline
 #name: master-docker-build
 #
