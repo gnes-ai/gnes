@@ -93,14 +93,14 @@ There are two ways to get GNES, either as a Docker image or as a PyPi package. *
 ### Run GNES as a Docker Container
 
 ```bash
-docker run gnes/gnes:alpine-latest
+docker run gnes/gnes:latest-alpine
 ```
 
 This command downloads the latest GNES image (based on [Alpine Linux](https://alpinelinux.org/)) and runs it in a container. When the container runs, it prints an informational message and exits.
 
 #### 💡 Choose the right GNES image
 
-Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0) and Ubuntu 18.04-based images. The table below summarizes [all available GNES tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `v0..xx`. `latest` refers to the **latest master** of this repository, which [may not be stable](./CONTRIBUTING.md#Merging-Process). We recommend you to use an official release by changing the `latest` to a version number, say `v0.0.24`, or simply using `stable` for the last release, e.g. `gnes:ubuntu-stable`
+Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0) and Ubuntu 18.04-based images. The table below summarizes [all available GNES tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `v0..xx`. `latest` refers to the **latest master** of this repository, which [may not be stable](./CONTRIBUTING.md#Merging-Process). We recommend you to use an official release by changing the `latest` to a version number, say `v0.0.24`, or simply using `stable` for the last release, e.g. `gnes:stable-ubuntu`
 
 <table>
   <tr>
@@ -109,22 +109,22 @@ Besides the `alpine` image optimized for the space, we also provide Buster (Debi
     <th>Description</th>
   </tr>
   <tr>
-    <td><code>alpine-{ver}</code></td>
+    <td><code>{ver}-alpine</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:alpine-latest.svg"></td>
     <td>based on Alpine Linux;<br>no deep learning libraries;<br>extremely lightweight and portable, enables fast scaling on even edge devices.</td>
   </tr>
   <tr>
-    <td><code>buster-{ver}</code></td>
+    <td><code>{ver}-buster</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:buster-latest.svg"></td>
     <td>based on Debian 10.0;<br>no deep learning libraries;<br>recommended for building or extending a GNES-Hub image.</td>
   </tr>
   <tr>
-    <td><code>ubuntu-{ver}</code></td>
+    <td><code>{ver}-ubuntu18</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:ubuntu-latest.svg"></td>
     <td>based on Ubuntu 18.04;<br>no deep learning libraries.</td>
   </tr>
   <tr>
-    <td><code>full-{ver}</code></td>
+    <td><code>{ver}-full</code></td>
     <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
     <td>based on Ubuntu 16.04;<br>python-3.6.8, cuda-10.0, tf1.14, pytorch1.1, faiss, multiple pretrained models; <br>heavy but self-contained, useful in testing GNES end-to-endly.</td>
   </tr>
