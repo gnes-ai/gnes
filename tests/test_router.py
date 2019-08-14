@@ -279,19 +279,19 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.4
-            s.doc.doc_id = 1
+            s.doc.meta_info = b'1'
             s.doc.raw_text = 'd3'
             s.score_explained = '1-d3\n'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.doc.doc_id = 2
+            s.doc.meta_info = b'2'
             s.doc.raw_text = 'd2'
             s.score_explained = '1-d2\n'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.2
-            s.doc.doc_id = 3
+            s.doc.meta_info = b'3'
             s.doc.raw_text = 'd1'
             s.score_explained = '1-d3\n'
 
@@ -302,19 +302,19 @@ class TestProto(unittest.TestCase):
 
             s = msg.response.search.topk_results.add()
             s.score = 0.5
-            s.doc.doc_id = 1
+            s.doc.meta_info = b'1'
             s.doc.raw_text = 'd2'
             s.score_explained = '2-d2\n'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.2
-            s.doc.doc_id = 2
+            s.doc.meta_info = b'2'
             s.doc.raw_text = 'd1'
             s.score_explained = '2-d1\n'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.1
-            s.doc.doc_id = 3
+            s.doc.meta_info = b'3'
             s.doc.raw_text = 'd3'
             s.score_explained = '2-d3\n'
 
