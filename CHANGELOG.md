@@ -1,4 +1,48 @@
 
+# Release Note (`v0.0.28`)
+> Release time: 2019-08-14 20:54:26
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  raccoonliukai,  Larry Yan,  🙇
+
+
+### 🆕 New Features
+
+ - [[```0133905c```](https://github.com/gnes-ai/gnes/commit/0133905c807f53df0631eb50e65540b3c314ff02)] __-__ __client__: add a client for benchmarking and testing (*hanhxiao*)
+ - [[```732f2e64```](https://github.com/gnes-ai/gnes/commit/732f2e64b7a2389cfa41611acee169da63ff11fd)] __-__ __encoder__: add pytorch transformers support in text encoder (*raccoonliukai*)
+ - [[```6aab48c8```](https://github.com/gnes-ai/gnes/commit/6aab48c89939c69dfe2533cb45fed651d668b12b)] __-__ __docker__: add buster image with minimum dependencies (*hanhxiao*)
+ - [[```da1bbc0d```](https://github.com/gnes-ai/gnes/commit/da1bbc0da54ae1b0ab98e6b645280c968b738c6a)] __-__ __docker__: add alpine image with minimum dependencies (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```315bd16a```](https://github.com/gnes-ai/gnes/commit/315bd16af8fd58a7c8ef12d772178fc11a67de6c)] __-__ __doc sum router__: use meta info instead of doc id to do doc sum (*Jem*)
+ - [[```c9e92722```](https://github.com/gnes-ai/gnes/commit/c9e927227ce2cf1737ca6b33002bf1eebd05ec64)] __-__ __encoder__: use offline model in ci-base for pytorch transformer (*raccoonliukai*)
+ - [[```d7b42d39```](https://github.com/gnes-ai/gnes/commit/d7b42d3957fa0395ea1ac34da188bf93d348990c)] __-__ __setup__: remove unused dependencies (*hanhxiao*)
+ - [[```5b8acf7c```](https://github.com/gnes-ai/gnes/commit/5b8acf7c547fb20b9f687c5d641e214c3e54b11e)] __-__ __test__: fix routes assert in tests (*hanhxiao*)
+ - [[```5fedf6df```](https://github.com/gnes-ai/gnes/commit/5fedf6dffccf881345986142fc3afc586ae38fec)] __-__ __encoder__: fix unused variable (*raccoonliukai*)
+ - [[```df616463```](https://github.com/gnes-ai/gnes/commit/df6164633435ec7e475663fb555464cf75f4601f)] __-__ __cli__: remove unnecessary argument (*hanhxiao*)
+ - [[```fd76aa79```](https://github.com/gnes-ai/gnes/commit/fd76aa79b75ccb68fa3c345306d148cc21de44a7)] __-__ __request_generator__: send index request in index mode (*Jem*)
+ - [[```64163cb1```](https://github.com/gnes-ai/gnes/commit/64163cb15b614d67c47694b37da20c384754e9c7)] __-__ __batching__: enable to process three dimension output in batching (*Jem*)
+ - [[```415456d6```](https://github.com/gnes-ai/gnes/commit/415456d6efd13d5fb60b5211ce5303d035995c8f)] __-__ __preprocessor__: fix bug (*Larry Yan*)
+ - [[```c150ad59```](https://github.com/gnes-ai/gnes/commit/c150ad59a439779df2a17216c408d7aa155c6d38)] __-__ __preprocessor__: modify ffmpeg video pre add video cutting method (*Larry Yan*)
+ - [[```b0f22d04```](https://github.com/gnes-ai/gnes/commit/b0f22d0433704727890978a7bd26d939f865ac11)] __-__ __audio preprocessor__: filter audio with zero length (*Jem*)
+ - [[```d1cfa539```](https://github.com/gnes-ai/gnes/commit/d1cfa539ed0f60b0dd1d4c09dab9ef9b4a626ef1)] __-__ __preprocessor__: modify ffmpeg video preprocessor (*Larry Yan*)
+
+### 📗 Documentation
+
+ - [[```e11a920e```](https://github.com/gnes-ai/gnes/commit/e11a920e7574d1a576b00dc00fab3660ae3200fe)] __-__ __readme__: add image explain to readme (*hanhxiao*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```a8700801```](https://github.com/gnes-ai/gnes/commit/a8700801514811baccc5fd4c1f06a89426a7721c)] __-__ __drone__: add self hosted drone (*hanhxiao*)
+ - [[```079d0a1a```](https://github.com/gnes-ai/gnes/commit/079d0a1a683d781edd6b701305e12fd520cd218b)] __-__ __docker__: move docker-build to a more controllable cd process (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```5257259f```](https://github.com/gnes-ai/gnes/commit/5257259fc037304d63acd1b0608d48a9b026b67f)] __-__ add kai liu to core maintainers (*hanhxiao*)
+ - [[```8d318204```](https://github.com/gnes-ai/gnes/commit/8d318204418e3edc0ec6cafe5a73d83655dcb249)] __-__ __changelog__: update change log to v0.0.27 (*hanhxiao*)
+
 # Release Note (`v0.0.27`)
 > Release time: 2019-08-09 19:51:57
 
