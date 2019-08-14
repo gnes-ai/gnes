@@ -113,6 +113,7 @@ steps:
 
 - name: build and push docker images
   image: gnes/dind
+  privileged: true
   environment:
     TCLOUD_USER:
       from_secret: TCLOUD_USER
@@ -127,9 +128,7 @@ steps:
     BOT_URL:
       from_secret: BOT_URL
   commands:
-  - docker start
   - ./docker-build.sh
-  - docker stop
 
 - name: notify the sucess on wechat work
   image: byrnedo/alpine-curl
