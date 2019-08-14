@@ -107,7 +107,7 @@ steps:
       from_secret: BOT_URL
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
-  - export MSG_TITLE="⌛🗳 Start to build docker image for latest master \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_TITLE="⌛🗳 Start to build docker image \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
   - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
