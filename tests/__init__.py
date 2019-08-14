@@ -50,7 +50,8 @@ env_dict = {
         'INCEPTION_MODEL': '/',
         'MOBILENET_MODEL': '/',
         'FASTERRCNN_MODEL': '/',
-        'GNES_PROFILING': ''
+        'GNES_PROFILING': '',
+        'TORCH_TRANSFORMERS_MODEL': '/torch_transformer'
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -67,7 +68,8 @@ env_dict = {
         'INCEPTION_MODEL': '/ext_data/image_encoder',
         'MOBILENET_MODEL': '/ext_data/image_encoder',
         'FASTERRCNN_MODEL': '/ext_data/image_preprocessor',
-        'GNES_PROFILING': ''
+        'GNES_PROFILING': '',
+        'TORCH_TRANSFORMERS_MODEL': '/ext_data/torch_transformer'
     }
 
 }

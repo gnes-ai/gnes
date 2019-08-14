@@ -51,6 +51,7 @@ extras_dep = {
     'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0'],
     'leveldb': ['plyvel>=1.0.5'],
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
+    'pytorch-transformers': ['pytorch-transformers'],
     'http': ['flask', 'flask-compress', 'aiohttp==3.5.4'],
     'onnx': ['onnxruntime'],
     'librosa': ['librosa>=0.7.0'],

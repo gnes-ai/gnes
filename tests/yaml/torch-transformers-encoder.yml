@@ -1,0 +1,7 @@
+!TorchTransformersEncoder
+parameter:
+  model_dir: $TORCH_TRANSFORMERS_MODEL
+  model_name: BertModel
+  tokenizer_name: BertTokenizer
+gnes_config:
+  is_trained: true
