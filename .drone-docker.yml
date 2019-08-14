@@ -1,0 +1,67 @@
+kind: pipeline
+name: master-docker-build
+
+clone:
+  depth: 50
+
+steps:
+- name: notify the start on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=${DRONE_BUILD_LINK}
+  - export MSG_TITLE="⌛🗳 Start to build docker image \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_CONTENT="click the link below to see the status"
+  - ./shell/push-wechatwork.sh
+
+- name: build and push docker images
+  image: gnes/dind
+  privileged: true
+  environment:
+    TCLOUD_USER:
+      from_secret: TCLOUD_USER
+    TCLOUD_PWD:
+      from_secret: TCLOUD_PWD
+    HUB_USER:
+      from_secret: HUB_USER
+    HUB_PWD:
+      from_secret: HUB_PWD
+    BADGE_WEBHOOK:
+      from_secret: BADGE_WEBHOOK
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - ./docker-build.sh
+
+- name: notify the sucess on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_REPO_LINK
+  - export MSG_TITLE="✅🎁 All images is successfully updated!"
+  - export MSG_CONTENT=""
+  - ./shell/push-wechatwork.sh
+
+- name: notify the failure on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=$DRONE_BUILD_LINK
+  - export MSG_TITLE="❌🎁 fail to build docker image!"
+  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - ./shell/push-wechatwork.sh
+  when:
+    status:
+    - failure
+
+trigger:
+  branch:
+  - master
+  event:
+  - pull_request
