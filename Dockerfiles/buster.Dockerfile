@@ -1,5 +1,14 @@
 FROM python:3.7.4-slim-buster AS base
 
+ARG VCS_REF
+ARG BUILD_DATE
+
+LABEL maintainer="team@gnes.ai" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-url="https://github.com/gnes-ai/gnes" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.name="GNES is Generic Nerual Elastic Search"
+
 WORKDIR /gnes/
 
 ADD . ./

@@ -177,7 +177,7 @@ class YamlComposer:
         return all_layers
 
     @staticmethod
-    def build_dockerswarm(all_layers: List['YamlComposer.Layer'], docker_img: str = 'gnes/gnes:alpine-latest',
+    def build_dockerswarm(all_layers: List['YamlComposer.Layer'], docker_img: str = 'gnes/gnes:latest-alpine',
                           volumes: Dict = None, networks: Dict = None) -> str:
         with resource_stream('gnes', '/'.join(('resources', 'compose', 'gnes-swarm.yml'))) as r:
             swarm_lines = _yaml.load(r)
