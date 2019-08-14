@@ -45,12 +45,12 @@ do
                  --build-arg VCS_REF=`git rev-parse --short HEAD` \
                  --rm --target $TARGET -t $IMAGE_TAG -f $DOCKER_FILE .
 
-    if [[ -z "${TCLOUD_USER}" ]]; then
-        printf "\$TCLOUD_USER not set, exit"
-        exit 1
-    else
-        login_push ${TCLOUD_USER} ${TCLOUD_PWD} ccr.ccs.tencentyun.com ccr.ccs.tencentyun.com/gnes
-    fi
+#    if [[ -z "${TCLOUD_USER}" ]]; then
+#        printf "\$TCLOUD_USER not set, exit"
+#        exit 1
+#    else
+#        login_push ${TCLOUD_USER} ${TCLOUD_PWD} ccr.ccs.tencentyun.com ccr.ccs.tencentyun.com/gnes
+#    fi
 
 
     if [[ -z "${HUB_USER}" ]]; then
@@ -62,7 +62,7 @@ do
 done
 
 
-if [[ -z "${HUB_USER}" ]]; then
+if [[ -z "${BADGE_WEBHOOK}" ]]; then
     printf "\$BADGE_WEBHOOK not set"
 else
     curl -X POST -H 'Content-type: application/json' --data '{}' ${BADGE_WEBHOOK}
