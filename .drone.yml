@@ -100,10 +100,10 @@ steps:
 - name: test
   image: docker:dind
   environment:
-    - DOCKER_HOST=tcp://docker:2375
+  - DOCKER_HOST=tcp://docker:2375
   commands:
-    - sleep 5 # give docker enough time to start
-    - docker ps -a
+  - sleep 5 # give docker enough time to start
+  - docker ps -a
 
 #services:
 #- name: docker
