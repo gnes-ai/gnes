@@ -28,14 +28,14 @@ class DocSumRouter(BaseReduceRouter):
         all_docs_socres = [top_k.score for m in accum_msgs for top_k in m.response.search.topk_results]
         all_score_explained = [top_k.score_explained for m in accum_msgs for top_k in m.response.search.topk_results]
 
-        doc_id = defaultdict(int)
+        doc_id = defaultdict(gnes_pb2.Document)
         doc_score = defaultdict(float)
         doc_score_explained = defaultdict(str)
 
         for d, s, ex in zip(all_docs, all_docs_socres, all_score_explained):
-            doc_id[d.doc_id] = d
-            doc_score[d.doc_id] += s
-            doc_score_explained[d.doc_id] += '%s\n' % ex
+            doc_id[d.meta_info] = d
+            doc_score[d.meta_info] += s
+            doc_score_explained[d.meta_info] += '%s\n' % ex
 
         msg.response.search.ClearField('topk_results')
 
