@@ -19,6 +19,9 @@ steps:
 - name: build and push docker images
   image: gnes/dind
   privileged: true
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
   environment:
     TCLOUD_USER:
       from_secret: TCLOUD_USER
@@ -65,3 +68,8 @@ trigger:
   - master
   event:
   - pull_request
+
+volumes:
+- name: docker
+  host:
+    path: /var/run/docker.sock
