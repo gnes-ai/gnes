@@ -164,16 +164,16 @@ class TestProto(unittest.TestCase):
             # shard1 only has d1
             s = msg.response.search.topk_results.add()
             s.score = 0.1
-            s.doc.meta_info = 1
+            s.doc.meta_info = b'1'
             s.doc.raw_text = 'd1'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.2
-            s.doc.meta_info = 2
+            s.doc.meta_info = b'2'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.doc.meta_info = 3
+            s.doc.meta_info = b'3'
 
             msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
@@ -183,16 +183,16 @@ class TestProto(unittest.TestCase):
             # shard2 has d2 and d3
             s = msg.response.search.topk_results.add()
             s.score = 0.1
-            s.doc.meta_info = 1
+            s.doc.meta_info = b'1'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.2
-            s.doc.meta_info = 2
+            s.doc.meta_info = b'2'
             s.doc.raw_text = 'd2'
 
             s = msg.response.search.topk_results.add()
             s.score = 0.3
-            s.doc.meta_info = 3
+            s.doc.meta_info = b'3'
             s.doc.raw_text = 'd3'
 
             msg.response.search.top_k = 5
