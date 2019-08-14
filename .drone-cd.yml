@@ -113,7 +113,6 @@ steps:
       from_secret: BADGE_WEBHOOK
     BOT_URL:
       from_secret: BOT_URL
-    IS_RELEASE: true
   commands:
   - ./docker-build.sh
 
