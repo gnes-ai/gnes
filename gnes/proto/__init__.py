@@ -66,13 +66,13 @@ class RequestGenerator:
             yield req
             start_request_id += 1
         req = gnes_pb2.Request()
-        req.request_id = str(start_doc_id)
+        req.request_id = str(start_request_id)
         req.train.flush = True
         yield req
         start_request_id += 1
 
     @staticmethod
-    def query(query: bytes, start_request_id: int, top_k: int, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
+    def query(query: bytes, top_k: int, start_request_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
         if top_k <= 0:
             raise ValueError('"top_k: %d" is not a valid number' % top_k)
 
