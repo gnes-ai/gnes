@@ -3,6 +3,7 @@
 .pyre/
 .idea/
 docker-push.sh
+docker-build.sh
 download-models.sh
 docker-up.sh
 .orange-ci.yml

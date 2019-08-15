@@ -38,7 +38,12 @@ base_dep = [
     'grpcio',
     'ruamel.yaml>=0.15.89',
     'pyzmq>=17.1.0',
+    'flask',
+    'aiohttp'
 ]
+
+# using pip install gnes[xx] is depreciated
+# extras_dep is kept for legacy issue, will be removed soon
 
 extras_dep = {
     'bert': ['bert-serving-server>=1.8.6', 'bert-serving-client>=1.8.6'],
@@ -51,10 +56,9 @@ extras_dep = {
     'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0'],
     'leveldb': ['plyvel>=1.0.5'],
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
-    'pytorch-transformers': ['pytorch-transformers'],
-    'http': ['flask', 'flask-compress', 'aiohttp==3.5.4'],
+    'transformers': ['pytorch-transformers'],
     'onnx': ['onnxruntime'],
-    'librosa': ['librosa>=0.7.0'],
+    'audio': ['librosa>=0.7.0'],
     'scipy': ['scipy']
 }
 
@@ -63,7 +67,7 @@ def combine_dep(new_key, base_keys):
     extras_dep[new_key] = list(set(k for v in base_keys for k in extras_dep[v]))
 
 
-combine_dep('nlp', ['bert', 'flair'])
+combine_dep('nlp', ['bert', 'flair', 'transformers'])
 combine_dep('cn_nlp', ['chinese', 'nlp'])
 combine_dep('all', [k for k in extras_dep if k != 'elmo'])
 

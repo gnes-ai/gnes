@@ -87,7 +87,7 @@ def set_composer_parser(parser=None):
     parser.add_argument('--mermaid_leftright', action='store_true', default=False,
                         help='showing the flow in left-to-right manner rather than top down')
     parser.add_argument('--docker_img', type=str,
-                        default='gnes/gnes:alpine-latest',
+                        default='gnes/gnes:latest-alpine',
                         help='the docker image used in Docker Swarm & Kubernetes')
     return parser
 

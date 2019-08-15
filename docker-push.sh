@@ -8,7 +8,7 @@ _docker_push() {
     TARGET="base"
     GIT_TAG=$(git rev-parse --short HEAD)
     printf "your current git commit tag: \e[1;33m$GIT_TAG\e[0m\n"
-    IMAGE_FULL_TAG="${DOCKER_NAMESPACE}${PROJ_NAME}:${OS_TAG}-${GIT_TAG}"
+    IMAGE_FULL_TAG="${DOCKER_NAMESPACE}${PROJ_NAME}:${GIT_TAG}-${OS_TAG}"
     printf "image you are building is named as \e[1;33m$IMAGE_FULL_TAG\e[0m\n"
     docker build --rm --target $TARGET -t $IMAGE_FULL_TAG -f $DOCKER_FILE .
     IMAGE_SIZE=$(docker images ${IMAGE_FULL_TAG} --format "{{.Size}}")
