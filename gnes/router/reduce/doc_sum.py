@@ -33,9 +33,9 @@ class DocSumRouter(BaseReduceRouter):
         doc_score_explained = defaultdict(str)
 
         for d, s, ex in zip(all_docs, all_docs_socres, all_score_explained):
-            doc_id[d.meta_info] = d
-            doc_score[d.meta_info] += s
-            doc_score_explained[d.meta_info] += '%s\n' % ex
+            doc_id[d.doc_id] = d
+            doc_score[d.doc_id] += s
+            doc_score_explained[d.doc_id] += '%s\n' % ex
 
         msg.response.search.ClearField('topk_results')
 
