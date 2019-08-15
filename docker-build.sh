@@ -17,7 +17,7 @@ function login_push {
     docker login -u $1 -p $2 $3
     tag_push ${IMAGE_TAG} "$4/${IMAGE_TAG}"
 
-    if [[ -z "${IS_RELEASE}" ]]; then
+    if [[ -z "${DRONE_TAG}" ]]; then
         printf 'done!\n'
     else
         tag_push ${IMAGE_TAG} "$4/${PROJ_NAME}:stable-${OS_TAG}"
@@ -27,10 +27,10 @@ function login_push {
 PROJ_NAME=gnes
 TARGET=base
 
-if [[ -z "${IS_RELEASE}" ]]; then
+if [[ -z "${DRONE_TAG}" ]]; then
     VER_TAG="latest"
 else
-    VER_TAG=$(git tag -l | sort -V |tail -n1)
+    VER_TAG=${DRONE_TAG}
 fi
 
 
@@ -42,20 +42,18 @@ do
     printf "i will build $IMAGE_TAG based on $DOCKER_FILE\n"
 
     docker build --network host --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-                 --build-arg VCS_REF=`git rev-parse --short HEAD` \
+                 --build-arg VCS_REF=${DRONE_COMMIT_REF} \
                  --rm --target $TARGET -t $IMAGE_TAG -f $DOCKER_FILE .
 
 
     if [[ -z "${HUB_USER}" ]]; then
-        printf "\$HUB_USER not set, exit"
-        exit 1
+        printf "\$HUB_USER not set, pass\n"
     else
         login_push ${HUB_USER} ${HUB_PWD} " " gnes
     fi
 
     if [[ -z "${TCLOUD_USER}" ]]; then
-        printf "\$TCLOUD_USER not set, exit"
-        exit 1
+        printf "\$TCLOUD_USER not set, pass\n"
     else
         login_push ${TCLOUD_USER} ${TCLOUD_PWD} ccr.ccs.tencentyun.com ccr.ccs.tencentyun.com/gnes
     fi
@@ -63,7 +61,7 @@ done
 
 
 if [[ -z "${BADGE_WEBHOOK}" ]]; then
-    printf "\$BADGE_WEBHOOK not set"
+    printf "\$BADGE_WEBHOOK not set, pass\n"
 else
     curl -X POST -H 'Content-type: application/json' --data '{}' ${BADGE_WEBHOOK}
     printf "informed minibadger to update docker information"

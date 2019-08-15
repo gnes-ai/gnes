@@ -11,9 +11,6 @@
 <a href="https://pypi.org/project/gnes/">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/gnes.svg">
 </a>
-<a href="https://cloud.docker.com/u/gnes/">
-    <img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/gnes/gnes.svg">
-</a>
 <a href='https://doc.gnes.ai/'>
     <img src='https://readthedocs.org/projects/gnes/badge/?version=latest' alt='Documentation Status' />
 </a>
@@ -100,7 +97,7 @@ This command downloads the latest GNES image (based on [Alpine Linux](https://al
 
 #### 💡 Choose the right GNES image
 
-Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0) and Ubuntu 18.04-based images. The table below summarizes [all available GNES tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `v0..xx`. `latest` refers to the **latest master** of this repository, which [may not be stable](./CONTRIBUTING.md#Merging-Process). We recommend you to use an official release by changing the `latest` to a version number, say `v0.0.24`, or simply using `stable` for the last release, e.g. `gnes:stable-ubuntu`
+Besides the `alpine` image optimized for the space, we also provide Buster (Debian 10.0), Ubuntu 18.04 and Ubuntu 16.04-based images. The table below summarizes [all available GNES tags](https://cloud.docker.com/u/gnes/repository/docker/gnes/gnes). One can fill in `{ver}` with `latest`, `stable` or `v0..xx`. `latest` refers to the **latest master** of this repository, which [may not be stable](./CONTRIBUTING.md#Merging-Process). We recommend you to use an official release by changing the `latest` to a version number, say `v0.0.24`, or simply using `stable` for the last release, e.g. `gnes:stable-ubuntu`
 
 <table>
   <tr>
@@ -110,37 +107,84 @@ Besides the `alpine` image optimized for the space, we also provide Buster (Debi
   </tr>
   <tr>
     <td><code>{ver}-alpine</code></td>
-    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:alpine-latest.svg"></td>
+    <td><a href="https://microbadger.com/images/gnes/gnes:latest-alpine" title="Get your own image badge on microbadger.com"><img src="https://images.microbadger.com/badges/image/gnes/gnes:latest-alpine.svg"></a></td>
     <td>based on Alpine Linux;<br>no deep learning libraries;<br>extremely lightweight and portable, enables fast scaling on even edge devices.</td>
   </tr>
   <tr>
     <td><code>{ver}-buster</code></td>
-    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:buster-latest.svg"></td>
+    <td><a href="https://microbadger.com/images/gnes/gnes:latest-buster" title="Get your own image badge on microbadger.com"><img src="https://images.microbadger.com/badges/image/gnes/gnes:latest-buster.svg"></a></td>
     <td>based on Debian 10.0;<br>no deep learning libraries;<br>recommended for building or extending a GNES-Hub image.</td>
   </tr>
   <tr>
     <td><code>{ver}-ubuntu18</code></td>
-    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:ubuntu-latest.svg"></td>
+    <td><a href="https://microbadger.com/images/gnes/gnes:latest-ubuntu18" title="Get your own image badge on microbadger.com"><img src="https://images.microbadger.com/badges/image/gnes/gnes:latest-ubuntu18.svg"></a></td>
     <td>based on Ubuntu 18.04;<br>no deep learning libraries.</td>
   </tr>
   <tr>
     <td><code>{ver}-full</code></td>
-    <td><img src="https://images.microbadger.com/badges/image/gnes/gnes:full-latest.svg"></td>
+    <td><a href="https://microbadger.com/images/gnes/gnes:latest-full" title="Get your own image badge on microbadger.com"><img src="https://images.microbadger.com/badges/image/gnes/gnes:latest-full.svg"></a></td>
     <td>based on Ubuntu 16.04;<br>python-3.6.8, cuda-10.0, tf1.14, pytorch1.1, faiss, multiple pretrained models; <br>heavy but self-contained, useful in testing GNES end-to-endly.</td>
   </tr>
 </table>
- 
+
+We also provide a public mirror hosted on Tencent Cloud, from which Chinese mainland users can pull the image faster.
+
+```bash
+docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
+docker run ccr.ccs.tencentyun.com/gnes/gnes:latest-alpine
+```
+
+The table below shows the status of the build pipeline.
+
+<table>
+<tr><th>Registry</th><th>Build status</th></tr>
+<tr>
+<td><sub>Docker Hub</sub><br><code>gnes/gnes:[tag]</code></td>
+<td><a href="https://drone.gnes.ai/gnes-ai/gnes"><img src="https://drone.gnes.ai/api/badges/gnes-ai/gnes/status.svg" /></a></td>
+</tr>
+<tr>
+<td><sub>Tencent Cloud</sub><br><code>ccr.ccs.tencentyun.com/gnes/gnes:[tag]</code></td>
+<td><a href="http://193.112.63.208/gnes-ai/gnes"><img src="http://193.112.63.208/api/badges/gnes-ai/gnes/status.svg" /></a></td>
+</tr>
+</table>
 
 ### Install GNES via `pip`
 
-You can also install GNES as a Python package via:
+You can also install GNES as a *Python3* package via:
 ```bash
 pip install gnes
 ```
 
-Note that this will only install a "*barebone*" version of GNES, consists of **the minimal dependencies** for running GNES, i.e. *no third-party pretrained models, deep learning/NLP/CV packages are installed*. We make this setup as the default installation behavior, as in GNES, models serve as plugins, and a model interested to NLP engineers may not be interested to CV engineers.
+Note that this will only install a "barebone" version of GNES, consists of **the minimal dependencies** for running GNES. No third-party pretrained models, deep learning/NLP/CV packages will be installed. We make this setup as the default installation behavior, as a model interested to NLP engineers may not be interested to CV engineers. In GNES, models serve as Docker plugins. 
 
-> 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance. 
+> 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance.
+
+Though not recommended, you may install GNES with full dependencies via:
+```bash
+pip install gnes[all]
+```
+
+<details>
+ <summary>🍒 Or cherry-picking the dependencies according to the table below: (click to expand...)</summary>
+
+
+<table>
+<tr><td><pre>pip install gnes[bert]</pre></td><td>bert-serving-server>=1.8.6, bert-serving-client>=1.8.6</td>
+<tr><td><pre>pip install gnes[flair]</pre></td><td>flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[annoy]</pre></td><td>annoy==1.15.2</td>
+<tr><td><pre>pip install gnes[chinese]</pre></td><td>jieba</td>
+<tr><td><pre>pip install gnes[vision]</pre></td><td>opencv-python>=4.0.0, imagehash>=4.0</td>
+<tr><td><pre>pip install gnes[leveldb]</pre></td><td>plyvel>=1.0.5</td>
+<tr><td><pre>pip install gnes[test]</pre></td><td>pylint, memory_profiler>=0.55.0, psutil>=5.6.1, gputil>=1.4.0</td>
+<tr><td><pre>pip install gnes[transformers]</pre></td><td>pytorch-transformers</td>
+<tr><td><pre>pip install gnes[onnx]</pre></td><td>onnxruntime</td>
+<tr><td><pre>pip install gnes[audio]</pre></td><td>librosa>=0.7.0</td>
+<tr><td><pre>pip install gnes[scipy]</pre></td><td>scipy</td>
+<tr><td><pre>pip install gnes[nlp]</pre></td><td>bert-serving-server>=1.8.6, pytorch-transformers, flair>=0.4.1, bert-serving-client>=1.8.6</td>
+<tr><td><pre>pip install gnes[cn_nlp]</pre></td><td>pytorch-transformers, bert-serving-client>=1.8.6, bert-serving-server>=1.8.6, jieba, flair>=0.4.1</td>
+<tr><td><pre>pip install gnes[all]</pre></td><td>pylint, psutil>=5.6.1, pytorch-transformers, annoy==1.15.2, bert-serving-client>=1.8.6, gputil>=1.4.0, bert-serving-server>=1.8.6, imagehash>=4.0, onnxruntime, memory_profiler>=0.55.0, jieba, flair>=0.4.1, librosa>=0.7.0, scipy, plyvel>=1.0.5, opencv-python>=4.0.0</td>
+</table>
+</details> 
 
 Either way, if you end up reading the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
 
