@@ -48,14 +48,12 @@ do
 
     if [[ -z "${HUB_USER}" ]]; then
         printf "\$HUB_USER not set, exit"
-        exit 1
     else
         login_push ${HUB_USER} ${HUB_PWD} " " gnes
     fi
 
     if [[ -z "${TCLOUD_USER}" ]]; then
         printf "\$TCLOUD_USER not set, exit"
-        exit 1
     else
         login_push ${TCLOUD_USER} ${TCLOUD_PWD} ccr.ccs.tencentyun.com ccr.ccs.tencentyun.com/gnes
     fi
