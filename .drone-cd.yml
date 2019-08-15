@@ -2,7 +2,7 @@ kind: pipeline
 name: master-docker-build
 
 clone:
-  depth: 50
+  depth: 10
 
 steps:
 - name: notify the start on wechat work
