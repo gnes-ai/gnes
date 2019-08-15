@@ -41,14 +41,22 @@ class CLIClient:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             if args.mode == 'train':
-                resp = list(stub.StreamCall(RequestGenerator.train(all_bytes, args.batch_size)))[-1]
+                resp = list(stub.StreamCall(RequestGenerator.train(all_bytes,
+                                                                   start_doc_id=args.start_doc_id,
+                                                                   start_request_id=0,
+                                                                   random_doc_id=False,
+                                                                   batch_size=args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'index':
-                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size)))[-1]
+                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes,
+                                                                   start_doc_id=args.start_doc_id,
+                                                                   start_request_id=0,
+                                                                   random_doc_id=False,
+                                                                   batch_size=args.batch_size)))[-1]
                 print(resp)
             elif args.mode == 'query':
                 for idx, q in enumerate(all_bytes):
-                    for req in RequestGenerator.query(q, args.top_k):
+                    for req in RequestGenerator.query(q, start_request_id=idx, top_k=args.top_k):
                         resp = stub.Call(req)
                         print(resp)
                         print('query %d result: %s' % (idx, resp))
