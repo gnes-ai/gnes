@@ -80,7 +80,7 @@ class TestStreamgRPC(unittest.TestCase):
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             with TimeContext('sync call'):  # about 5s
-                resp = list(stub.StreamCall(RequestGenerator.train(self.all_bytes, 1)))[-1]
+                resp = list(stub.StreamCall(RequestGenerator.train(self.all_bytes, batch_size=1)))[-1]
 
             self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
 
@@ -112,14 +112,14 @@ class TestStreamgRPC(unittest.TestCase):
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             id = 0
             with TimeContext('non-blocking call'):  # about 26s = 32s (total) - 3*2s (overlap)
-                resp = stub.StreamCall(RequestGenerator.train(self.all_bytes2, 1))
+                resp = stub.StreamCall(RequestGenerator.train(self.all_bytes2, batch_size=1))
                 for r in resp:
                     self.assertEqual(r.request_id, str(id))
                     id += 1
 
             id = 0
             with TimeContext('blocking call'):  # should be 32 s
-                for r in RequestGenerator.train(self.all_bytes2, 1):
+                for r in RequestGenerator.train(self.all_bytes2, batch_size=1):
                     resp = stub.Call(r)
                     self.assertEqual(resp.request_id, str(id))
                     id += 1

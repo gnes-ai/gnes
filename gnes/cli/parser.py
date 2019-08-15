@@ -283,6 +283,9 @@ def set_cli_client_parser(parser=None):
     parser.add_argument('--top_k', type=int,
                         default=10,
                         help='top_k results returned in the query mode')
+    parser.add_argument('--start_doc_id', type=int,
+                        default=0,
+                        help='the start number of doc id')
     return parser
 
 
