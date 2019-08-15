@@ -36,7 +36,6 @@ class DocSumRouter(BaseReduceRouter):
             doc_id[d.doc_id] = d
             doc_score[d.doc_id] += s
             doc_score_explained[d.doc_id] += '%s\n' % ex
-
         msg.response.search.ClearField('topk_results')
 
         # sort and add docs
