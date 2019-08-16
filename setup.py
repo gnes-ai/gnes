@@ -6,14 +6,14 @@ from setuptools.extension import Extension
 try:
     pkg_name = 'gnes'
     libinfo_py = path.join(pkg_name, '__init__.py')
-    libinfo_content = open(libinfo_py, 'r').readlines()
+    libinfo_content = open(libinfo_py, 'r', encoding='utf8').readlines()
     version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
     exec(version_line)  # produce __version__
 except FileNotFoundError:
     __version__ = '0.0.0'
 
 try:
-    with open('README.md') as fp:
+    with open('README.md', encoding='utf8') as fp:
         _long_description = fp.read()
 except FileNotFoundError:
     _long_description = ''
