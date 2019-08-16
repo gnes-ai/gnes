@@ -4,7 +4,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_frontend_parser, set_router_service_parser, set_benchmark_client_parser
+from gnes.cli.parser import set_frontend_parser, set_router_parser, set_client_benchmark_parser
 from gnes.client.benchmark import BenchmarkClient
 from gnes.helper import TimeContext
 from gnes.proto import RequestGenerator, gnes_pb2_grpc
@@ -46,7 +46,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--grpc_host', '127.0.0.1',
         ])
 
-        p_args = set_router_service_parser().parse_args([
+        p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
@@ -54,7 +54,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--yaml_path', 'BaseRouter'
         ])
 
-        b_args = set_benchmark_client_parser().parse_args([
+        b_args = set_client_benchmark_parser().parse_args([
             '--num_requests', '10',
             '--request_length', '65536'
         ])
@@ -66,7 +66,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--grpc_host', '127.0.0.1',
         ])
 
-        p_args = set_router_service_parser().parse_args([
+        p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
@@ -89,7 +89,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--grpc_host', '127.0.0.1',
         ])
 
-        p1_args = set_router_service_parser().parse_args([
+        p1_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', '8899',
             '--socket_in', str(SocketType.PULL_CONNECT),
@@ -97,7 +97,7 @@ class TestStreamgRPC(unittest.TestCase):
             '--yaml_path', 'BaseRouter'
         ])
 
-        p2_args = set_router_service_parser().parse_args([
+        p2_args = set_router_parser().parse_args([
             '--port_in', str(p1_args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_BIND),

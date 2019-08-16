@@ -3,7 +3,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_router_service_parser, set_frontend_parser
+from gnes.cli.parser import set_router_parser, set_frontend_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType, ParallelType
 from gnes.service.frontend import FrontendService
@@ -18,7 +18,7 @@ class TestServiceManager(unittest.TestCase):
         os.unsetenv('https_proxy')
 
     def _test_multiple_router(self, backend='thread', num_parallel=5):
-        a = set_router_service_parser().parse_args([
+        a = set_router_parser().parse_args([
             '--yaml_path', 'BaseRouter',
             '--num_parallel', str(num_parallel),
             '--parallel_backend', backend
@@ -31,7 +31,7 @@ class TestServiceManager(unittest.TestCase):
             '--grpc_host', '127.0.0.1',
         ])
 
-        p_args = set_router_service_parser().parse_args([
+        p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
@@ -54,7 +54,7 @@ class TestServiceManager(unittest.TestCase):
             '--grpc_host', '127.0.0.1',
         ])
 
-        p_args = set_router_service_parser().parse_args([
+        p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),

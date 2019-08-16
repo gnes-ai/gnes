@@ -14,12 +14,9 @@
 #  limitations under the License.
 
 
-import ctypes
 import io
-import random
 
 import numpy as np
-from PIL import Image
 
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, array2blob
@@ -57,7 +54,7 @@ class PipelinePreprocessor(CompositionalTrainableBase):
                 data = be.apply(data, *args, **kwargs)
 
 
-class BaseUnaryPreprocessor(BasePreprocessor):
+class UnaryPreprocessor(BasePreprocessor):
     is_trained = True
 
     def __init__(self, doc_type: int, *args, **kwargs):
@@ -79,6 +76,7 @@ class BaseUnaryPreprocessor(BasePreprocessor):
         if self.doc_type == gnes_pb2.Document.TEXT:
             chunk.text = raw_bytes.decode()
         elif self.doc_type == gnes_pb2.Document.IMAGE:
+            from PIL import Image
             img = np.array(Image.open(io.BytesIO(raw_bytes)))
             chunk.blob.CopyFrom(array2blob(img))
         elif self.doc_type == gnes_pb2.Document.VIDEO:

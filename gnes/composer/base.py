@@ -25,8 +25,8 @@ from ruamel.yaml.comments import CommentedMap
 
 from .. import __version__
 from ..cli.parser import set_frontend_parser, \
-    set_router_service_parser, set_loadable_service_parser, set_preprocessor_service_parser, \
-    set_indexer_service_parser
+    set_router_parser, set_loadable_service_parser, set_preprocessor_parser, \
+    set_indexer_parser
 from ..helper import set_logger
 from ..service.base import SocketType
 
@@ -44,10 +44,10 @@ class YamlComposer:
 
     comp2args = {
         'Encoder': set_loadable_service_parser().parse_args(['--yaml_path', 'BaseEncoder']),
-        'Router': set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter']),
-        'Indexer': set_indexer_service_parser().parse_args(['--yaml_path', 'BaseIndexer']),
+        'Router': set_router_parser().parse_args(['--yaml_path', 'BaseRouter']),
+        'Indexer': set_indexer_parser().parse_args(['--yaml_path', 'BaseIndexer']),
         'Frontend': set_frontend_parser().parse_args([]),
-        'Preprocessor': set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
+        'Preprocessor': set_preprocessor_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
     }
 
     class Layer:

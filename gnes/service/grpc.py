@@ -14,13 +14,10 @@
 #  limitations under the License.
 
 
-import importlib.util
-import os
-import sys
-
 import grpc
 
 from .base import BaseService as BS, MessageHandler
+from ..helper import PathImporter
 from ..proto import gnes_pb2
 
 
@@ -33,7 +30,7 @@ class GRPCService(BS):
             options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
                      ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
 
-        foo = self.PathImport().add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
+        foo = PathImporter.add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
 
         # build stub
         self.stub = getattr(foo, self.args.stub_name)(self.channel)
@@ -45,28 +42,3 @@ class GRPCService(BS):
     @handler.register(NotImplementedError)
     def _handler_default(self, msg: 'gnes_pb2.Message'):
         yield getattr(self.stub, self.args.api_name)(msg)
-
-    class PathImport:
-
-        @staticmethod
-        def get_module_name(absolute_path):
-            module_name = os.path.basename(absolute_path)
-            module_name = module_name.replace('.py', '')
-            return module_name
-
-        def add_modules(self, pb2_path, pb2_grpc_path):
-            (module, spec) = self.path_import(pb2_path)
-            sys.modules[spec.name] = module
-
-            (module, spec) = self.path_import(pb2_grpc_path)
-            sys.modules[spec.name] = module
-
-            return module
-
-        def path_import(self, absolute_path):
-            module_name = self.get_module_name(absolute_path)
-            spec = importlib.util.spec_from_file_location(module_name, absolute_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            sys.modules[spec.name] = module
-            return module, spec

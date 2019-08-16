@@ -250,7 +250,7 @@ class BaseService(metaclass=ConcurrentService):
                 self._model.dump()
                 self.logger.info('dumping finished!')
         else:
-            self.logger.warning('dumping is not allowed as "read_only" is set to true.')
+            self.logger.info('pass dumping as "read_only" set to true.')
 
     def message_handler(self, msg: 'gnes_pb2.Message', out_sck, ctrl_sck):
         try:
