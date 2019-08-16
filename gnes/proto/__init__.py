@@ -19,6 +19,8 @@ from typing import Optional
 
 import numpy as np
 import zmq
+import random
+import ctypes
 from termcolor import colored
 
 from . import gnes_pb2
@@ -29,45 +31,54 @@ __all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2
 
 class RequestGenerator:
     @staticmethod
-    def index(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+    def index(data: List[bytes], start_doc_id: int = 0, start_request_id: int = 0,
+              random_doc_id: bool = False, batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
               **kwargs):
 
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
-            req.request_id = str(start_id)
+            req.request_id = str(start_request_id)
             for raw_bytes in pi:
                 d = req.index.docs.add()
+                d.doc_id = start_doc_id if not random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
                 d.raw_bytes = raw_bytes
                 d.weight = 1.0
                 d.doc_type = doc_type
+                if not random_doc_id:
+                    start_doc_id += 1
             yield req
-            start_id += 1
+            start_request_id += 1
 
     @staticmethod
-    def train(data: List[bytes], batch_size: int = 0, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+    def train(data: List[bytes], start_doc_id: int = 0, start_request_id: int = 0,
+              random_doc_id: bool = False, batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
               **kwargs):
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
-            req.request_id = str(start_id)
+            req.request_id = str(start_request_id)
             for raw_bytes in pi:
                 d = req.train.docs.add()
+                d.doc_id = start_doc_id if not random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
                 d.raw_bytes = raw_bytes
                 d.doc_type = doc_type
+                if not random_doc_id:
+                    start_doc_id += 1
             yield req
-            start_id += 1
+            start_request_id += 1
         req = gnes_pb2.Request()
-        req.request_id = str(start_id)
+        req.request_id = str(start_request_id)
         req.train.flush = True
         yield req
-        start_id += 1
+        start_request_id += 1
 
     @staticmethod
-    def query(query: bytes, top_k: int, start_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args, **kwargs):
+    def query(query: bytes, top_k: int, start_request_id: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+              **kwargs):
         if top_k <= 0:
             raise ValueError('"top_k: %d" is not a valid number' % top_k)
 
         req = gnes_pb2.Request()
-        req.request_id = str(start_id)
+        req.request_id = str(start_request_id)
         req.search.query.raw_bytes = query
         req.search.query.doc_type = doc_type
         req.search.top_k = top_k

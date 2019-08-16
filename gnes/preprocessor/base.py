@@ -28,21 +28,17 @@ from ..proto import gnes_pb2, array2blob
 class BasePreprocessor(TrainableBase):
     doc_type = gnes_pb2.Document.UNKNOWN
 
-    def __init__(self, start_doc_id: int = 0,
-                 random_doc_id: bool = True,
+    def __init__(self,
                  uniform_doc_weight: bool = True,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.start_doc_id = start_doc_id
-        self.random_doc_id = random_doc_id
+
         self.uniform_doc_weight = uniform_doc_weight
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
-        doc.doc_id = self.start_doc_id if not self.random_doc_id else random.randint(0, ctypes.c_uint(-1).value)
         doc.doc_type = self.doc_type
         if not doc.weight and self.uniform_doc_weight:
             doc.weight = 1.0
-        self.start_doc_id += 1
 
 
 class PipelinePreprocessor(CompositionalTrainableBase):
