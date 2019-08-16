@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !BasePytorchEncoder
     parameter:
       model_dir: /ext_data/image_encoder

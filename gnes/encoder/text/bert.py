@@ -45,7 +45,7 @@ class BertEncoder(BaseTextEncoder):
 
 class BertEncoderWithServer(CompositionalTrainableBase):
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
-        return self.component['bert_client'].encode(text, *args, **kwargs)
+        return self.components['bert_client'].encode(text, *args, **kwargs)
 
 
 class BertEncoderServer(BaseTextEncoder):

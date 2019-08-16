@@ -1,7 +1,7 @@
 !PipelineEncoder
-component:
+components:
   - !BertEncoderWithServer
-    component:
+    components:
       bert_server:
         !BertEncoderServer
         parameter:

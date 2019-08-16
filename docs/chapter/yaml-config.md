@@ -22,7 +22,7 @@ Together they define the behavior of a GNES system. Roughly speaking,
  
 ```yaml
 !PipelineEncoder
-component:
+components:
   - !Word2VecEncoder
     parameter:
       model_dir: /ext_data/sgns.wiki.bigram-char.refine
@@ -40,7 +40,7 @@ One can also append extra component to this pipeline, e.g. adding quantization.
 
 ```yaml
 !PipelineEncoder
-component:
+components:
   - !Word2VecEncoder
     parameter:
       model_dir: /ext_data/sgns.wiki.bigram-char.refine

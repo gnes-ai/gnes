@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !Word2VecEncoder
     parameter:
       model_dir: /ext_data/sgns.wiki.bigram-char.refine

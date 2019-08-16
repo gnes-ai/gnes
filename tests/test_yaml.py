@@ -36,8 +36,8 @@ class dummyPipeline(PipelineEncoder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.component = lambda: [foo1(*args, **kwargs),
-                                  foo2(*args, **kwargs), ]
+        self.components = lambda: [foo1(*args, **kwargs),
+                                   foo2(*args, **kwargs), ]
 
 
 class TestYaml(unittest.TestCase):

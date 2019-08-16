@@ -1,5 +1,5 @@
 !PipelinePreprocessor
-component:
+components:
   - !BaseUnaryPreprocessor
     parameter:
       doc_type: 2
