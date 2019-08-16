@@ -523,9 +523,11 @@ class PathImporter:
         return module_name
 
     @staticmethod
-    def add_modules(*args):
-        for a in args:
-            module, spec = PathImporter._path_import(a)
+    def add_modules(*paths):
+        for p in paths:
+            if not os.path.exists(p):
+                raise FileNotFoundError('cannot import module from %s, file not exist')
+            module, spec = PathImporter._path_import(p)
             sys.modules[spec.name] = module
         return module
 

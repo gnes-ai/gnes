@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.cli.parser import set_router_service_parser, _set_client_parser
+from gnes.cli.parser import set_router_parser, _set_client_parser
 from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2, array2blob
 from gnes.service.base import SocketType
@@ -24,12 +24,12 @@ class TestProto(unittest.TestCase):
         self.concat_router_yaml = 'ConcatEmbedRouter'
 
     def test_service_empty(self):
-        args = set_router_service_parser().parse_args(['--yaml_path', 'BaseRouter'])
+        args = set_router_parser().parse_args(['--yaml_path', 'BaseRouter'])
         with RouterService(args):
             pass
 
     def test_map_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.batch_router_yaml,
         ])
         c_args = _set_client_parser().parse_args([
@@ -48,7 +48,7 @@ class TestProto(unittest.TestCase):
             self.assertEqual(len(r.request.index.docs), 1)
 
     def test_publish_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -68,7 +68,7 @@ class TestProto(unittest.TestCase):
             self.assertSequenceEqual(r.envelope.num_part, [1, 2])
 
     def test_reduce_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.reduce_router_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -89,7 +89,7 @@ class TestProto(unittest.TestCase):
             print(r.envelope.routes)
 
     def test_chunk_reduce_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.chunk_router_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -149,7 +149,7 @@ class TestProto(unittest.TestCase):
             self.assertAlmostEqual(r.response.search.topk_results[2].score, 0.3)
 
     def test_doc_reduce_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.doc_router_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -205,7 +205,7 @@ class TestProto(unittest.TestCase):
             self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
 
     def test_chunk_sum_reduce_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.chunk_sum_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -265,7 +265,7 @@ class TestProto(unittest.TestCase):
             self.assertAlmostEqual(r.response.search.topk_results[2].score, 0.6)
 
     def test_doc_sum_reduce_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.doc_sum_yaml,
             '--socket_out', str(SocketType.PUB_BIND)
         ])
@@ -328,7 +328,7 @@ class TestProto(unittest.TestCase):
             self.assertGreaterEqual(r.response.search.topk_results[0].score, r.response.search.topk_results[-1].score)
 
     def test_concat_router(self):
-        args = set_router_service_parser().parse_args([
+        args = set_router_parser().parse_args([
             '--yaml_path', self.concat_router_yaml,
             '--socket_out', str(SocketType.PUSH_BIND)
         ])
@@ -374,62 +374,62 @@ class TestProto(unittest.TestCase):
         #                   -> r42
         #                             -> r5
         #                                       -> client
-        p1 = set_router_service_parser().parse_args([
+        p1 = set_router_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUB_BIND),
         ])
-        r5 = set_router_service_parser().parse_args([
+        r5 = set_router_parser().parse_args([
             '--yaml_path', self.reduce_router_yaml,
             '--socket_in', str(SocketType.PULL_BIND),
             '--socket_out', str(SocketType.PUSH_CONNECT),
         ])
-        r41 = set_router_service_parser().parse_args([
-            '--yaml_path', self.reduce_router_yaml,
-            '--socket_in', str(SocketType.PULL_BIND),
-            '--socket_out', str(SocketType.PUSH_CONNECT),
-            '--port_out', str(r5.port_in)
-        ])
-        r42 = set_router_service_parser().parse_args([
+        r41 = set_router_parser().parse_args([
             '--yaml_path', self.reduce_router_yaml,
             '--socket_in', str(SocketType.PULL_BIND),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_out', str(r5.port_in)
         ])
-        p21 = set_router_service_parser().parse_args([
+        r42 = set_router_parser().parse_args([
+            '--yaml_path', self.reduce_router_yaml,
+            '--socket_in', str(SocketType.PULL_BIND),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--port_out', str(r5.port_in)
+        ])
+        p21 = set_router_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUB_BIND),
             '--port_in', str(p1.port_out)
         ])
-        p22 = set_router_service_parser().parse_args([
+        p22 = set_router_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUB_BIND),
             '--port_in', str(p1.port_out)
         ])
-        r311 = set_router_service_parser().parse_args([
+        r311 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
             '--port_out', str(r41.port_in),
             '--yaml_path', 'BaseRouter'
         ])
-        r312 = set_router_service_parser().parse_args([
+        r312 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
             '--port_out', str(r41.port_in),
             '--yaml_path', 'BaseRouter'
         ])
-        r321 = set_router_service_parser().parse_args([
+        r321 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),
             '--port_out', str(r42.port_in),
             '--yaml_path', 'BaseRouter'
         ])
-        r322 = set_router_service_parser().parse_args([
+        r322 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),

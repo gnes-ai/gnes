@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
+from gnes.cli.parser import set_preprocessor_parser, _set_client_parser
 from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2, RequestGenerator, blob2array
 from gnes.service.preprocessor import PreprocessorService
@@ -15,14 +15,14 @@ class TestShotDetector(unittest.TestCase):
         self.video_path = os.path.join(self.dirname, 'videos')
 
     def test_video_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path
         ])
         with PreprocessorService(args):
             pass
 
     def test_video_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path
         ])
         c_args = _set_client_parser().parse_args([

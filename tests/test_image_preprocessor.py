@@ -2,7 +2,7 @@ import os
 import unittest
 import zipfile
 
-from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
+from gnes.cli.parser import set_preprocessor_parser, _set_client_parser
 from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2, RequestGenerator, blob2array
 from gnes.service.preprocessor import PreprocessorService
@@ -18,28 +18,28 @@ class TestProto(unittest.TestCase):
         self.resize_img_pre_yaml = os.path.join(self.dirname, 'yaml', 'resize-image-prep.yml')
 
     def test_unary_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.unary_img_pre_yaml
         ])
         with PreprocessorService(args):
             pass
 
     def test_slidingwindow_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.slidingwindow_img_pre_yaml
         ])
         with PreprocessorService(args):
             pass
 
     def test_segmentation_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.segmentation_img_pre_yaml
         ])
         with PreprocessorService(args):
             pass
 
     def test_unary_preprocessor_service_echo(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.unary_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
@@ -58,7 +58,7 @@ class TestProto(unittest.TestCase):
             # print(r)
 
     def test_slidingwindow_preprocessor_service_echo(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.slidingwindow_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
@@ -77,7 +77,7 @@ class TestProto(unittest.TestCase):
             # print(r)
 
     def test_segmentation_preprocessor_service_echo(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.segmentation_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
@@ -96,7 +96,7 @@ class TestProto(unittest.TestCase):
             # print(r)
 
     def test_unary_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.unary_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
@@ -119,7 +119,7 @@ class TestProto(unittest.TestCase):
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[-1], 3)
 
     def test_resize_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.resize_img_pre_yaml
         ])
         c_args = _set_client_parser().parse_args([
@@ -144,7 +144,7 @@ class TestProto(unittest.TestCase):
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[1], 224)
 
     def test_slidingwindow_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.slidingwindow_img_pre_yaml
         ])
 
@@ -169,7 +169,7 @@ class TestProto(unittest.TestCase):
                     self.assertEqual(blob2array(d.chunks[0].blob).shape[1], 224)
 
     def test_segmentation_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.segmentation_img_pre_yaml
         ])
 
