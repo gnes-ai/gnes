@@ -37,6 +37,7 @@ steps:
       from_secret: BOT_URL
   commands:
   - ./docker-build.sh
+  - docker system prune -a -f
 
 - name: notify the sucess on wechat work
   image: byrnedo/alpine-curl
