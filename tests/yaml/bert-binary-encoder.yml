@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !BertEncoder
     parameter:
       kwargs:

@@ -268,7 +268,7 @@ To define a `PipelineEncoder`, you just need to sort the encoders in the right o
 
 ```yaml
 !PipelineEncoder
-component:
+components:
   - !BasePytorchEncoder
     parameter:
       model_dir: /ext_data/image_encoder

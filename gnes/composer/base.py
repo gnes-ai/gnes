@@ -126,7 +126,7 @@ class YamlComposer:
                 else:
                     raise ValueError(comp)
         else:
-            self.logger.error('yaml file defines an empty graph! no "component" field exists!')
+            self.logger.error('yaml file defines an empty graph! no "services" field exists!')
 
     def check_fields(self, comp: Dict) -> bool:
         if 'name' not in comp:

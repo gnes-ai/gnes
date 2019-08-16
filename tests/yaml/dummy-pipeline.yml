@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !HashEncoder
     parameter:
       num_bytes: 6

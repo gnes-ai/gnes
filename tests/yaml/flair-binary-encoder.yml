@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !FlairEncoder
     parameter:
       model_name: $FLAIR_CI_MODEL

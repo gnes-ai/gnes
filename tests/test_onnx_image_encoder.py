@@ -20,8 +20,8 @@ def img_process_for_test(dirname):
 
     test_img_all_preprocessor = []
     pipline_prep1 = PipelinePreprocessor()
-    pipline_prep1.component = lambda: [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
-                                       ResizeChunkPreprocessor()]
+    pipline_prep1.components = lambda: [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
+                                        ResizeChunkPreprocessor()]
     for preprocessor in [pipline_prep1,
                          VanillaSlidingPreprocessor()]:
         test_img_copy = copy.deepcopy(test_img)

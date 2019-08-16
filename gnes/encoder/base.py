@@ -70,16 +70,16 @@ class BaseBinaryEncoder(BaseEncoder):
 
 class PipelineEncoder(CompositionalTrainableBase):
     def encode(self, data: Any, *args, **kwargs) -> Any:
-        if not self.component:
+        if not self.components:
             raise NotImplementedError
-        for be in self.component:
+        for be in self.components:
             data = be.encode(data, *args, **kwargs)
         return data
 
     def train(self, data, *args, **kwargs):
-        if not self.component:
+        if not self.components:
             raise NotImplementedError
-        for idx, be in enumerate(self.component):
+        for idx, be in enumerate(self.components):
             be.train(data, *args, **kwargs)
-            if idx + 1 < len(self.component):
+            if idx + 1 < len(self.components):
                 data = be.encode(data, *args, **kwargs)

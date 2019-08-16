@@ -72,11 +72,11 @@ class BaseKeyIndexer(BaseIndexer):
 class JointIndexer(CompositionalTrainableBase):
 
     @property
-    def component(self):
+    def components(self):
         return self._component
 
-    @component.setter
-    def component(self, comps: Callable[[], Union[list, dict]]):
+    @components.setter
+    def components(self, comps: Callable[[], Union[list, dict]]):
         if not callable(comps):
             raise TypeError('component must be a callable function that returns '
                             'a List[BaseIndexer]')
@@ -88,7 +88,7 @@ class JointIndexer(CompositionalTrainableBase):
 
         self._binary_indexer = None
         self._doc_indexer = None
-        for c in self.component:
+        for c in self.components:
             if isinstance(c, BaseVectorIndexer):
                 self._binary_indexer = c
             elif isinstance(c, BaseTextIndexer):

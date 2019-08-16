@@ -4,6 +4,7 @@ set -e
 
 function tag_push {
     docker tag $1 $2 && docker push $2
+
     IMAGE_SIZE=$(docker images $1 --format "{{.Size}}")
     export MSG_CONTENT="Size: ${IMAGE_SIZE}. You can now use \`docker pull $2\` to download this image."
     export MSG_TITLE="📦 $2 is released!"
@@ -59,6 +60,10 @@ do
     fi
 done
 
+# make alpine as default
+ALPINE_TAG="${PROJ_NAME}:${VER_TAG}-alpine"
+DEFAULT_TAG="${PROJ_NAME}:${VER_TAG}"
+docker tag ${ALPINE_TAG} ${DEFAULT_TAG} && docker push ${DEFAULT_TAG}
 
 if [[ -z "${BADGE_WEBHOOK}" ]]; then
     printf "\$BADGE_WEBHOOK not set, pass\n"

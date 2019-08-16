@@ -1,5 +1,5 @@
 !PipelineEncoder
-component:
+components:
   - !ElmoEncoder
     parameter:
       model_dir: $ELMO_CI_MODEL

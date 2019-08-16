@@ -43,17 +43,17 @@ class BasePreprocessor(TrainableBase):
 
 class PipelinePreprocessor(CompositionalTrainableBase):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
-        if not self.component:
+        if not self.components:
             raise NotImplementedError
-        for be in self.component:
+        for be in self.components:
             be.apply(doc)
 
     def train(self, data, *args, **kwargs):
-        if not self.component:
+        if not self.components:
             raise NotImplementedError
-        for idx, be in enumerate(self.component):
+        for idx, be in enumerate(self.components):
             be.train(data, *args, **kwargs)
-            if idx + 1 < len(self.component):
+            if idx + 1 < len(self.components):
                 data = be.apply(data, *args, **kwargs)
 
 

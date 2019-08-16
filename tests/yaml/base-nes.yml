@@ -1,8 +1,8 @@
 !GNES
-component:
+components:
   encoder:
     !PipelineEncoder
-    component:
+    components:
       - !BertEncoder
         parameter:
           kwargs:

@@ -1,5 +1,5 @@
 !JointIndexer
-component:
+components:
   - !BIndexer
     parameter:
       num_bytes: 2

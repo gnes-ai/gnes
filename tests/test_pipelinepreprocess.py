@@ -30,7 +30,7 @@ class TestPartition(unittest.TestCase):
 
     def test_pipelinepreproces(self):
         p3 = PipelinePreprocessor()
-        p3.component = lambda: [P1(), P2()]
+        p3.components = lambda: [P1(), P2()]
         d = gnes_pb2.Document()
         d.doc_id = 1
         p3.apply(d)

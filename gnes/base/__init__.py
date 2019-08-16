@@ -361,61 +361,61 @@ class TrainableBase(metaclass=TrainableType):
 class CompositionalTrainableBase(TrainableBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._component = None  # type: List[T]
+        self._components = None  # type: List[T]
 
     @property
-    def component(self) -> Union[List[T], Dict[str, T]]:
-        return self._component
+    def components(self) -> Union[List[T], Dict[str, T]]:
+        return self._components
 
     @property
     def is_pipeline(self):
-        return isinstance(self.component, list)
+        return isinstance(self.components, list)
 
-    @component.setter
-    def component(self, comps: Callable[[], Union[list, dict]]):
+    @components.setter
+    def components(self, comps: Callable[[], Union[list, dict]]):
         if not callable(comps):
-            raise TypeError('component must be a callable function that returns '
+            raise TypeError('components must be a callable function that returns '
                             'a List[BaseEncoder]')
         if not getattr(self, 'init_from_yaml', False):
-            self._component = comps()
+            self._components = comps()
         else:
-            self.logger.info('component is omitted from construction, '
+            self.logger.info('components is omitted from construction, '
                              'as it is initialized from yaml config')
 
     def close(self):
         super().close()
         # pipeline
-        if isinstance(self.component, list):
-            for be in self.component:
+        if isinstance(self.components, list):
+            for be in self.components:
                 be.close()
         # no typology
-        elif isinstance(self.component, dict):
-            for be in self.component.values():
+        elif isinstance(self.components, dict):
+            for be in self.components.values():
                 be.close()
-        elif self.component is None:
+        elif self.components is None:
             pass
         else:
-            raise TypeError('component must be dict or list, received %s' % type(self.component))
+            raise TypeError('components must be dict or list, received %s' % type(self.components))
 
     def _copy_from(self, x: T):
-        if isinstance(self.component, list):
-            for be1, be2 in zip(self.component, x.component):
+        if isinstance(self.components, list):
+            for be1, be2 in zip(self.components, x.components):
                 be1._copy_from(be2)
-        elif isinstance(self.component, dict):
-            for k, v in self.component.items():
-                v._copy_from(x.component[k])
+        elif isinstance(self.components, dict):
+            for k, v in self.components.items():
+                v._copy_from(x.components[k])
         else:
-            raise TypeError('component must be dict or list, received %s' % type(self.component))
+            raise TypeError('components must be dict or list, received %s' % type(self.components))
 
     @classmethod
     def to_yaml(cls, representer, data):
         tmp = super()._dump_instance_to_yaml(data)
-        tmp['component'] = data.component
+        tmp['components'] = data.components
         return representer.represent_mapping('!' + cls.__name__, tmp)
 
     @classmethod
     def from_yaml(cls, constructor, node):
         obj, data, from_dump = super()._get_instance_from_yaml(constructor, node)
-        if not from_dump and 'component' in data:
-            obj.component = lambda: data['component']
+        if not from_dump and 'components' in data:
+            obj.components = lambda: data['components']
         return obj

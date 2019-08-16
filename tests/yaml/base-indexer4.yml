@@ -1,5 +1,5 @@
 !JointIndexer
-component:
+components:
   - !NumpyIndexer
     parameter:
       num_bytes: 2

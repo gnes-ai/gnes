@@ -1,8 +1,8 @@
 !GNES
-component:
+components:
   encoder:
     !PipelineEncoder
-    component:
+    components:
       - !FlairEncoder
         parameter:
           model_dir: $FLAIR_CI_MODEL

@@ -275,7 +275,7 @@ gnes_config:
  
 ```yaml
 !PipelineEncoder
-component:
+components:
   - !GPT2Encoder
     parameter:
       model_dir: $GPT2_CI_MODEL

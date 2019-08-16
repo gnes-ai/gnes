@@ -44,13 +44,13 @@ class _PCAEncoder(BE):
 class _LOPQEncoder(PipelineEncoder):
     def __init__(self):
         super().__init__()
-        self.component = lambda: [_PCAEncoder(), _PQEncoder()]
+        self.components = lambda: [_PCAEncoder(), _PQEncoder()]
 
 
 class _BertBinaryEncoder(PipelineEncoder):
     def __init__(self):
         super().__init__()
-        self.component = lambda: [_BertEncoder(), _LOPQEncoder()]
+        self.components = lambda: [_BertEncoder(), _LOPQEncoder()]
 
 
 class TestDocument(unittest.TestCase):
