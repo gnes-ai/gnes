@@ -63,24 +63,25 @@ done
 # make alpine as default
 ALPINE_TAG="${PROJ_NAME}:${VER_TAG}-alpine"
 DEFAULT_TAG="${PROJ_NAME}:${VER_TAG}"
+docker tag ${ALPINE_TAG} ${DEFAULT_TAG}
 
 if [[ -z "${HUB_USER}" ]]; then
     printf "\$HUB_USER not set, pass\n"
 else
-    docker tag ${ALPINE_TAG} ${DEFAULT_TAG} && docker push gnes/${DEFAULT_TAG}
+    docker push gnes/${DEFAULT_TAG}
 fi
 
 if [[ -z "${TCLOUD_USER}" ]]; then
-        printf "\$TCLOUD_USER not set, pass\n"
+    printf "\$TCLOUD_USER not set, pass\n"
 else
-    docker tag ${ALPINE_TAG} ${DEFAULT_TAG} && docker push ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG}
+    docker push ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG}
 fi
 
 if [[ -z "${BADGE_WEBHOOK}" ]]; then
     printf "\$BADGE_WEBHOOK not set, pass\n"
 else
     curl -X POST -H 'Content-type: application/json' --data '{}' ${BADGE_WEBHOOK}
-    printf "informed minibadger to update docker information"
+    printf "informed minibadger to update docker information\n"
 fi
 
 
