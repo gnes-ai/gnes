@@ -112,7 +112,7 @@ class TestProto(unittest.TestCase):
                 msg.request.index.CopyFrom(req.index)
                 client.send_message(msg)
                 r = client.recv_message()
-                self.assertEqual(r.envelope.routes[0].service, 'BaseUnaryPreprocessor')
+                self.assertEqual(r.envelope.routes[0].service, 'UnaryPreprocessor')
                 for d in r.request.index.docs:
                     self.assertEqual(len(d.chunks), 1)
                     self.assertEqual(len(blob2array(d.chunks[0].blob).shape), 3)
