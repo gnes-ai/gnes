@@ -16,9 +16,6 @@ class TestContribModule(unittest.TestCase):
 
     def tearDown(self):
         # reload gnes module on every unit test
-        for mod in list(sys.modules.keys()):
-            if mod.startswith('gnes.'):
-                del (sys.modules[mod])
         if os.path.exists(self.dump_yaml_path):
             os.remove(self.dump_yaml_path)
 
