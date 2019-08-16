@@ -231,7 +231,7 @@ class TrainableBase(metaclass=TrainableType):
         f = filename or self.yaml_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
-        with open(f, 'w') as fp:
+        with open(f, 'w', encoding='utf8') as fp:
             yaml.dump(self, fp)
         self.logger.info('model\'s yaml config is dump to %s' % f)
 
@@ -239,7 +239,7 @@ class TrainableBase(metaclass=TrainableType):
     def load_yaml(cls: Type[T], filename: Union[str, TextIO]) -> T:
         if not filename: raise FileNotFoundError
         if isinstance(filename, str):
-            with open(filename) as fp:
+            with open(filename, encoding='utf8') as fp:
                 return yaml.load(fp)
         else:
             with filename:

@@ -63,18 +63,17 @@ done
 # make alpine as default
 ALPINE_TAG="${PROJ_NAME}:${VER_TAG}-alpine"
 DEFAULT_TAG="${PROJ_NAME}:${VER_TAG}"
-docker tag ${ALPINE_TAG} ${DEFAULT_TAG}
 
 if [[ -z "${HUB_USER}" ]]; then
     printf "\$HUB_USER not set, pass\n"
 else
-    docker push gnes/${DEFAULT_TAG}
+    docker tag ${ALPINE_TAG} gnes/${DEFAULT_TAG} && docker push gnes/${DEFAULT_TAG}
 fi
 
 if [[ -z "${TCLOUD_USER}" ]]; then
     printf "\$TCLOUD_USER not set, pass\n"
 else
-    docker push ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG}
+    docker tag ${ALPINE_TAG} ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG} && docker push ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG}
 fi
 
 if [[ -z "${BADGE_WEBHOOK}" ]]; then
