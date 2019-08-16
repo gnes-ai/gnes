@@ -13,8 +13,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-
 import fcntl
+import importlib.util
 import logging
 import os
 import sys
@@ -504,17 +504,39 @@ def load_contrib_module():
 
         if contrib:
             default_logger.info(
-                'find value in $GNES_CONTRIB_MODULE=%s, will try to load these modules from external' % contrib)
+                'find a value in $GNES_CONTRIB_MODULE=%s, will try to load these modules from external' % contrib)
             for c in contrib.split(','):
                 if ':' in c:
                     _name, _path = c.split(':')
-                    spec = importlib.util.spec_from_file_location('gnes.contrib', _path)
-                    foo = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(foo)
-                    m = getattr(foo, _name)
+                    m = PathImporter.add_modules(_path)
                     modules.append(m)
                     default_logger.info('successfully register %s class, you can now use it via yaml.' % m)
         return modules
+
+
+class PathImporter:
+
+    @staticmethod
+    def _get_module_name(absolute_path):
+        module_name = os.path.basename(absolute_path)
+        module_name = module_name.replace('.py', '')
+        return module_name
+
+    @staticmethod
+    def add_modules(*args):
+        for a in args:
+            module, spec = PathImporter._path_import(a)
+            sys.modules[spec.name] = module
+        return module
+
+    @staticmethod
+    def _path_import(absolute_path):
+        module_name = PathImporter._get_module_name(absolute_path)
+        spec = importlib.util.spec_from_file_location(module_name, absolute_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        sys.modules[spec.name] = module
+        return module, spec
 
 
 profile_logger = set_logger('PROFILE')

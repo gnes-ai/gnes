@@ -6,35 +6,43 @@ dirname = os.path.dirname(__file__)
 module_path = os.path.join(dirname, 'contrib', 'dummy_contrib.py')
 cls_name = 'FooContribEncoder'
 
-@unittest.SkipTest
+
 class TestContribModule(unittest.TestCase):
     def setUp(self):
         self.yaml_path = os.path.join(os.path.dirname(__file__),
                                       'contrib', 'dummy.yml')
+        self.dump_yaml_path = os.path.join(os.path.dirname(__file__),
+                                           'dummy-dump.yml')
 
     def tearDown(self):
         # reload gnes module on every unit test
         for mod in list(sys.modules.keys()):
             if mod.startswith('gnes.'):
                 del (sys.modules[mod])
+        if os.path.exists(self.dump_yaml_path):
+            os.remove(self.dump_yaml_path)
 
-    @unittest.mock.patch.dict(os.environ, {'GNES_CONTRIB_MODULE': '%s:%s' % (cls_name, module_path)})
     def test_load_contrib(self):
-
+        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % (cls_name, module_path)
         from gnes.encoder.base import BaseEncoder, BaseTextEncoder
         a = BaseEncoder.load_yaml(self.yaml_path)
         self.assertIsInstance(a, BaseTextEncoder)
         self.assertEqual(a.encode([]), 'hello 531')
+        a.dump()
+        a.dump_yaml(self.dump_yaml_path)
+        b = BaseEncoder.load_yaml(self.dump_yaml_path)
+        self.assertIsInstance(b, BaseTextEncoder)
+        self.assertEqual(b.encode([]), 'hello 531')
 
-    @unittest.mock.patch.dict(os.environ, {'GNES_CONTRIB_MODULE': '%s:%s' % ('blah', module_path)})
     def test_bad_name(self):
+        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % ('blah', module_path)
         try:
             from gnes.encoder.base import BaseEncoder
         except AttributeError:
             pass
 
-    @unittest.mock.patch.dict(os.environ, {'GNES_CONTRIB_MODULE': '%s:%s' % (cls_name, 'blah')})
     def test_bad_path(self):
+        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % (cls_name, 'blah')
         try:
             from gnes.encoder.base import BaseEncoder
         except AttributeError:
