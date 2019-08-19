@@ -76,9 +76,18 @@ function make_release_note {
 }
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 if [[ "$BRANCH" != "master" ]]; then
   printf "You are not at master branch, exit\n";
   exit 1;
+fi
+
+LAST_UPDATE=`git show --no-notes --format=format:"%H" $BRANCH | head -n 1`
+LAST_COMMIT=`git show --no-notes --format=format:"%H" origin/$BRANCH | head -n 1`
+
+if [ $LAST_COMMIT != $LAST_UPDATE ]; then
+    printf "Your local $BRANCH is behind the remote master, exit\n"
+    exit 1;
 fi
 
 if [[ -z "${BOT_URL}" ]]; then

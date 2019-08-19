@@ -10,7 +10,7 @@ from gnes.service.encoder import EncoderService
 from gnes.service.frontend import FrontendService
 from gnes.service.preprocessor import PreprocessorService
 
-
+@unittest.SkipTest
 class TestEncoder(unittest.TestCase):
 
     def setUp(self):
@@ -22,11 +22,7 @@ class TestEncoder(unittest.TestCase):
         os.unsetenv('https_proxy')
 
     def test_pymode(self):
-        args = set_frontend_parser().parse_args([
-            '--grpc_host', '127.0.0.1',
-            '--socket_in', str(SocketType.PULL_BIND),
-            '--socket_out', str(SocketType.PUSH_BIND),
-        ])
+        args = set_frontend_parser().parse_args([])
 
         p_args = set_preprocessor_parser().parse_args([
             '--port_in', str(args.port_out),
