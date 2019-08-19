@@ -90,9 +90,9 @@ steps:
     BOT_URL:
       from_secret: BOT_URL
   commands:
-  - export MSG_LINK="https://github.com/gnes-ai/gnes/tree/${DRONE_TAG}"
+  - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="⌛🗳 Start to build docker image for new release \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_TAG}\`)"
-  - export MSG_CONTENT="click the link below to see the status"
+  - export MSG_CONTENT="[tag link](https://github.com/gnes-ai/gnes/tree/${DRONE_TAG}), click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
 - name: build and push docker images
@@ -134,9 +134,9 @@ steps:
     BOT_URL:
       from_secret: BOT_URL
   commands:
-  - export MSG_LINK="https://github.com/gnes-ai/gnes/tree/${DRONE_TAG}"
+  - export MSG_LINK=$DRONE_BUILD_LINK
   - export MSG_TITLE="❌🎁 fail to build docker image!"
-  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - export MSG_CONTENT="[tag link](https://github.com/gnes-ai/gnes/tree/${DRONE_TAG}) please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
   - ./shell/push-wechatwork.sh
   when:
     status:
