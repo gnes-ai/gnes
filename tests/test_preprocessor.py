@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
+from gnes.cli.parser import set_preprocessor_parser, _set_client_parser
 from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2
 from gnes.service.preprocessor import PreprocessorService
@@ -16,12 +16,12 @@ class TestProto(unittest.TestCase):
         self.yaml_path = os.path.join(self.dirname, 'yaml', 'test-preprocessor.yml')
 
     def test_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
+        args = set_preprocessor_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
         with PreprocessorService(args):
             pass
 
     def test_preprocessor_service_echo(self):
-        args = set_preprocessor_service_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
+        args = set_preprocessor_parser().parse_args(['--yaml_path', 'BasePreprocessor'])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in)
@@ -38,7 +38,7 @@ class TestProto(unittest.TestCase):
             print(r)
 
     def test_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args(['--yaml_path', self.yaml_path])
+        args = set_preprocessor_parser().parse_args(['--yaml_path', self.yaml_path])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in)

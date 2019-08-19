@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from gnes.cli.parser import set_preprocessor_service_parser, _set_client_parser
+from gnes.cli.parser import set_preprocessor_parser, _set_client_parser
 from gnes.client.base import ZmqClient
 from gnes.proto import gnes_pb2, RequestGenerator, blob2array
 from gnes.service.preprocessor import PreprocessorService
@@ -20,14 +20,14 @@ class TestFFmpeg(unittest.TestCase):
                             for _ in os.listdir(self.video_path)]
 
     def test_video_preprocessor_service_empty(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path
         ])
         with PreprocessorService(args):
             pass
 
     def test_video_preprocessor_service_realdata(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path
         ])
 
@@ -49,7 +49,7 @@ class TestFFmpeg(unittest.TestCase):
                         self.assertEqual(shape, (168, 192, 3))
 
     def test_video_cut_by_frame(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path_2,
         ])
         c_args = _set_client_parser().parse_args([
@@ -72,7 +72,7 @@ class TestFFmpeg(unittest.TestCase):
                     self.assertLessEqual(shape[0], 30)
 
     def test_video_cut_by_num(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path_3
         ])
         c_args = _set_client_parser().parse_args([
@@ -90,7 +90,7 @@ class TestFFmpeg(unittest.TestCase):
                     self.assertEqual(len(d.chunks), 6)
 
     def test_video_cut_by_clustering(self):
-        args = set_preprocessor_service_parser().parse_args([
+        args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path_4
         ])
         c_args = _set_client_parser().parse_args([

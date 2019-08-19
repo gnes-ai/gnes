@@ -1,6 +1,6 @@
 !PipelinePreprocessor
 components:
-  - !BaseUnaryPreprocessor
+  - !UnaryPreprocessor
     parameter:
       doc_type: 2
   - !ResizeChunkPreprocessor

@@ -4,7 +4,7 @@ import unittest
 import zipfile
 
 from gnes.encoder.image.onnx import BaseONNXImageEncoder
-from gnes.preprocessor.base import BaseUnaryPreprocessor, PipelinePreprocessor
+from gnes.preprocessor.base import UnaryPreprocessor, PipelinePreprocessor
 from gnes.preprocessor.image.resize import ResizeChunkPreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.proto import gnes_pb2, blob2array
@@ -20,7 +20,7 @@ def img_process_for_test(dirname):
 
     test_img_all_preprocessor = []
     pipline_prep1 = PipelinePreprocessor()
-    pipline_prep1.components = lambda: [BaseUnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
+    pipline_prep1.components = lambda: [UnaryPreprocessor(doc_type=gnes_pb2.Document.IMAGE),
                                         ResizeChunkPreprocessor()]
     for preprocessor in [pipline_prep1,
                          VanillaSlidingPreprocessor()]:

@@ -173,7 +173,11 @@ def set_loadable_service_parser(parser=None):
     return parser
 
 
-def set_preprocessor_service_parser(parser=None):
+# shortcut to keep consistent
+set_encoder_parser = set_loadable_service_parser
+
+
+def set_preprocessor_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
@@ -181,7 +185,7 @@ def set_preprocessor_service_parser(parser=None):
     return parser
 
 
-def set_router_service_parser(parser=None):
+def set_router_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_loadable_service_parser(parser)
@@ -191,7 +195,7 @@ def set_router_service_parser(parser=None):
     return parser
 
 
-def set_indexer_service_parser(parser=None):
+def set_indexer_parser(parser=None):
     from ..service.base import SocketType
 
     if not parser:
@@ -260,7 +264,7 @@ def set_frontend_parser(parser=None):
     return parser
 
 
-def set_cli_client_parser(parser=None):
+def set_client_cli_parser(parser=None):
     import sys
     if not parser:
         parser = set_base_parser()
@@ -289,7 +293,7 @@ def set_cli_client_parser(parser=None):
     return parser
 
 
-def set_benchmark_client_parser(parser=None):
+def set_client_benchmark_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
@@ -304,7 +308,7 @@ def set_benchmark_client_parser(parser=None):
     return parser
 
 
-def set_http_service_parser(parser=None):
+def set_client_http_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
@@ -330,10 +334,10 @@ def get_main_parser():
 
     # microservices
     set_frontend_parser(sp.add_parser('frontend', help='start a frontend service'))
-    set_loadable_service_parser(sp.add_parser('encode', help='start an encoder service'))
-    set_indexer_service_parser(sp.add_parser('index', help='start an indexer service'))
-    set_router_service_parser(sp.add_parser('route', help='start a router service'))
-    set_preprocessor_service_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
+    set_encoder_parser(sp.add_parser('encode', help='start an encoder service'))
+    set_indexer_parser(sp.add_parser('index', help='start an indexer service'))
+    set_router_parser(sp.add_parser('route', help='start a router service'))
+    set_preprocessor_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
     set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
 
     pp = sp.add_parser('client', help='start a GNES client of the selected type')
@@ -341,9 +345,9 @@ def get_main_parser():
                             description='use "gnes client [sub-command] --help" '
                                         'to get detailed information about each client sub-command')
     # clients
-    set_http_service_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
-    set_cli_client_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
-    set_benchmark_client_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
+    set_client_http_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
+    set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
+    set_client_benchmark_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
 
     # others
     set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))

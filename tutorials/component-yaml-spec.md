@@ -72,7 +72,7 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 |`!VanillaSlidingPreprocessor`|Preprocessor|
 |`!WeightedSlidingPreprocessor`|Preprocessor|
 |`!SegmentPreprocessor`|Preprocessor|
-|`!BaseUnaryPreprocessor`|Preprocessor|
+|`!UnaryPreprocessor`|Preprocessor|
 |`!BaseVideoPreprocessor`|Preprocessor|
 |`!FFmpegPreprocessor`|Preprocessor|
 |`!ShotDetectPreprocessor`|Preprocessor|
