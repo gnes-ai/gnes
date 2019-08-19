@@ -4,14 +4,14 @@ components:
     !PipelineEncoder
     components:
       - !BertEncoder
-        parameter:
+        parameters:
           kwargs:
             port: $BERT_CI_PORT
             port_out: $BERT_CI_PORT_OUT
         gnes_config:
           is_trained: true
       - !PCALocalEncoder
-        parameter:
+        parameters:
           output_dim: 32
           num_locals: 8
         gnes_config:
@@ -21,5 +21,5 @@ components:
     index_key: "HNSW32,Flat"
     data_path: ./test_faiss_db
   text_indexer: !LVDBIndexer
-    parameter:
+    parameters:
       data_path: ./test_db

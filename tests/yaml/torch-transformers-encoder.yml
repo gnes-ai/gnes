@@ -1,5 +1,5 @@
 !TorchTransformersEncoder
-parameter:
+parameters:
   model_dir: $TORCH_TRANSFORMERS_MODEL
   model_name: BertModel
   tokenizer_name: BertTokenizer

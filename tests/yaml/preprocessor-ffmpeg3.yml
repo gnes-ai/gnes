@@ -1,5 +1,5 @@
 !FFmpegVideoSegmentor
-parameter:
+parameters:
   segment_method: cut_by_num
   segment_num: 6
   s: "192*168"

@@ -410,7 +410,7 @@ class YamlComposer:
             # a shortcut fn: based on c3(): (N)-2-(N) with pub sub connection
             rule3()
             router_layers[0].components[0]['socket_out'] = str(SocketType.PUB_BIND)
-            router_layers[0].components[0]['yaml_path'] = '"!PublishRouter {parameter: {num_part: %d}}"' \
+            router_layers[0].components[0]['yaml_path'] = '"!PublishRouter {parameters: {num_part: %d}}"' \
                                                           % len(layer.components)
             for c in layer.components:
                 c['socket_in'] = str(SocketType.SUB_CONNECT)
@@ -439,7 +439,7 @@ class YamlComposer:
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
-                               'yaml_path': '"!PublishRouter {parameter: {num_part: %d}}"' % len(layer.components),
+                               'yaml_path': '"!PublishRouter {parameters: {num_part: %d}}"' % len(layer.components),
                                'socket_in': str(SocketType.PULL_BIND),
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),
@@ -468,7 +468,7 @@ class YamlComposer:
             router_layer = YamlComposer.Layer(layer_id=self._num_layer)
             self._num_layer += 1
             r0 = CommentedMap({'name': 'Router',
-                               'yaml_path': '"!PublishRouter {parameter: {num_part: %d}}"' % len(layer.components),
+                               'yaml_path': '"!PublishRouter {parameters: {num_part: %d}}"' % len(layer.components),
                                'socket_in': str(SocketType.PULL_BIND),
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),

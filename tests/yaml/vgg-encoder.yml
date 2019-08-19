@@ -1,5 +1,5 @@
 !BasePytorchEncoder
-parameter:
+parameters:
   model_dir: ${VGG_MODEL}
   model_name: vgg16
   layers:

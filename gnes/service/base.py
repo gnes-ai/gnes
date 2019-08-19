@@ -427,7 +427,7 @@ class ServiceManager:
             else:
                 _head_router.socket_out = SocketType.PUB_BIND
                 _head_router.yaml_path = resolve_yaml_path(
-                    '!PublishRouter {parameter: {num_part: %d}}' % args.num_parallel)
+                    '!PublishRouter {parameters: {num_part: %d}}' % args.num_parallel)
 
             if args.parallel_type.is_block:
                 _tail_router.yaml_path = resolve_yaml_path('BaseReduceRouter')

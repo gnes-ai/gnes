@@ -1,5 +1,5 @@
 !VanillaSlidingPreprocessor
-parameter:
+parameters:
   window_size: 16
   stride_height: 16
   stride_wide: 16

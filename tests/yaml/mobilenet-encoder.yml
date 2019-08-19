@@ -1,5 +1,5 @@
 !BasePytorchEncoder
-parameter:
+parameters:
   model_dir: ${MOBILENET_MODEL}
   model_name: mobilenet_v2
   layers:

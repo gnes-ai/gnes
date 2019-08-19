@@ -1,5 +1,5 @@
 !FaissIndexer
-parameter:
+parameters:
   num_dim: 300
   index_key: HNSW32
   data_path: /out_data/idx.faiss

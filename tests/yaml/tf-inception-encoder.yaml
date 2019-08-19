@@ -1,5 +1,5 @@
 !TFInceptionEncoder
-parameter:
+parameters:
   model_dir: /ext/inception_v4/inception_v4.ckpt
   batch_size: 64
   select_layer: PreLogitsFlatten

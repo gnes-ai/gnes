@@ -4,7 +4,7 @@ components:
     components:
       bert_server:
         !BertEncoderServer
-        parameter:
+        parameters:
           args:
             - mask_cls_sep
           kwargs:
@@ -17,7 +17,7 @@ components:
           is_trained: true
       bert_client:
         !BertEncoder
-        parameter:
+        parameters:
           kwargs:
             port: 5555
             port_out: 5556
@@ -25,7 +25,7 @@ components:
         gnes_config:
           is_trained: true
   - !PCALocalEncoder
-    parameter:
+    parameters:
       output_dim: 300
       num_locals: 30
     gnes_config:

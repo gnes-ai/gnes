@@ -1,5 +1,5 @@
 !SegmentPreprocessor
-parameter:
+parameters:
   model_dir: ${FASTERRCNN_MODEL}
   model_name: fasterrcnn_resnet50_fpn
   target_img_size: 224

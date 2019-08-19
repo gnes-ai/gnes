@@ -4,7 +4,7 @@ components:
     components:
       bert_server:
         !BertEncoderServer
-        parameter:
+        parameters:
           args:
             - mask_cls_sep
           kwargs:
@@ -17,7 +17,7 @@ components:
           is_trained: true
       bert_client:
         !BertEncoder
-        parameter:
+        parameters:
           kwargs:
             port: $BERT_CI_PORT
             port_out: $BERT_CI_PORT_OUT
@@ -25,12 +25,12 @@ components:
         gnes_config:
           is_trained: true
   - !PCALocalEncoder
-    parameter:
+    parameters:
       output_dim: 32
       num_locals: 8
     gnes_config:
       batch_size: 2048
   - !PQEncoder
-    parameter:
+    parameters:
       cluster_per_byte: 8
       num_bytes: 8

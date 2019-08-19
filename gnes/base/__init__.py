@@ -309,15 +309,15 @@ class TrainableBase(metaclass=TrainableType):
             cls.init_from_yaml = True
 
             if cls.store_args_kwargs:
-                p = data.get('parameter', {})  # type: Dict[str, Any]
+                p = data.get('parameters', {})  # type: Dict[str, Any]
                 a = p.pop('args') if 'args' in p else ()
                 k = p.pop('kwargs') if 'kwargs' in p else {}
-                # maybe there are some hanging kwargs in "parameter"
+                # maybe there are some hanging kwargs in "parameters"
                 tmp_a = (cls._convert_env_var(v) for v in a)
                 tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
                 obj = cls(*tmp_a, **tmp_p, gnes_config=data.get('gnes_config', {}))
             else:
-                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameters', {}).items()}
                 obj = cls(**tmp_p, gnes_config=data.get('gnes_config', {}))
 
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
@@ -349,7 +349,7 @@ class TrainableBase(metaclass=TrainableType):
         a = {k: v for k, v in data._init_kwargs_dict.items() if k not in TrainableType.default_gnes_config}
         r = {}
         if a:
-            r['parameter'] = a
+            r['parameters'] = a
         if p:
             r['gnes_config'] = p
         return r
