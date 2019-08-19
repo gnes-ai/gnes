@@ -200,8 +200,6 @@ class TrainableBase(metaclass=TrainableType):
     def __getstate__(self):
         d = dict(self.__dict__)
         del d['logger']
-        if '_file_lock' in d:
-            del d['_file_lock']
         for k in self._post_init_vars:
             del d[k]
         return d
