@@ -30,10 +30,10 @@ class GRPCService(BS):
             options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
                      ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
 
-        foo = PathImporter.add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
+        m = PathImporter.add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
 
         # build stub
-        self.stub = getattr(foo, self.args.stub_name)(self.channel)
+        self.stub = getattr(m, self.args.stub_name)(self.channel)
 
     def close(self):
         self.channel.close()

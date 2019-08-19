@@ -504,13 +504,11 @@ def load_contrib_module():
 
         if contrib:
             default_logger.info(
-                'find a value in $GNES_CONTRIB_MODULE=%s, will try to load these modules from external' % contrib)
-            for c in contrib.split(','):
-                if ':' in c:
-                    _name, _path = c.split(':')
-                    m = PathImporter.add_modules(_path)
-                    modules.append(m)
-                    default_logger.info('successfully register %s class, you can now use it via yaml.' % m)
+                'find a value in $GNES_CONTRIB_MODULE=%s, will load them as external modules' % contrib)
+            for p in contrib.split(','):
+                m = PathImporter.add_modules(p)
+                modules.append(m)
+                default_logger.info('successfully registered %s class, you can now use it via yaml.' % m)
         return modules
 
 
@@ -528,7 +526,6 @@ class PathImporter:
             if not os.path.exists(p):
                 raise FileNotFoundError('cannot import module from %s, file not exist')
             module, spec = PathImporter._path_import(p)
-            sys.modules[spec.name] = module
         return module
 
     @staticmethod
