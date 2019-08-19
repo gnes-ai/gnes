@@ -1,4 +1,35 @@
 
+# Release Note (`v0.0.29`)
+> Release time: 2019-08-16 15:40:31
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```2f905168```](https://github.com/gnes-ai/gnes/commit/2f90516822a56c63833805c8b88f732007714b04)] __-__ __setup__: fix encoding problem in setup.py (*hanhxiao*)
+ - [[```469bc51d```](https://github.com/gnes-ai/gnes/commit/469bc51d5586686687df8f11472296e30bb4ff99)] __-__ __ci__: fix cd pipeline (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```66d020bd```](https://github.com/gnes-ai/gnes/commit/66d020bd8e59770dd31cfa872da912df2228bf98)] __-__ __base__: component renamed to components (*hanhxiao*)
+ - [[```3a2b85b6```](https://github.com/gnes-ai/gnes/commit/3a2b85b6b740e5e4f475937a7f570a8204feced7)] __-__ __proto__: assign doc id in request generator (*Jem*)
+
+### 📗 Documentation
+
+ - [[```b854c697```](https://github.com/gnes-ai/gnes/commit/b854c697c7770485bc82f25c5f24587141b9a07f)] __-__ __readme__: fix description on images (*hanhxiao*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```f1658c92```](https://github.com/gnes-ai/gnes/commit/f1658c925f6d8bf6a6dc1a64c1153d73529fdd69)] __-__ __docker__: docker image tag-alpine as default tag (*hanhxiao*)
+ - [[```8885512f```](https://github.com/gnes-ai/gnes/commit/8885512ff4aa3a6d7ddd748ad3a742c3e45a5067)] __-__ __docker__: clean up the space after docker build (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```00ca6919```](https://github.com/gnes-ai/gnes/commit/00ca691971ef566ec4f0618a8eba9c22e0980f69)] __-__ __changelog__: update change log to v0.0.28 (*hanhxiao*)
+
 # Release Note (`v0.0.28`)
 > Release time: 2019-08-14 20:54:26
 
