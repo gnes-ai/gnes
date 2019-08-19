@@ -1,5 +1,5 @@
 !AudioVanilla
-parameter:
+parameters:
   audio_interval: 30
   sample_rate: 16000
 gnes_config:

@@ -1,5 +1,5 @@
 !MfccEncoder
-parameter:
+parameters:
   n_mfcc: 13
   sample_rate: 16000
 gnes_config:

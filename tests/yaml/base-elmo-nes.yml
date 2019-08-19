@@ -4,25 +4,25 @@ components:
     !PipelineEncoder
     components:
       - !ElmoEncoder
-        parameter:
+        parameters:
           model_dir: $ELMO_CI_MODEL
           pooling_layer: -1
           pooling_stragy: REDUCE_MEAN
         gnes_config:
           is_trained: true
       - !PCALocalEncoder
-        parameter:
+        parameters:
           output_dim: 32
           num_locals: 8
         gnes_config:
           batch_size: 2048
       - !PQEncoder
-        parameter:
+        parameters:
           cluster_per_byte: 8
           num_bytes: 8
   binary_indexer: !NumpyIndexer
-    parameter:
+    parameters:
       num_bytes: 8
   doc_indexer: !LVDBIndexer
-    parameter:
+    parameters:
       data_path: ./test_db

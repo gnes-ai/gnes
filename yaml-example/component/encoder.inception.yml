@@ -1,7 +1,7 @@
 !PipelineEncoder
 components:
   - !BasePytorchEncoder
-    parameter:
+    parameters:
       model_dir: /ext_data/image_encoder
       model_name: inception_v3
       layers:
@@ -29,12 +29,12 @@ components:
     gnes_config:
       is_trained: true
   - !PCALocalEncoder
-    parameter:
+    parameters:
       output_dim: 200
       num_locals: 10
     gnes_config:
       batch_size: 2048
   - !PQEncoder
-    parameter:
+    parameters:
       cluster_per_byte: 20
       num_bytes: 10

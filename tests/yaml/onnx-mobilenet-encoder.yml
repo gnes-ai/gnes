@@ -1,5 +1,5 @@
 !BaseONNXImageEncoder
-parameter:
+parameters:
   model_dir: ${MOBILENET_MODEL}
   model_name: mobilenetv2.onnx
 gnes_config:

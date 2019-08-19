@@ -261,7 +261,7 @@ Now let's see what the YAML config says. First impression, it is pretty intuitiv
  
 ```yaml
 !TextPreprocessor
-parameter:
+parameters:
   start_doc_id: 0
   random_doc_id: True
   deliminator: "[.!?]+"
@@ -277,19 +277,19 @@ gnes_config:
 !PipelineEncoder
 components:
   - !GPT2Encoder
-    parameter:
+    parameters:
       model_dir: $GPT2_CI_MODEL
       pooling_stragy: REDUCE_MEAN
     gnes_config:
       is_trained: true
   - !PCALocalEncoder
-    parameter:
+    parameters:
       output_dim: 32
       num_locals: 8
     gnes_config:
       batch_size: 2048
   - !PQEncoder
-    parameter:
+    parameters:
       cluster_per_byte: 8
       num_bytes: 8
 gnes_config:
@@ -304,7 +304,7 @@ gnes_config:
  
 ```yaml
 !BIndexer
-parameter:
+parameters:
   num_bytes: 8
   data_path: /out_data/idx.binary
 gnes_config:

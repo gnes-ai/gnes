@@ -1,10 +1,10 @@
 !PipelineEncoder
 components:
   - !HashEncoder
-    parameter:
+    parameters:
       num_bytes: 6
   - !HashEncoder
-    parameter:
+    parameters:
       num_bytes: 2
 gnes_config:
   work_dir: ./

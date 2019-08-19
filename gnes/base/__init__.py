@@ -88,6 +88,7 @@ class TrainableType(type):
         for k, v in TrainableType.default_gnes_config.items():
             if k in gnes_config:
                 v = gnes_config[k]
+            v = _expand_env_var(v)
             if not hasattr(obj, k):
                 setattr(obj, k, v)
 
@@ -172,9 +173,9 @@ class TrainableBase(metaclass=TrainableType):
             _name = '%s-%s' % (self.__class__.__name__, _id)
             self.logger.warning(
                 'this object is not named ("- gnes_config: - name" is not found in YAML config), '
-                'i will call it as "%s". '
-                'naming the object is important especially when you need to '
-                'serialize/deserialize/store/load the object.' % _name)
+                'i will call it "%s". '
+                'naming the object is important as it provides an unique identifier when '
+                'serializing/deserializing this object.' % _name)
             setattr(self, 'name', _name)
 
         _before = set(list(self.__dict__.keys()))
@@ -199,8 +200,6 @@ class TrainableBase(metaclass=TrainableType):
     def __getstate__(self):
         d = dict(self.__dict__)
         del d['logger']
-        if '_file_lock' in d:
-            del d['_file_lock']
         for k in self._post_init_vars:
             del d[k]
         return d
@@ -309,15 +308,15 @@ class TrainableBase(metaclass=TrainableType):
             cls.init_from_yaml = True
 
             if cls.store_args_kwargs:
-                p = data.get('parameter', {})  # type: Dict[str, Any]
+                p = data.get('parameters', {})  # type: Dict[str, Any]
                 a = p.pop('args') if 'args' in p else ()
                 k = p.pop('kwargs') if 'kwargs' in p else {}
-                # maybe there are some hanging kwargs in "parameter"
-                tmp_a = (cls._convert_env_var(v) for v in a)
-                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in {**k, **p}.items()}
+                # maybe there are some hanging kwargs in "parameters"
+                tmp_a = (_expand_env_var(v) for v in a)
+                tmp_p = {kk: _expand_env_var(vv) for kk, vv in {**k, **p}.items()}
                 obj = cls(*tmp_a, **tmp_p, gnes_config=data.get('gnes_config', {}))
             else:
-                tmp_p = {kk: cls._convert_env_var(vv) for kk, vv in data.get('parameter', {}).items()}
+                tmp_p = {kk: _expand_env_var(vv) for kk, vv in data.get('parameters', {}).items()}
                 obj = cls(**tmp_p, gnes_config=data.get('gnes_config', {}))
 
             obj.logger.info('initialize %s from a yaml config' % cls.__name__)
@@ -336,20 +335,13 @@ class TrainableBase(metaclass=TrainableType):
                 return dump_path
 
     @staticmethod
-    def _convert_env_var(v):
-        if isinstance(v, str):
-            return parse_arg(os.path.expandvars(v))
-        else:
-            return v
-
-    @staticmethod
     def _dump_instance_to_yaml(data):
         # note: we only dump non-default property for the sake of clarity
         p = {k: getattr(data, k) for k, v in TrainableType.default_gnes_config.items() if getattr(data, k) != v}
         a = {k: v for k, v in data._init_kwargs_dict.items() if k not in TrainableType.default_gnes_config}
         r = {}
         if a:
-            r['parameter'] = a
+            r['parameters'] = a
         if p:
             r['gnes_config'] = p
         return r
@@ -419,3 +411,10 @@ class CompositionalTrainableBase(TrainableBase):
         if not from_dump and 'components' in data:
             obj.components = lambda: data['components']
         return obj
+
+
+def _expand_env_var(v: str) -> str:
+    if isinstance(v, str):
+        return parse_arg(os.path.expandvars(v))
+    else:
+        return v

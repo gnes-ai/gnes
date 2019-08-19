@@ -3,7 +3,6 @@ import unittest.mock
 
 dirname = os.path.dirname(__file__)
 module_path = os.path.join(dirname, 'contrib', 'dummy_contrib.py')
-cls_name = 'FooContribEncoder'
 
 
 @unittest.SkipTest
@@ -20,7 +19,7 @@ class TestContribModule(unittest.TestCase):
             os.remove(self.dump_yaml_path)
 
     def test_load_contrib(self):
-        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % (cls_name, module_path)
+        os.environ['GNES_CONTRIB_MODULE'] = module_path
         from gnes.encoder.base import BaseEncoder, BaseTextEncoder
         a = BaseEncoder.load_yaml(self.yaml_path)
         self.assertIsInstance(a, BaseTextEncoder)
@@ -32,14 +31,14 @@ class TestContribModule(unittest.TestCase):
         self.assertEqual(b.encode([]), 'hello 531')
 
     def test_bad_name(self):
-        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % ('blah', module_path)
+        os.environ['GNES_CONTRIB_MODULE'] = module_path
         try:
             from gnes.encoder.base import BaseEncoder
         except AttributeError:
             pass
 
     def test_bad_path(self):
-        os.environ['GNES_CONTRIB_MODULE'] = '%s:%s' % (cls_name, 'blah')
+        os.environ['GNES_CONTRIB_MODULE'] = 'blah'
         try:
             from gnes.encoder.base import BaseEncoder
         except AttributeError:

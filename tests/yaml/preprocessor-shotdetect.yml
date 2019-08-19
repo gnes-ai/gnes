@@ -1,5 +1,5 @@
 !ShotDetectPreprocessor
-parameter:
+parameters:
   descriptor: "block_hsv_histogram"
   distance_metric: "bhattacharya"
   frame_size: "192*168"
