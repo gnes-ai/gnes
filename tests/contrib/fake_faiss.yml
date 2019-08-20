@@ -1,0 +1,5 @@
+!FaissIndexer
+parameters:
+  bar: 531
+gnes_config:
+  name: foo_contrib_encoder

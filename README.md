@@ -30,6 +30,7 @@
   <a href="#overview">Overview</a> •
   <a href="#install-gnes">Install</a> •
   <a href="#getting-started">Getting Started</a> •
+  <a href="https://github.com/gnes-ai/hub">GNES Hub</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
@@ -70,7 +71,7 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
     </tr>
     <tr>
       <td width="33%"><sub>Searching for texts, image or even short-videos? Using Python/C/Java/Go/HTTP as the client? Doesn't matter which content form you have or which language do you use, GNES can handle them all. </sub></td>
-      <td width="33%"><sub>When built-in models do not meet your requirments, simply build your own with <i>one Python file and one YAML file</i>. No need to rebuilt GNES framework, as your models will be loaded as plugins and directly rollout online.</sub></td>
+      <td width="33%"><sub>When built-in models do not meet your requirments, simply build your own with <a href="https://github.com/gnes-ai/hub">GNES Hub</a>. Pack your model as a docker container and use it as a plugin.</sub></td>
       <td width="33%"><sub>We love to learn the best practice from the community, helping our GNES to achieve the next level of availability, resiliency, performance, and durability. If you have any ideas or suggestions, feel free to contribute.</sub></td>
     </tr>
 </table>
@@ -82,6 +83,23 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
 <img src=".github/gnes-component-overview.svg" alt="component overview">
 </a>
 </p>
+
+### GNES Hub
+
+<center>
+<table>
+  <tr>
+  <td width="33%"><a href="https://github.com/gnes-ai/hub">
+      <img src=".github/gnes-hub-github.svg" alt="component overview">
+      </a></td>
+  <td>
+  <p><a href="https://github.com/gnes-ai/hub">GNES Hub</a> ship AI/ML models as Docker containers and use Docker containers as plugins. It offers a clean and sustainable way to port external algorithms (with the dependencies) into the GNES framework. </p>
+  <p>GNES Hub is hosted on the Docker Hub.</p>
+</td>
+  </tr>
+</table>
+</center>
+
 
 <h2 align="center">Install GNES</h2>
 

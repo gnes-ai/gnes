@@ -3,10 +3,11 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_router_parser, set_frontend_parser, set_encoder_parser
+from gnes.cli.parser import set_router_parser, set_frontend_parser, set_encoder_parser, set_indexer_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType, ParallelType
 from gnes.service.frontend import FrontendService
+from gnes.service.indexer import IndexerService
 from gnes.service.router import RouterService
 
 
@@ -81,6 +82,29 @@ class TestServiceManager(unittest.TestCase):
         ])
 
         with ServiceManager(RouterService, args):
+            pass
+        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
+        os.remove('foo_contrib_encoder.bin')
+
+    def test_override_module(self):
+        args = set_indexer_parser().parse_args([
+            '--yaml_path', os.path.join(self.dir_path, 'contrib', 'fake_faiss.yml'),
+            '--py_path', os.path.join(self.dir_path, 'contrib', 'fake_faiss.py'),
+        ])
+
+        with ServiceManager(IndexerService, args):
+            pass
+        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
+        os.remove('foo_contrib_encoder.bin')
+
+    def test_override_twice_module(self):
+        args = set_indexer_parser().parse_args([
+            '--yaml_path', os.path.join(self.dir_path, 'contrib', 'fake_faiss.yml'),
+            '--py_path', os.path.join(self.dir_path, 'contrib', 'fake_faiss.py'),
+            os.path.join(self.dir_path, 'contrib', 'fake_faiss2.py')
+        ])
+
+        with ServiceManager(IndexerService, args):
             pass
         self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
         os.remove('foo_contrib_encoder.bin')
