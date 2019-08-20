@@ -1,3 +1,20 @@
+
+# Release Note (`v0.0.31`)
+> Release time: 2019-08-20 14:01:04
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  🙇
+
+
+### 🆕 New Features
+
+ - [[```f7beae7b```](https://github.com/gnes-ai/gnes/commit/f7beae7bd5dba146f7465bf16682ae30002ee5a5)] __-__ __cli__: add py_path in parser to load external modules (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```ec1eb787```](https://github.com/gnes-ai/gnes/commit/ec1eb78712db64018410b86b94bb6d6f70463335)] __-__ __release__: fix duplicate release notes (*hanhxiao*)
+ - [[```447756d5```](https://github.com/gnes-ai/gnes/commit/447756d5e49e4edafc5f514b13185f6a2d384de0)] __-__ __changelog__: update change log to v0.0.30 (*hanhxiao*)
 # Release Note (`v0.0.30`)
 > Release time: 2019-08-19 14:13:03
 
