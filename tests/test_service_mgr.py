@@ -14,6 +14,7 @@ class TestServiceManager(unittest.TestCase):
     def setUp(self):
         self.all_bytes = [b'abc', b'def', b'cde'] * 10
         self.all_bytes2 = [b'abc', b'def', b'cde']
+        self.dir_path = os.path.dirname(__file__)
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
 
@@ -75,8 +76,8 @@ class TestServiceManager(unittest.TestCase):
 
     def test_external_module(self):
         args = set_encoder_parser().parse_args([
-            '--yaml_path', 'contrib/dummy.yml',
-            '--py_path', 'contrib/dummy_contrib.py',
+            '--yaml_path', os.path.join(self.dir_path, 'contrib', 'dummy.yml'),
+            '--py_path', os.path.join(self.dir_path, 'contrib', 'dummy_contrib.py'),
         ])
 
         with ServiceManager(RouterService, args):
