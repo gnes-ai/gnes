@@ -85,6 +85,7 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
 </p>
 
 ### GNES Hub
+
 <center>
 <table>
   <tr>
@@ -92,7 +93,7 @@ GNES enables large-scale index and semantic search for **text-to-text**, **image
       <img src=".github/gnes-hub-github.svg" alt="component overview">
       </a></td>
   <td>
-  <p>GNES Hub ship AI/ML models as Docker containers and use Docker containers as plugins. It offers a clean and sustainable way to port external algorithms (with the dependencies) into the [GNES framework](https://github.com/gnes-ai/gnes). </p>
+  <p><a href="https://github.com/gnes-ai/hub">GNES Hub</a> ship AI/ML models as Docker containers and use Docker containers as plugins. It offers a clean and sustainable way to port external algorithms (with the dependencies) into the GNES framework. </p>
   <p>GNES Hub is hosted on the Docker Hub.</p>
 </td>
   </tr>
