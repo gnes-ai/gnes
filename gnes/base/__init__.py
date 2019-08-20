@@ -36,9 +36,9 @@ def register_all_class(cls2file_map: Dict, module_name: str):
     for k, v in cls2file_map.items():
         try:
             getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
-        except ImportError:
-            # print(e)
-            pass
+        except ImportError as ex:
+            default_logger = set_logger('GNES')
+            default_logger.warning('fail to register %s, due to %s' % (k, ex))
     load_contrib_module()
 
 
@@ -112,7 +112,7 @@ class TrainableType(type):
 
             reg_cls_set.add(cls.__name__)
             setattr(cls, '_registered_class', reg_cls_set)
-            yaml.register_class(cls)
+        yaml.register_class(cls)
         return cls
 
     @staticmethod
