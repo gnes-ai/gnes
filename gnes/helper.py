@@ -39,7 +39,9 @@ __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'get_perm', 'time_profile', 'set_logger',
            'batch_iterator', 'batching', 'yaml',
            'profile_logger', 'load_contrib_module',
-           'parse_arg', 'profiling', 'FileLock', 'train_required', 'get_first_available_gpu']
+           'parse_arg', 'profiling', 'FileLock',
+           'train_required', 'get_first_available_gpu',
+           'PathImporter']
 
 
 def get_first_available_gpu():

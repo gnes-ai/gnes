@@ -164,7 +164,8 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                         hash_v = [phash_descriptor(_).hash for _ in frames]
                         hash_v = np.array(hash_v, dtype=np.int32).reshape([len(hash_v), -1])
                         label_v = KMeans(n_clusters=self.segment_num).fit_predict(hash_v)
-                        sub_videos = [[frames[i] for i, j in enumerate(label_v) if j == _] for _ in range(self.segment_num)]
+                        sub_videos = [[frames[i] for i, j in enumerate(label_v) if j == _] for _ in
+                                      range(self.segment_num)]
                     else:
                         sub_videos = [frames]
 
