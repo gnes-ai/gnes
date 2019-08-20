@@ -3,7 +3,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_router_parser, set_frontend_parser
+from gnes.cli.parser import set_router_parser, set_frontend_parser, set_encoder_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType, ParallelType
 from gnes.service.frontend import FrontendService
@@ -72,6 +72,17 @@ class TestServiceManager(unittest.TestCase):
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
             self.assertEqual(resp.request_id, '0')
+
+    def test_external_module(self):
+        args = set_encoder_parser().parse_args([
+            '--yaml_path', 'contrib/dummy.yml',
+            '--py_path', 'contrib/dummy_contrib.py',
+        ])
+
+        with ServiceManager(RouterService, args):
+            pass
+        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
+        os.remove('foo_contrib_encoder.bin')
 
     def test_grpc_with_pub(self):
         self._test_grpc_multiple_pub('thread', 1)

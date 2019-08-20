@@ -3,12 +3,13 @@ import unittest
 
 import grpc
 
-from gnes.cli.parser import set_frontend_parser, set_loadable_service_parser, set_preprocessor_parser
+from gnes.cli.parser import set_frontend_parser, _set_loadable_service_parser, set_preprocessor_parser
 from gnes.proto import gnes_pb2_grpc, RequestGenerator
 from gnes.service.base import ServiceManager, SocketType
 from gnes.service.encoder import EncoderService
 from gnes.service.frontend import FrontendService
 from gnes.service.preprocessor import PreprocessorService
+
 
 @unittest.SkipTest
 class TestEncoder(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestEncoder(unittest.TestCase):
             '--yaml_path', '!UnaryPreprocessor {parameters: {doc_type: 1}}'
         ])
 
-        e_args = set_loadable_service_parser().parse_args([
+        e_args = _set_loadable_service_parser().parse_args([
             '--port_in', str(p_args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),

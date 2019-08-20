@@ -524,7 +524,7 @@ class PathImporter:
     def add_modules(*paths):
         for p in paths:
             if not os.path.exists(p):
-                raise FileNotFoundError('cannot import module from %s, file not exist')
+                raise FileNotFoundError('cannot import module from %s, file not exist', p)
             module, spec = PathImporter._path_import(p)
         return module
 
