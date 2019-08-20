@@ -1,34 +1,3 @@
-
-# Release Note (`v0.0.30`)
-> Release time: 2019-08-19 14:13:31
-
-
-🙇 We'd like to thank all contributors for this new release! In particular,
- hanhxiao,  🙇
-
-
-### 🆕 New Features
-
- - [[```7b5cc86a```](https://github.com/gnes-ai/gnes/commit/7b5cc86a585c75965b224cb7f668cae2bb854885)] __-__ __contrib__: no need to give module name in advance (*hanhxiao*)
-
-### 🐞 Bug fixes
-
- - [[```b5b1a1e7```](https://github.com/gnes-ai/gnes/commit/b5b1a1e7877724851de8487de306b78d76b995ae)] __-__ __ci__: check if master is up-to-date before releasing (*hanhxiao*)
- - [[```5f69c781```](https://github.com/gnes-ai/gnes/commit/5f69c7811376eba0d3724002724e0b30054447ed)] __-__ __contrib__: allowing dump for contribued module (*hanhxiao*)
-
-### 🚧 Code Refactoring
-
- - [[```ee61fcec```](https://github.com/gnes-ai/gnes/commit/ee61fcec49455417ef4694cfbabaa548b19ff03f)] __-__ __base__: parameter now names as parameters (*hanhxiao*)
-
-### 🏁 Unit Test and CICD
-
- - [[```435f7be7```](https://github.com/gnes-ai/gnes/commit/435f7be7096359437cf9c287eca780f775b9d341)] __-__ __drone__: fix drone links (*hanhxiao*)
- - [[```cd8a5cc5```](https://github.com/gnes-ai/gnes/commit/cd8a5cc5bc0027f4f39d1a00ddfc854168365dcb)] __-__ __contrib__: test external modules with services (*hanhxiao*)
-
-### 🍹 Other Improvements
-
- - [[```565ef569```](https://github.com/gnes-ai/gnes/commit/565ef569b0ddfab2904c8b6f807f0ea88ddee429)] __-__ __changelog__: update change log to v0.0.29 (*hanhxiao*)
-
 # Release Note (`v0.0.30`)
 > Release time: 2019-08-19 14:13:03
 

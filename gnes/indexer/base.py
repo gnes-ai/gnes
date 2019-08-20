@@ -41,9 +41,6 @@ class BaseVectorIndexer(BaseIndexer):
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         pass
 
-    def normalize_score(self, *args, **kwargs):
-        pass
-
 
 class BaseTextIndexer(BaseIndexer):
 
@@ -53,9 +50,6 @@ class BaseTextIndexer(BaseIndexer):
     def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
         pass
 
-    def normalize_score(self, *args, **kwargs):
-        pass
-
 
 class BaseKeyIndexer(BaseIndexer):
 
@@ -63,9 +57,6 @@ class BaseKeyIndexer(BaseIndexer):
         pass
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
-        pass
-
-    def normalize_score(self, *args, **kwargs):
         pass
 
 

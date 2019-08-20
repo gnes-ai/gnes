@@ -160,6 +160,10 @@ class TrainableType(type):
 
 
 class TrainableBase(metaclass=TrainableType):
+    """
+    The base class for preprocessor, encoder, indexer and router
+
+    """
     store_args_kwargs = False
 
     def __init__(self, *args, **kwargs):
@@ -183,6 +187,10 @@ class TrainableBase(metaclass=TrainableType):
         self._post_init_vars = {k for k in self.__dict__ if k not in _before}
 
     def post_init(self):
+        """
+        Declare class attributes/members that can not be serialized in standard way
+
+        """
         pass
 
     @classmethod
@@ -191,10 +199,19 @@ class TrainableBase(metaclass=TrainableType):
 
     @property
     def dump_full_path(self):
+        """
+        Get the binary dump path
+
+        :return:
+        """
         return os.path.join(self.work_dir, '%s.bin' % self.name)
 
     @property
     def yaml_full_path(self):
+        """
+        Get the file path of the yaml config
+        :return:
+        """
         return os.path.join(self.work_dir, '%s.yml' % self.name)
 
     def __getstate__(self):
@@ -214,10 +231,17 @@ class TrainableBase(metaclass=TrainableType):
                              'which often can be solved by "pip install" relevant package.')
 
     def train(self, *args, **kwargs):
+        """
+        Train the model, need to be overrided
+        """
         pass
 
     @profiling
     def dump(self, filename: str = None) -> None:
+        """
+        Serialize the object to a binary file
+        :param filename: file path of the serialized file, if not given then `self.dump_full_path` is used
+        """
         f = filename or self.dump_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
@@ -227,6 +251,10 @@ class TrainableBase(metaclass=TrainableType):
 
     @profiling
     def dump_yaml(self, filename: str = None) -> None:
+        """
+        Serialize the object to a yaml file
+        :param filename: file path of the yaml file, if not given then `self.dump_yaml_path` is used
+        """
         f = filename or self.yaml_full_path
         if not f:
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
@@ -252,6 +280,9 @@ class TrainableBase(metaclass=TrainableType):
             return pickle.load(fp)
 
     def close(self):
+        """
+        Release the resources as model is destroyed
+        """
         pass
 
     def __enter__(self):
