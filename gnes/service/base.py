@@ -29,7 +29,7 @@ from termcolor import colored
 
 from ..base import TrainableBase, T
 from ..cli.parser import resolve_yaml_path
-from ..helper import set_logger
+from ..helper import set_logger, PathImporter
 from ..proto import gnes_pb2, add_route, send_message, recv_message, router2str
 
 
@@ -407,6 +407,10 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
 class ServiceManager:
     def __init__(self, service_cls, args):
         self.logger = set_logger(self.__class__.__name__, args.verbose)
+
+        if args.py_path:
+            PathImporter.add_modules(*args.py_path)
+
         self.services = []  # type: List['BaseService']
         if args.num_parallel > 1:
             from .router import RouterService

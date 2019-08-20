@@ -21,7 +21,17 @@ from ..proto import gnes_pb2, merge_routes
 
 
 class BaseRouter(TrainableBase):
+    """ Base class for the router. Inherit from this class to create a new router.
+
+    Router forwards messages between services. Essentially, it receives a 'gnes_pb2.Message'
+    and call `apply()` method on it.
+    """
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        """
+        Modify the incoming message
+
+        :param msg: incoming message
+        """
         pass
 
 
@@ -32,6 +42,12 @@ class BaseMapRouter(BaseRouter):
 
 class BaseReduceRouter(BaseRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs) -> None:
+        """
+        Modify the current message based on accumulated messages
+
+        :param msg: the current message
+        :param accum_msgs: accumulated messages
+        """
         merge_routes(msg, accum_msgs)
         if len(msg.envelope.num_part) > 1:
             msg.envelope.num_part.pop()

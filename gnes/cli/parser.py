@@ -17,6 +17,13 @@
 import argparse
 
 
+def resolve_py_path(path):
+    import os
+    if not os.path.exists(path):
+        raise argparse.ArgumentTypeError('%s is not a valid file path' % path)
+    return path
+
+
 def resolve_yaml_path(path):
     # priority, filepath > classname > default
     import os
@@ -158,7 +165,7 @@ def _set_client_parser(parser=None):
     return parser
 
 
-def set_loadable_service_parser(parser=None):
+def _set_loadable_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     from ..service.base import SocketType
@@ -167,6 +174,8 @@ def set_loadable_service_parser(parser=None):
     parser.add_argument('--yaml_path', type=resolve_yaml_path, required=True,
                         help='yaml config of the service, it should be a readable stream,'
                              ' or a valid file path, or a supported class name.')
+    parser.add_argument('--py_path', type=resolve_py_path, nargs='+',
+                        help='the file path(s) of an external python module(s).')
 
     parser.set_defaults(socket_in=SocketType.PULL_BIND,
                         socket_out=SocketType.PUSH_BIND)
@@ -174,13 +183,13 @@ def set_loadable_service_parser(parser=None):
 
 
 # shortcut to keep consistent
-set_encoder_parser = set_loadable_service_parser
+set_encoder_parser = _set_loadable_service_parser
 
 
 def set_preprocessor_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    set_loadable_service_parser(parser)
+    _set_loadable_service_parser(parser)
     parser.set_defaults(read_only=True)
     return parser
 
@@ -188,7 +197,7 @@ def set_preprocessor_parser(parser=None):
 def set_router_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    set_loadable_service_parser(parser)
+    _set_loadable_service_parser(parser)
     parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
@@ -200,7 +209,7 @@ def set_indexer_parser(parser=None):
 
     if not parser:
         parser = set_base_parser()
-    set_loadable_service_parser(parser)
+    _set_loadable_service_parser(parser)
 
     # encoder's port_out is indexer's port_in
     parser.set_defaults(port_in=parser.get_default('port_out'),

@@ -13,20 +13,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import uuid
+import ctypes
+import random
 from typing import List
 from typing import Optional
 
 import numpy as np
 import zmq
-import random
-import ctypes
 from termcolor import colored
 
 from . import gnes_pb2
 from ..helper import batch_iterator
 
-__all__ = ['send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
+__all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
 
 
 class RequestGenerator:
@@ -104,21 +103,6 @@ def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
 
 def router2str(m: 'gnes_pb2.Message') -> str:
     return colored('▸', 'green').join([r.service for r in m.envelope.routes])
-
-
-def new_envelope(client_id: str,
-                 request_id: str = str(uuid.uuid4()),
-                 num_part: int = 1,
-                 part_id: int = 1,
-                 timeout: int = 5000) -> 'gnes_pb2.Envelope':
-    evlp = gnes_pb2.Envelope()
-    evlp.client_id = client_id
-    evlp.request_id = request_id
-    evlp.part_id = part_id
-    evlp.num_part.append(num_part)
-    evlp.timeout = timeout
-    add_route(evlp, client_id)
-    return evlp
 
 
 def add_route(evlp: 'gnes_pb2.Envelope', name: str):
