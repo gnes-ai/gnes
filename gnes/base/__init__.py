@@ -176,7 +176,7 @@ class TrainableBase(metaclass=TrainableType):
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
             self.logger.warning(
-                'this object is not named ("- gnes_config: - name" is not found in YAML config), '
+                'this object is not named ("name" is not found under "gnes_config" in YAML config), '
                 'i will call it "%s". '
                 'naming the object is important as it provides an unique identifier when '
                 'serializing/deserializing this object.' % _name)

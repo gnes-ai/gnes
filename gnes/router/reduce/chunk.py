@@ -20,7 +20,7 @@ from ..base import BaseReduceRouter
 from ...proto import gnes_pb2
 
 
-class ChunkToDocumentRouter(BaseReduceRouter):
+class ChunkToDocRouter(BaseReduceRouter):
 
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
         all_chunks = [r for m in accum_msgs for r in m.response.search.topk_results]

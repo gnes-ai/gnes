@@ -20,21 +20,20 @@ from ..base import register_all_class
 _cls2file_map = {
     'BasePreprocessor': 'base',
     'PipelinePreprocessor': 'base',
-    'TextPreprocessor': 'text.simple',
-    'BaseImagePreprocessor': 'image.base',
-    'BaseTextPreprocessor': 'text.base',
-    'BaseSlidingPreprocessor': 'image.sliding_window',
+    'PunctSplitPreprocessor': 'text.split_punct',
+    'BaseImagePreprocessor': 'base',
+    'BaseTextPreprocessor': 'base',
     'VanillaSlidingPreprocessor': 'image.sliding_window',
     'WeightedSlidingPreprocessor': 'image.sliding_window',
     'SegmentPreprocessor': 'image.segmentation',
     'UnaryPreprocessor': 'base',
     'ResizeChunkPreprocessor': 'image.resize',
-    'BaseVideoPreprocessor': 'video.base',
+    'BaseVideoPreprocessor': 'base',
     'FFmpegPreprocessor': 'video.ffmpeg',
     'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
     'AudioVanilla': 'audio.audio_vanilla',
-    'BaseAudioPreprocessor': 'audio.base',
+    'BaseAudioPreprocessor': 'base',
     'RawChunkPreprocessor': 'base'
 }
 

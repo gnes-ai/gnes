@@ -1,8 +1,10 @@
 import os
 import unittest
+
 import numpy as np
+
 from gnes.indexer.vector.hbindexer import HBIndexer
-import shutil
+
 
 class TestMHIndexer(unittest.TestCase):
 
@@ -13,7 +15,7 @@ class TestMHIndexer(unittest.TestCase):
         self.n = 100
 
         self.test_label = [(_, 1) for _ in range(self.n)]
-        t = np.random.randint(0, 100, size=[self.n, self.n_idx+self.num_bytes])
+        t = np.random.randint(0, 100, size=[self.n, self.n_idx + self.num_bytes])
         self.test_data = t.astype(np.uint32)
         self.weights = [1.] * len(self.test_label)
         self.data_path = 'test_path'

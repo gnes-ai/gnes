@@ -20,11 +20,12 @@ from typing import List
 import numpy as np
 from PIL import Image
 
-from .base import BaseImagePreprocessor
+from .resize import SizedPreprocessor
+from ..helper import torch_transform, get_all_subarea
 from ...proto import array2blob
 
 
-class SegmentPreprocessor(BaseImagePreprocessor):
+class SegmentPreprocessor(SizedPreprocessor):
 
     def __init__(self, model_name: str,
                  model_dir: str,
@@ -51,8 +52,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
         super().apply(doc)
         if doc.raw_bytes:
             original_image = Image.open(io.BytesIO(doc.raw_bytes))
-            all_subareas, index = self._get_all_subarea(original_image)
-            image_tensor = self._torch_transform(original_image)
+            all_subareas, index = get_all_subarea(original_image)
+            image_tensor = torch_transform(original_image)
             if self._use_cuda:
                 image_tensor = image_tensor.cuda()
 
@@ -73,8 +74,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
 
             c = doc.chunks.add()
             c.doc_id = doc.doc_id
-            c.blob.CopyFrom(array2blob(np.array(original_image.resize((self.target_img_size,
-                                                                       self.target_img_size)))))
+            c.blob.CopyFrom(array2blob(np.array(original_image.resize((self.target_width,
+                                                                       self.target_height)))))
             c.offset_1d = len(chunks)
             c.offset_nd.x.extend([100, 100])
             c.weight = 1.
@@ -82,8 +83,8 @@ class SegmentPreprocessor(BaseImagePreprocessor):
             self.logger.error('bad document: "raw_bytes" is empty!')
 
     def _crop_resize(self, original_image, coordinates):
-        return np.array(original_image.crop(coordinates).resize((self.target_img_size,
-                                                                 self.target_img_size)))
+        return np.array(original_image.crop(coordinates).resize((self.target_width,
+                                                                 self.target_height)))
 
     def _get_seg_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]

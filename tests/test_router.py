@@ -17,7 +17,7 @@ class TestProto(unittest.TestCase):
         self.publish_router_yaml = '!PublishRouter {parameters: {num_part: 2}}'
         self.batch_router_yaml = '!DocBatchRouter {gnes_config: {batch_size: 2}}'
         self.reduce_router_yaml = 'BaseReduceRouter'
-        self.chunk_router_yaml = 'ChunkToDocumentRouter'
+        self.chunk_router_yaml = 'ChunkToDocRouter'
         self.chunk_sum_yaml = 'ChunkSumRouter'
         self.doc_router_yaml = 'DocFillRouter'
         self.doc_sum_yaml = 'DocSumRouter'

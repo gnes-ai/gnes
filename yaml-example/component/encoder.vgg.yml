@@ -1,6 +1,6 @@
 !PipelineEncoder
 components:
-  - !BasePytorchEncoder
+  - !TorchvisionEncoder
     parameters:
       model_dir: /ext_data/image_encoder
       model_name: vgg16

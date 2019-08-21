@@ -3,7 +3,7 @@ import os
 import unittest
 import zipfile
 
-from gnes.encoder.image.base import BasePytorchEncoder
+from gnes.encoder.base import BaseEncoder
 from gnes.preprocessor.base import UnaryPreprocessor, PipelinePreprocessor
 from gnes.preprocessor.image.resize import ResizeChunkPreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
@@ -45,7 +45,7 @@ class TestImageEncoder(unittest.TestCase):
         self.mobilenet_yaml = os.path.join(dirname, 'yaml', 'mobilenet-encoder.yml')
 
     def test_vgg_encoding(self):
-        self.encoder = BasePytorchEncoder.load_yaml(self.vgg_yaml)
+        self.encoder = BaseEncoder.load_yaml(self.vgg_yaml)
         for test_img in self.test_img:
             vec = self.encoder.encode(test_img)
             print("the length of data now is:", len(test_img))
@@ -53,7 +53,7 @@ class TestImageEncoder(unittest.TestCase):
             self.assertEqual(vec.shape[1], 4096)
 
     def test_resnet_encoding(self):
-        self.encoder = BasePytorchEncoder.load_yaml(self.res_yaml)
+        self.encoder = BaseEncoder.load_yaml(self.res_yaml)
         for test_img in self.test_img:
             vec = self.encoder.encode(test_img)
             print("the length of data now is:", len(test_img))
@@ -61,7 +61,7 @@ class TestImageEncoder(unittest.TestCase):
             self.assertEqual(vec.shape[1], 2048)
 
     def test_inception_encoding(self):
-        self.encoder = BasePytorchEncoder.load_yaml(self.inception_yaml)
+        self.encoder = BaseEncoder.load_yaml(self.inception_yaml)
         for test_img in self.test_img:
             vec = self.encoder.encode(test_img)
             print("the length of data now is:", len(test_img))
@@ -69,7 +69,7 @@ class TestImageEncoder(unittest.TestCase):
             self.assertEqual(vec.shape[1], 2048)
 
     def test_mobilenet_encoding(self):
-        self.encoder = BasePytorchEncoder.load_yaml(self.mobilenet_yaml)
+        self.encoder = BaseEncoder.load_yaml(self.mobilenet_yaml)
         for test_img in self.test_img:
             vec = self.encoder.encode(test_img)
             print("the length of data now is:", len(test_img))
@@ -77,11 +77,11 @@ class TestImageEncoder(unittest.TestCase):
             self.assertEqual(vec.shape[1], 1280)
 
     def test_dump_load(self):
-        self.encoder = BasePytorchEncoder.load_yaml(self.vgg_yaml)
+        self.encoder = BaseEncoder.load_yaml(self.vgg_yaml)
 
         self.encoder.dump(self.dump_path)
 
-        vgg_encoder2 = BasePytorchEncoder.load(self.dump_path)
+        vgg_encoder2 = BaseEncoder.load(self.dump_path)
 
         for test_img in self.test_img:
             vec = vgg_encoder2.encode(test_img)

@@ -19,12 +19,13 @@ from typing import List
 import numpy as np
 from PIL import Image
 
-from .base import BaseImagePreprocessor
+from .resize import SizedPreprocessor
+from ..helper import get_all_subarea, torch_transform
 from ..video.ffmpeg import FFmpegPreprocessor
 from ...proto import gnes_pb2, array2blob
 
 
-class BaseSlidingPreprocessor(BaseImagePreprocessor):
+class _SlidingPreprocessor(SizedPreprocessor):
 
     def __init__(self, window_size: int = 64,
                  stride_height: int = 64,
@@ -39,13 +40,13 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
         super().apply(doc)
         if doc.raw_bytes:
             original_image = Image.open(io.BytesIO(doc.raw_bytes))
-            all_subareas, index = self._get_all_subarea(original_image)
+            all_subareas, index = get_all_subarea(original_image)
             image_set, center_point_list = self._get_all_sliding_window(np.array(original_image))
-            normalizaed_image_set = [np.array(self._torch_transform(img)).transpose(1, 2, 0)
-                                     for img in image_set]
-            weight = self._get_all_chunks_weight(normalizaed_image_set)
+            normalized_img_set = [np.array(torch_transform(img)).transpose(1, 2, 0)
+                                  for img in image_set]
+            weight = self._get_all_chunks_weight(normalized_img_set)
 
-            for ci, ele in enumerate(zip(normalizaed_image_set, weight)):
+            for ci, ele in enumerate(zip(normalized_img_set, weight)):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(ele[0]))
@@ -87,7 +88,7 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
             for y in range(expanded_input.shape[1])]
 
         expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
-        return [np.array(Image.fromarray(img).resize((self.target_img_size, self.target_img_size))) for img in
+        return [np.array(Image.fromarray(img).resize((self.target_width, self.target_height))) for img in
                 expanded_input], center_point_list
 
     def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> \
@@ -117,14 +118,17 @@ class BaseSlidingPreprocessor(BaseImagePreprocessor):
             location_list[-1] = True
         return location_list
 
+    def _get_all_chunks_weight(self, normalizaed_image_set):
+        raise NotImplementedError
 
-class VanillaSlidingPreprocessor(BaseSlidingPreprocessor):
+
+class VanillaSlidingPreprocessor(_SlidingPreprocessor):
 
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         return [1 / len(image_set) for _ in range(len(image_set))]
 
 
-class WeightedSlidingPreprocessor(BaseSlidingPreprocessor):
+class WeightedSlidingPreprocessor(_SlidingPreprocessor):
 
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
         return FFmpegPreprocessor.pic_weight(image_set)

@@ -30,7 +30,7 @@ class YamlComposerFlask:
         except ImportError:
             raise ImportError('Flask or its dependencies are not fully installed, '
                               'they are required for serving HTTP requests.'
-                              'Please use "pip install gnes[http]" to install it.')
+                              'Please use "pip install gnes[flask]" to install it.')
 
         app = Flask(__name__)
         args = set_composer_parser().parse_args([])

@@ -13,9 +13,24 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from ..base import BasePreprocessor
+import re
+
+from ..base import BaseTextPreprocessor
 from ...proto import gnes_pb2
 
 
-class BaseTextPreprocessor(BasePreprocessor):
-    doc_type = gnes_pb2.Document.TEXT
+class PunctSplitPreprocessor(BaseTextPreprocessor):
+    def __init__(self, deliminator: str = r'[.。！？!?]+', *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.deliminator = deliminator
+
+    def apply(self, doc: 'gnes_pb2.Document') -> None:
+        super().apply(doc)
+        doc.raw_text = doc.raw_bytes.decode().strip()
+        for ci, s in enumerate(re.split(self.deliminator, doc.raw_text)):
+            if s.strip():
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.text = s.strip()
+                c.offset_1d = ci
+                c.weight = len(c.text) / len(doc.raw_text)

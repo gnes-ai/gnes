@@ -1,7 +1,0 @@
-!SlidingPreprocessor
-parameters:
-  start_doc_id: 0
-  random_doc_id: True
-  is_rgb: True
-gnes_config:
-  is_trained: true

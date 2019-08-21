@@ -15,7 +15,7 @@
 
 import numpy as np
 
-from .base import BaseAudioPreprocessor
+from ..base import BaseAudioPreprocessor
 from ..helper import get_video_length_from_raw, get_audio
 from ...proto import array2blob
 

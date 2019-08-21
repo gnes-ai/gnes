@@ -39,6 +39,22 @@ class BasePreprocessor(TrainableBase):
             doc.weight = 1.0
 
 
+class BaseTextPreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.TEXT
+
+
+class BaseAudioPreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.AUDIO
+
+
+class BaseImagePreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.IMAGE
+
+
+class BaseVideoPreprocessor(BasePreprocessor):
+    doc_type = gnes_pb2.Document.VIDEO
+
+
 class PipelinePreprocessor(CompositionalTrainableBase):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         if not self.components:

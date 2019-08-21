@@ -1,4 +1,4 @@
-!BasePytorchEncoder
+!TorchvisionEncoder
 parameters:
   model_dir: ${VGG_MODEL}
   model_name: vgg16

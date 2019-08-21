@@ -1,4 +1,4 @@
-!BasePytorchEncoder
+!TorchvisionEncoder
 parameters:
   model_dir: ${RESNET_MODEL}
   model_name: resnet50

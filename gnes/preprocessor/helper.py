@@ -19,6 +19,7 @@ import io
 import os
 import subprocess as sp
 from datetime import timedelta
+from itertools import product
 from typing import List, Callable
 
 import cv2
@@ -300,3 +301,18 @@ def compare_descriptor(descriptor1: 'np.ndarray',
     }
 
     return cv2.compareHist(descriptor1, descriptor2, dist_metric[metric])
+
+
+def torch_transform(img):
+    import torchvision.transforms as transforms
+    return transforms.Compose([transforms.ToTensor(),
+                               transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(img)
+
+
+def get_all_subarea(img):
+    x_list = [0, img.size[0] / 3, 2 * img.size[0] / 3, img.size[0]]
+    y_list = [0, img.size[1] / 3, 2 * img.size[1] / 3, img.size[1]]
+
+    index = [[x, y, x + 1, y + 1] for [x, y] in product(range(len(x_list) - 1), range(len(y_list) - 1))]
+    all_subareas = [[x_list[idx[0]], y_list[idx[1]], x_list[idx[2]], y_list[idx[3]]] for idx in index]
+    return all_subareas, index

@@ -1,10 +1,8 @@
 import os
-import shutil
 import unittest
 
 import numpy as np
 
-from gnes.helper import touch_dir
 from gnes.indexer.vector.annoy import AnnoyIndexer
 
 

@@ -278,7 +278,7 @@ Now let's see what the YAML config says. First impression, it is pretty intuitiv
  <summary>Preprocessor config: text-prep.yml (click to expand...)</summary>
  
 ```yaml
-!TextPreprocessor
+!PunctSplitPreprocessor
 parameters:
   start_doc_id: 0
   random_doc_id: True
