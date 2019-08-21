@@ -92,7 +92,8 @@ class RawChunkPreprocessor(BasePreprocessor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _parse_chunk(self, chunk: 'gnes_pb2.Chunk', doc_type, *args, **kwargs):
+    @staticmethod
+    def _parse_chunk(chunk: 'gnes_pb2.Chunk', doc_type, *args, **kwargs):
         if doc_type == gnes_pb2.Document.TEXT:
             raise NotImplementedError
         elif doc_type == gnes_pb2.Document.IMAGE:

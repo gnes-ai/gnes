@@ -43,7 +43,6 @@ class LVDBChunkIndexer(BaseTextIndexer):
         for k, d in zip(keys, docs):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
-                print("we are making dir!")
                 os.makedirs(dirs)
             file_type = self._get_file_type(d.doc_type)
             for i, chunk in enumerate(d.chunks):
@@ -74,7 +73,8 @@ class LVDBChunkIndexer(BaseTextIndexer):
                 res.append(doc)
         return res
 
-    def _get_file_type(self, doc_type):
+    @staticmethod
+    def _get_file_type(doc_type):
         if doc_type == gnes_pb2.Document.VIDEO:
             return '.gif'
         elif doc_type == gnes_pb2.Document.IMAGE:
