@@ -87,11 +87,7 @@ class UnaryPreprocessor(BasePreprocessor):
 
 
 class RawChunkPreprocessor(BasePreprocessor):
-    is_train = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    
     @staticmethod
     def _parse_chunk(chunk: 'gnes_pb2.Chunk', doc_type, *args, **kwargs):
         if doc_type == gnes_pb2.Document.TEXT:
