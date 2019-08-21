@@ -27,9 +27,11 @@ class DirectoryIndexer(BaseTextIndexer):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,
+                 file_suffix: str = 'gif',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data_path = data_path
+        self.file_suffix = file_suffix
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
 
@@ -44,15 +46,15 @@ class DirectoryIndexer(BaseTextIndexer):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
-            file_type = self._get_file_type(d.doc_type)
+            self.file_suffix = self._get_file_type(d.doc_type)
             for i, chunk in enumerate(d.chunks):
-                with open(os.path.join(dirs, str(i)+file_type), 'wb') as f:
+                with open(os.path.join(dirs, str(i)+self.file_suffix), 'wb') as f:
                     f.write(chunk.raw)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """
         :param keys: list of doc id
-        :return: list of documents whose chunks contain all the GIFs of this doc
+        :return: list of documents whose chunks field contain all the GIFs of this doc(one GIF per chunk)
         """
         res = []
         for k in keys:
