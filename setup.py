@@ -53,8 +53,8 @@ base_dep = [
     'grpcio',
     'ruamel.yaml>=0.15.89',
     'pyzmq>=17.1.0',
-    'flask',
-    'aiohttp'
+    'aiohttp',
+    'flask'
 ]
 
 # using pip install gnes[xx] is depreciated
@@ -68,13 +68,14 @@ extras_dep = {
     'flair': ['flair>=0.4.1'],
     'annoy': ['annoy==1.15.2'],
     'chinese': ['jieba'],
-    'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0'],
+    'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0', 'image'],
     'leveldb': ['plyvel>=1.0.5'],
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
     'transformers': ['pytorch-transformers'],
     'onnx': ['onnxruntime'],
     'audio': ['librosa>=0.7.0'],
-    'scipy': ['scipy']
+    'scipy': ['scipy'],
+    'flask': ['flask']
 }
 
 

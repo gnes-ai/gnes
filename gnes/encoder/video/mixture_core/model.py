@@ -19,7 +19,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 
-class NetFV():
+class NetFV:
     def __init__(self, feature_size,
                  cluster_size,
                  vocab_size,

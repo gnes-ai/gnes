@@ -56,7 +56,7 @@ class FrontendService:
             return msg
 
         def remove_envelope(self, m: 'gnes_pb2.Message'):
-            resp = m.response
+            resp = m.response or m.request
             resp.request_id = m.envelope.request_id
             self.logger.info('unpacking a message and return to client: %s' % router2str(m))
             return resp

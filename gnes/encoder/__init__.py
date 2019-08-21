@@ -37,7 +37,7 @@ _cls2file_map = {
     'BaseAudioEncoder': 'base',
     'PipelineEncoder': 'base',
     'HashEncoder': 'numeric.hash',
-    'BasePytorchEncoder': 'image.base',
+    'TorchvisionEncoder': 'image.torchvision',
     'TFInceptionEncoder': 'image.inception',
     'CVAEEncoder': 'image.cvae',
     'IncepMixtureEncoder': 'video.incep_mixture',

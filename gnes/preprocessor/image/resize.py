@@ -16,12 +16,11 @@
 import numpy as np
 from PIL import Image
 
-from .base import BaseImagePreprocessor
+from ..base import BaseImagePreprocessor
 from ...proto import gnes_pb2, blob2array, array2blob
 
 
-class ResizeChunkPreprocessor(BaseImagePreprocessor):
-
+class SizedPreprocessor(BaseImagePreprocessor):
     def __init__(self,
                  target_width: int = 224,
                  target_height: int = 224,
@@ -29,6 +28,9 @@ class ResizeChunkPreprocessor(BaseImagePreprocessor):
         super().__init__(*args, **kwargs)
         self.target_width = target_width
         self.target_height = target_height
+
+
+class ResizeChunkPreprocessor(SizedPreprocessor):
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)

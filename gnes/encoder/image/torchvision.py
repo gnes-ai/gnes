@@ -22,7 +22,7 @@ from ..base import BaseImageEncoder
 from ...helper import batching
 
 
-class BasePytorchEncoder(BaseImageEncoder):
+class TorchvisionEncoder(BaseImageEncoder):
     batch_size = 64
 
     def __init__(self, model_name: str,
