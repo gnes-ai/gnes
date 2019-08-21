@@ -15,9 +15,10 @@
 
 
 import numpy as np
+from typing import List
 
 from ..base import BaseVideoPreprocessor
-from ..helper import get_video_frames, compute_descriptor, compare_descriptor
+from ..helper import get_video_frames, compute_descriptor, compare_descriptor, detect_video_shot, compare_ecr
 from ...proto import gnes_pb2, array2blob
 
 
@@ -28,62 +29,61 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                  frame_size: str = '192*168',
                  descriptor: str = 'block_hsv_histogram',
                  distance_metric: str = 'bhattacharya',
+                 detect_method: str = 'threshold',
+                 frame_rate: str = '10',
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_size = frame_size
         self.descriptor = descriptor
         self.distance_metric = distance_metric
+        self.detect_method = detect_method
+        self.frame_rate = frame_rate
         self._detector_kwargs = kwargs
 
-    def apply(self, doc: 'gnes_pb2.Document') -> None:
-        super().apply(doc)
-        from sklearn.cluster import KMeans
+    def detect_from_bytes(self, raw_bytes: bytes) -> (List[List['np.ndarray']], int):
+        frames = get_video_frames(
+            raw_bytes,
+            s=self.frame_size,
+            vsync='vfr',
+            r=self.frame_rate)
 
-        if doc.raw_bytes:
-            # stream_data = io.BytesIO(doc.raw_bytes)
-            # vidcap = cv2.VideoCapture(stream_data)
-            frames = get_video_frames(
-                doc.raw_bytes,
-                s=self.frame_size,
-                vsync='vfr',
-                vf='select=eq(pict_type\\,I)')
+        descriptors = []
+        for frame in frames:
+            descriptor = compute_descriptor(
+                frame, method=self.descriptor, **self._detector_kwargs)
+            descriptors.append(descriptor)
 
-            descriptors = []
-            shots = []
-            for frame in frames:
-                descriptor = compute_descriptor(
-                    frame, method=self.descriptor, **self._detector_kwargs)
-                descriptors.append(descriptor)
-
-            # compute distances between frames
+        # compute distances between frames
+        if self.distance_metric == 'edgechangeration':
+            dists = compare_ecr(descriptors)
+        else:
             dists = [
                 compare_descriptor(pair[0], pair[1], self.distance_metric)
                 for pair in zip(descriptors[:-1], descriptors[1:])
             ]
 
-            dists = np.array(dists).reshape([-1, 1])
-            clt = KMeans(n_clusters=2)
-            clt.fit(dists)
+        shots = detect_video_shot(dists, self.detect_method)
 
-            # select which cluster includes shot frames
-            big_center = np.argmax(clt.cluster_centers_)
+        shot_frames = []
+        for ci in range(0, len(shots) - 1):
+            shot_frames.append(frames[shots[ci]:shots[ci+1]])
 
-            shots = []
-            prev_shot = 0
-            for i in range(0, len(clt.labels_)):
-                if big_center == clt.labels_[i]:
-                    shots.append((prev_shot, i + 2))
-                    prev_shot = i + 2
+        return shot_frames, len(frames)
 
-            for ci, (start, end) in enumerate(shots):
+    def apply(self, doc: 'gnes_pb2.Document') -> None:
+        super().apply(doc)
+        #from sklearn.cluster import KMeans
+
+        if doc.raw_bytes:
+            shot_frames, num_frames = self.detect_from_bytes(doc.raw_bytes)
+
+            for ci in range(0, len(shot_frames)):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
-                chunk_pos = start + (end - start) // 2
-                chunk = frames[chunk_pos]
+                chunk = np.array(shot_frames[ci]).astype('uint8')
                 c.blob.CopyFrom(array2blob(chunk))
                 c.offset_1d = ci
-                c.weight = (end - start) / len(frames)
-
+                c.weight = len(shot_frames[ci]) / num_frames
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
