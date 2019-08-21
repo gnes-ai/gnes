@@ -404,7 +404,6 @@ def thre_algo(distances: List[float], **kwargs) -> List[int]:
 
 def motion_algo(distances: List[float], **kwargs) -> List[int]:
     import peakutils
-    """ Returns the list of peaks in the ECR serie"""
     arg_dict = {
         'threshold': 0.6,
         'min_dist': 10,
