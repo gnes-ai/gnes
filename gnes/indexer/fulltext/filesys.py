@@ -23,7 +23,7 @@ from ..base import BaseTextIndexer
 from ...proto import gnes_pb2
 
 
-class LVDBChunkIndexer(BaseTextIndexer):
+class DirectoryIndexer(BaseTextIndexer):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,

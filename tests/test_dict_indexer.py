@@ -2,12 +2,12 @@ import os
 import unittest
 from shutil import rmtree
 
-from gnes.indexer.fulltext.leveldb_chunk import LVDBChunkIndexer
+from gnes.indexer.fulltext.filesys import DirectoryIndexer
 from gnes.preprocessor.base import BasePreprocessor
 from gnes.proto import gnes_pb2
 
 
-class TestChunkLVDB(unittest.TestCase):
+class TestDictIndexer(unittest.TestCase):
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
 
@@ -25,7 +25,7 @@ class TestChunkLVDB(unittest.TestCase):
             rmtree(self.data_path)
 
     def init_db(self):
-        self.db = LVDBChunkIndexer(self.data_path)
+        self.db = DirectoryIndexer(self.data_path)
 
         self.d = gnes_pb2.Document()
         self.d.doc_id = 0
