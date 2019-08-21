@@ -46,10 +46,8 @@ class DirectoryIndexer(BaseTextIndexer):
                 os.makedirs(dirs)
             file_type = self._get_file_type(d.doc_type)
             for i, chunk in enumerate(d.chunks):
-                print(os.path.join(dirs, str(i)))
-                f = open(os.path.join(dirs, str(i)+file_type), 'wb')
-                f.write(chunk.raw)
-                f.close()
+                with open(os.path.join(dirs, str(i)+file_type), 'wb') as f:
+                    f.write(chunk.raw)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """

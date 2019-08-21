@@ -1,7 +1,7 @@
 !PipelinePreprocessor
-component:
+components:
   - !FFmpegVideoSegmentor
-    parameter:
+    parameters:
       segment_method: cut_by_frame
       segment_interval: 10
       s: "299*299"
