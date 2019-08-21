@@ -65,10 +65,9 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 |`!CLS`| Component Type |
 |---|---|
 |`!BasePreprocessor`|Preprocessor|
-|`!TextPreprocessor`|Preprocessor|
+|`!PunctSplitPreprocessor`|Preprocessor|
 |`!BaseImagePreprocessor`|Preprocessor|
 |`!BaseTextPreprocessor`|Preprocessor|
-|`!BaseSlidingPreprocessor`|Preprocessor|
 |`!VanillaSlidingPreprocessor`|Preprocessor|
 |`!WeightedSlidingPreprocessor`|Preprocessor|
 |`!SegmentPreprocessor`|Preprocessor|
@@ -110,7 +109,7 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 |`!BaseRouter`|Router|
 |`!BaseMapRouter`|Router|
 |`!BaseReduceRouter`|Router|
-|`!ChunkToDocumentRouter`|Router|
+|`!ChunkToDocRouter`|Router|
 |`!DocFillRouter`|Router|
 |`!ConcatEmbedRouter`|Router|
 |`!PublishRouter`|Router|
@@ -216,7 +215,7 @@ Note that how we defines a map under `kwargs` to describe the arguments, they wi
 The examples above are all about encoder. In fact, every component including encoder, preprocessor, router, indexer can all be described with YAML and loaded to GNES. For example,
 
 ```yaml
-!TextPreprocessor
+!PunctSplitPreprocessor
 parameters:
   start_doc_id: 0
   random_doc_id: True

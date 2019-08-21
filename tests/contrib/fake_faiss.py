@@ -8,4 +8,3 @@ class FaissIndexer(BaseVectorIndexer):
         self.is_trained = True
         self.bar = bar
         self.logger.info('look at me, I override the original GNES faiss indexer')
-

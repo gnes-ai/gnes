@@ -1,10 +1,10 @@
+import copy
 import os
 import unittest
 
 from gnes.preprocessor.base import BasePreprocessor
 from gnes.preprocessor.video.ffmpeg import FFmpegVideoSegmentor
 from gnes.proto import gnes_pb2
-import copy
 
 
 class TestPartition(unittest.TestCase):

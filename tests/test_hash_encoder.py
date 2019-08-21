@@ -31,7 +31,7 @@ class TestHash(unittest.TestCase):
 
         out = m.encode(self.test_data)
         self.assertEqual(self.x, out.shape[0])
-        self.assertEqual(self.num_idx+self.num_bytes, out.shape[1])
+        self.assertEqual(self.num_idx + self.num_bytes, out.shape[1])
         self.assertEqual(np.uint32, out.dtype)
 
     def test_yaml_load(self):
@@ -39,4 +39,4 @@ class TestHash(unittest.TestCase):
         pca_hash.train(self.test_data)
         out = pca_hash.encode(self.test_data)
         self.assertEqual(self.x, out.shape[0])
-        self.assertEqual(self.num_idx+self.num_bytes, out.shape[1])
+        self.assertEqual(self.num_idx + self.num_bytes, out.shape[1])

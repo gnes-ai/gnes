@@ -65,7 +65,7 @@ class TestFFmpeg(unittest.TestCase):
                 r = client.recv_message()
                 for d in r.request.index.docs:
                     self.assertGreater(len(d.chunks), 0)
-                    for _ in range(len(d.chunks)-1):
+                    for _ in range(len(d.chunks) - 1):
                         shape = blob2array(d.chunks[_].blob).shape
                         self.assertEqual(shape, (30, 168, 192, 3))
                     shape = blob2array(d.chunks[-1].blob).shape

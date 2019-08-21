@@ -9,6 +9,7 @@ from gnes.preprocessor.image.resize import ResizeChunkPreprocessor
 from gnes.preprocessor.image.sliding_window import VanillaSlidingPreprocessor
 from gnes.proto import gnes_pb2, blob2array
 
+
 def img_process_for_test(dirname):
     zipfile_ = zipfile.ZipFile(os.path.join(dirname, 'imgs/test.zip'))
     all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
@@ -30,6 +31,7 @@ def img_process_for_test(dirname):
         test_img_all_preprocessor.append([blob2array(chunk.blob)
                                           for img in test_img_copy for chunk in img.chunks])
     return test_img_all_preprocessor
+
 
 class TestONNXImageEncoder(unittest.TestCase):
 

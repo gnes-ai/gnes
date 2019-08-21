@@ -48,5 +48,3 @@ class TestDictIndexer(unittest.TestCase):
         res = self.db.query(query_list)
         num_non_empty = sum(1 for d in res if d)
         self.assertEqual(num_non_empty, 1)
-
-

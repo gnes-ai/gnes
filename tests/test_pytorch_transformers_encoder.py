@@ -3,6 +3,7 @@ import unittest
 
 from gnes.encoder.text.torch_transformers import TorchTransformersEncoder
 
+
 class TestTorchTransformersEncoder(unittest.TestCase):
 
     def setUp(self):
