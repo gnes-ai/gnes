@@ -34,7 +34,8 @@ _cls2file_map = {
     'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
     'AudioVanilla': 'audio.audio_vanilla',
-    'BaseAudioPreprocessor': 'audio.base'
+    'BaseAudioPreprocessor': 'audio.base',
+    'RawChunkPreprocessor': 'base'
 }
 
 register_all_class(_cls2file_map, 'preprocessor')

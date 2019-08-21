@@ -25,6 +25,9 @@ message Chunk {
 
         // the original ndarry of the chunk (apply to image/video documents)
         NdArray blob = 3;
+
+        // raw bytes of chunk;
+        bytes raw = 7;
     }
 
     message Coordinate {
