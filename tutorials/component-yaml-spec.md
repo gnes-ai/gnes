@@ -42,7 +42,7 @@ Preprocessor, encoder, indexer and router are fundamental components of GNES. Th
 Let's take a look an example:
 
 ```yaml
-!BasePytorchEncoder
+!TorchvisionEncoder
 parameters:
   model_dir: ${VGG_MODEL}
   model_name: vgg16
@@ -56,7 +56,7 @@ gnes_config:
   name: my-awesome-vgg
 ```
 
-In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 model from the path`${VGG_MODEL}`. We then label this component as trained via `is_trained: true` and set its name to `my-awesome-vgg`.
+In this example, we define a `TorchvisionEncoder` that loads a pretrained VGG16 model from the path`${VGG_MODEL}`. We then label this component as trained via `is_trained: true` and set its name to `my-awesome-vgg`.
 
 ## `!CLS` specification
 
@@ -93,7 +93,7 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 |`!CompositionalEncoder`|Encoder|
 |`!PipelineEncoder`|Encoder|
 |`!HashEncoder`|Encoder|
-|`!BasePytorchEncoder`|Encoder|
+|`!TorchvisionEncoder`|Encoder|
 |`!TFInceptionEncoder`|Encoder|
 |`!CVAEEncoder`|Encoder|
 |`!FaissIndexer`|Indexer|
@@ -117,7 +117,7 @@ In this example, we define a `BasePytorchEncoder` that loads a pretrained VGG16 
 
 ## `parameters` specification
 
-The key-value pair defined in `parameters` is basically a map of the arguments defined in the constructor of `!CLS`. Let's look at the signature of the constructor `BasePytorchEncoder` as an example:
+The key-value pair defined in `parameters` is basically a map of the arguments defined in the constructor of `!CLS`. Let's look at the signature of the constructor `TorchvisionEncoder` as an example:
 
 <table>
 <tr>
@@ -138,7 +138,7 @@ def __init__(self, model_name: str,
 </td>
 <td>
 <pre lang="yaml">
-!BasePytorchEncoder
+!TorchvisionEncoder
 parameters:
   model_dir: ${VGG_MODEL}
   model_name: vgg16
@@ -268,7 +268,7 @@ To define a `PipelineEncoder`, you just need to sort the encoders in the right o
 ```yaml
 !PipelineEncoder
 components:
-  - !BasePytorchEncoder
+  - !TorchvisionEncoder
     parameters:
       model_dir: /ext_data/image_encoder
       model_name: resnet50

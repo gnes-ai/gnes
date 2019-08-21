@@ -1,4 +1,4 @@
-!BasePytorchEncoder
+!TorchvisionEncoder
 parameters:
   model_dir: ${INCEPTION_MODEL}
   model_name: inception_v3
