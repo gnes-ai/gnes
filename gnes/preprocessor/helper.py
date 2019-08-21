@@ -136,7 +136,7 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
     # example k,v pair:
     #    (-s, 420*360)
     #    (-vsync, vfr)
-    #    (-vf, select=eq(pict_type\,I))
+    #    (-r, 10)
     for k, v in kwargs.items():
         if isinstance(v, (float, int)):
             v = str(v)
@@ -240,7 +240,7 @@ def pyramid_descriptor(image: 'np.ndarray',
     return np.array(descriptors)
 
 
-def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
+def bgr_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
     hist = [
         cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
@@ -252,7 +252,7 @@ def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
-    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # sizes = [180, 256, 256]
     # ranges = [(0, 180), (0, 256), (0, 256)]
@@ -267,6 +267,34 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
     return hist
 
 
+def edge_detect(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
+    arg_dict = {
+        'compute_threshold': True,
+        'low_threshold': 0,
+        'high_threshold': 200,
+        'sigma': 0.5,
+        'gauss_kernel': (9, 9),
+        'L2': True
+    }
+    for k, v in kwargs.items():
+        if k in arg_dict.keys():
+            arg_dict[k] = v
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # add threshold for canny
+    low_threshold = arg_dict['low_threshold']
+    high_threshold = arg_dict['high_threshold']
+    if arg_dict['compute_threshold']:
+        # apply automatic Canny edge detection using the computed median
+        v = np.median(image)
+        sigma = arg_dict['sigma']
+        low_threshold = ((1.0 - sigma) * v).astype("float32")
+        high_threshold = ((1.0 + sigma) * v).astype("float32")
+    tmp_image = cv2.GaussianBlur(image, arg_dict['gauss_kernel'], 1.2)
+    edge_image = cv2.Canny(tmp_image, low_threshold, high_threshold, L2gradient=arg_dict['L2'])
+    return edge_image
+
+
 def phash_descriptor(image: 'np.ndarray'):
     image = Image.fromarray(image)
     import imagehash
@@ -274,17 +302,48 @@ def phash_descriptor(image: 'np.ndarray'):
 
 
 def compute_descriptor(image: 'np.ndarray',
-                       method: str = 'rgb_histogram',
+                       method: str = 'bgr_histogram',
                        **kwargs) -> 'np.array':
     funcs = {
-        'rgb_histogram': rgb_histogram,
+        'bgr_histogram': bgr_histogram,
         'hsv_histogram': hsv_histogram,
-        'block_rgb_histogram': lambda image: block_descriptor(image, rgb_histogram, kwargs.get('num_blocks', 3)),
+        'edge_detect': lambda image: edge_detect(image, **kwargs),
+        'block_bgr_histogram': lambda image: block_descriptor(image, bgr_histogram, kwargs.get('num_blocks', 3)),
         'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get('num_blocks', 3)),
-        'pyramid_rgb_histogram': lambda image: pyramid_descriptor(image, rgb_histogram, kwargs.get('max_level', 2)),
+        'pyramid_bgr_histogram': lambda image: pyramid_descriptor(image, bgr_histogram, kwargs.get('max_level', 2)),
         'pyramid_hsv_histogram': lambda image: pyramid_descriptor(image, hsv_histogram, kwargs.get('max_level', 2)),
     }
     return funcs[method](image)
+
+
+def compare_ecr(descriptors: List['np.ndarray'], dilate_rate: int = 5, neigh_avg: int = 2) -> List[float]:
+    """ Apply the Edge Change Ratio Algorithm"""
+    divd = lambda x, y: 0 if y == 0 else x / y
+
+    dicts = []
+    inv_dilate = []
+    sum_disc = []
+    for descriptor in descriptors:
+        sum_disc.append(np.sum(descriptor))
+        inv_dilate.append(255 - cv2.dilate(descriptor, np.ones((dilate_rate, dilate_rate))))
+
+    for i in range(1, len(descriptors)):
+        dict_0 = divd(float(np.sum(descriptors[i - 1] & inv_dilate[i])), float(sum_disc[i - 1]))
+        dict_1 = divd(float(np.sum(descriptors[i] & inv_dilate[i - 1])), float(sum_disc[i]))
+        tmp_dict = max(dict_0, dict_1)
+        if i > 10:
+            dict_0 = divd(float(np.sum(descriptors[i - 10] & inv_dilate[i])), float(sum_disc[i - 10]))
+            dict_1 = divd(float(np.sum(descriptors[i] & inv_dilate[i - 10])), float(sum_disc[i]))
+            tmp_dict *= (1 + max(dict_0, dict_1))
+        dicts.append(tmp_dict)
+
+    for _ in range(neigh_avg):
+        tmp_dict = []
+        for i in range(1, len(dicts) - 1):
+            tmp_dict.append(max(dicts[i - 1], dicts[i], dicts[i + 1]))
+        dicts = tmp_dict.copy()
+
+    return dicts
 
 
 def compare_descriptor(descriptor1: 'np.ndarray',
@@ -301,6 +360,89 @@ def compare_descriptor(descriptor1: 'np.ndarray',
     }
 
     return cv2.compareHist(descriptor1, descriptor2, dist_metric[metric])
+
+
+def kmeans_algo(distances: List[float], **kwargs) -> List[int]:
+    from sklearn.cluster import KMeans
+    clt = KMeans(n_clusters=2)
+    clt.fit(distances)
+
+    num_frames = len(distances) + 1
+    # select which cluster includes shot frames
+    big_center = np.argmax(clt.cluster_centers_)
+
+    shots = []
+    shots.append(0)
+    for i in range(0, len(clt.labels_)):
+        if big_center == clt.labels_[i]:
+            shots.append((i + 2))
+    if shots[-1] < num_frames:
+        shots.append(num_frames)
+    else:
+        shots[-1] = num_frames
+    return shots
+
+
+def check_motion(prev_dists: List[float], cur_dist: float, motion_threshold: float = 0.75):
+    """ Returns a boolean value to decide if the peak is due to a motion"""
+    close_peaks = 0
+    # We observe the a defined number of frames before the peak
+    for dist in prev_dists:
+        if dist > cur_dist * motion_threshold:
+            close_peaks += 1
+    if close_peaks >= len(prev_dists) / 2:
+        return True
+    else:
+        return False
+
+
+def thre_algo(distances: List[float], **kwargs) -> List[int]:
+    # now threshold algo not support motion
+    kwargs['motion_step'] = 0
+    return motion_algo(distances, **kwargs)
+
+
+def motion_algo(distances: List[float], **kwargs) -> List[int]:
+    import peakutils
+    """ Returns the list of peaks in the ECR serie"""
+    arg_dict = {
+        'threshold': 0.6,
+        'min_dist': 10,
+        'motion_step': 15
+    }
+    shots = []
+    for k, v in kwargs.items():
+        if k in arg_dict.keys():
+            arg_dict[k] = v
+    num_frames = len(distances) + 1
+    p = peakutils.indexes(np.array(distances).astype('float32'), thres=arg_dict['threshold'], min_dist=arg_dict['min_dist'])
+    shots.append(0)
+    shots.append(p[0] + 2)
+    for i in range(1, len(p)):
+        # We check that the peak is not due to a motion in the image
+        valid_dist = arg_dict['motion_step'] or not check_motion(distances[p[i]-arg_dict['motion_step']:p[i]], distances[p[i]])
+        if valid_dist:
+            shots.append(p[i] + 2)
+    if shots[-1] < num_frames - arg_dict['min_dist']:
+        shots.append(num_frames)
+    elif shots[-1] > num_frames:
+        shots[-1] = num_frames
+    return shots
+
+
+def detect_video_shot(distances: List[float],
+                      method: str = 'kmeans',
+                      **kwargs) -> List[int]:
+    detect_method = {
+        'kmeans': kmeans_algo,
+        'threshold': thre_algo,
+        'motion': motion_algo
+    }
+
+    if method in detect_method.keys():
+        return detect_method[method](distances, **kwargs)
+    else:
+        logger.error("detect video shot by [%s] not implemented! Please use threshold, kmeans or motion!" % method)
 
 
 def torch_transform(img):

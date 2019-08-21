@@ -1,0 +1,8 @@
+!ShotDetectPreprocessor
+parameters:
+  descriptor: "edge_detect"
+  distance_metric: "edgechangeration"
+  frame_size: "192*168"
+  frame_rate: "30"
+gnes_config:
+  is_trained: true
