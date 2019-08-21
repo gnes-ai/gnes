@@ -83,8 +83,8 @@ class SegmentPreprocessor(SizedPreprocessor):
             self.logger.error('bad document: "raw_bytes" is empty!')
 
     def _crop_resize(self, original_image, coordinates):
-        return np.array(original_image.crop(coordinates).resize((self.target_img_size,
-                                                                 self.target_img_size)))
+        return np.array(original_image.crop(coordinates).resize((self.target_width,
+                                                                 self.target_height)))
 
     def _get_seg_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]
