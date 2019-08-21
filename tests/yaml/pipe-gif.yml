@@ -1,0 +1,18 @@
+!PipelinePreprocessor
+component:
+  - !FFmpegVideoSegmentor
+    parameter:
+      segment_method: cut_by_frame
+      segment_interval: 10
+      s: "299*299"
+      r: 1
+    gnes_config:
+      name: FFmpegVideoSegmentor
+      is_trained: true
+  - !RawChunkPreprocessor
+    gnes_config:
+      name: RawChunkPreprocessor
+      is_trained: true
+gnes_config:
+  name: PipelinePreprocessor
+  work_dir: /save

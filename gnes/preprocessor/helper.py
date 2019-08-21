@@ -193,6 +193,25 @@ def split_video_frames(buffer_data: bytes,
     return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
 
 
+def get_gif(images, fps=4):
+    cmd = ['ffmpeg', '-y',
+           '-f', 'rawvideo',
+           '-vcodec', 'rawvideo',
+           '-r', '%.02f' % fps,
+           '-s', '%dx%d' % (images[0].shape[1], images[0].shape[0]),
+           '-pix_fmt', 'rgb24',
+           '-i', '-',
+           '-filter_complex', '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse',
+           '-r', '%.02f' % fps,
+           '-f', 'gif',
+           '-']
+    with sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, bufsize=-1, shell=False) as pipe:
+        for image in images:
+            pipe.stdin.write(image.tostring())
+        out, _ = pipe.communicate()
+    return out
+
+
 def block_descriptor(image: 'np.ndarray',
                      descriptor_fn: Callable,
                      num_blocks: int = 3) -> 'np.ndarray':
