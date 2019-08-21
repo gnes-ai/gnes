@@ -29,27 +29,27 @@ class IndexerService(BS):
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
-        all_vecs = []
-        doc_ids = []
-        offsets = []
-        weights = []
-
-        for d in msg.request.index.docs:
-            if len(d.chunks):
-                all_vecs.append(blob2array(d.chunk_embeddings))
-                doc_ids += [d.doc_id] * len(d.chunks)
-                if d.doc_type == gnes_pb2.Document.TEXT:
-                    offsets += [c.offset_1d for c in d.chunks]
-                elif d.doc_type == gnes_pb2.Document.IMAGE:
-                    offsets += [c.offset_nd for c in d.chunks]
-                elif d.doc_type == gnes_pb2.Document.VIDEO:
-                    offsets += [c.offset_1d for c in d.chunks]
-                elif d.doc_type == gnes_pb2.Document.AUDIO:
-                    offsets += [c.offset_1d for c in d.chunks]
-                weights += [c.weight for c in d.chunks]
-
         from ..indexer.base import BaseVectorIndexer, BaseTextIndexer
         if isinstance(self._model, BaseVectorIndexer):
+            all_vecs = []
+            doc_ids = []
+            offsets = []
+            weights = []
+
+            for d in msg.request.index.docs:
+                if len(d.chunks):
+                    all_vecs.append(blob2array(d.chunk_embeddings))
+                    doc_ids += [d.doc_id] * len(d.chunks)
+                    if d.doc_type == gnes_pb2.Document.TEXT:
+                        offsets += [c.offset_1d for c in d.chunks]
+                    elif d.doc_type == gnes_pb2.Document.IMAGE:
+                        offsets += [c.offset_nd for c in d.chunks]
+                    elif d.doc_type == gnes_pb2.Document.VIDEO:
+                        offsets += [c.offset_1d for c in d.chunks]
+                    elif d.doc_type == gnes_pb2.Document.AUDIO:
+                        offsets += [c.offset_1d for c in d.chunks]
+                    weights += [c.weight for c in d.chunks]
+
             self._model.add(list(zip(doc_ids, offsets)),
                             np.concatenate(all_vecs, 0),
                             weights)

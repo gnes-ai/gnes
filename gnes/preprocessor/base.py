@@ -19,7 +19,8 @@ import io
 import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
-from ..proto import gnes_pb2, array2blob
+from ..proto import gnes_pb2, array2blob, blob2array
+from .helper import get_gif
 
 
 class BasePreprocessor(TrainableBase):
@@ -99,3 +100,27 @@ class UnaryPreprocessor(BasePreprocessor):
             raise NotImplementedError
         else:
             raise NotImplementedError
+
+
+class RawChunkPreprocessor(BasePreprocessor):
+    
+    @staticmethod
+    def _parse_chunk(chunk: 'gnes_pb2.Chunk', doc_type, *args, **kwargs):
+        if doc_type == gnes_pb2.Document.TEXT:
+            raise NotImplementedError
+        elif doc_type == gnes_pb2.Document.IMAGE:
+            raise NotImplementedError
+        elif doc_type == gnes_pb2.Document.VIDEO:
+            return get_gif(blob2array(chunk.blob))
+        elif doc_type == gnes_pb2.Document.AUDIO:
+            raise NotImplementedError
+        else:
+            raise ValueError("doc type can only be TEXT, IMAGE, VIDEO or AUDIO!")
+
+    def apply(self, doc: 'gnes_pb2.Document') -> None:
+
+        if doc.raw_bytes:
+            for chunk in doc.chunks:
+                chunk.raw = self._parse_chunk(chunk, doc.doc_type)
+        else:
+            self.logger.error('bad document: "raw_bytes" is empty!')
