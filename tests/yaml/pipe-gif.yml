@@ -3,8 +3,8 @@ components:
   - !FFmpegVideoSegmentor
     parameters:
       segment_method: cut_by_frame
-      segment_interval: 10
-      s: "299*299"
+      segment_interval: 30
+      s: "192*168"
       r: 1
     gnes_config:
       name: FFmpegVideoSegmentor
