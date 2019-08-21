@@ -46,9 +46,8 @@ class DirectoryIndexer(BaseTextIndexer):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
-            self.file_suffix = self._get_file_type(d.doc_type)
             for i, chunk in enumerate(d.chunks):
-                with open(os.path.join(dirs, str(i)+self.file_suffix), 'wb') as f:
+                with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
@@ -73,16 +72,4 @@ class DirectoryIndexer(BaseTextIndexer):
                 res.append(doc)
         return res
 
-    @staticmethod
-    def _get_file_type(doc_type):
-        if doc_type == gnes_pb2.Document.VIDEO:
-            return '.gif'
-        elif doc_type == gnes_pb2.Document.IMAGE:
-            raise NotImplementedError
-        elif doc_type == gnes_pb2.Document.TEXT:
-            raise NotImplementedError
-        elif doc_type == gnes_pb2.Document.AUDIO:
-            raise NotImplementedError
-        else:
-            raise ValueError("doc type can only be TEXT, IMAGE, VIDEO or AUDIO!")
 
