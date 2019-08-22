@@ -83,8 +83,11 @@ def _client_bm(args):
 def compose(args):
     from ..composer.base import YamlComposer
     from ..composer.flask import YamlComposerFlask
+    from ..composer.http import YamlComposerHttp
 
     if args.flask:
         YamlComposerFlask(args).run()
+    elif args.serve:
+        YamlComposerHttp(args).run()
     else:
         YamlComposer(args).build_all()
