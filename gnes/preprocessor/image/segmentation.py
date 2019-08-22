@@ -67,24 +67,22 @@ class SegmentPreprocessor(SizedPreprocessor):
             for ci, ele in enumerate(zip(chunks, weight)):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
-                c.blob.CopyFrom(array2blob(self._crop_resize(original_image, ele[0])))
+                c.blob.CopyFrom(array2blob(self._crop(original_image, ele[0])))
                 c.offset_1d = ci
                 c.offset_nd.x.extend(self._get_seg_offset_nd(all_subareas, index, ele[0]))
                 c.weight = self._cal_area(ele[0]) / (original_image.size[0] * original_image.size[1])
 
             c = doc.chunks.add()
             c.doc_id = doc.doc_id
-            c.blob.CopyFrom(array2blob(np.array(original_image.resize((self.target_width,
-                                                                       self.target_height)))))
+            c.blob.CopyFrom(array2blob(np.array(original_image)))
             c.offset_1d = len(chunks)
             c.offset_nd.x.extend([100, 100])
             c.weight = 1.
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
-    def _crop_resize(self, original_image, coordinates):
-        return np.array(original_image.crop(coordinates).resize((self.target_width,
-                                                                 self.target_height)))
+    def _crop(self, original_image, coordinates):
+        return np.array(original_image.crop(coordinates))
 
     def _get_seg_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]
