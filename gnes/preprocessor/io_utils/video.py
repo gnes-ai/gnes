@@ -54,8 +54,8 @@ def capture_frames(filename: str = 'pipe:',
     if self.fps > 0:
         stream = stream.filter('fps', fps=self.fps, round='up')
 
-    if frame_size:
-        width, height = self.scale.split('*')
+    if scale:
+        width, height = scale.split(':')
         stream = stream.filter('scale', width, height)
 
     stream = stream.output('pipe:', format='rawvideo', pix_fmt=self.pix_fmt)
