@@ -16,7 +16,7 @@
 import io
 import ffmpeg
 import numpy as np
-from scipy.io import wavfile
+import soundfile as sf
 
 
 def capture_audio(filename: str = 'pipe:',
