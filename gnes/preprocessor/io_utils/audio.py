@@ -81,19 +81,10 @@ def get_chunk_times(filename: str = 'pipe:',
         d=silence_duration)
     stream = stream.output('pipe:', format='null')
 
-    # cmd_line = stream.compile() + [
-    #     '-nostats'
-    # ]    # FIXME: use .nostats() once it's implemented in ffmpeg-python.
-    cmd_line = stream.compile()
+    stdout, stderr = stream.run(
+        input=video_data, capture_stdout=True, capture_stderr=True)
 
-    p = sp.Popen(cmd_line, stderr=sp.PIPE)
-
-    output = p.communicate(video_data)[1].decode()
-    if p.returncode != 0:
-        raise Exception(output)
-        return
-
-    lines = output.splitlines()
+    lines = stderr.decode().splitlines()
 
     # Chunks start when silence ends, and chunks end when silence starts.
     chunk_starts = []
