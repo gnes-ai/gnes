@@ -129,65 +129,6 @@ def split_mp4_random(video_path, avg_length, max_clip_second=10):
         os.system(cmd)
 
 
-def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
-                     **kwargs) -> List['np.ndarray']:
-    ffmpeg_cmd = ['ffmpeg', '-i', '-', '-f', 'image2pipe']
-
-    # example k,v pair:
-    #    (-s, 420*360)
-    #    (-vsync, vfr)
-    #    (-r, 10)
-    for k, v in kwargs.items():
-        if isinstance(v, (float, int)):
-            v = str(v)
-        ffmpeg_cmd.append('-' + k)
-        ffmpeg_cmd.append(v)
-
-    # (-c:v, png) output bytes in png format
-    # (-an, -sn) disable audio processing
-    # (-) output to stdout pipeline
-    ffmpeg_cmd += ['-c:v', 'png', '-an', '-sn', '-']
-
-    with sp.Popen(
-            ffmpeg_cmd, stdin=sp.PIPE, stdout=sp.PIPE, bufsize=-1,
-            shell=False) as pipe:
-        stream, _ = pipe.communicate(buffer_data)
-
-        # raw bytes for multiple PNGs.
-        # split by PNG EOF b'\x89PNG'
-        stream = stream.split(b'\x89PNG')
-
-        if len(stream) <= 1:
-            return []
-
-        # reformulate the full pngs for feature processings.
-        if image_format == 'pil':
-            frames = [
-                Image.open(io.BytesIO(b'\x89PNG' + _)) for _ in stream[1:]
-            ]
-        elif image_format == 'cv2':
-            # frames = [
-            #     cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
-            #     for _ in stream[1:]
-            # ]
-
-            # TODO: to figure out the exception reason
-            frames = []
-            for _ in stream[1:]:
-                image = cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
-                try:
-                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    frames.append(image)
-                except Exception as e:
-                    logger.warning(
-                        "The decoded cv2 image from keyframe buffer can not be converted to RGB: %s" % str(e))
-        else:
-            logger.error("The image format [%s] is not supported so far!" % image_format)
-            raise NotImplementedError
-
-    return frames
-
-
 def split_video_frames(buffer_data: bytes,
                        splitter: str = '__split__'):
     chunks = buffer_data.split(splitter.encode())
