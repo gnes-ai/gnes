@@ -81,9 +81,10 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             for ci, frames in enumerate(shots):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
-                chunk_data = np.concatenate(frames, axis=0)
-                c.blob.CopyFrom(array2blob(chunk))
+                # chunk_data = np.concatenate(frames, axis=0)
+                chunk_data = np.array(frames)
+                c.blob.CopyFrom(array2blob(chunk_data))
                 c.offset_1d = ci
-                c.weight = len(value) / num_frames
+                c.weight = len(frames) / num_frames
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
