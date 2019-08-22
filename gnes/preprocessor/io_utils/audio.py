@@ -25,13 +25,16 @@ def capture_audio(filename: str = 'pipe:',
                   sample_rate: int = 16000,
                   **kwargs) -> List['np.ndarray']:
 
-    stdout, err = ffmpeg.input(filename).output(
+    stream = ffmpeg.input(filename)
+    stream = stream.output(
         'pipe:',
         format='wav',
         bits_per_raw_sample=bits_per_raw_sample,
         ac=1,
-        ar=16000).run(
-            input=video_data, capture_stdout=True, capture_stderr=True)
+        ar=16000)
+
+    stdout, err = stream.run(
+        input=video_data, capture_stdout=True, capture_stderr=True)
 
     audio_stream = io.BytesIO(stdout)
     audio_data, sample_rate = sf.read(audio_stream)
