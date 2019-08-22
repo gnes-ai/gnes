@@ -54,7 +54,6 @@ base_dep = [
     'ruamel.yaml>=0.15.89',
     'pyzmq>=17.1.0',
     'aiohttp',
-    'flask'
 ]
 
 # using pip install gnes[xx] is depreciated
