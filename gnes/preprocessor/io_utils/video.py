@@ -40,7 +40,7 @@ def capture_frames(filename: str = 'pipe:',
         stream = stream.filter('fps', fps=fps, round='up')
 
     if scale:
-        width, height = scale.split(':')
+        width, height = map(int, scale.split(':'))
         stream = stream.filter('scale', width, height)
 
     stream = stream.output('pipe:', format='rawvideo', pix_fmt=pix_fmt)
@@ -48,11 +48,11 @@ def capture_frames(filename: str = 'pipe:',
     out, err = stream.run(
         input=video_data, capture_stdout=True, capture_stderr=True)
 
-    width, height = extract_frame_size(err.decode())
+    # video_width, video_height = extract_frame_size(err.decode())
 
     depth = 3
     if pix_fmt == 'rgba':
         depth = 4
 
-    frames = np.frombuffer(out, np.uint8).reshape([-1, height, width, depth])
+    frames = np.frombuffer(out, np.uint8).reshape([-1, int(height), int(width), depth])
     return list(frames)
