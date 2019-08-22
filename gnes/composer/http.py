@@ -1,8 +1,7 @@
-import io
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 
-from .base import YamlComposer
+from .base import YamlComposer, parse_http_data
 from ..cli.parser import set_composer_parser
 from ..helper import set_logger
 
@@ -36,26 +35,7 @@ class YamlComposerHttp:
             data = self.rfile.read(content_length)  # <--- Gets the data itself
 
             data = {k: v[0] for k, v in parse_qs(data.decode('utf-8')).items()}
-            if not data or 'yaml-config' not in data:
-                self._set_response('<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!',
-                                   406)
-            try:
-                self.args.yaml_path = io.StringIO(data['yaml-config'])
-                if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
-                    self.args.mermaid_leftright = True
-                else:
-                    self.args.mermaid_leftright = False
-                if 'docker-image' in data:
-                    self.args.docker_img = data['docker-image']
-                else:
-                    self.args.docker_img = 'gnes/gnes:latest-alpine'
-
-                self._set_response(YamlComposer(self.args).build_all()['html'])
-            except Exception as e:
-                self._set_response(
-                    '<h1>Bad YAML input</h1> please kindly check the format, '
-                    'indent and content of your YAML file! <h3>Traceback: </h3><p><code>%s</code></p>' % e,
-                    400)
+            self._set_response(*parse_http_data(data, self.args))
 
     def run(self):
         httpd = HTTPServer(('0.0.0.0', self.args.http_port), self._HttpServer)

@@ -35,7 +35,7 @@ class TestCompose(unittest.TestCase):
         print(a.build_dockerswarm(r))
 
     @unittest.SkipTest
-    def test_flask_local(self):
+    def test_http_local(self):
         args = set_composer_flask_parser().parse_args(['--serve'])
         YamlComposerHttp(args).run()
 

@@ -53,8 +53,7 @@ base_dep = [
     'grpcio',
     'ruamel.yaml>=0.15.89',
     'pyzmq>=17.1.0',
-    'aiohttp',
-]
+    'aiohttp']
 
 # using pip install gnes[xx] is depreciated
 # extras_dep is kept for legacy issue, will be removed soon
