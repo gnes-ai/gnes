@@ -273,9 +273,7 @@ def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
         'gauss_kernel': (9, 9),
         'l2_gradient': True
     }
-    for k, v in kwargs.items():
-        if k in arg_dict.keys():
-            arg_dict[k] = v
+    arg_dict.update(kwargs)
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # apply automatic Canny edge detection using the computed median
@@ -402,10 +400,9 @@ def motion_algo(distances: List[float], **kwargs) -> List[int]:
         'min_dist': 10,
         'motion_step': 15
     }
+    arg_dict.update(kwargs)
+
     shots = []
-    for k, v in kwargs.items():
-        if k in arg_dict.keys():
-            arg_dict[k] = v
     num_frames = len(distances) + 1
     p = peakutils.indexes(np.array(distances).astype('float32'), thres=arg_dict['threshold'], min_dist=arg_dict['min_dist'])
     shots.append(0)
