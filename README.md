@@ -30,7 +30,7 @@
   <a href="#overview">Overview</a> •
   <a href="#install-gnes">Install</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="https://github.com/gnes-ai/hub">GNES Hub</a> •
+  <a href="https://github.com/gnes-ai/hub">Hub</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
@@ -177,7 +177,7 @@ Note that this will only install a "barebone" version of GNES, consists of **the
 
 > 🚸 Tensorflow, Pytorch and torchvision are not part of GNES installation. Depending on your model, you may have to install them in advance.
 
-Though not recommended, you may install GNES with full dependencies via:
+Though not recommended, you can install GNES with full dependencies via:
 ```bash
 pip install gnes[all]
 ```
@@ -203,6 +203,8 @@ pip install gnes[all]
 <tr><td><pre>pip install gnes[all]</pre></td><td>pylint, psutil>=5.6.1, pytorch-transformers, annoy==1.15.2, bert-serving-client>=1.8.6, gputil>=1.4.0, bert-serving-server>=1.8.6, imagehash>=4.0, onnxruntime, memory_profiler>=0.55.0, jieba, flair>=0.4.1, librosa>=0.7.0, scipy, plyvel>=1.0.5, opencv-python>=4.0.0</td>
 </table>
 </details> 
+
+A good way to cherry-pick dependencies is following [the example in GNES Hub](https://github.com/gnes-ai/hub#cherry-picking-dependencies-to-enable-gnes-built-in-models) and building you own GNES image.
 
 Either way, if you end up reading the following message after `$ gnes` or `$ docker run gnes/gnes`, then you are ready to go!
 
@@ -605,14 +607,18 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 - [How to write your GNES YAML config](tutorials/gnes-compose-yaml-spec.md)
 - [How to write a component-wise YAML config](tutorials/component-yaml-spec.md)
-- Understanding preprocessor, encoder, indexer and router
+- [Model management with GNES Hub](https://github.com/gnes-ai/hub#tutorial)
+    * [Porting `PyTorch-Transformers` into GNES](https://github.com/gnes-ai/hub#porting-pytorch-transformers-into-gnes)
+    * [Porting multiple modules in a row](https://github.com/gnes-ai/hub#porting-multiple-modules-in-a-row)
+    * [Cherry-picking dependencies and build your own GNES](https://github.com/gnes-ai/hub#cherry-picking-dependencies-to-enable-gnes-built-in-models)
+- [Understanding preprocessor, encoder, indexer and router](https://hanxiao.github.io/2019/07/29/Generic-Neural-Elastic-Search-From-bert-as-service-and-Go-Way-Beyond/#gnes-preliminaries-breakdown-of-neural-elastic-and-search)
 - Index and query text data with GNES
 - Index and query image data with GNES
 - Index and query video data with GNES
 - Using GNES with Kubernetes
 - Using GNES in other language (besides Python)
 - Serves HTTP-request with GNES in an end-to-end way
-- Model-as-plugin: write your own component
+
 - Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
 
 <h2 align="center">Contributing</h2>
