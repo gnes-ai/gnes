@@ -32,6 +32,11 @@ def capture_audio(filename: str = 'pipe:',
                   sample_rate: int = 16000,
                   **kwargs) -> List['np.ndarray']:
 
+    capture_stdin = (filename == 'pipe:')
+    if capture_stdin and video_data is None:
+        raise ValueError(
+            "the buffered video data for stdin should not be empty")
+
     stream = ffmpeg.input(filename)
     stream = stream.output(
         'pipe:',
@@ -56,8 +61,8 @@ def get_chunk_times(filename: str = 'pipe:',
                     video_data: bytes = None,
                     silence_threshold: float = DEFAULT_SILENCE_THRESHOLD,
                     silence_duration: float = DEFAULT_SILENCE_DURATION,
-                    start_time=None,
-                    end_time=None):
+                    start_time: float = None,
+                    end_time: float = None):
 
     silence_start_re = re.compile(
         ' silence_start: (?P<start>[0-9]+(\.?[0-9]*))$')
@@ -97,7 +102,7 @@ def get_chunk_times(filename: str = 'pipe:',
             chunk_ends.append(float(silence_start_match.group('start')))
             if len(chunk_starts) == 0:
                 # Started with non-silence.
-                chunk_starts.append(start_time or 0.)
+                chunk_starts.append(start_time)
         elif silence_end_match:
             chunk_starts.append(float(silence_end_match.group('end')))
         elif total_duration_match:
@@ -121,8 +126,8 @@ def split_audio(filename: str = 'pipe:',
                 video_data: bytes = None,
                 silence_threshold=DEFAULT_SILENCE_THRESHOLD,
                 silence_duration=DEFAULT_SILENCE_DURATION,
-                start_time=None,
-                end_time=None,
+                start_time: float = None,
+                end_time: float = None,
                 verbose=False):
     chunk_times = get_chunk_times(
         filename,

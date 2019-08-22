@@ -27,15 +27,26 @@ def capture_frames(filename: str = 'pipe:',
                    pix_fmt: str = 'rgb24',
                    fps: int = -1,
                    scale: str = None,
+                   start_time: float = None,
+                   end_time: float = None,
                    **kwargs) -> List['np.ndarray']:
     capture_stdin = (filename == 'pipe:')
     if capture_stdin and video_data is None:
         raise ValueError(
-            "the video data buffered from stdin should not be empty")
+            "the buffered video data for stdin should not be empty")
 
-    # discard corrupted frames
-    # https://stackoverflow.com/questions/45983605/ffmpeg-jpg-frame-capture-how-to-discard-corrupted-frames
-    stream = ffmpeg.input(filename, err_detect="aggressive", fflags="discardcorrupt")
+    input_kwargs = {
+        'err_detect': 'aggressive',
+        'fflags': 'discardcorrupt'  # discard corrupted frames
+    }
+    if start_time is not None:
+        input_kwargs['ss'] = start_time
+    else:
+        start_time = 0.
+    if end_time is not None:
+        input_kwargs['t'] = end_time - start_time
+
+    stream = ffmpeg.input(filename, **input_kwargs)
     if fps > 0:
         stream = stream.filter('fps', fps=fps, round='up')
 
