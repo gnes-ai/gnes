@@ -54,8 +54,10 @@ class YamlComposer:
         default_values = {
             'name': None,
             'yaml_path': None,
+            'py_path': None,
+            'image': None,
             'replicas': 1,
-            'income': 'pull'
+            'income': 'pull',
         }
 
         def __init__(self, layer_id: int = 0):
@@ -115,12 +117,15 @@ class YamlComposer:
 
         if 'services' in tmp:
             self.add_layer()
-            self.add_comp(CommentedMap({'name': 'Frontend', 'grpc_port': self._port}))
+            c = CommentedMap({'name': 'Frontend', 'grpc_port': self._port})
+            if self.check_fields(c):
+                self.add_comp(c)
             for comp in tmp['services']:
                 self.add_layer()
                 if isinstance(comp, list):
                     for c in comp:
-                        self.add_comp(c)
+                        if self.check_fields(c):
+                            self.add_comp(c)
                 elif self.check_fields(comp):
                     self.add_comp(comp)
                 else:
@@ -134,13 +139,12 @@ class YamlComposer:
         if comp['name'] not in self.comp2file:
             raise AttributeError(
                 'a component must be one of: %s, but given %s' % (', '.join(self.comp2file.keys()), comp['name']))
-        if 'yaml_path' not in comp:
-            self.logger.warning(
-                'found empty "yaml_path", '
-                'i will use a default config and would probably result in an empty model')
         for k in comp:
             if k not in self.Layer.default_values:
                 self.logger.warning('your yaml contains an unrecognized key named "%s"' % k)
+        for k, v in self.Layer.default_values.items():
+            if k not in comp:
+                comp[k] = v
         return True
 
     def add_layer(self, layer: 'Layer' = None) -> None:
@@ -226,7 +230,7 @@ class YamlComposer:
 
                 cmd = '%s %s' % (YamlComposer.comp2file[c['name']], ' '.join(args))
                 swarm_lines['services'][c_name] = CommentedMap({
-                    'image': docker_img,
+                    'image': c['image'] or docker_img,
                     'command': cmd,
                 })
 
@@ -333,14 +337,10 @@ class YamlComposer:
 
     def build_all(self):
         def std_or_print(f, content):
-            if content:
-                if f:
-                    with f as fp:
-                        fp.write(content)
-                        self.logger.info('generated content is written to %s' % f)
-                else:
-                    self.logger.warning('no file path is defined, i will just print it to stdout')
-                    print(content)
+            if content and f:
+                with f as fp:
+                    fp.write(content)
+                    self.logger.info('generated content is written to %s' % f)
 
         all_layers = self.build_layers()
         cmds = {
@@ -394,6 +394,7 @@ class YamlComposer:
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': last_layer.components[0]['port_out'],
                               'port_out': self._get_random_port()})
+            self.check_fields(r)
             for c in layer.components:
                 c['socket_in'] = str(SocketType.PULL_CONNECT)
                 c['port_in'] = r['port_out']
@@ -428,6 +429,7 @@ class YamlComposer:
                                       SocketType.PUB_BIND),
                                   'port_in': last_layer.components[0]['port_out'],
                                   'port_out': self._get_random_port()})
+                self.check_fields(r)
                 c['socket_in'] = str(SocketType.PULL_CONNECT) if income == 'pull' else str(SocketType.SUB_CONNECT)
                 c['port_in'] = r['port_out']
                 router_layer.append(r)
@@ -444,6 +446,7 @@ class YamlComposer:
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),
                                'port_out': self._get_random_port()})
+            self.check_fields(r0)
             router_layer.append(r0)
             router_layers.append(router_layer)
             last_layer.components[0]['port_out'] = r0['port_in']
@@ -459,6 +462,7 @@ class YamlComposer:
                                   'port_out': self._get_random_port()})
                 c['socket_in'] = str(SocketType.PULL_CONNECT)
                 c['port_in'] = r['port_out']
+                self.check_fields(r)
                 router_layer.append(r)
             router_layers.append(router_layer)
 
@@ -473,6 +477,7 @@ class YamlComposer:
                                'socket_out': str(SocketType.PUB_BIND),
                                'port_in': self._get_random_port(),
                                'port_out': self._get_random_port()})
+            self.check_fields(r0)
             router_layer.append(r0)
             router_layers.append(router_layer)
             last_layer.components[0]['port_out'] = r0['port_in']
@@ -490,6 +495,7 @@ class YamlComposer:
                               'socket_out': str(SocketType.PUSH_BIND),
                               'port_in': self._get_random_port(),
                               'port_out': self._get_random_port()})
+            self.check_fields(r)
 
             for c in last_layer.components:
                 last_income = self.Layer.get_value(c, 'income')
@@ -502,6 +508,7 @@ class YamlComposer:
                                         'port_in': self._get_random_port(),
                                         'port_out': r['port_in']})
                     c['port_out'] = r_c['port_in']
+                    self.check_fields(r_c)
                     router_layer.append(r_c)
                 elif last_income == 'pull':
                     c['socket_out'] = str(SocketType.PUSH_CONNECT)
@@ -594,3 +601,24 @@ class YamlComposer:
         else:
             rule8()
         return [last_layer, *router_layers]
+
+
+def parse_http_data(data, args):
+    import io
+    if not data or 'yaml-config' not in data:
+        return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
+    try:
+        args.yaml_path = io.StringIO(data['yaml-config'])
+        if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
+            args.mermaid_leftright = True
+        else:
+            args.mermaid_leftright = False
+        if 'docker-image' in data:
+            args.docker_img = data['docker-image']
+        else:
+            args.docker_img = 'gnes/gnes:latest-alpine'
+
+        return YamlComposer(args).build_all()['html'], 200
+    except Exception as e:
+        return '<h1>Bad YAML input</h1> please kindly check the format, ' \
+               'indent and content of your YAML file! <h3>Traceback: </h3><p><code>%s</code></p>' % e, 400

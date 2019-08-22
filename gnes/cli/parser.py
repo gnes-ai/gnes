@@ -103,8 +103,11 @@ def set_composer_flask_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_composer_parser(parser)
-    parser.add_argument('--flask', action='store_true', default=False,
-                        help='using Flask to serve a composer in interactive mode, aka GNES board')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--flask', action='store_true', default=False,
+                       help='start a Flask server and serve the composer in interactive mode, aka GNES board')
+    group.add_argument('--serve', action='store_true', default=False,
+                       help='start a basic HTTP server and serve the composer in interactive mode, aka GNES board')
     parser.add_argument('--http_port', type=int, default=8080,
                         help='server port for receiving HTTP requests')
     return parser

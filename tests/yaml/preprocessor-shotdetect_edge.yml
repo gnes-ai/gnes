@@ -1,0 +1,8 @@
+!ShotDetectPreprocessor
+parameters:
+  descriptor: "canny_edge"
+  distance_metric: "edge_change_ration"
+  frame_size: "192*168"
+  frame_rate: "30"
+gnes_config:
+  is_trained: true

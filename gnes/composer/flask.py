@@ -12,9 +12,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import io
 
-from .base import YamlComposer
+from .base import YamlComposer, parse_http_data
 from ..cli.parser import set_composer_parser
 from ..helper import set_logger
 
@@ -50,23 +49,7 @@ class YamlComposerFlask:
         @app.route('/generate', methods=['POST'])
         def _regenerate():
             data = request.form if request.form else request.json
-            if not data or 'yaml-config' not in data:
-                return '<h1>Bad POST request</h1> your POST request does not contain "yaml-config" field!', 406
-            try:
-                args.yaml_path = io.StringIO(data['yaml-config'])
-                if data.get('mermaid_direction', 'top-down').lower() == 'left-right':
-                    args.mermaid_leftright = True
-                else:
-                    args.mermaid_leftright = False
-                if 'docker-image' in data:
-                    args.docker_img = data['docker-image']
-                else:
-                    args.docker_img = 'gnes/gnes:latest-alpine'
-
-                return YamlComposer(args).build_all()['html']
-            except Exception as e:
-                self.logger.error(e)
-                return '<h1>Bad YAML input</h1> please kindly check the format, indent and content of your YAML file!', 400
+            return parse_http_data(data, args)
 
         return app
 

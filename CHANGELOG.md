@@ -1,4 +1,35 @@
 
+# Release Note (`v0.0.32`)
+> Release time: 2019-08-21 17:23:13
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Han Xiao,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```38567b00```](https://github.com/gnes-ai/gnes/commit/38567b0071dc3ccc59bb72e9f7f936b9e0443388)] __-__ __indexer__: add preprocessor and lvdb for storing gif (*Jem*)
+ - [[```35465e85```](https://github.com/gnes-ai/gnes/commit/35465e85d815ffb246c4866325b166cdeea8c9ba)] __-__ __base__: later import module now override the earlier ones (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```5c2b60a4```](https://github.com/gnes-ai/gnes/commit/5c2b60a4d5d77af5b44309e974e75130d4d97f10)] __-__ remove target_image_size (*hanhxiao*)
+ - [[```944b8c09```](https://github.com/gnes-ai/gnes/commit/944b8c092650e63327854a32bcb6509d2163a4b1)] __-__ __ci__: fix unit tests for modules (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```5f1ca000```](https://github.com/gnes-ai/gnes/commit/5f1ca000555020249e59ad8cda4349f7c1351b02)] __-__ fixing the imports of all base module (*hanhxiao*)
+ - [[```0d1bd4e2```](https://github.com/gnes-ai/gnes/commit/0d1bd4e2b50f7cae7ce2124f9874e9e36803035d)] __-__ __preprocessor__: remove unnecessary init (*Han Xiao*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```3820db6a```](https://github.com/gnes-ai/gnes/commit/3820db6ac8b9e6f1b4000b0616176c9dcb794191)] __-__ __encoder__: rename BasePytorchEncoder to TorchvisionEncoder (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```3147a1d5```](https://github.com/gnes-ai/gnes/commit/3147a1d5528fba1d797604aed6e53997ad05035b)] __-__ __changelog__: update change log to v0.0.31 (*hanhxiao*)
+
 # Release Note (`v0.0.31`)
 > Release time: 2019-08-20 14:01:04
 
