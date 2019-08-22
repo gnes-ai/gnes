@@ -19,26 +19,7 @@ import numpy as np
 
 from typing import List
 
-
-def _extract_frame_size(info_str: str):
-    """
-    The sollution is borrowed from:
-    http://concisionandconcinnity.blogspot.com/2008/04/getting-dimensions-of-video-file-in.html
-    """
-    possible_patterns = [re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{4,})'), \
-            re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{3,})'), \
-    re.compile(r'Stream.*Video.*([0-9]{3,})x([0-9]{3,})')]
-
-    for pattern in possible_patterns:
-        match = pattern.search(info_str)
-        if match is not None:
-            x, y = map(int, match.groups()[0:2])
-            break
-
-    if match is None:
-        raise ValueError("could not get video frame size")
-
-    return (x, y)
+from .helper import extract_frame_size
 
 
 def capture_frames(filename: str = 'pipe:',
@@ -65,12 +46,11 @@ def capture_frames(filename: str = 'pipe:',
     out, err = stream.run(
         input=video_data, capture_stdout=True, capture_stderr=True)
 
-    width, height = _extract_frame_size(err.decode())
+    width, height = extract_frame_size(err.decode())
 
     depth = 3
     if pix_fmt == 'rgba':
         depth = 4
 
-    frames = np.frombuffer(out,
-                           np.uint8).reshape([-1, height, width, depth])
+    frames = np.frombuffer(out, np.uint8).reshape([-1, height, width, depth])
     return list(frames)

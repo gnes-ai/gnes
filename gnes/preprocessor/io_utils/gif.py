@@ -17,42 +17,56 @@ from typing import List
 import numpy as np
 import subprocess as sp
 import tempfile
-from scipy import ndimage
+import ffmpeg
+from .helper import extract_frame_size
 
 
-def decode_gif(data: bytes) -> 'np.ndarray':
+def decode_gif(data: bytes, fps: int = -1,
+               pix_fmt: str = 'rgb24') -> 'np.ndarray':
     with tempfile.NamedTemporaryFile(suffix=".gif") as f:
         f.write(data)
         f.flush()
-        im_array = ndimage.imread(f.name)
-        return im_array
+
+        stream = ffmpeg.input(f.name)
+        if fps > 0:
+            stream = stream.filter('fps', fps=20, round='up')
+
+        stream = stream.output('pipe:', format='rawvideo', pix_fmt=pix_fmt)
+
+        out, err = stream.run(capture_stdout=True, capture_stderr=True)
+
+        width, height = extract_frame_size(err.decode())
+
+        depth = 3
+        if pix_fmt == 'rgba':
+            depth = 4
+
+        frames = np.frombuffer(out,
+                               np.uint8).reshape([-1, height, width, depth])
+        return list(frames)
 
 
-def encode_gif(images: List[np.ndarray],
-               scale: str,
-               # width: int,
-               # height: int,
-               fps: int,
-               pix_fmt: str = 'rgb24'):
+def encode_gif(
+        images: List[np.ndarray],
+        scale: str,
+        fps: int,
+        pix_fmt: str = 'rgb24'):
     """
     https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality
     https://gist.github.com/alexlee-gk/38916bf524dc75ca1b988d113aa30710
     """
 
     cmd = [
-        'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo',
-        '-r', '%.02f' % fps,
-        '-s', '%dx%d' % (images[0].shape[1], images[0].shape[0]),
-        '-pix_fmt', 'rgb24',
-        '-i', '-',
-        '-filter_complex', '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse',
-        '-r', '%.02f' % fps,
-        '-s', scale,
-        '-f', 'gif',
-        '-']
+        'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',
+        '%.02f' % fps, '-s',
+        '%dx%d' % (images[0].shape[1], images[0].shape[0]), '-pix_fmt',
+        'rgb24', '-i', '-', '-filter_complex',
+        '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse', '-r',
+        '%.02f' % fps, '-f', 'gif', '-'
+    ]
     proc = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-    for frame in frames:
-        proc.stdin.write(frame.tostring())
+    for image in images:
+        proc.stdin.write(image.tostring())
     out, err = proc.communicate()
     if proc.returncode:
         err = '\n'.join([' '.join(cmd), err.decode('utf8')])
