@@ -9,9 +9,9 @@ components:
     gnes_config:
       name: FFmpegVideoSegmentor
       is_trained: true
-  - !RawChunkPreprocessor
+  - !GifChunkPreprocessor
     gnes_config:
-      name: RawChunkPreprocessor
+      name: GifChunkPreprocessor
       is_trained: true
 gnes_config:
   name: PipelinePreprocessor
