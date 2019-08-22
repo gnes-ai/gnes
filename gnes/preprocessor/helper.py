@@ -269,9 +269,6 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
     arg_dict = {
-        'compute_threshold': True,
-        'low_threshold': 0,
-        'high_threshold': 200,
         'sigma': 0.5,
         'gauss_kernel': (9, 9),
         'l2_gradient': True
@@ -281,17 +278,13 @@ def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
             arg_dict[k] = v
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # add threshold for canny
-    low_threshold = arg_dict['low_threshold']
-    high_threshold = arg_dict['high_threshold']
-    if arg_dict['compute_threshold']:
-        # apply automatic Canny edge detection using the computed median
-        v = np.median(image)
-        sigma = arg_dict['sigma']
-        low_threshold = ((1.0 - sigma) * v).astype("float32")
-        high_threshold = ((1.0 + sigma) * v).astype("float32")
+    # apply automatic Canny edge detection using the computed median
+    v = np.median(image)
+    sigma = arg_dict['sigma']
+    low_threshold = ((1.0 - sigma) * v).astype("float32")
+    high_threshold = ((1.0 + sigma) * v).astype("float32")
     tmp_image = cv2.GaussianBlur(image, arg_dict['gauss_kernel'], 1.2)
-    edge_image = cv2.Canny(tmp_image, low_threshold, high_threshold, L2gradient=arg_dict['L2'])
+    edge_image = cv2.Canny(tmp_image, low_threshold, high_threshold, L2gradient=arg_dict['l2_gradient'])
     return edge_image
 
 
