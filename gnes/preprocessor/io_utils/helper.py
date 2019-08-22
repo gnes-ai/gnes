@@ -18,13 +18,13 @@ import re
 
 def ffmpeg_probe_pattern():
     mediaprobe_re = re.compile(
-        r"Duration:\s+(?P<dur>(?:(?:\d:?)+[.]?\d*)|N/A)(?:.+start:\s+(?P<start>\d+[.]\d+))?.+bitrate:\s+(?P<bitrate>(?:\d+\s*..[/]s)|N/A)")
+        r"Duration:\s+(?P<dur>(?:(?:\d:?)+[.]?\d*)|N/A)(?:.+start:\s+(?P<start>\d+[.]\d+))?.+bitrate:\s+(?P<bitrate>(?:\d+\s*..[/]s)|N/A)"
+    )
     streamprobe_re = re.compile(
-        r"\s*Stream.+:\s+Video:.+\s+(?P<res>\d+x\d+)(?:.*,\s*(?P<fps>\d+[.]?\d*)\sfps)?(?:.+\(default\))?")
-    audioprobe_re = re.compile(
-        r"\s*Stream.+:\s+Audio:.*")
-    fftime_re = re.compile(
-        r"(?P<h>\d+):(?P<m>\d+):(?P<s>\d+)\.(?P<fract>\d+)")
+        r"\s*Stream.+:\s+Video:.+\s+(?P<res>\d+x\d+)(?:.*,\s*(?P<fps>\d+[.]?\d*)\sfps)?(?:.+\(default\))?"
+    )
+    audioprobe_re = re.compile(r"\s*Stream.+:\s+Audio:.*")
+    fftime_re = re.compile(r"(?P<h>\d+):(?P<m>\d+):(?P<s>\d+)\.(?P<fract>\d+)")
 
 
 def extract_frame_size(ffmpeg_parse_info: str):
@@ -32,9 +32,11 @@ def extract_frame_size(ffmpeg_parse_info: str):
     The sollution is borrowed from:
     http://concisionandconcinnity.blogspot.com/2008/04/getting-dimensions-of-video-file-in.html
     """
-    possible_patterns = [re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{4,})'), \
-            re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{3,})'), \
-    re.compile(r'Stream.*Video.*([0-9]{3,})x([0-9]{3,})')]
+    possible_patterns = [
+        re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{4,})'),
+        re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{3,})'),
+        re.compile(r'Stream.*Video.*([0-9]{3,})x([0-9]{3,})')
+    ]
 
     for pattern in possible_patterns:
         match = pattern.search(ffmpeg_parse_info)
