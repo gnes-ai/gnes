@@ -33,7 +33,9 @@ def capture_frames(filename: str = 'pipe:',
         raise ValueError(
             "the video data buffered from stdin should not be empty")
 
-    stream = ffmpeg.input(filename)
+    # discard corrupted frames
+    # https://stackoverflow.com/questions/45983605/ffmpeg-jpg-frame-capture-how-to-discard-corrupted-frames
+    stream = ffmpeg.input(filename, err_detect="aggressive", fflags="discardcorrupt")
     if fps > 0:
         stream = stream.filter('fps', fps=fps, round='up')
 
