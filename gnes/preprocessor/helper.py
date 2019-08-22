@@ -267,14 +267,14 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
     return hist
 
 
-def edge_detect(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
+def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
     arg_dict = {
         'compute_threshold': True,
         'low_threshold': 0,
         'high_threshold': 200,
         'sigma': 0.5,
         'gauss_kernel': (9, 9),
-        'L2': True
+        'l2_gradient': True
     }
     for k, v in kwargs.items():
         if k in arg_dict.keys():
@@ -307,7 +307,7 @@ def compute_descriptor(image: 'np.ndarray',
     funcs = {
         'bgr_histogram': bgr_histogram,
         'hsv_histogram': hsv_histogram,
-        'edge_detect': lambda image: edge_detect(image, **kwargs),
+        'canny_edge': lambda image: canny_edge(image, **kwargs),
         'block_bgr_histogram': lambda image: block_descriptor(image, bgr_histogram, kwargs.get('num_blocks', 3)),
         'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get('num_blocks', 3)),
         'pyramid_bgr_histogram': lambda image: pyramid_descriptor(image, bgr_histogram, kwargs.get('max_level', 2)),
@@ -429,9 +429,9 @@ def motion_algo(distances: List[float], **kwargs) -> List[int]:
     return shots
 
 
-def detect_video_shot(distances: List[float],
-                      method: str = 'kmeans',
-                      **kwargs) -> List[int]:
+def detect_peak_boundary(distances: List[float],
+                         method: str = 'kmeans',
+                         **kwargs) -> List[int]:
     detect_method = {
         'kmeans': kmeans_algo,
         'threshold': thre_algo,

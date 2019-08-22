@@ -18,7 +18,7 @@ import numpy as np
 from typing import List
 
 from ..base import BaseVideoPreprocessor
-from ..helper import get_video_frames, compute_descriptor, compare_descriptor, detect_video_shot, compare_ecr
+from ..helper import get_video_frames, compute_descriptor, compare_descriptor, detect_peak_boundary, compare_ecr
 from ...proto import gnes_pb2, array2blob
 
 
@@ -55,7 +55,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             descriptors.append(descriptor)
 
         # compute distances between frames
-        if self.distance_metric == 'edgechangeration':
+        if self.distance_metric == 'edge_change_ration':
             dists = compare_ecr(descriptors)
         else:
             dists = [
@@ -63,7 +63,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                 for pair in zip(descriptors[:-1], descriptors[1:])
             ]
 
-        shots = detect_video_shot(dists, self.detect_method)
+        shots = detect_peak_boundary(dists, self.detect_method)
 
         shot_frames = []
         for ci in range(0, len(shots) - 1):
