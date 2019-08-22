@@ -59,7 +59,8 @@ def capture_frames(filename: str = 'pipe:',
     out, err = stream.run(
         input=video_data, capture_stdout=True, capture_stderr=True)
 
-    # video_width, video_height = extract_frame_size(err.decode())
+    if not scale:
+        width, height = extract_frame_size(err.decode())
 
     depth = 3
     if pix_fmt == 'rgba':
