@@ -19,24 +19,28 @@ from typing import List
 import numpy as np
 
 from ..base import BaseVideoPreprocessor
-from ..helper import get_video_frames, split_video_frames, phash_descriptor
+from ..helper import split_video_frames, phash_descriptor
 from ...proto import gnes_pb2, array2blob
+from ..io_utils import video as video_util
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
+                 frame_size: str = '192:168',
+                 frame_rate: int = 10,
                  duplicate_rm: bool = True,
                  use_phash_weight: bool = False,
                  phash_thresh: int = 5,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        self.frame_size = frame_size
+        self.frame_rate = frame_rate
         self.phash_thresh = phash_thresh
         self.duplicate_rm = duplicate_rm
         self.use_phash_weight = use_phash_weight
 
-        self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
@@ -44,8 +48,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         # video could't be processed from ndarray!
         # only bytes can be passed into ffmpeg pipeline
         if doc.raw_bytes:
-            frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
-
+            frames = video_util.capture_frames(video_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
             # remove dupliated key frames by phash value
             if self.duplicate_rm:
                 frames = self.duplicate_rm_hash(frames)
@@ -105,6 +108,8 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
 
 class FFmpegVideoSegmentor(BaseVideoPreprocessor):
     def __init__(self,
+                 frame_size: str = '192:168',
+                 frame_rate: int = 10,
                  segment_method: str = 'cut_by_frame',
                  segment_interval: int = -1,
                  segment_num: int = 3,
@@ -116,6 +121,8 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        self.frame_size = frame_size
+        self.frame_rate = frame_rate
         self.segment_method = segment_method
         self.segment_interval = segment_interval
         self.segment_num = segment_num
@@ -124,7 +131,6 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         self.sample_rate = sample_rate
         self.splitter = splitter
         self.use_image_input = use_image_input
-        self._ffmpeg_kwargs = kwargs
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
@@ -133,7 +139,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
             if self.use_image_input:
                 frames = split_video_frames(doc.raw_bytes, self.splitter)
             else:
-                frames = get_video_frames(doc.raw_bytes, **self._ffmpeg_kwargs)
+                frames = video_util.capture_frames(video_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
             if self.max_frames_per_doc > 0:
                 random_id = random.sample(range(len(frames)),
                                           k=min(self.max_frames_per_doc, len(frames)))
