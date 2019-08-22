@@ -176,7 +176,7 @@ def get_video_frames(buffer_data: bytes, image_format: str = 'cv2',
             for _ in stream[1:]:
                 image = cv2.imdecode(np.frombuffer(b'\x89PNG' + _, np.uint8), cv2.IMREAD_COLOR)
                 try:
-                    cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                     frames.append(image)
                 except Exception as e:
                     logger.warning(
@@ -240,7 +240,7 @@ def pyramid_descriptor(image: 'np.ndarray',
     return np.array(descriptors)
 
 
-def bgr_histogram(image: 'np.ndarray') -> 'np.ndarray':
+def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
     hist = [
         cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
@@ -252,7 +252,7 @@ def bgr_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
     _, _, c = image.shape
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
     # sizes = [180, 256, 256]
     # ranges = [(0, 180), (0, 256), (0, 256)]
@@ -275,7 +275,7 @@ def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
     }
     arg_dict.update(kwargs)
 
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     # apply automatic Canny edge detection using the computed median
     v = np.median(image)
     sigma = arg_dict['sigma']
@@ -293,15 +293,15 @@ def phash_descriptor(image: 'np.ndarray'):
 
 
 def compute_descriptor(image: 'np.ndarray',
-                       method: str = 'bgr_histogram',
+                       method: str = 'rgb_histogram',
                        **kwargs) -> 'np.array':
     funcs = {
-        'bgr_histogram': bgr_histogram,
+        'rgb_histogram': rgb_histogram,
         'hsv_histogram': hsv_histogram,
         'canny_edge': lambda image: canny_edge(image, **kwargs),
-        'block_bgr_histogram': lambda image: block_descriptor(image, bgr_histogram, kwargs.get('num_blocks', 3)),
+        'block_rgb_histogram': lambda image: block_descriptor(image, rgb_histogram, kwargs.get('num_blocks', 3)),
         'block_hsv_histogram': lambda image: block_descriptor(image, hsv_histogram, kwargs.get('num_blocks', 3)),
-        'pyramid_bgr_histogram': lambda image: pyramid_descriptor(image, bgr_histogram, kwargs.get('max_level', 2)),
+        'pyramid_rgb_histogram': lambda image: pyramid_descriptor(image, rgb_histogram, kwargs.get('max_level', 2)),
         'pyramid_hsv_histogram': lambda image: pyramid_descriptor(image, hsv_histogram, kwargs.get('max_level', 2)),
     }
     return funcs[method](image)
