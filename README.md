@@ -30,7 +30,7 @@
   <a href="#overview">Overview</a> •
   <a href="#install-gnes">Install</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="https://github.com/gnes-ai/hub">GNES Hub</a> •
+  <a href="https://github.com/gnes-ai/hub">Hub</a> •
   <a href="#documentation">Documentation</a> •
   <a href="#tutorial">Tutorial</a> •
   <a href="#contributing">Contributing</a> •
