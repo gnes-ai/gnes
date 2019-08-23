@@ -49,7 +49,7 @@ class TestServiceManager(unittest.TestCase):
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
-            self.assertEqual(resp.request_id, '0')
+            self.assertEqual(resp.request_id, 0)
 
     def _test_grpc_multiple_pub(self, backend='thread', num_parallel=5):
         args = set_frontend_parser().parse_args([
@@ -73,7 +73,7 @@ class TestServiceManager(unittest.TestCase):
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
-            self.assertEqual(resp.request_id, '0')
+            self.assertEqual(resp.request_id, 0)
 
     def test_external_module(self):
         args = set_encoder_parser().parse_args([

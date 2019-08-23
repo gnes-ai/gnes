@@ -73,4 +73,4 @@ class TestGRPCService(unittest.TestCase):
                      ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             resp = stub.Call(list(RequestGenerator.query(b'abc', 1))[0])
-            self.assertEqual(resp.request_id, '0')  # idx start with 0, but +1 for final FLUSH
+            self.assertEqual(resp.request_id, 0)  # idx start with 0, but +1 for final FLUSH

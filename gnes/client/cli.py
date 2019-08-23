@@ -48,18 +48,18 @@ class CLIClient:
             if args.mode == 'train':
                 with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
                     for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
-                                                                    start_doc_id=args.start_doc_id,
+                                                                    doc_id_start=args.start_doc_id,
                                                                     batch_size=args.batch_size)):
                         p_bar.update()
             elif args.mode == 'index':
                 with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
                     for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
-                                                                    start_doc_id=args.start_doc_id,
+                                                                    doc_id_start=args.start_doc_id,
                                                                     batch_size=args.batch_size)):
                         p_bar.update()
             elif args.mode == 'query':
                 for idx, q in enumerate(all_bytes):
-                    for req in RequestGenerator.query(q, start_request_id=idx, top_k=args.top_k):
+                    for req in RequestGenerator.query(q, request_id_start=idx, top_k=args.top_k):
                         resp = stub.Call(req)
                         print(resp)
                         print('query %d result: %s' % (idx, resp))

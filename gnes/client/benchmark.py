@@ -35,7 +35,7 @@ class BenchmarkClient:
             with TimeContext('StreamCall') as tc:
                 resp = stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size))
                 for r in resp:
-                    assert r.request_id == str(id)
+                    assert r.request_id == id
                     id += 1
             stream_call_el = tc.duration
 
@@ -43,7 +43,7 @@ class BenchmarkClient:
             with TimeContext('Call') as tc:
                 for req in RequestGenerator.index(all_bytes, 1):
                     r = stub.Call(req)
-                    assert r.request_id == str(id)
+                    assert r.request_id == id
                     id += 1
             call_el = tc.duration
 

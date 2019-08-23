@@ -1,5 +1,4 @@
 import threading
-import uuid
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
@@ -37,6 +36,7 @@ class FrontendService:
             self.args = args
             self.logger = set_logger(FrontendService.__name__, args.verbose)
             self.zmq_context = self.ZmqContext(args)
+            self.request_id_cnt = 0
 
         def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
             msg = gnes_pb2.Message()
@@ -44,8 +44,9 @@ class FrontendService:
             if body.request_id:
                 msg.envelope.request_id = body.request_id
             else:
-                msg.envelope.request_id = str(uuid.uuid4())
-                self.logger.warning('request_id is missing, filled it with a random uuid!')
+                msg.envelope.request_id = self.request_id_cnt
+                self.request_id_cnt += 1
+                self.logger.warning('request_id is missing, filled it with an internal counter!')
             msg.envelope.part_id = 1
             msg.envelope.num_part.append(1)
             msg.envelope.timeout = 5000
@@ -62,7 +63,7 @@ class FrontendService:
             return resp
 
         def Call(self, request, context):
-            self.logger.info('received a new request: %s' % request.request_id or 'EMPTY_REQUEST_ID')
+            self.logger.info('received a new request')
             with self.zmq_context as zmq_client:
                 zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
                 return self.remove_envelope(zmq_client.recv_message(self.args.timeout))

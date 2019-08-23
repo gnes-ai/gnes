@@ -82,7 +82,7 @@ class TestStreamgRPC(unittest.TestCase):
             with TimeContext('sync call'):  # about 5s
                 resp = list(stub.StreamCall(RequestGenerator.train(self.all_bytes, batch_size=1)))[-1]
 
-            self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
+            self.assertEqual(resp.request_id, len(self.all_bytes))  # idx start with 0, but +1 for final FLUSH
 
     def test_async_block(self):
         args = set_frontend_parser().parse_args([
@@ -114,14 +114,14 @@ class TestStreamgRPC(unittest.TestCase):
             with TimeContext('non-blocking call'):  # about 26s = 32s (total) - 3*2s (overlap)
                 resp = stub.StreamCall(RequestGenerator.train(self.all_bytes2, batch_size=1))
                 for r in resp:
-                    self.assertEqual(r.request_id, str(id))
+                    self.assertEqual(r.request_id, id)
                     id += 1
 
             id = 0
             with TimeContext('blocking call'):  # should be 32 s
                 for r in RequestGenerator.train(self.all_bytes2, batch_size=1):
                     resp = stub.Call(r)
-                    self.assertEqual(resp.request_id, str(id))
+                    self.assertEqual(resp.request_id, id)
                     id += 1
             # self.assertEqual(resp.result().request_id, str(len(self.all_bytes)))
 
