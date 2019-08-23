@@ -2,7 +2,7 @@
 parameters:
   descriptor: "block_hsv_histogram"
   distance_metric: "bhattacharya"
-  frame_size: "192*168"
+  frame_size: "192:168"
   kwargs:
     num_blocks: 3
 gnes_config:

@@ -2,7 +2,7 @@
 parameters:
   segment_method: cut_by_num
   segment_num: 6
-  s: "192*168"
+  frame_size: "192:168"
   r: 1
 gnes_config:
   is_trained: true

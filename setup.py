@@ -66,7 +66,7 @@ extras_dep = {
     'flair': ['flair>=0.4.1'],
     'annoy': ['annoy==1.15.2'],
     'chinese': ['jieba'],
-    'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0', 'image', 'peakutils'],
+    'vision': ['opencv-python>=4.0.0', 'imagehash>=4.0', 'ffmpeg-python>=0.2.0', 'image', 'peakutils'],
     'leveldb': ['plyvel>=1.0.5'],
     'test': ['pylint', 'memory_profiler>=0.55.0', 'psutil>=5.6.1', 'gputil>=1.4.0'],
     'transformers': ['pytorch-transformers'],
