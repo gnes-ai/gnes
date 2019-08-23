@@ -30,9 +30,10 @@ __all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'ar
 
 class RequestGenerator:
     @staticmethod
-    def index(data: List[bytes], doc_id_start: int = 0, request_id_start: int = 0,
-              random_doc_id: bool = False, batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
-              **kwargs):
+    def index(data: List[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
+              doc_id_start: int = 0, request_id_start: int = 0,
+              random_doc_id: bool = False,
+              *args, **kwargs):
 
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
@@ -43,15 +44,15 @@ class RequestGenerator:
                 d.raw_bytes = raw_bytes
                 d.weight = 1.0
                 d.doc_type = doc_type
-                if not random_doc_id:
-                    doc_id_start += 1
+                doc_id_start += 1
             yield req
             request_id_start += 1
 
     @staticmethod
-    def train(data: List[bytes], doc_id_start: int = 0, request_id_start: int = 0,
-              random_doc_id: bool = False, batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
-              **kwargs):
+    def train(data: List[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
+              doc_id_start: int = 0, request_id_start: int = 0,
+              random_doc_id: bool = False,
+              *args, **kwargs):
         for pi in batch_iterator(data, batch_size):
             req = gnes_pb2.Request()
             req.request_id = request_id_start

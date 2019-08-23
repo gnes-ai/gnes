@@ -28,42 +28,56 @@ from ..proto import gnes_pb2_grpc, RequestGenerator
 
 class CLIClient:
     def __init__(self, args):
-        if args.txt_file:
-            all_bytes = [v.encode() for v in args.txt_file]
-        elif args.image_zip_file:
-            zipfile_ = zipfile.ZipFile(args.image_zip_file)
+        self.args = args
+        self.use_channel()
+
+    def get_channel(self):
+        return grpc.insecure_channel(
+            '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
+            options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
+                     ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
+
+    def use_channel(self):
+        all_bytes = self.load_all_bytes()
+        with self.get_channel() as channel:
+            stub = gnes_pb2_grpc.GnesRPCStub(channel)
+            getattr(self, self.args.mode)(all_bytes, stub)
+
+    def train(self, all_bytes: List[bytes], stub):
+        with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
+            for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
+                                                            doc_id_start=self.args.start_doc_id,
+                                                            batch_size=self.args.batch_size)):
+                p_bar.update()
+
+    def index(self, all_bytes: List[bytes], stub):
+        with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
+            for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
+                                                            doc_id_start=self.args.start_doc_id,
+                                                            batch_size=self.args.batch_size)):
+                p_bar.update()
+
+    def query(self, all_bytes: List[bytes], stub):
+        for idx, q in enumerate(all_bytes):
+            for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
+                resp = stub.Call(req)
+                print(resp)
+                print('query %d result: %s' % (idx, resp))
+                input('press any key to continue...')
+
+    def load_all_bytes(self) -> List[bytes]:
+        if self.args.txt_file:
+            all_bytes = [v.encode() for v in self.args.txt_file]
+        elif self.args.image_zip_file:
+            zipfile_ = zipfile.ZipFile(self.args.image_zip_file)
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
-        elif args.video_zip_file:
-            zipfile_ = zipfile.ZipFile(args.video_zip_file)
+        elif self.args.video_zip_file:
+            zipfile_ = zipfile.ZipFile(self.args.video_zip_file)
             all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
         else:
             raise AttributeError('--txt_file, --image_zip_file, --video_zip_file one must be given')
 
-        with grpc.insecure_channel(
-                '%s:%d' % (args.grpc_host, args.grpc_port),
-                options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
-                         ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)]) as channel:
-            stub = gnes_pb2_grpc.GnesRPCStub(channel)
-
-            if args.mode == 'train':
-                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
-                    for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
-                                                                    doc_id_start=args.start_doc_id,
-                                                                    batch_size=args.batch_size)):
-                        p_bar.update()
-            elif args.mode == 'index':
-                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
-                    for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
-                                                                    doc_id_start=args.start_doc_id,
-                                                                    batch_size=args.batch_size)):
-                        p_bar.update()
-            elif args.mode == 'query':
-                for idx, q in enumerate(all_bytes):
-                    for req in RequestGenerator.query(q, request_id_start=idx, top_k=args.top_k):
-                        resp = stub.Call(req)
-                        print(resp)
-                        print('query %d result: %s' % (idx, resp))
-                        input('press any key to continue...')
+        return all_bytes
 
 
 class ProgressBar:

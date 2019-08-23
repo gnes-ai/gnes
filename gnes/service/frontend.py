@@ -41,7 +41,7 @@ class FrontendService:
         def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
             msg = gnes_pb2.Message()
             msg.envelope.client_id = zmq_client.identity if zmq_client.identity else ''
-            if body.request_id:
+            if body.request_id is not None:
                 msg.envelope.request_id = body.request_id
             else:
                 msg.envelope.request_id = self.request_id_cnt

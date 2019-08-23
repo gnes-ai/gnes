@@ -39,12 +39,11 @@ class BenchmarkClient:
                     id += 1
             stream_call_el = tc.duration
 
-            id = 0
             with TimeContext('Call') as tc:
-                for req in RequestGenerator.index(all_bytes, 1):
+                for req in RequestGenerator.index(all_bytes, batch_size=1):
                     r = stub.Call(req)
-                    assert r.request_id == id
-                    id += 1
+                    assert r.request_id == req.request_id
+
             call_el = tc.duration
 
         print('num_requests     %d\n'
