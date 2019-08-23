@@ -21,7 +21,6 @@ from PIL import Image
 
 from .resize import SizedPreprocessor
 from ..helper import get_all_subarea, torch_transform
-from ..video.ffmpeg import FFmpegPreprocessor
 from ...proto import gnes_pb2, array2blob
 
 
@@ -88,8 +87,7 @@ class _SlidingPreprocessor(SizedPreprocessor):
             for y in range(expanded_input.shape[1])]
 
         expanded_input = expanded_input.reshape((-1, self.window_size, self.window_size, 3))
-        return [np.array(Image.fromarray(img).resize((self.target_width, self.target_height))) for img in
-                expanded_input], center_point_list
+        return [np.array(Image.fromarray(img)) for img in expanded_input], center_point_list
 
     def _get_slid_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], center_point: List[float]) -> \
             List[int]:
@@ -129,6 +127,7 @@ class VanillaSlidingPreprocessor(_SlidingPreprocessor):
 
 
 class WeightedSlidingPreprocessor(_SlidingPreprocessor):
-
     def _get_all_chunks_weight(self, image_set: List['np.ndarray']) -> List[float]:
+        from ..video.ffmpeg import FFmpegPreprocessor
+
         return FFmpegPreprocessor.pic_weight(image_set)

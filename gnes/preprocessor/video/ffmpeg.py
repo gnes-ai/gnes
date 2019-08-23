@@ -18,9 +18,9 @@ from typing import List
 
 import numpy as np
 
-from ..base import BaseVideoPreprocessor
-from ..helper import split_video_frames, phash_descriptor
-from ...proto import gnes_pb2, array2blob
+from ..base import BaseVideoPreprocessor, RawChunkPreprocessor
+from ..helper import split_video_frames, phash_descriptor, get_gif
+from ...proto import gnes_pb2, array2blob, blob2array
 from ..io_utils import video as video_util
 
 
@@ -116,8 +116,6 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                  max_frames_per_doc: int = -1,
                  use_image_input: bool = False,
                  splitter: str = '__split__',
-                 audio_interval: int = 30,
-                 sample_rate: int = 16000,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
@@ -127,8 +125,6 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
         self.segment_interval = segment_interval
         self.segment_num = segment_num
         self.max_frames_per_doc = max_frames_per_doc
-        self.audio_interval = audio_interval
-        self.sample_rate = sample_rate
         self.splitter = splitter
         self.use_image_input = use_image_input
 
@@ -186,3 +182,9 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                 self.logger.info('bad document: no key frames extracted')
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
+
+
+class GifChunkPreprocessor(RawChunkPreprocessor, BaseVideoPreprocessor):
+    @staticmethod
+    def _parse_chunk(chunk: 'gnes_pb2.Chunk', *args, **kwargs):
+        return get_gif(blob2array(chunk.blob))

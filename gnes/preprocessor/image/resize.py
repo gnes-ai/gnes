@@ -36,5 +36,5 @@ class ResizeChunkPreprocessor(SizedPreprocessor):
         super().apply(doc)
         for c in doc.chunks:
             img = blob2array(c.blob)
-            img = np.array(Image.fromarray(img).resize((self.target_width, self.target_height)))
+            img = np.array(Image.fromarray(img.astype('uint8')).resize((self.target_width, self.target_height)))
             c.blob.CopyFrom(array2blob(img))

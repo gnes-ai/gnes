@@ -1,5 +1,17 @@
-!VanillaSlidingPreprocessor
-parameters:
-  window_size: 64
-  stride_height: 64
-  stride_wide: 64
+!PipelinePreprocessor
+components:
+  - !VanillaSlidingPreprocessor
+    parameters:
+      window_size: 64
+      stride_height: 64
+      stride_wide: 64
+  - !ResizeChunkPreprocessor
+    parameters:
+      target_width: 224
+      target_height: 224
+    gnes_config:
+      name: resize
+      is_trained: true
+gnes_config:
+  name: PipelinePreprocessor
+  work_dir: /save
