@@ -46,13 +46,13 @@ class CLIClient:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             if args.mode == 'train':
-                with ProgressBar(all_bytes, args.batch_size) as p_bar:
+                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
                     for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
                                                                     start_doc_id=args.start_doc_id,
                                                                     batch_size=args.batch_size)):
                         p_bar.update()
             elif args.mode == 'index':
-                with ProgressBar(all_bytes, args.batch_size) as p_bar:
+                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
                     for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
                                                                     start_doc_id=args.start_doc_id,
                                                                     batch_size=args.batch_size)):
@@ -67,11 +67,12 @@ class CLIClient:
 
 
 class ProgressBar:
-    def __init__(self, all_bytes: List[bytes], batch_size: int, bar_len: int = 20):
+    def __init__(self, all_bytes: List[bytes], batch_size: int, bar_len: int = 20, task_name: str = ''):
         self.all_bytes_len = [len(v) for v in all_bytes]
         self.batch_size = batch_size
         self.total_batch = ceil(len(self.all_bytes_len) / self.batch_size)
         self.bar_len = bar_len
+        self.task_name = task_name
 
     def update(self):
         if self.num_batch > self.total_batch - 1:
@@ -84,7 +85,8 @@ class ProgressBar:
         percent = self.num_batch / self.total_batch
         num_bytes = sum(self.all_bytes_len[((self.num_batch - 1) * self.batch_size):(self.num_batch * self.batch_size)])
         sys.stdout.write(
-            '[{:<{}}] {:3.0f}%   {:>10}: {:3.1f}s   {:>10}: {:3.1f} bytes/s'.format(
+            '{:>10} [{:<{}}] {:3.0f}%   {:>10}: {:3.1f}s   {:>10}: {:3.1f} bytes/s'.format(
+                colored(self.task_name, 'cyan'),
                 colored('=' * int(self.bar_len * percent), 'green'),
                 self.bar_len + 9,
                 percent * 100,
