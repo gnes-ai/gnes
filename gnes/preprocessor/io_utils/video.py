@@ -83,6 +83,7 @@ def encode_video(filename: str,
     capture_stdout = (filename == 'pipe:')
     process = ffmpeg.input(
         'pipe:',
+        framerate=frame_rate,
         format='rawvideo',
         pix_fmt='rgb24',
         s='{}x{}'.format(width, height)).output(
@@ -156,3 +157,13 @@ def capture_frames(filename: str = 'pipe:',
     frames = np.frombuffer(out, np.uint8).reshape(
         [-1, int(height), int(width), depth])
     return list(frames)
+
+# def read_frame_as_jpg(in_filename, frame_num):
+#     out, err = (
+#         ffmpeg
+#         .input(in_filename)
+#         .filter_('select', 'gte(n,{})'.format(frame_num))
+#         .output('pipe:', vframes=1, format='image2', vcodec='mjpeg')
+#         .run(capture_stdout=True)
+#     )
+#     return out
