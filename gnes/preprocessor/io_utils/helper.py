@@ -16,15 +16,15 @@
 import re
 
 
-def ffmpeg_probe_pattern():
-    mediaprobe_re = re.compile(
-        r"Duration:\s+(?P<dur>(?:(?:\d:?)+[.]?\d*)|N/A)(?:.+start:\s+(?P<start>\d+[.]\d+))?.+bitrate:\s+(?P<bitrate>(?:\d+\s*..[/]s)|N/A)"
-    )
-    streamprobe_re = re.compile(
-        r"\s*Stream.+:\s+Video:.+\s+(?P<res>\d+x\d+)(?:.*,\s*(?P<fps>\d+[.]?\d*)\sfps)?(?:.+\(default\))?"
-    )
-    audioprobe_re = re.compile(r"\s*Stream.+:\s+Audio:.*")
-    fftime_re = re.compile(r"(?P<h>\d+):(?P<m>\d+):(?P<s>\d+)\.(?P<fract>\d+)")
+# def ffmpeg_probe_pattern():
+#     mediaprobe_re = re.compile(
+#         r"Duration:\s+(?P<dur>(?:(?:\d:?)+[.]?\d*)|N/A)(?:.+start:\s+(?P<start>\d+[.]\d+))?.+bitrate:\s+(?P<bitrate>(?:\d+\s*..[/]s)|N/A)"
+#     )
+#     streamprobe_re = re.compile(
+#         r"\s*Stream.+:\s+Video:.+\s+(?P<res>\d+x\d+)(?:.*,\s*(?P<fps>\d+[.]?\d*)\sfps)?(?:.+\(default\))?"
+#     )
+#     audioprobe_re = re.compile(r"\s*Stream.+:\s+Audio:.*")
+#     fftime_re = re.compile(r"(?P<h>\d+):(?P<m>\d+):(?P<s>\d+)\.(?P<fract>\d+)")
 
 
 def extract_frame_size(ffmpeg_parse_info: str):

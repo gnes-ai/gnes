@@ -17,7 +17,6 @@ import io
 import re
 import ffmpeg
 import numpy as np
-import subprocess as sp
 import soundfile as sf
 
 from typing import List
@@ -45,7 +44,7 @@ def capture_audio(filename: str = 'pipe:',
         ac=1,
         ar=16000)
 
-    stdout, err = stream.run(
+    stdout, _ = stream.run(
         input=video_data, capture_stdout=True, capture_stderr=True)
 
     audio_stream = io.BytesIO(stdout)
@@ -142,7 +141,7 @@ def split_audio(filename: str = 'pipe:',
         time = end_time - start_time
         stream = ffmpeg.input(filename, ss=start_time, t=time)
         stream = stream.output('pipe:', format='wav')
-        stdout, stderr = stream.run(
+        stdout, _ = stream.run(
             input=video_data, capture_stdout=True, capture_stderr=True)
 
         audio_stream = io.BytesIO(stdout)
