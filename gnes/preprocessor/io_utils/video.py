@@ -54,9 +54,11 @@ def scale_video(input_filename: str = 'pipe:',
         'vcodec': vcodec,
         'pix_fmt': pix_fmt,
         'crf': crf,
-        's': scale,
         'framerate': frame_rate
     }
+
+    if scale:
+        out_kwargs['s'] = scale
 
     if capture_stdout:
         out_kwargs['format'] = format
