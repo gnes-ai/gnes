@@ -18,7 +18,6 @@ class TestFFmpeg(unittest.TestCase):
         self.video_path = os.path.join(self.dirname, 'videos')
         self.video_bytes = [open(os.path.join(self.video_path, _), 'rb').read()
                             for _ in os.listdir(self.video_path)]
-
     def test_video_preprocessor_service_empty(self):
         args = set_preprocessor_parser().parse_args([
             '--yaml_path', self.yml_path
