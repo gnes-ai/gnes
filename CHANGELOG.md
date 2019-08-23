@@ -1,4 +1,46 @@
 
+# Release Note (`v0.0.33`)
+> Release time: 2019-08-23 18:34:28
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Jem,  hanhxiao,  felix,  raccoonliukai,  🙇
+
+
+### 🆕 New Features
+
+ - [[```9d488e3f```](https://github.com/gnes-ai/gnes/commit/9d488e3f6553156b9cd7e62cc14a8fc67bbbbdc4)] __-__ __client__: add progress bar and speed metric to cli (*hanhxiao*)
+ - [[```829d148c```](https://github.com/gnes-ai/gnes/commit/829d148ca211d6bdee112ea9e22e804ed9e9525a)] __-__ __scale_video__: scale video use ffmpeg (*felix*)
+ - [[```bc2e441d```](https://github.com/gnes-ai/gnes/commit/bc2e441d94edf65ff675f5721aec4b0899115cf0)] __-__ __compose__: add minimum http server without flask dep (*hanhxiao*)
+ - [[```d420f348```](https://github.com/gnes-ai/gnes/commit/d420f34822bdabdd1b21ccace4536adbfa84c2b1)] __-__ __video preprocessor__: add edge detect for shotdetect (*raccoonliukai*)
+
+### 🐞 Bug fixes
+
+ - [[```6cfbda9d```](https://github.com/gnes-ai/gnes/commit/6cfbda9d9983b0748e2b0ce764e8b21c9069ace7)] __-__ __preprocessor__: move dependency into function (*Jem*)
+ - [[```0e88b77a```](https://github.com/gnes-ai/gnes/commit/0e88b77ad7f671cca299bce500b40b054f5364d2)] __-__ __frontend__: fix request_id zero is none (*hanhxiao*)
+ - [[```ca28ecb9```](https://github.com/gnes-ai/gnes/commit/ca28ecb9c8eee399ef0807032115bbe7d520507c)] __-__ __video preprocessor__: use rgb as standard color (*raccoonliukai*)
+ - [[```5b5feb0b```](https://github.com/gnes-ai/gnes/commit/5b5feb0b42176d23617fd1a3b232069c496f475c)] __-__ __video preprocessor__: use dict update (*raccoonliukai*)
+ - [[```47721b1c```](https://github.com/gnes-ai/gnes/commit/47721b1ca5e440244f6dc0a5a0e5fe5a1e7f9660)] __-__ __video preprocessor__: remove custom canny threshold (*raccoonliukai*)
+ - [[```16aaa777```](https://github.com/gnes-ai/gnes/commit/16aaa77765f65a43d34edab83a3f2f73f292c27c)] __-__ __video preprocessor__: modify inaccurate names (*raccoonliukai*)
+ - [[```dfb54b62```](https://github.com/gnes-ai/gnes/commit/dfb54b62c523ff78187708ad10999ebb90102c1d)] __-__ __video preprocessor__: Remove incorrect comments (*raccoonliukai*)
+
+### 🚧 Code Refactoring
+
+ - [[```3d63fac6```](https://github.com/gnes-ai/gnes/commit/3d63fac6d5f4b982c5595ceecaea729552acc1b9)] __-__ __proto__: request_id is now an integer (*hanhxiao*)
+ - [[```4497d765```](https://github.com/gnes-ai/gnes/commit/4497d7656813713ae51fc7448e87c3a0961128f7)] __-__ __shotdetector__: use updated ffmpeg api to capture frames from videos (*felix*)
+ - [[```dbc06a85```](https://github.com/gnes-ai/gnes/commit/dbc06a85f5e060db2eac340b3c422f46860d44a9)] __-__ __ffmpeg__: refactor ffmpeg to read frames, vides and gif (*felix*)
+ - [[```a7b12cb6```](https://github.com/gnes-ai/gnes/commit/a7b12cb6787894a5a7c8e73f688d55868293c3ca)] __-__ __preprocessor__: add gif chunk prep (*Jem*)
+ - [[```559a9971```](https://github.com/gnes-ai/gnes/commit/559a997133f0f7614899ff1afe912275dd46aecf)] __-__ __compose__: unify flask and http handler (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```a2801d5c```](https://github.com/gnes-ai/gnes/commit/a2801d5ca4769ddf5a7a2ae7df2c72c81dd4b25c)] __-__ link gnes hub tutorial to readme (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```02f70a03```](https://github.com/gnes-ai/gnes/commit/02f70a033e89d029299cce16e208ac4f7826bae3)] __-__ fix bug (*felix*)
+ - [[```c970bec3```](https://github.com/gnes-ai/gnes/commit/c970bec38b8d071941b423e961364df1d54366b5)] __-__ __changelog__: update change log to v0.0.32 (*hanhxiao*)
+
 # Release Note (`v0.0.32`)
 > Release time: 2019-08-21 17:23:13
 
