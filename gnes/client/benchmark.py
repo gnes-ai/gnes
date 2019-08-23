@@ -26,7 +26,7 @@ class BenchmarkClient:
         all_bytes = [b'a' * args.request_length] * args.num_requests
 
         with grpc.insecure_channel(
-                '%s:%s' % (args.grpc_host, args.grpc_port),
+                '%s:%d' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
                          ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
@@ -35,16 +35,15 @@ class BenchmarkClient:
             with TimeContext('StreamCall') as tc:
                 resp = stub.StreamCall(RequestGenerator.index(all_bytes, args.batch_size))
                 for r in resp:
-                    assert r.request_id == str(id)
+                    assert r.request_id == id
                     id += 1
             stream_call_el = tc.duration
 
-            id = 0
             with TimeContext('Call') as tc:
-                for req in RequestGenerator.index(all_bytes, 1):
+                for req in RequestGenerator.index(all_bytes, batch_size=1):
                     r = stub.Call(req)
-                    assert r.request_id == str(id)
-                    id += 1
+                    assert r.request_id == req.request_id
+
             call_el = tc.duration
 
         print('num_requests     %d\n'

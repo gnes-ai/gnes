@@ -83,7 +83,7 @@ message Envelope {
     string client_id = 1;
 
     // unique id of the request
-    string request_id = 2;
+    uint32 request_id = 2;
 
     // for multi-part message
     uint32 part_id = 3;
@@ -110,7 +110,7 @@ message Message {
 
 // define Request
 message Request {
-    string request_id = 1;
+    uint32 request_id = 1;
 
     oneof body {
         TrainRequest train = 2;
@@ -145,7 +145,7 @@ message Request {
 
 // define Response
 message Response {
-    string request_id = 1;
+    uint32 request_id = 1;
 
 
     oneof body {

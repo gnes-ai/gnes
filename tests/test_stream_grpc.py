@@ -75,14 +75,14 @@ class TestStreamgRPC(unittest.TestCase):
         ])
 
         with RouterService(p_args), FrontendService(args), grpc.insecure_channel(
-                '%s:%s' % (args.grpc_host, args.grpc_port),
+                '%s:%d' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             with TimeContext('sync call'):  # about 5s
                 resp = list(stub.StreamCall(RequestGenerator.train(self.all_bytes, batch_size=1)))[-1]
 
-            self.assertEqual(resp.request_id, str(len(self.all_bytes)))  # idx start with 0, but +1 for final FLUSH
+            self.assertEqual(resp.request_id, len(self.all_bytes))  # idx start with 0, but +1 for final FLUSH
 
     def test_async_block(self):
         args = set_frontend_parser().parse_args([
@@ -106,7 +106,7 @@ class TestStreamgRPC(unittest.TestCase):
         ])
 
         with FrontendService(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
-                '%s:%s' % (args.grpc_host, args.grpc_port),
+                '%s:%d' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
@@ -114,14 +114,14 @@ class TestStreamgRPC(unittest.TestCase):
             with TimeContext('non-blocking call'):  # about 26s = 32s (total) - 3*2s (overlap)
                 resp = stub.StreamCall(RequestGenerator.train(self.all_bytes2, batch_size=1))
                 for r in resp:
-                    self.assertEqual(r.request_id, str(id))
+                    self.assertEqual(r.request_id, id)
                     id += 1
 
             id = 0
             with TimeContext('blocking call'):  # should be 32 s
                 for r in RequestGenerator.train(self.all_bytes2, batch_size=1):
                     resp = stub.Call(r)
-                    self.assertEqual(resp.request_id, str(id))
+                    self.assertEqual(resp.request_id, id)
                     id += 1
             # self.assertEqual(resp.result().request_id, str(len(self.all_bytes)))
 
