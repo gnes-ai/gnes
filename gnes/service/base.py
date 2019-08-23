@@ -129,11 +129,13 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
         # sock.setsockopt(zmq.SUBSCRIBE, b'')
 
-    sock.setsockopt(zmq.RCVHWM, 100)
-    sock.setsockopt(zmq.RCVBUF, 512 * 1024 * 1024)  # network buffer 512M
 
-    sock.setsockopt(zmq.SNDHWM, 100)
-    sock.setsockopt(zmq.SNDBUF, 512 * 1024 * 1024)
+    # Note: the following very dangerous for pub-sub socketc
+    sock.setsockopt(zmq.RCVHWM, 10)
+    sock.setsockopt(zmq.RCVBUF, 10 * 1024 * 1024)  # limit of network buffer 100M
+
+    sock.setsockopt(zmq.SNDHWM, 10)
+    sock.setsockopt(zmq.SNDBUF, 10 * 1024 * 1024)  # limit of network buffer 100M
 
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 

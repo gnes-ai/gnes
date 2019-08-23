@@ -137,9 +137,10 @@ class FrontendService:
 
         def StreamCall(self, request_iterator, context):
             with self.zmq_context as zmq_client:
-                num_request = 0
                 # network traffic control
-                max_outstanding = 1000
+                num_request = 0
+                max_outstanding = 500
+
                 for request in request_iterator:
                     timeout = 25
                     if self.args.timeout > 0:
