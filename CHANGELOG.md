@@ -1,4 +1,28 @@
 
+# Release Note (`v0.0.34`)
+> Release time: 2019-08-23 19:00:27
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```79a8effd```](https://github.com/gnes-ai/gnes/commit/79a8effd68be4ed77b52734a7d6cf1130e86d9ca)] __-__ __changelog__: update change log to v0.0.33 (*hanhxiao*)
+
+# Release Note (`v0.0.34`)
+> Release time: 2019-08-23 18:44:34
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```79a8effd```](https://github.com/gnes-ai/gnes/commit/79a8effd68be4ed77b52734a7d6cf1130e86d9ca)] __-__ __changelog__: update change log to v0.0.33 (*hanhxiao*)
+
 # Release Note (`v0.0.33`)
 > Release time: 2019-08-23 18:34:28
 
