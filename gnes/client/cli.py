@@ -81,11 +81,12 @@ class ProgressBar:
         elapsed = time.perf_counter() - self.start_time
         elapsed_str = colored('elapsed', 'yellow')
         speed_str = colored('speed', 'yellow')
+        estleft_str = colored('est left', 'yellow')
         self.num_batch += 1
         percent = self.num_batch / self.total_batch
         num_bytes = sum(self.all_bytes_len[((self.num_batch - 1) * self.batch_size):(self.num_batch * self.batch_size)])
         sys.stdout.write(
-            '{:>10} [{:<{}}] {:3.0f}%   {:>10}: {:3.1f}s   {:>10}: {:3.1f} bytes/s'.format(
+            '{:>10} [{:<{}}] {:3.0f}%   {:>8}: {:3.1f}s   {:>8}: {:3.1f} bytes/s  {:3.1f} batch/s {:>8}: {:3.1f}s'.format(
                 colored(self.task_name, 'cyan'),
                 colored('=' * int(self.bar_len * percent), 'green'),
                 self.bar_len + 9,
@@ -93,7 +94,10 @@ class ProgressBar:
                 elapsed_str,
                 elapsed,
                 speed_str,
-                num_bytes / elapsed
+                num_bytes / elapsed,
+                self.num_batch / elapsed,
+                estleft_str,
+                (self.total_batch - self.num_batch) / (self.num_batch / elapsed)
             ))
         sys.stdout.flush()
 
@@ -104,4 +108,4 @@ class ProgressBar:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        sys.stdout.write('\n')
+        sys.stdout.write('\t%s\n' % colored('done!', 'green'))
