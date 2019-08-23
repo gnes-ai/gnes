@@ -38,7 +38,7 @@ class CLIClient:
                      ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
 
     def use_channel(self):
-        all_bytes = self.load_all_bytes()
+        all_bytes = self.read_all()
         with self.get_channel() as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             getattr(self, self.args.mode)(all_bytes, stub)
@@ -65,7 +65,7 @@ class CLIClient:
                 print('query %d result: %s' % (idx, resp))
                 input('press any key to continue...')
 
-    def load_all_bytes(self) -> List[bytes]:
+    def read_all(self) -> List[bytes]:
         if self.args.txt_file:
             all_bytes = [v.encode() for v in self.args.txt_file]
         elif self.args.image_zip_file:
