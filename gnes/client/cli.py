@@ -14,9 +14,14 @@
 #  limitations under the License.
 
 
+import sys
+import time
 import zipfile
+from math import ceil
+from typing import List
 
 import grpc
+from termcolor import colored
 
 from ..proto import gnes_pb2_grpc, RequestGenerator
 
@@ -41,19 +46,17 @@ class CLIClient:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
 
             if args.mode == 'train':
-                resp = list(stub.StreamCall(RequestGenerator.train(all_bytes,
-                                                                   start_doc_id=args.start_doc_id,
-                                                                   start_request_id=0,
-                                                                   random_doc_id=False,
-                                                                   batch_size=args.batch_size)))[-1]
-                print(resp)
+                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
+                    for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
+                                                                    start_doc_id=args.start_doc_id,
+                                                                    batch_size=args.batch_size)):
+                        p_bar.update()
             elif args.mode == 'index':
-                resp = list(stub.StreamCall(RequestGenerator.index(all_bytes,
-                                                                   start_doc_id=args.start_doc_id,
-                                                                   start_request_id=0,
-                                                                   random_doc_id=False,
-                                                                   batch_size=args.batch_size)))[-1]
-                print(resp)
+                with ProgressBar(all_bytes, args.batch_size, task_name=args.mode) as p_bar:
+                    for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
+                                                                    start_doc_id=args.start_doc_id,
+                                                                    batch_size=args.batch_size)):
+                        p_bar.update()
             elif args.mode == 'query':
                 for idx, q in enumerate(all_bytes):
                     for req in RequestGenerator.query(q, start_request_id=idx, top_k=args.top_k):
@@ -61,3 +64,48 @@ class CLIClient:
                         print(resp)
                         print('query %d result: %s' % (idx, resp))
                         input('press any key to continue...')
+
+
+class ProgressBar:
+    def __init__(self, all_bytes: List[bytes], batch_size: int, bar_len: int = 20, task_name: str = ''):
+        self.all_bytes_len = [len(v) for v in all_bytes]
+        self.batch_size = batch_size
+        self.total_batch = ceil(len(self.all_bytes_len) / self.batch_size)
+        self.bar_len = bar_len
+        self.task_name = task_name
+
+    def update(self):
+        if self.num_batch > self.total_batch - 1:
+            return
+        sys.stdout.write('\r')
+        elapsed = time.perf_counter() - self.start_time
+        elapsed_str = colored('elapsed', 'yellow')
+        speed_str = colored('speed', 'yellow')
+        estleft_str = colored('est left', 'yellow')
+        self.num_batch += 1
+        percent = self.num_batch / self.total_batch
+        num_bytes = sum(self.all_bytes_len[((self.num_batch - 1) * self.batch_size):(self.num_batch * self.batch_size)])
+        sys.stdout.write(
+            '{:>10} [{:<{}}] {:3.0f}%   {:>8}: {:3.1f}s   {:>8}: {:3.1f} bytes/s  {:3.1f} batch/s {:>8}: {:3.1f}s'.format(
+                colored(self.task_name, 'cyan'),
+                colored('=' * int(self.bar_len * percent), 'green'),
+                self.bar_len + 9,
+                percent * 100,
+                elapsed_str,
+                elapsed,
+                speed_str,
+                num_bytes / elapsed,
+                self.num_batch / elapsed,
+                estleft_str,
+                (self.total_batch - self.num_batch) / (self.num_batch / elapsed)
+            ))
+        sys.stdout.flush()
+
+    def __enter__(self):
+        self.start_time = time.perf_counter()
+        self.num_batch = 0
+        sys.stdout.write('\n')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.write('\t%s\n' % colored('done!', 'green'))
