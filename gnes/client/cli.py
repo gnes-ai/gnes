@@ -117,8 +117,9 @@ class ProgressBar:
 
     def __enter__(self):
         self.start_time = time.perf_counter()
-        self.num_batch = 0
+        self.num_batch = -1
         sys.stdout.write('\n')
+        self.update()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
