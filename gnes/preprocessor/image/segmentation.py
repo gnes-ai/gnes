@@ -81,12 +81,13 @@ class SegmentPreprocessor(SizedPreprocessor):
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
-    def _crop(self, original_image, coordinates):
-        return np.array(original_image.crop(coordinates))
-
     def _get_seg_offset_nd(self, all_subareas: List[List[int]], index: List[List[int]], chunk: List[int]) -> List[int]:
         iou_list = [self._cal_iou(area, chunk) for area in all_subareas]
         return index[int(np.argmax(iou_list))][:2]
+
+    @staticmethod
+    def _crop(original_image, coordinates):
+        return np.array(original_image.crop(coordinates))
 
     @staticmethod
     def _cal_area(coordinate: List[int]):
