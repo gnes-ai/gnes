@@ -22,9 +22,7 @@ from datetime import timedelta
 from itertools import product
 from typing import List, Callable
 
-import cv2
 import numpy as np
-from PIL import Image
 
 from ..helper import set_logger
 
@@ -131,6 +129,8 @@ def split_mp4_random(video_path, avg_length, max_clip_second=10):
 
 def split_video_frames(buffer_data: bytes,
                        splitter: str = '__split__'):
+    from PIL import Image
+
     chunks = buffer_data.split(splitter.encode())
     return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
 
@@ -182,6 +182,8 @@ def pyramid_descriptor(image: 'np.ndarray',
 
 
 def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
+    import cv2
+
     _, _, c = image.shape
     hist = [
         cv2.calcHist([image], [i], None, [256], [0, 256]) for i in range(c)
@@ -192,6 +194,8 @@ def rgb_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 
 def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
+    import cv2
+
     _, _, c = image.shape
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
@@ -209,6 +213,8 @@ def hsv_histogram(image: 'np.ndarray') -> 'np.ndarray':
 
 
 def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
+    import cv2
+
     arg_dict = {
         'sigma': 0.5,
         'gauss_kernel': (9, 9),
@@ -228,8 +234,10 @@ def canny_edge(image: 'np.ndarray', **kwargs) -> 'np.ndarray':
 
 
 def phash_descriptor(image: 'np.ndarray'):
-    image = Image.fromarray(image)
+    from PIL import Image
     import imagehash
+
+    image = Image.fromarray(image)
     return imagehash.phash(image)
 
 
@@ -249,6 +257,8 @@ def compute_descriptor(image: 'np.ndarray',
 
 
 def compare_ecr(descriptors: List['np.ndarray'], dilate_rate: int = 5, neigh_avg: int = 2) -> List[float]:
+    import cv2
+
     """ Apply the Edge Change Ratio Algorithm"""
     divd = lambda x, y: 0 if y == 0 else x / y
 
@@ -281,6 +291,8 @@ def compare_ecr(descriptors: List['np.ndarray'], dilate_rate: int = 5, neigh_avg
 def compare_descriptor(descriptor1: 'np.ndarray',
                        descriptor2: 'np.ndarray',
                        metric: str = 'chisqr') -> float:
+    import cv2
+
     dist_metric = {
         'correlation': cv2.HISTCMP_CORREL,
         'chisqr': cv2.HISTCMP_CHISQR,
