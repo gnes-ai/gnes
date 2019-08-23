@@ -75,7 +75,7 @@ class TestStreamgRPC(unittest.TestCase):
         ])
 
         with RouterService(p_args), FrontendService(args), grpc.insecure_channel(
-                '%s:%s' % (args.grpc_host, args.grpc_port),
+                '%s:%d' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
@@ -106,7 +106,7 @@ class TestStreamgRPC(unittest.TestCase):
         ])
 
         with FrontendService(args), Router1(p1_args), Router2(p2_args), grpc.insecure_channel(
-                '%s:%s' % (args.grpc_host, args.grpc_port),
+                '%s:%d' % (args.grpc_host, args.grpc_port),
                 options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
                          ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
