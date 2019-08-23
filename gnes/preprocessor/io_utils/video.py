@@ -30,7 +30,7 @@ def scale_video(input_filename: str = 'pipe:',
                 frame_rate: int = 15,
                 crf: int = 16,
                 vcodec: str = 'libx264',
-                format: str = 'mpeg',
+                format: str = 'mp4',
                 pix_fmt: str = 'yuv420p',
                 **kwargs):
     capture_stdin = (input_filename == 'pipe:')
@@ -60,6 +60,8 @@ def scale_video(input_filename: str = 'pipe:',
 
     if capture_stdout:
         out_kwargs['format'] = format
+        # an empty moov means it doesn't need to seek and thus works with a pipe.
+        out_kwargs['movflags'] = 'frag_keyframe+empty_moov'
 
     stream = stream.output(output_filename, **out_kwargs).overwrite_output()
     stdout, stderr = stream.run(
