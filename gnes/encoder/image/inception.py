@@ -27,13 +27,11 @@ class TFInceptionEncoder(BaseImageEncoder):
 
     def __init__(self, model_dir: str,
                  select_layer: str = 'PreLogitsFlatten',
-                 use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
         self.select_layer = select_layer
-        self._use_cuda = use_cuda
         self.inception_size_x = 299
         self.inception_size_y = 299
 
@@ -57,7 +55,7 @@ class TFInceptionEncoder(BaseImageEncoder):
                                                             dropout_keep_prob=1.0)
 
             config = tf.ConfigProto(log_device_placement=False)
-            if self._use_cuda:
+            if self.on_gpu:
                 config.gpu_options.allow_growth = True
             self.sess = tf.Session(config=config)
             self.saver = tf.train.Saver()

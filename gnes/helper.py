@@ -422,8 +422,6 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
                             reduced_result[col] = reduced_result[col].reshape(
                                 (-1, chunk_dim, reduced_result[col].shape[1]))
                     final_result = tuple(reduced_result)
-                else:
-                    raise TypeError('dont know how to reduce %s' % type(final_result[0]))
 
             if len(final_result):
                 return final_result

@@ -22,7 +22,7 @@ class TestTorchTransformersEncoder(unittest.TestCase):
     def test_encoding(self):
         vec = self.tt_encoder.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
-        self.assertEqual(vec.shape[2], 768)
+        self.assertEqual(vec.shape[1], 768)
 
     def test_dump_load(self):
         self.tt_encoder.dump(self.dump_path)
@@ -31,7 +31,7 @@ class TestTorchTransformersEncoder(unittest.TestCase):
 
         vec = tt_encoder2.encode(self.test_str)
         self.assertEqual(vec.shape[0], len(self.test_str))
-        self.assertEqual(vec.shape[2], 768)
+        self.assertEqual(vec.shape[1], 768)
 
     def tearDown(self):
         if os.path.exists(self.dump_path):

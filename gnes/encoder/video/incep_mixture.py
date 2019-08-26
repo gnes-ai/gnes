@@ -28,7 +28,6 @@ class IncepMixtureEncoder(BaseVideoEncoder):
     def __init__(self, model_dir_inception: str,
                  model_dir_mixture: str,
                  select_layer: str = 'PreLogitsFlatten',
-                 use_cuda: bool = False,
                  feature_size: int = 300,
                  vocab_size: int = 28,
                  cluster_size: int = 256,
@@ -42,7 +41,6 @@ class IncepMixtureEncoder(BaseVideoEncoder):
         self.model_dir_inception = model_dir_inception
         self.model_dir_mixture = model_dir_mixture
         self.select_layer = select_layer
-        self.use_cuda = use_cuda
         self.cluster_size = cluster_size
         self.feature_size = feature_size
         self.vocab_size = vocab_size
@@ -76,7 +74,7 @@ class IncepMixtureEncoder(BaseVideoEncoder):
                                                             dropout_keep_prob=1.0)
 
             config = tf.ConfigProto(log_device_placement=False)
-            if self.use_cuda:
+            if self.on_gpu:
                 config.gpu_options.allow_growth = True
             self.sess = tf.Session(config=config)
             self.saver = tf.train.Saver()
@@ -85,7 +83,7 @@ class IncepMixtureEncoder(BaseVideoEncoder):
         g2 = tf.Graph()
         with g2.as_default():
             config = tf.ConfigProto(log_device_placement=False)
-            if self.use_cuda:
+            if self.on_gpu:
                 config.gpu_options.allow_growth = True
             self.sess2 = tf.Session(config=config)
             self.mix_model = NetFV(feature_size=self.feature_size,
