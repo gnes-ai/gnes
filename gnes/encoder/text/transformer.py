@@ -17,9 +17,9 @@
 from typing import List, Tuple
 
 import torch
-from pytorch_transformers import *
 
-from gnes.encoder.base import BaseTextEncoder
+from ..base import BaseTextEncoder
+from ...helper import batching
 
 
 class PyTorchTransformers(BaseTextEncoder):
@@ -58,6 +58,7 @@ class PyTorchTransformers(BaseTextEncoder):
             self.logger.warning('cannot deserialize model/tokenizer from %s, will download from web' % self.work_dir)
             self.model, self.tokenizer = load_model_tokenizer(pretrained_weights)
 
+    @batching
     def encode(self, text: List[str], *args, **kwargs) -> Tuple:
         # encoding and padding
         ids = [self.tokenizer.encode(t) for t in text]
@@ -65,9 +66,9 @@ class PyTorchTransformers(BaseTextEncoder):
         ids = [t + [0] * (max_len - len(t)) for t in ids]
         m_ids = [[1] * len(t) + [0] * (max_len - len(t)) for t in ids]
         seq_ids = torch.tensor(ids)
-        mask_ids = torch.tensor(m_ids)
+        mask_ids = torch.tensor(m_ids, dtype=torch.float32)
 
-        if self.use_cuda:
+        if self.on_gpu:
             seq_ids = seq_ids.cuda()
 
         with torch.no_grad():

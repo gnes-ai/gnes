@@ -403,11 +403,27 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
                 if r is not None:
                     final_result.append(r)
 
-            if len(final_result) and concat_axis is not None and isinstance(final_result[0], np.ndarray):
-                final_result = np.concatenate(final_result, concat_axis)
+            if len(final_result) == 1:
+                # the only result of one batch
+                return final_result[0]
 
-            if chunk_dim != -1:
-                final_result = final_result.reshape((-1, chunk_dim, final_result.shape[1]))
+            if len(final_result) and concat_axis is not None:
+                if isinstance(final_result[0], np.ndarray):
+                    final_result = np.concatenate(final_result, concat_axis)
+                    if chunk_dim != -1:
+                        final_result = final_result.reshape((-1, chunk_dim, final_result.shape[1]))
+                elif isinstance(final_result[0], tuple):
+                    reduced_result = []
+                    num_cols = len(final_result[0])
+                    for col in range(num_cols):
+                        reduced_result.append(np.concatenate([row[col] for row in final_result], concat_axis))
+                    if chunk_dim != -1:
+                        for col in range(num_cols):
+                            reduced_result[col] = reduced_result[col].reshape(
+                                (-1, chunk_dim, reduced_result[col].shape[1]))
+                    final_result = tuple(reduced_result)
+                else:
+                    raise TypeError('dont know how to reduce %s' % type(final_result[0]))
 
             if len(final_result):
                 return final_result
