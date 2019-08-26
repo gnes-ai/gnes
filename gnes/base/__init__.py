@@ -38,7 +38,7 @@ def register_all_class(cls2file_map: Dict, module_name: str):
             getattr(importlib.import_module('gnes.%s.%s' % (module_name, v)), k)
         except ImportError as ex:
             default_logger = set_logger('GNES')
-            default_logger.warning('fail to register %s, due to %s' % (k, ex))
+            default_logger.warning('fail to register %s, due to "%s", you will not be able to use this model' % (k, ex))
     load_contrib_module()
 
 
