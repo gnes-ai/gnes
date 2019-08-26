@@ -70,7 +70,7 @@ def scale_video(input_fn: str = 'pipe:',
         input_options=input_kwargs,
         output_options=out_kwargs,
         overwrite_output=True)
-    stdout, stderr = run_command(
+    stdout, _ = run_command(
         cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
 
     if capture_stdout:

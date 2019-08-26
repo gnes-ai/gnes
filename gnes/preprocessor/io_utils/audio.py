@@ -19,7 +19,7 @@ import numpy as np
 import soundfile as sf
 
 from .ffmpeg import compile_args
-from .helper import run_command, run_command_async
+from .helper import run_command
 
 from typing import List
 

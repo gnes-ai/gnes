@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 import re
-from .helper import kwargs_to_cmd_args, run_command, run_command_async
+from .helper import kwargs_to_cmd_args, run_command
 
 VIDEO_DUR_PATTERN = re.compile(r".*Duration: (\d+):(\d+):(\d+)", re.DOTALL)
 VIDEO_INFO_PATTERN = re.compile(

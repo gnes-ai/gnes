@@ -18,7 +18,7 @@ import numpy as np
 import subprocess as sp
 import tempfile
 
-from .ffmpeg import compile_args, parse_media_details, extract_frame_size
+from .ffmpeg import compile_args, extract_frame_size
 from .helper import run_command
 
 
