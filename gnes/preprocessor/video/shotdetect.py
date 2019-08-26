@@ -71,7 +71,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
 
         if doc.raw_bytes:
             all_frames = video_util.capture_frames(
-                video_data=doc.raw_bytes,
+                input_data=doc.raw_bytes,
                 scale=self.frame_size,
                 fps=self.frame_rate)
             num_frames = len(all_frames)
