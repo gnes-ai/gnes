@@ -109,14 +109,9 @@ class TorchvisionEncoder(BaseImageEncoder):
             if self._use_cuda:
                 img_tensor = img_tensor.cuda()
 
-            result_npy = []
-            for t in img_tensor:
-                t = torch.unsqueeze(t, 0)
-                encodes = self._model(t)
-                encodes = torch.squeeze(encodes, 0)
-                result_npy.append(encodes.data.cpu().numpy())
+            encodes = self._model(img_tensor)
 
-            output = np.array(result_npy, dtype=np.float32)
+            output = np.array(encodes.data.cpu().numpy(), dtype=np.float32)
             return output
 
         output = _encode(self, img)
