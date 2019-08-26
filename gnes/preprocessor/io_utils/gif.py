@@ -55,7 +55,7 @@ def capture_frames(input_fn: str = 'pipe:',
         return frames
 
 
-def encode_gif(images: List[np.ndarray], fps: int, pix_fmt: str = 'rgb24'):
+def encode_gif(images: 'np.ndarray', fps: int, pix_fmt: str = 'rgb24'):
 
     cmd = [
         'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',

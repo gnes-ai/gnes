@@ -79,7 +79,7 @@ def scale_video(input_fn: str = 'pipe:',
     return None
 
 
-def encode_video(images: List['np.ndarray'],
+def encode_video(images: 'np.ndarray',
                  pix_fmt: str = 'rgb24',
                  frame_rate: int = 15,
                  output_fn: str = 'pipe:',

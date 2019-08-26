@@ -41,8 +41,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
         self.frame_rate = frame_rate
         self._detector_kwargs = kwargs
 
-    def detect_shots(self,
-                     frames: List['np.ndarray']) -> List[List['np.ndarray']]:
+    def detect_shots(self, frames: 'np.ndarray') -> List[List['np.ndarray']]:
         descriptors = []
         for frame in frames:
             descriptor = compute_descriptor(
