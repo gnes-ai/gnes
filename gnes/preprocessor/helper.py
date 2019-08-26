@@ -135,7 +135,7 @@ def split_video_frames(buffer_data: bytes,
     return [np.array(Image.open(io.BytesIO(chunk))) for chunk in chunks]
 
 
-def get_gif(images, fps=4):
+def get_gif(images: 'np.ndarray', fps=10):
     cmd = ['ffmpeg', '-y',
            '-f', 'rawvideo',
            '-vcodec', 'rawvideo',
