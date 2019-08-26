@@ -47,7 +47,7 @@ def decode_gif(data: bytes, fps: int = -1,
 
 
 def encode_gif(
-        images: List[np.ndarray],
+        images: np.ndarray,
         scale: str,
         fps: int,
         pix_fmt: str = 'rgb24'):
