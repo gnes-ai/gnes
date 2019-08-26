@@ -42,7 +42,8 @@ _cls2file_map = {
     'CVAEEncoder': 'image.cvae',
     'IncepMixtureEncoder': 'video.incep_mixture',
     'VladEncoder': 'numeric.vlad',
-    'MfccEncoder': 'audio.mfcc'
+    'MfccEncoder': 'audio.mfcc',
+    'PoolingEncoder': 'numeric.pooling'
 }
 
 register_all_class(_cls2file_map, 'encoder')

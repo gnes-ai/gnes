@@ -481,6 +481,19 @@ def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
     sys.stdout.flush()
 
 
+def as_numpy_array(func, dtype=np.float32):
+    @wraps(func)
+    def arg_wrapper(self, *args, **kwargs):
+        r = func(self, *args, **kwargs)
+        r_type = type(r).__name__
+        if r_type in {'ndarray', 'EagerTensor', 'Tensor', 'list'}:
+            return np.array(r, dtype)
+        else:
+            raise TypeError('unrecognized type %s: %s' % (r_type, type(r)))
+
+    return arg_wrapper
+
+
 def train_required(func):
     @wraps(func)
     def arg_wrapper(self, *args, **kwargs):
