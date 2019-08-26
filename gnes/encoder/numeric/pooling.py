@@ -28,7 +28,10 @@ class PoolingEncoder(BaseNumericEncoder):
             self.torch = torch
         elif self.backend == 'tensorflow':
             import tensorflow as tf
-            tf.enable_eager_execution()
+            try:
+                tf.enable_eager_execution()
+            except ValueError:
+                pass
             self.tf = tf
 
     def mul_mask(self, x, m):
@@ -53,7 +56,7 @@ class PoolingEncoder(BaseNumericEncoder):
                                   self.torch.sum(m.unsqueeze(2), dim=1) + jitter)
         elif self.backend == 'tensorflow':
             return self.tf.reduce_sum(self.mul_mask(x, m), axis=1) / (
-                        self.tf.reduce_sum(m, axis=1, keepdims=True) + jitter)
+                    self.tf.reduce_sum(m, axis=1, keepdims=True) + jitter)
         elif self.backend == 'numpy':
             return np.sum(self.mul_mask(x, m), axis=1) / (np.sum(m, axis=1, keepdims=True) + jitter)
 
