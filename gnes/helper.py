@@ -337,20 +337,6 @@ def pooling_simple(data_array, pooling_strategy):
     return _pooled_data
 
 
-def pooling_np(data_array, pooling_strategy):
-    if pooling_strategy == 'REDUCE_MEAN':
-        _pooled_data = np.mean(data_array, axis=0)
-    elif pooling_strategy == 'REDUCE_MAX':
-        _pooled_data = np.amax(data_array, axis=0)
-    elif pooling_strategy == 'REDUCE_MEAN_MAX':
-        _pooled_data = np.concatenate(
-            (np.mean(data_array, axis=0),
-             np.amax(data_array, axis=0)), axis=1)
-    else:
-        raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
-    return _pooled_data
-
-
 def pooling_torch(data_tensor, mask_tensor, pooling_strategy):
     import torch
 

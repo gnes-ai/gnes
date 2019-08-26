@@ -19,34 +19,30 @@ from typing import List
 import numpy as np
 
 from ..base import BaseTextEncoder
-from ...helper import batching, pooling_np
+from ...helper import batching, as_numpy_array
 
 
 class FlairEncoder(BaseTextEncoder):
     is_trained = True
 
-    def __init__(self, model_name: str = 'multi-forward-fast',
-                 pooling_strategy: str = 'REDUCE_MEAN', *args, **kwargs):
+    def __init__(self, pooling_strategy: str = 'mean', *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.model_name = model_name
         self.pooling_strategy = pooling_strategy
 
     def post_init(self):
-        from flair.embeddings import FlairEmbeddings
-        self._flair = FlairEmbeddings(self.model_name)
+        from flair.embeddings import DocumentPoolEmbeddings, WordEmbeddings, FlairEmbeddings
+        self._flair = DocumentPoolEmbeddings(
+            [WordEmbeddings('glove'),
+             FlairEmbeddings('news-forward'),
+             FlairEmbeddings('news-backward')],
+            pooling=self.pooling_strategy)
 
     @batching
+    @as_numpy_array
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         from flair.data import Sentence
+        import torch
         # tokenize text
-        batch_tokens = [Sentence(sent) for sent in text]
-
-        flair_encodes = self._flair.embed(batch_tokens)
-
-        pooled_data = []
-        for sentence in flair_encodes:
-            _layer_data = np.stack([s.embedding.numpy() for s in sentence])
-            _pooled = pooling_np(_layer_data, self.pooling_strategy)
-            pooled_data.append(_pooled)
-        return np.array(pooled_data, dtype=np.float32)
+        batch_tokens = [Sentence(v) for v in text]
+        self._flair.embed(batch_tokens)
+        return torch.stack([v.embedding for v in batch_tokens]).detach()

@@ -65,7 +65,8 @@ class TrainableType(type):
         'is_trained': False,
         'batch_size': None,
         'work_dir': os.environ.get('GNES_VOLUME', os.getcwd()),
-        'name': None
+        'name': None,
+        'on_gpu': False
     }
 
     def __new__(cls, *args, **kwargs):
