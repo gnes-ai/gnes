@@ -44,7 +44,7 @@ class TestFFmpeg(unittest.TestCase):
 
     def test_gif_encode(self):
         gif_data = gif.encode_gif(images=list(self.frames), fps=10)
-        frames = gif.decode_gif(data=gif_data)
+        frames = gif.capture_frames(input_data=gif_data)
         self.assertEqual(self.frames.shape, frames.shape)
 
     def test_capture_audio(self):
