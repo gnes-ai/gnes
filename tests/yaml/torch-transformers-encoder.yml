@@ -1,7 +1,10 @@
-!TorchTransformersEncoder
-parameters:
-  model_dir: $TORCH_TRANSFORMERS_MODEL
-  model_name: BertModel
-  tokenizer_name: BertTokenizer
-gnes_config:
-  is_trained: true
+!PipelineEncoder
+components:
+  - !PyTorchTransformers
+    parameters:
+      model_dir: $TORCH_TRANSFORMERS_MODEL
+      model_name: bert-base-uncased
+  - !PoolingEncoder
+    parameters:
+      pooling_strategy: REDUCE_MEAN
+      backend: torch

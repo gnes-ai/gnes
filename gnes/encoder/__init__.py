@@ -21,10 +21,7 @@ _cls2file_map = {
     'BertEncoder': 'text.bert',
     'BertEncoderWithServer': 'text.bert',
     'BertEncoderServer': 'text.bert',
-    'ElmoEncoder': 'text.elmo',
     'FlairEncoder': 'text.flair',
-    'GPTEncoder': 'text.gpt',
-    'GPT2Encoder': 'text.gpt',
     'PCALocalEncoder': 'numeric.pca',
     'PQEncoder': 'numeric.pq',
     'TFPQEncoder': 'numeric.tf_pq',
@@ -42,7 +39,9 @@ _cls2file_map = {
     'CVAEEncoder': 'image.cvae',
     'IncepMixtureEncoder': 'video.incep_mixture',
     'VladEncoder': 'numeric.vlad',
-    'MfccEncoder': 'audio.mfcc'
+    'MfccEncoder': 'audio.mfcc',
+    'PoolingEncoder': 'numeric.pooling',
+    'PyTorchTransformers': 'text.transformer'
 }
 
 register_all_class(_cls2file_map, 'encoder')

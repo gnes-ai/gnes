@@ -19,7 +19,7 @@ from typing import List
 import numpy as np
 
 from ..base import BaseTextEncoder
-from ...helper import batching, pooling_simple
+from ...helper import batching, pooling_simple, as_numpy_array
 
 
 class Word2VecEncoder(BaseTextEncoder):
@@ -52,6 +52,7 @@ class Word2VecEncoder(BaseTextEncoder):
         self.cn_tokenizer = Tokenizer()
 
     @batching
+    @as_numpy_array
     def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
         # tokenize text
         batch_tokens = [self.cn_tokenizer.tokenize(sent) for sent in text]
@@ -61,4 +62,4 @@ class Word2VecEncoder(BaseTextEncoder):
             _layer_data = [self.word2vec_df.get(token, self.empty) for token in tokens]
             pooled_data.append(pooling_simple(_layer_data, self.pooling_strategy))
 
-        return np.array(pooled_data).astype(np.float32)
+        return pooled_data

@@ -29,12 +29,10 @@ class SegmentPreprocessor(SizedPreprocessor):
 
     def __init__(self, model_name: str,
                  model_dir: str,
-                 _use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model_name = model_name
         self.model_dir = model_dir
-        self._use_cuda = _use_cuda
 
     def post_init(self):
         import torch
@@ -43,7 +41,7 @@ class SegmentPreprocessor(SizedPreprocessor):
         os.environ['TORCH_HOME'] = self.model_dir
         self._model = getattr(models.detection, self.model_name)(pretrained=True)
         self._model = self._model.eval()
-        if self._use_cuda:
+        if self.on_gpu:
             # self._model.cuda()
             self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             self._model = self._model.to(self._device)
@@ -54,7 +52,7 @@ class SegmentPreprocessor(SizedPreprocessor):
             original_image = Image.open(io.BytesIO(doc.raw_bytes))
             all_subareas, index = get_all_subarea(original_image)
             image_tensor = torch_transform(original_image)
-            if self._use_cuda:
+            if self.on_gpu:
                 image_tensor = image_tensor.cuda()
 
             seg_output = self._model([image_tensor])

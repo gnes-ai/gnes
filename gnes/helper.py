@@ -337,20 +337,6 @@ def pooling_simple(data_array, pooling_strategy):
     return _pooled_data
 
 
-def pooling_np(data_array, pooling_strategy):
-    if pooling_strategy == 'REDUCE_MEAN':
-        _pooled_data = np.mean(data_array, axis=0)
-    elif pooling_strategy == 'REDUCE_MAX':
-        _pooled_data = np.amax(data_array, axis=0)
-    elif pooling_strategy == 'REDUCE_MEAN_MAX':
-        _pooled_data = np.concatenate(
-            (np.mean(data_array, axis=0),
-             np.amax(data_array, axis=0)), axis=1)
-    else:
-        raise ValueError('pooling_strategy: %s has not been implemented' % pooling_strategy)
-    return _pooled_data
-
-
 def pooling_torch(data_tensor, mask_tensor, pooling_strategy):
     import torch
 
@@ -417,11 +403,25 @@ def batching(func: Callable[[Any], np.ndarray] = None, *,
                 if r is not None:
                     final_result.append(r)
 
-            if len(final_result) and concat_axis is not None and isinstance(final_result[0], np.ndarray):
-                final_result = np.concatenate(final_result, concat_axis)
+            if len(final_result) == 1:
+                # the only result of one batch
+                return final_result[0]
 
-            if chunk_dim != -1:
-                final_result = final_result.reshape((-1, chunk_dim, final_result.shape[1]))
+            if len(final_result) and concat_axis is not None:
+                if isinstance(final_result[0], np.ndarray):
+                    final_result = np.concatenate(final_result, concat_axis)
+                    if chunk_dim != -1:
+                        final_result = final_result.reshape((-1, chunk_dim, final_result.shape[1]))
+                elif isinstance(final_result[0], tuple):
+                    reduced_result = []
+                    num_cols = len(final_result[0])
+                    for col in range(num_cols):
+                        reduced_result.append(np.concatenate([row[col] for row in final_result], concat_axis))
+                    if chunk_dim != -1:
+                        for col in range(num_cols):
+                            reduced_result[col] = reduced_result[col].reshape(
+                                (-1, chunk_dim, reduced_result[col].shape[1]))
+                    final_result = tuple(reduced_result)
 
             if len(final_result):
                 return final_result
@@ -479,6 +479,19 @@ def countdown(t: int, logger=None, reason: str = 'I am blocking this thread'):
         time.sleep(1)
     sys.stdout.write('\n')
     sys.stdout.flush()
+
+
+def as_numpy_array(func, dtype=np.float32):
+    @wraps(func)
+    def arg_wrapper(self, *args, **kwargs):
+        r = func(self, *args, **kwargs)
+        r_type = type(r).__name__
+        if r_type in {'ndarray', 'EagerTensor', 'Tensor', 'list'}:
+            return np.array(r, dtype)
+        else:
+            raise TypeError('unrecognized type %s: %s' % (r_type, type(r)))
+
+    return arg_wrapper
 
 
 def train_required(func):

@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 
-from typing import List, Any
+from typing import List, Any, Tuple, Union
 
 import numpy as np
 
@@ -44,13 +44,13 @@ class BaseVideoEncoder(BaseEncoder):
 
 class BaseTextEncoder(BaseEncoder):
 
-    def encode(self, text: List[str], *args, **kwargs) -> np.ndarray:
+    def encode(self, text: List[str], *args, **kwargs) -> Union[Tuple, np.ndarray]:
         pass
 
 
 class BaseNumericEncoder(BaseEncoder):
 
-    def encode(self, text: np.ndarray, *args, **kwargs) -> np.ndarray:
+    def encode(self, data: np.ndarray, *args, **kwargs) -> np.ndarray:
         pass
 
 

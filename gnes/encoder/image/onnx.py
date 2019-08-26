@@ -26,13 +26,11 @@ class BaseONNXImageEncoder(BaseImageEncoder):
 
     def __init__(self, model_name: str,
                  model_dir: str,
-                 use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
         self.model_name = model_name
-        self._use_cuda = use_cuda
 
     def post_init(self):
         import onnxruntime as ort

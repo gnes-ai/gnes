@@ -130,7 +130,6 @@ def __init__(self, model_name: str,
                  layers: List[str],
                  model_dir: str,
                  batch_size: int = 64,
-                 use_cuda: bool = False,
                  *args, **kwargs):
   # do model init...
   # ...

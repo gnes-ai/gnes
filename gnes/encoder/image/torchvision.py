@@ -19,7 +19,7 @@ from typing import List, Callable
 import numpy as np
 
 from ..base import BaseImageEncoder
-from ...helper import batching
+from ...helper import batching, as_numpy_array
 
 
 class TorchvisionEncoder(BaseImageEncoder):
@@ -28,14 +28,12 @@ class TorchvisionEncoder(BaseImageEncoder):
     def __init__(self, model_name: str,
                  layers: List[str],
                  model_dir: str,
-                 use_cuda: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
         self.model_name = model_name
         self.layers = layers
-        self._use_cuda = use_cuda
 
     def post_init(self):
         import torch
@@ -69,7 +67,7 @@ class TorchvisionEncoder(BaseImageEncoder):
         os.environ['TORCH_HOME'] = self.model_dir
         self._model = _Model(self.model_name, self.layers)
         self._model = self._model.eval()
-        if self._use_cuda:
+        if self.on_gpu:
             # self._model.cuda()
             self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             self._model = self._model.to(self._device)
@@ -94,6 +92,7 @@ class TorchvisionEncoder(BaseImageEncoder):
             max_lenth = -1
 
         @batching(chunk_dim=max_lenth)
+        @as_numpy_array
         def _encode(_, img: List['np.ndarray']):
             import copy
 
@@ -106,14 +105,11 @@ class TorchvisionEncoder(BaseImageEncoder):
                 img_for_torch = np.array(img, dtype=np.float32).transpose(0, 3, 1, 2)
 
             img_tensor = torch.from_numpy(img_for_torch)
-            if self._use_cuda:
+            if self.on_gpu:
                 img_tensor = img_tensor.cuda()
 
             encodes = self._model(img_tensor)
 
-            output = np.array(encodes.data.cpu().numpy(), dtype=np.float32)
-            return output
+            return encodes.data.cpu()
 
-        output = _encode(self, img)
-
-        return output
+        return _encode(self, img)
