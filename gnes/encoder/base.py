@@ -50,7 +50,7 @@ class BaseTextEncoder(BaseEncoder):
 
 class BaseNumericEncoder(BaseEncoder):
 
-    def encode(self, text: np.ndarray, *args, **kwargs) -> np.ndarray:
+    def encode(self, data: np.ndarray, *args, **kwargs) -> np.ndarray:
         pass
 
 
