@@ -14,7 +14,6 @@
 #  limitations under the License.
 
 import io
-import ffmpeg
 import numpy as np
 
 from typing import List

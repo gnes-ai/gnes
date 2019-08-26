@@ -15,7 +15,6 @@
 
 import io
 import re
-import ffmpeg
 import numpy as np
 import soundfile as sf
 
