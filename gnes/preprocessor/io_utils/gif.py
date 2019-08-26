@@ -18,27 +18,33 @@ import numpy as np
 import subprocess as sp
 import tempfile
 
-from .ffmpeg import parse_media_details
+from .ffmpeg import compile_args, parse_media_details, extract_frame_size
+from .helper import run_command
 
 
+def capture_frames(input_fn: str = 'pipe:',
+                   input_data: bytes = None,
+                   fps: int = None,
+                   pix_fmt: str = 'rgb24') -> 'np.ndarray':
 
-def decode_gif(data: bytes, fps: int = -1,
-               pix_fmt: str = 'rgb24') -> 'np.ndarray':
     with tempfile.NamedTemporaryFile(suffix=".gif") as f:
-        f.write(data)
+        f.write(input_data)
         f.flush()
 
-        stream = ffmpeg.input(f.name)
-        if fps > 0:
-            stream = stream.filter('fps', fps=20, round='up')
+        video_filters = []
+        if fps:
+            video_filters += ['fps=%d' % fps]
 
-        stream = stream.output('pipe:', format='rawvideo', pix_fmt=pix_fmt)
+        output_kwargs = {'format': 'rawvideo', 'pix_fmt': pix_fmt}
 
-        out, err = stream.run(capture_stdout=True, capture_stderr=True)
+        cmd_args = compile_args(
+            input_fn=f.name,
+            video_filters=video_filters,
+            output_options=output_kwargs)
 
-        meta_info = parse_media_details(err.decode())
-        width = meta_info['frame_width']
-        height = meta_info['frame_height']
+        out, err = run_command(cmd_args, pipe_stdout=True, pipe_stderr=True)
+
+        width, height = extract_frame_size(err.decode())
 
         depth = 3
         if pix_fmt == 'rgba':
@@ -49,10 +55,7 @@ def decode_gif(data: bytes, fps: int = -1,
         return frames
 
 
-def encode_gif(
-        images: List[np.ndarray],
-        fps: int,
-        pix_fmt: str = 'rgb24'):
+def encode_gif(images: List[np.ndarray], fps: int, pix_fmt: str = 'rgb24'):
 
     cmd = [
         'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',

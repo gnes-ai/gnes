@@ -55,6 +55,26 @@ def parse_media_details(infos):
     return medio_info
 
 
+def extract_frame_size(ffmpeg_parse_info: str):
+
+    possible_patterns = [
+        re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{4,})'),
+        re.compile(r'Stream.*Video.*([0-9]{4,})x([0-9]{3,})'),
+        re.compile(r'Stream.*Video.*([0-9]{3,})x([0-9]{3,})')
+    ]
+
+    for pattern in possible_patterns:
+        match = pattern.search(ffmpeg_parse_info)
+        if match is not None:
+            x, y = map(int, match.groups()[0:2])
+            break
+
+    if match is None:
+        raise ValueError("could not get video frame size")
+
+    return (x, y)
+
+
 def compile_args(input_fn: str = 'pipe:',
                  output_fn: str = 'pipe:',
                  video_filters: str = [],
