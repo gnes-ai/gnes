@@ -111,7 +111,7 @@ class ProgressBar:
                 num_bytes / elapsed,
                 self.num_batch / elapsed,
                 estleft_str,
-                (self.total_batch - self.num_batch) / (self.num_batch / elapsed)
+                (self.total_batch - self.num_batch) / (self.num_batch + 0.0001 / elapsed)
             ))
         sys.stdout.flush()
 
