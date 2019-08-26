@@ -95,7 +95,7 @@ class ProgressBar:
         elapsed = time.perf_counter() - self.start_time
         elapsed_str = colored('elapsed', 'yellow')
         speed_str = colored('speed', 'yellow')
-        estleft_str = colored('est left', 'yellow')
+        estleft_str = colored('left', 'yellow')
         self.num_batch += 1
         percent = self.num_batch / self.total_batch
         num_bytes = sum(self.all_bytes_len[((self.num_batch - 1) * self.batch_size):(self.num_batch * self.batch_size)])
