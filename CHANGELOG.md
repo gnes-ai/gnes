@@ -1,4 +1,34 @@
 
+# Release Note (`v0.0.35`)
+> Release time: 2019-08-26 18:15:02
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```b4444cc0```](https://github.com/gnes-ai/gnes/commit/b4444cc07cb7945155a2b01ea796d1d18fb43629)] __-__ __encoder__: separate pooling as an indep. encoder (*hanhxiao*)
+ - [[```ce0e65ae```](https://github.com/gnes-ai/gnes/commit/ce0e65aebcc4f779972fb59593542826467d27e5)] __-__ __helper__: batching decorator supports tuple (*hanhxiao*)
+ - [[```a584c7e5```](https://github.com/gnes-ai/gnes/commit/a584c7e5c5e59590d62da6b09c00044bdbf63476)] __-__ __helper__: add as_numpy_array decorator (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```ff7926d8```](https://github.com/gnes-ai/gnes/commit/ff7926d886f3e7a0e93b18fee9b3810b048d1443)] __-__ __encoder__: fix eager execution (*hanhxiao*)
+ - [[```27a7ca8c```](https://github.com/gnes-ai/gnes/commit/27a7ca8c2d18bdbb6956f6ee35656947465ac299)] __-__ __cli__: add a small jitter to prevent div zero (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```39561000```](https://github.com/gnes-ai/gnes/commit/39561000d86af9f2041b10ec573ed03626372dc9)] __-__ __base__: add on_gpu to replace use_cuda (*hanhxiao*)
+ - [[```928574cd```](https://github.com/gnes-ai/gnes/commit/928574cdb69d936a24fece6487c8add3778e669f)] __-__ __encoder__: replace gpt and elmo with transformer (*hanhxiao*)
+ - [[```52538276```](https://github.com/gnes-ai/gnes/commit/52538276185ffb8c16f10bb70a5f7a1c65aa9076)] __-__ __encoder__: no for loop in torch encoder now (*Jem*)
+ - [[```7493af97```](https://github.com/gnes-ai/gnes/commit/7493af9779093742d0e9fd16df6681366666539c)] __-__ __preprocessor__: add init, change signiture (*Jem*)
+
+### 🍹 Other Improvements
+
+ - [[```20249afb```](https://github.com/gnes-ai/gnes/commit/20249afb47229ea66795d15c342d3eabdeb03613)] __-__ __changelog__: update change log to v0.0.34 (*hanhxiao*)
+
 # Release Note (`v0.0.34`)
 > Release time: 2019-08-23 19:00:27
 
