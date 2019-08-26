@@ -17,8 +17,9 @@ from typing import List
 import numpy as np
 import subprocess as sp
 import tempfile
-import ffmpeg
-from .helper import extract_frame_size
+
+from .ffmpeg import parse_media_details
+
 
 
 def decode_gif(data: bytes, fps: int = -1,
@@ -35,7 +36,9 @@ def decode_gif(data: bytes, fps: int = -1,
 
         out, err = stream.run(capture_stdout=True, capture_stderr=True)
 
-        width, height = extract_frame_size(err.decode())
+        meta_info = parse_media_details(err.decode())
+        width = meta_info['frame_width']
+        height = meta_info['frame_height']
 
         depth = 3
         if pix_fmt == 'rgba':
@@ -43,18 +46,13 @@ def decode_gif(data: bytes, fps: int = -1,
 
         frames = np.frombuffer(out,
                                np.uint8).reshape([-1, height, width, depth])
-        return list(frames)
+        return frames
 
 
 def encode_gif(
-        images: np.ndarray,
-        scale: str,
+        images: List[np.ndarray],
         fps: int,
         pix_fmt: str = 'rgb24'):
-    """
-    https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality
-    https://gist.github.com/alexlee-gk/38916bf524dc75ca1b988d113aa30710
-    """
 
     cmd = [
         'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',
