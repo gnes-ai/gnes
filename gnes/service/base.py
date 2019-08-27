@@ -212,7 +212,7 @@ class BaseService(metaclass=ConcurrentService):
 
     def __init__(self, args):
         super().__init__()
-        if args.py_path:
+        if 'py_path' in args and args.py_path:
             PathImporter.add_modules(*args.py_path)
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)

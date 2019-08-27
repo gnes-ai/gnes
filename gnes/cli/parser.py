@@ -241,7 +241,7 @@ def _set_grpc_parser(parser=None):
 def set_grpc_service_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    _set_loadable_service_parser(parser)
+    set_service_parser(parser)
     _set_grpc_parser(parser)
     parser.add_argument('--pb2_path',
                         type=str,
