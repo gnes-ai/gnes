@@ -2,7 +2,9 @@ import os
 import unittest
 from shutil import rmtree
 
+from gnes.indexer.fulltext.dict import DictIndexer
 from gnes.indexer.fulltext.leveldb import LVDBIndexer
+from gnes.proto import gnes_pb2
 from tests import txt_file2pb_docs
 
 
@@ -10,14 +12,38 @@ class TestBaseLVDB(unittest.TestCase):
     def setUp(self):
         dirname = os.path.dirname(__file__)
 
-        self.test_docs = txt_file2pb_docs(open(os.path.join(dirname, 'tangshi.txt')))
+        self.test_docs = txt_file2pb_docs(open(os.path.join(dirname, 'tangshi.txt'), encoding='utf8'))
 
         self.db_path = './test_leveldb'
         self.dump_path = os.path.join(dirname, 'indexer.bin')
+        self.dump_yaml_path = os.path.join(dirname, 'indexer.yaml')
 
     def tearDown(self):
         if os.path.exists(self.db_path):
             rmtree(self.db_path)
+        if os.path.exists(self.dump_path):
+            os.remove(self.dump_path)
+        if os.path.exists(self.dump_yaml_path):
+            os.remove(self.dump_yaml_path)
+        if os.path.exists('my-indexer-531.bin'):
+            os.remove('my-indexer-531.bin')
+        if os.path.exists('my-indexer-531.yml'):
+            os.remove('my-indexer-531.yml')
+
+    def test_dict_indexer(self):
+        db = DictIndexer()
+        db.add(range(len(self.test_docs)), self.test_docs)
+        db.dump(self.dump_path)
+        self.assertEqual(len(self.test_docs), db.size)
+        db2 = DictIndexer.load(self.dump_path)
+        self.assertEqual(len(self.test_docs), db2.size)
+        db.name = 'my-indexer-531'
+        db.dump()
+        db.dump_yaml()
+        db3 = DictIndexer.load_yaml(db.yaml_full_path)
+        for k in db3.query([1, 2, 3]):
+            self.assertIsInstance(k, gnes_pb2.Document)
+        self.assertEqual(len(self.test_docs), db3.size)
 
     def test_add_docs(self):
         db = LVDBIndexer(self.db_path)
