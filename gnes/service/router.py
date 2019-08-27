@@ -31,7 +31,7 @@ class RouterService(BS):
         self._pending = defaultdict(list)  # type: Dict[str, List]
 
     def _is_msg_complete(self, msg: 'gnes_pb2.Message', num_req: int) -> bool:
-        return (num_req == msg.envelope.num_part[-1]) or \
+        return (self.args.num_part is None and num_req == msg.envelope.num_part[-1]) or \
                (num_req == self.args.num_part)
 
     @handler.register(NotImplementedError)
