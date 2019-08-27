@@ -48,7 +48,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
         # video could't be processed from ndarray!
         # only bytes can be passed into ffmpeg pipeline
         if doc.raw_bytes:
-            frames = video_util.capture_frames(video_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
+            frames = video_util.capture_frames(input_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
             # remove dupliated key frames by phash value
             if self.duplicate_rm:
                 frames = self.duplicate_rm_hash(frames)
@@ -135,7 +135,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
             if self.use_image_input:
                 frames = split_video_frames(doc.raw_bytes, self.splitter)
             else:
-                frames = video_util.capture_frames(video_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
+                frames = video_util.capture_frames(input_data=doc.raw_bytes, scale=self.frame_size, fps=self.frame_rate)
             if self.max_frames_per_doc > 0:
                 random_id = random.sample(range(len(frames)),
                                           k=min(self.max_frames_per_doc, len(frames)))

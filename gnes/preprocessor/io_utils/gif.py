@@ -17,23 +17,37 @@ from typing import List
 import numpy as np
 import subprocess as sp
 import tempfile
-import ffmpeg
-from .helper import extract_frame_size
+
+from .ffmpeg import compile_args, extract_frame_size
+from .helper import _check_input, run_command
 
 
-def decode_gif(data: bytes, fps: int = -1,
-               pix_fmt: str = 'rgb24') -> 'np.ndarray':
+def capture_frames(input_fn: str = 'pipe:',
+                   input_data: bytes = None,
+                   fps: int = None,
+                   pix_fmt: str = 'rgb24') -> 'np.ndarray':
+    _check_input(input_fn, input_data)
+
+
+
     with tempfile.NamedTemporaryFile(suffix=".gif") as f:
-        f.write(data)
-        f.flush()
+        if input_data:
+            f.write(input_data)
+            f.flush()
+            input_fn = f.name
 
-        stream = ffmpeg.input(f.name)
-        if fps > 0:
-            stream = stream.filter('fps', fps=20, round='up')
+        video_filters = []
+        if fps:
+            video_filters += ['fps=%d' % fps]
 
-        stream = stream.output('pipe:', format='rawvideo', pix_fmt=pix_fmt)
+        output_kwargs = {'format': 'rawvideo', 'pix_fmt': pix_fmt}
 
-        out, err = stream.run(capture_stdout=True, capture_stderr=True)
+        cmd_args = compile_args(
+            input_fn=input_fn,
+            video_filters=video_filters,
+            output_options=output_kwargs)
+
+        out, err = run_command(cmd_args, pipe_stdout=True, pipe_stderr=True)
 
         width, height = extract_frame_size(err.decode())
 
@@ -43,18 +57,10 @@ def decode_gif(data: bytes, fps: int = -1,
 
         frames = np.frombuffer(out,
                                np.uint8).reshape([-1, height, width, depth])
-        return list(frames)
+        return frames
 
 
-def encode_gif(
-        images: np.ndarray,
-        scale: str,
-        fps: int,
-        pix_fmt: str = 'rgb24'):
-    """
-    https://superuser.com/questions/556029/how-do-i-convert-a-video-to-gif-using-ffmpeg-with-reasonable-quality
-    https://gist.github.com/alexlee-gk/38916bf524dc75ca1b988d113aa30710
-    """
+def encode_gif(images: 'np.ndarray', fps: int, pix_fmt: str = 'rgb24'):
 
     cmd = [
         'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',

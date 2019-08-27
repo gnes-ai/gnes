@@ -15,9 +15,11 @@
 
 import io
 import re
-import ffmpeg
 import numpy as np
 import soundfile as sf
+
+from .ffmpeg import compile_args
+from .helper import _check_input, run_command
 
 from typing import List
 
@@ -25,27 +27,39 @@ DEFAULT_SILENCE_DURATION = 0.3
 DEFAULT_SILENCE_THRESHOLD = -60
 
 
-def capture_audio(filename: str = 'pipe:',
-                  video_data: bytes = None,
+def capture_audio(input_fn: str = 'pipe:',
+                  input_data: bytes = None,
                   bits_per_raw_sample: int = 16,
                   sample_rate: int = 16000,
+                  start_time: float = None,
+                  end_time: float = None,
                   **kwargs) -> List['np.ndarray']:
 
-    capture_stdin = (filename == 'pipe:')
-    if capture_stdin and video_data is None:
-        raise ValueError(
-            "the buffered video data for stdin should not be empty")
+    _check_input(input_fn, input_data)
 
-    stream = ffmpeg.input(filename)
-    stream = stream.output(
-        'pipe:',
-        format='wav',
-        bits_per_raw_sample=bits_per_raw_sample,
-        ac=1,
-        ar=16000)
+    input_kwargs = {}
+    if start_time is not None:
+        input_kwargs['ss'] = str(start_time)
+    else:
+        start_time = 0.
+    if end_time is not None:
+        input_kwargs['t'] = str(end_time - start_time)
 
-    stdout, _ = stream.run(
-        input=video_data, capture_stdout=True, capture_stderr=True)
+    output_kwargs = {
+        'format': 'wav',
+        'bits_per_raw_sample': bits_per_raw_sample,
+        'ac': 1,
+        'ar': sample_rate
+    }
+
+    cmd_args = compile_args(
+        input_fn=input_fn,
+        input_options=input_kwargs,
+        output_options=output_kwargs,
+        overwrite_output=True)
+
+    stdout, _ = run_command(
+        cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
 
     audio_stream = io.BytesIO(stdout)
     audio_data, sample_rate = sf.read(audio_stream)
@@ -56,12 +70,13 @@ def capture_audio(filename: str = 'pipe:',
     return audio_data
 
 
-def get_chunk_times(filename: str = 'pipe:',
-                    video_data: bytes = None,
+def get_chunk_times(input_fn: str = 'pipe:',
+                    input_data: bytes = None,
                     silence_threshold: float = DEFAULT_SILENCE_THRESHOLD,
                     silence_duration: float = DEFAULT_SILENCE_DURATION,
                     start_time: float = None,
                     end_time: float = None):
+    _check_input(input_fn, input_data)
 
     silence_start_re = re.compile(
         ' silence_start: (?P<start>[0-9]+(\.?[0-9]*))$')
@@ -78,15 +93,20 @@ def get_chunk_times(filename: str = 'pipe:',
     if end_time is not None:
         input_kwargs['t'] = end_time - start_time
 
-    stream = ffmpeg.input(filename, **input_kwargs)
-    stream = stream.filter(
-        'silencedetect',
-        n='{}dB'.format(silence_threshold),
-        d=silence_duration)
-    stream = stream.output('pipe:', format='null')
+    au_filters = [
+        'silencedetect=noise={}dB:d={}'.format(silence_threshold,
+                                               silence_duration)
+    ]
 
-    stdout, stderr = stream.run(
-        input=video_data, capture_stdout=True, capture_stderr=True)
+    output_kwargs = {'format': 'null'}
+    cmd_args = compile_args(
+        input_fn=input_fn,
+        input_options=input_kwargs,
+        audio_filters=au_filters,
+        output_options=output_kwargs)
+
+    stdout, stderr = run_command(
+        cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
 
     lines = stderr.decode().splitlines()
 
@@ -121,28 +141,42 @@ def get_chunk_times(filename: str = 'pipe:',
     return list(zip(chunk_starts, chunk_ends))
 
 
-def split_audio(filename: str = 'pipe:',
-                video_data: bytes = None,
+def split_audio(input_fn: str = 'pipe:',
+                input_data: bytes = None,
                 silence_threshold=DEFAULT_SILENCE_THRESHOLD,
                 silence_duration=DEFAULT_SILENCE_DURATION,
                 start_time: float = None,
                 end_time: float = None,
                 verbose=False):
+    _check_input(input_fn, input_data)
     chunk_times = get_chunk_times(
-        filename,
-        video_data=video_data,
+        input_fn,
+        input_data=input_data,
         silence_threshold=silence_threshold,
         silence_duration=silence_duration,
         start_time=start_time,
         end_time=end_time)
-
     audio_chunks = list()
     for i, (start_time, end_time) in enumerate(chunk_times):
         time = end_time - start_time
-        stream = ffmpeg.input(filename, ss=start_time, t=time)
-        stream = stream.output('pipe:', format='wav')
-        stdout, _ = stream.run(
-            input=video_data, capture_stdout=True, capture_stderr=True)
+        if time < 0:
+            continue
+        input_kwargs = {
+            'ss': start_time,
+            't': time
+        }
+
+        output_kwargs = {
+            'format': 'wav'
+        }
+
+        cmd_args = compile_args(
+            input_fn=input_fn,
+            input_options=input_kwargs,
+            output_options=output_kwargs)
+
+        stdout, stderr = run_command(
+            cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
 
         audio_stream = io.BytesIO(stdout)
         audio_data, sample_rate = sf.read(audio_stream)
