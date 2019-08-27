@@ -53,7 +53,9 @@ def scale_video(input_fn: str = 'pipe:',
         'vcodec': vcodec,
         'pix_fmt': pix_fmt,
         'crf': crf,
-        'framerate': frame_rate
+        'framerate': frame_rate,
+        'acodec': 'aac',
+        'strict': 'experimental',  # AAC audio encoder is experimental
     }
 
     if scale:
