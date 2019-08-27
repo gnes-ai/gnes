@@ -16,7 +16,7 @@ class DictIndexer(BaseTextIndexer):
         self._content.update({k: MessageToJson(d) for (k, d) in zip(keys, docs)})
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
-        return [Parse(self._content[k], gnes_pb2.Document) for k in keys]
+        return [Parse(self._content[k], gnes_pb2.Document()) for k in keys]
 
     @property
     def size(self):

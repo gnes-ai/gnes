@@ -4,6 +4,7 @@ from shutil import rmtree
 
 from gnes.indexer.fulltext.dict import DictIndexer
 from gnes.indexer.fulltext.leveldb import LVDBIndexer
+from gnes.proto import gnes_pb2
 from tests import txt_file2pb_docs
 
 
@@ -40,6 +41,8 @@ class TestBaseLVDB(unittest.TestCase):
         db.dump()
         db.dump_yaml()
         db3 = DictIndexer.load_yaml(db.yaml_full_path)
+        for k in db3.query([1, 2, 3]):
+            self.assertIsInstance(k, gnes_pb2.Document)
         self.assertEqual(len(self.test_docs), db3.size)
 
     def test_add_docs(self):
