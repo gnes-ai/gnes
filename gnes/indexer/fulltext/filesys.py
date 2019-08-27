@@ -46,6 +46,10 @@ class DirectoryIndexer(BaseTextIndexer):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
+            # keep doc meta in .meta file
+            with open(os.path.join(dirs, '.meta'), 'wb') as f:
+                f.write(d.meta)
+
             for i, chunk in enumerate(d.chunks):
                 with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
