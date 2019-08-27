@@ -226,7 +226,10 @@ class BaseService(metaclass=ConcurrentService):
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
 
     def run(self):
-        self._run()
+        try:
+            self._run()
+        except Exception as ex:
+            self.logger.error(ex)
 
     def _start_auto_dump(self):
         if self.args.dump_interval > 0 and not self.args.read_only:
