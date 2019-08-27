@@ -28,7 +28,8 @@ _cls2file_map = {
     'BaseIndexer': 'base',
     'BaseTextIndexer': 'base',
     'AnnoyIndexer': 'vector.annoy',
-    'DirectoryIndexer': 'fulltext.filesys'
+    'DirectoryIndexer': 'fulltext.filesys',
+    'DictIndexer': 'fulltext.dict'
 }
 
 register_all_class(_cls2file_map, 'indexer')
