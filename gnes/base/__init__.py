@@ -361,8 +361,8 @@ class TrainableBase(metaclass=TrainableType):
 
     @staticmethod
     def _get_dump_path_from_config(gnes_config: Dict):
-        if 'work_dir' in gnes_config and 'name' in gnes_config:
-            dump_path = os.path.join(gnes_config['work_dir'], '%s.bin' % gnes_config['name'])
+        if 'name' in gnes_config:
+            dump_path = os.path.join(gnes_config.get('work_dir', os.getcwd()), '%s.bin' % gnes_config['name'])
             if os.path.exists(dump_path):
                 return dump_path
 
