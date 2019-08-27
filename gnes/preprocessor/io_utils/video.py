@@ -18,7 +18,7 @@ import numpy as np
 
 from typing import List
 
-from .ffmpeg import parse_media_details, compile_args
+from .ffmpeg import parse_media_details, get_media_meta, compile_args
 from .helper import run_command, run_command_async
 
 
@@ -147,6 +147,32 @@ def capture_frames(input_fn: str = 'pipe:',
         raise ValueError(
             "the buffered video data for stdin should not be empty")
 
+    video_meta = get_media_meta(input_fn=input_fn, input_data=input_data)
+    width = video_meta['frame_width']
+    height = video_meta['frame_height']
+
+    if scale is not None:
+        _width, _height = map(int, scale.split(':'))
+        if _width * _height < 0:
+            if _width > 0:
+                ratio = _width / width
+                height = int(ratio * height)
+                if _height == -2:
+                    height += height % 2
+                width = _width
+            else:
+                ratio = _height / height
+                width = int(ratio * width)
+                if _width == -2:
+                    width += width % 2
+
+                height = _height
+
+            scale = '%d:%d' % (width, height)
+        else:
+            width = _width
+            height = _height
+
     input_kwargs = {
         'err_detect': 'aggressive',
         'fflags': 'discardcorrupt'    # discard corrupted frames
@@ -178,13 +204,6 @@ def capture_frames(input_fn: str = 'pipe:',
 
     out, err = run_command(
         cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
-
-    if scale:
-        width, height = map(int, scale.split(':'))
-    else:
-        meta_info = parse_media_details(err.decode())
-        width = meta_info['frame_width']
-        height = meta_info['frame_height']
 
     depth = 3
     if pix_fmt == 'rgba':
