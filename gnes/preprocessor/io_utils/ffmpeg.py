@@ -14,7 +14,7 @@
 #  limitations under the License.
 
 import re
-from .helper import kwargs_to_cmd_args, run_command
+from .helper import _check_input, kwargs_to_cmd_args, run_command
 
 VIDEO_DUR_PATTERN = re.compile(r".*Duration: (\d+):(\d+):(\d+)", re.DOTALL)
 VIDEO_INFO_PATTERN = re.compile(
@@ -147,6 +147,7 @@ def probe(input_fn: str):
 def get_media_meta(input_fn: str = 'pipe:',
                    input_data: bytes = None,
                    input_options=dict()):
+    _check_input(input_fn, input_data)
     cmd_args = ['ffmpeg']
 
     fmt = input_options.pop('format', None)

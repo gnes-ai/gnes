@@ -19,7 +19,7 @@ import numpy as np
 import soundfile as sf
 
 from .ffmpeg import compile_args
-from .helper import run_command
+from .helper import _check_input, run_command
 
 from typing import List
 
@@ -35,10 +35,7 @@ def capture_audio(input_fn: str = 'pipe:',
                   end_time: float = None,
                   **kwargs) -> List['np.ndarray']:
 
-    capture_stdin = (input_fn == 'pipe:')
-    if capture_stdin and input_data is None:
-        raise ValueError(
-            "the buffered video data for stdin should not be empty")
+    _check_input(input_fn, input_data)
 
     input_kwargs = {}
     if start_time is not None:
@@ -79,6 +76,7 @@ def get_chunk_times(input_fn: str = 'pipe:',
                     silence_duration: float = DEFAULT_SILENCE_DURATION,
                     start_time: float = None,
                     end_time: float = None):
+    _check_input(input_fn, input_data)
 
     silence_start_re = re.compile(
         ' silence_start: (?P<start>[0-9]+(\.?[0-9]*))$')
@@ -150,6 +148,7 @@ def split_audio(input_fn: str = 'pipe:',
                 start_time: float = None,
                 end_time: float = None,
                 verbose=False):
+    _check_input(input_fn, input_data)
     chunk_times = get_chunk_times(
         input_fn,
         input_data=input_data,

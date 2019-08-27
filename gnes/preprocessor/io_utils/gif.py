@@ -19,17 +19,22 @@ import subprocess as sp
 import tempfile
 
 from .ffmpeg import compile_args, extract_frame_size
-from .helper import run_command
+from .helper import _check_input, run_command
 
 
 def capture_frames(input_fn: str = 'pipe:',
                    input_data: bytes = None,
                    fps: int = None,
                    pix_fmt: str = 'rgb24') -> 'np.ndarray':
+    _check_input(input_fn, input_data)
+
+
 
     with tempfile.NamedTemporaryFile(suffix=".gif") as f:
-        f.write(input_data)
-        f.flush()
+        if input_data:
+            f.write(input_data)
+            f.flush()
+            input_fn = f.name
 
         video_filters = []
         if fps:
@@ -38,7 +43,7 @@ def capture_frames(input_fn: str = 'pipe:',
         output_kwargs = {'format': 'rawvideo', 'pix_fmt': pix_fmt}
 
         cmd_args = compile_args(
-            input_fn=f.name,
+            input_fn=input_fn,
             video_filters=video_filters,
             output_options=output_kwargs)
 

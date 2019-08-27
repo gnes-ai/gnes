@@ -19,7 +19,7 @@ import numpy as np
 from typing import List
 
 from .ffmpeg import get_media_meta, compile_args
-from .helper import run_command, run_command_async
+from .helper import _check_input, run_command, run_command_async
 
 
 def scale_video(input_fn: str = 'pipe:',
@@ -34,10 +34,8 @@ def scale_video(input_fn: str = 'pipe:',
                 format: str = 'mp4',
                 pix_fmt: str = 'yuv420p',
                 **kwargs):
-    capture_stdin = (input_fn == 'pipe:')
-    if capture_stdin and input_data is None:
-        raise ValueError(
-            "the buffered video data for stdin should not be empty")
+
+    _check_input(input_fn, input_data)
 
     capture_stdout = (output_fn == 'pipe:')
 
@@ -142,10 +140,7 @@ def capture_frames(input_fn: str = 'pipe:',
                    start_time: float = None,
                    end_time: float = None,
                    **kwargs) -> List['np.ndarray']:
-    capture_stdin = (input_fn == 'pipe:')
-    if capture_stdin and input_data is None:
-        raise ValueError(
-            "the buffered video data for stdin should not be empty")
+    _check_input(input_fn, input_data)
 
     video_meta = get_media_meta(input_fn=input_fn, input_data=input_data)
     width = video_meta['frame_width']

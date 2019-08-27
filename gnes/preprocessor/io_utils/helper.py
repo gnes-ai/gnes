@@ -25,6 +25,13 @@ def kwargs_to_cmd_args(kwargs):
     return args
 
 
+def _check_input(input_fn: str, input_data: bytes):
+    capture_stdin = (input_fn == 'pipe:')
+    if capture_stdin and input_data is None:
+        raise ValueError(
+            "the buffered video data for stdin should not be empty")
+
+
 def run_command_async(cmd_args,
                       pipe_stdin=True,
                       pipe_stdout=False,
