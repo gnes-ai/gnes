@@ -92,8 +92,15 @@ def compile_args(input_fn: str = 'pipe:',
     if fmt:
         input_args += ['-f', fmt]
 
+    start_time = input_options.pop('ss', None)
+    duration = input_options.pop('t', None)
+
     input_args += kwargs_to_cmd_args(input_options)
     input_args += ['-i', input_fn]
+    if start_time is not None:
+        input_args += ['-ss', str(start_time)]
+    if duration is not None:
+        input_args += ['-t', str(duration)]
 
     vf_args = []
     if len(video_filters) > 0:

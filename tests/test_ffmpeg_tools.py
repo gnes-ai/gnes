@@ -65,7 +65,9 @@ class TestFFmpeg(unittest.TestCase):
             self.assertEqual(audio_data1.shape, audio_data2.shape)
 
     def test_split_audio(self):
-        audio.split_audio(input_fn=self.video_path)
+        chunks1 = audio.split_audio(input_fn=self.video_path)
         with open(self.video_path, 'rb') as f:
             data = f.read()
-            audio.split_audio(input_data=data)
+            chunks2 = audio.split_audio(input_data=data)
+            self.assertEqual(len(chunks1), len(chunks2))
+            self.assertEqual(chunks1[0].shape, chunks2[0].shape)
