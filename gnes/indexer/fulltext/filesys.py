@@ -64,7 +64,7 @@ class DirectoryIndexer(BaseTextIndexer):
             doc = gnes_pb2.Document()
             target_dirs = os.path.join(self.data_path, str(k))
 
-            with open(os.path.join(target_dirs, '.meta')) as f:
+            with open(os.path.join(target_dirs, '.meta'), 'rb') as f:
                 doc.meta_info = f.read()
 
             if not os.path.exists(target_dirs):
