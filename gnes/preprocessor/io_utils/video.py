@@ -18,7 +18,7 @@ import numpy as np
 
 from typing import List
 
-from .ffmpeg import parse_media_details, get_media_meta, compile_args
+from .ffmpeg import get_media_meta, compile_args
 from .helper import run_command, run_command_async
 
 
@@ -202,7 +202,7 @@ def capture_frames(input_fn: str = 'pipe:',
         video_filters=video_filters,
         output_options=output_kwargs)
 
-    out, err = run_command(
+    out, _ = run_command(
         cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
 
     depth = 3
