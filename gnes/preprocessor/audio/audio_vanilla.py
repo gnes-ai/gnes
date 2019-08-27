@@ -16,24 +16,21 @@
 import numpy as np
 
 from ..base import BaseAudioPreprocessor
-from ..helper import get_video_length_from_raw, get_audio
 from ...proto import array2blob
+from ..io_utils import audio as audio_util
 
 
 class AudioVanilla(BaseAudioPreprocessor):
 
-    def __init__(self, audio_interval: int,
-                 sample_rate: int, *args, **kwargs):
+    def __init__(self, sample_rate: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.audio_interval = audio_interval
         self.sample_rate = sample_rate
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
 
         if doc.raw_bytes:
-            audio = get_audio(doc.raw_bytes, self.sample_rate,
-                              self.audio_interval, get_video_length_from_raw(doc.raw_bytes))
+            audio = audio_util.capture_audio(input_data=doc.raw_bytes, sample_rate=self.sample_rate)
             if len(audio) >= 1:
                 for ci, chunks in enumerate(audio):
                     c = doc.chunks.add()
