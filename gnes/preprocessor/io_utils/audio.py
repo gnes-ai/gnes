@@ -157,9 +157,11 @@ def split_audio(input_fn: str = 'pipe:',
         start_time=start_time,
         end_time=end_time)
     audio_chunks = list()
+    print("chunk_times", chunk_times)
     for i, (start_time, end_time) in enumerate(chunk_times):
         time = end_time - start_time
         if time < 0:
+
             continue
         input_kwargs = {
             'ss': start_time,

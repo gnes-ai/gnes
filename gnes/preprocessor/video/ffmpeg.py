@@ -19,10 +19,9 @@ from typing import List
 import numpy as np
 
 from ..base import BaseVideoPreprocessor, RawChunkPreprocessor
-from ..helper import split_video_frames, phash_descriptor
+from ..helper import split_video_frames, phash_descriptor, get_gif
 from ...proto import gnes_pb2, array2blob, blob2array
 from ..io_utils import video as video_util
-from ..io_utils import gif as gif_util
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
@@ -188,4 +187,4 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
 class GifChunkPreprocessor(RawChunkPreprocessor, BaseVideoPreprocessor):
     @staticmethod
     def _parse_chunk(chunk: 'gnes_pb2.Chunk', *args, **kwargs):
-        return gif_util.encode_gif(blob2array(chunk.blob), fps=10)
+        return get_gif(blob2array(chunk.blob))
