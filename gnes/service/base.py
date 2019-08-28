@@ -212,6 +212,8 @@ class BaseService(metaclass=ConcurrentService):
 
     def __init__(self, args):
         super().__init__()
+        if 'py_path' in args and args.py_path:
+            PathImporter.add_modules(*args.py_path)
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.is_ready = self._get_event()
@@ -224,7 +226,10 @@ class BaseService(metaclass=ConcurrentService):
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
 
     def run(self):
-        self._run()
+        try:
+            self._run()
+        except Exception as ex:
+            self.logger.error(ex)
 
     def _start_auto_dump(self):
         if self.args.dump_interval > 0 and not self.args.read_only:
@@ -407,9 +412,6 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
 class ServiceManager:
     def __init__(self, service_cls, args):
         self.logger = set_logger(self.__class__.__name__, args.verbose)
-
-        if args.py_path:
-            PathImporter.add_modules(*args.py_path)
 
         self.services = []  # type: List['BaseService']
         if args.num_parallel > 1:
