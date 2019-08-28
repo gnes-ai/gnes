@@ -46,6 +46,10 @@ class DirectoryIndexer(BaseTextIndexer):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
+            # keep doc meta in .meta file
+            with open(os.path.join(dirs, '.meta'), 'wb') as f:
+                f.write(d.meta_info or b'')
+
             for i, chunk in enumerate(d.chunks):
                 with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
@@ -59,10 +63,13 @@ class DirectoryIndexer(BaseTextIndexer):
         for k in keys:
             doc = gnes_pb2.Document()
             target_dirs = os.path.join(self.data_path, str(k))
+
             if not os.path.exists(target_dirs):
                 if self.keep_na_doc:
                     res.append(self._NOT_FOUND)
             else:
+                with open(os.path.join(target_dirs, '.meta'), 'rb') as f:
+                    doc.meta_info = f.read()
                 for raw_file in os.listdir(target_dirs):
                     if not os.path.isdir(raw_file):
                         c = doc.chunks.add()

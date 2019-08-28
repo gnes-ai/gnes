@@ -20,6 +20,8 @@ class TestDictIndexer(unittest.TestCase):
         self.data_path = './test_chunkleveldb'
         self.dump_path = os.path.join(self.dirname, 'indexer.bin')
 
+        self.init_db()
+
     def tearDown(self):
         if os.path.exists(self.data_path):
             rmtree(self.data_path)
@@ -37,12 +39,12 @@ class TestDictIndexer(unittest.TestCase):
         self.db.add(list(range(len(self.video_bytes))), [self.d])
 
     def test_add_docs(self):
-        self.init_db()
+        # self.init_db()
         self.assertTrue(os.path.exists(os.path.join(self.data_path, str(self.d.doc_id))))
-        self.assertEqual(len(self.d.chunks), len(os.listdir(os.path.join(self.data_path, str(self.d.doc_id)))))
+        self.assertEqual(len(self.d.chunks), len(os.listdir(os.path.join(self.data_path, str(self.d.doc_id)))) - 1)
 
     def test_query_docs(self):
-        self.init_db()
+        # self.init_db()
 
         query_list = [0, 1, 2]
         res = self.db.query(query_list)
