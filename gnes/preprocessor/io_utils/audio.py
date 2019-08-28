@@ -147,6 +147,7 @@ def split_audio(input_fn: str = 'pipe:',
                 silence_duration=DEFAULT_SILENCE_DURATION,
                 start_time: float = None,
                 end_time: float = None,
+                sample_rate: int = 16000,
                 verbose=False):
     _check_input(input_fn, input_data)
     chunk_times = get_chunk_times(
@@ -157,7 +158,7 @@ def split_audio(input_fn: str = 'pipe:',
         start_time=start_time,
         end_time=end_time)
     audio_chunks = list()
-    print("chunk_times", chunk_times)
+    # print("chunk_times", chunk_times)
     for i, (start_time, end_time) in enumerate(chunk_times):
         time = end_time - start_time
         if time < 0:
@@ -169,7 +170,8 @@ def split_audio(input_fn: str = 'pipe:',
         }
 
         output_kwargs = {
-            'format': 'wav'
+            'format': 'wav',
+            'ar': sample_rate
         }
 
         cmd_args = compile_args(
