@@ -93,8 +93,8 @@ class IndexerService(BS):
                 r.score = _weight * qc_weight * _relevance * offset_relevance
                 r.score_explained = '[chunk_score at doc: %d, offset: %d] = ' \
                                     '(doc_chunk_weight: %.6f) * ' \
-                                    '(query_doc_chunk_relevance: %.6f) * ' \
-                                    '(query_doc_offset_relevance: %.6f) * ' \
+                                    '(chunk_relevance: %.6f) * ' \
+                                    '(offset_divergence: %.6f) * ' \
                                     '(query_chunk_weight: %.6f)' % (
                                         _doc_id, _offset, _weight, _relevance, offset_relevance, qc_weight)
             msg.response.search.top_k = topk
