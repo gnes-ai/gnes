@@ -44,3 +44,4 @@ class TestAudioPreprocessor(unittest.TestCase):
                     for _ in range(len(d.chunks)):
                         shape = blob2array(d.chunks[_].blob).shape
                         self.assertEqual(len(shape), 1)
+

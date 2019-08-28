@@ -30,15 +30,11 @@ message Chunk {
         bytes raw = 7;
     }
 
-    message Coordinate {
-        repeated uint32 x = 1 [packed = true];
-    }
-
     // the 1-dim offset of the chunk wrt. the document (apply to text document)
     uint32 offset_1d = 4;
 
     // the n-dim offset of the chunk wrt. the document (apply to image/video document)
-    Coordinate offset_nd = 5;
+    repeated uint32 offset_nd = 5 [packed = true];
 
     float weight = 6;
 }

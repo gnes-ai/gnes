@@ -67,14 +67,14 @@ class SegmentPreprocessor(SizedPreprocessor):
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(self._crop(original_image, ele[0])))
                 c.offset_1d = ci
-                c.offset_nd.x.extend(self._get_seg_offset_nd(all_subareas, index, ele[0]))
+                c.offset_nd.extend(self._get_seg_offset_nd(all_subareas, index, ele[0]))
                 c.weight = self._cal_area(ele[0]) / (original_image.size[0] * original_image.size[1])
 
             c = doc.chunks.add()
             c.doc_id = doc.doc_id
             c.blob.CopyFrom(array2blob(np.array(original_image)))
             c.offset_1d = len(chunks)
-            c.offset_nd.x.extend([100, 100])
+            c.offset_nd.extend([100, 100])
             c.weight = 1.
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
