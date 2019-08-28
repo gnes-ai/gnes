@@ -15,11 +15,12 @@
 
 from typing import List
 
-from ..base import BaseReduceRouter
-from ...proto import gnes_pb2
+from .base import BaseReduceRouter
+from .base import BaseTopkReduceRouter
+from ..proto import gnes_pb2
 
 
-class DocFillRouter(BaseReduceRouter):
+class DocFillReducer(BaseReduceRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
         final_docs = []
         for idx, r in enumerate(msg.response.search.topk_results):
@@ -33,3 +34,19 @@ class DocFillRouter(BaseReduceRouter):
         msg.response.search.topk_results.extend(final_docs[:msg.response.search.top_k])
 
         super().apply(msg, accum_msgs)
+
+
+class DocTopkReducer(BaseTopkReduceRouter):
+    def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
+        return x.doc.doc_id
+
+    def set_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult', k: str):
+        x.doc.doc_id = k
+
+
+class ChunkTopkReducer(BaseTopkReduceRouter):
+    def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
+        return '%d-%d' % (x.chunk.doc_id, x.chunk.offset)
+
+    def set_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult', k: str):
+        x.chunk.doc_id, x.chunk.offset = map(int, k.split('-'))

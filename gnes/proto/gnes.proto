@@ -31,12 +31,14 @@ message Chunk {
     }
 
     // the 1-dim offset of the chunk wrt. the document (apply to text document)
-    uint32 offset_1d = 4;
+    uint32 offset = 4;
 
     // the n-dim offset of the chunk wrt. the document (apply to image/video document)
     repeated uint32 offset_nd = 5 [packed = true];
 
     float weight = 6;
+
+    NdArray embedding = 8;
 }
 
 message Document {
@@ -45,9 +47,6 @@ message Document {
 
     // list of the chunks of the document
     repeated Chunk chunks = 2;
-
-    // the vector encode of this chunk
-    NdArray chunk_embeddings = 3;
 
     enum DocType {
         UNKNOWN = 0;
@@ -58,17 +57,17 @@ message Document {
     }
 
     // document type
-    DocType doc_type = 4;
+    DocType doc_type = 3;
 
     // meta information of this document
-    bytes meta_info = 5;
+    bytes meta_info = 4;
 
     // raw information of this document
     oneof raw_data {
-        string raw_text = 6;
-        NdArray raw_image = 7;
-        NdArray raw_video = 8;
-        bytes raw_bytes = 9;  // for other types
+        string raw_text = 5;
+        NdArray raw_image = 6;
+        NdArray raw_video = 7;
+        bytes raw_bytes = 8; // for other types
     }
 
     float weight = 10;
@@ -176,8 +175,12 @@ message Response {
                 Document doc = 2;
             }
 
-            float score = 3;
-            string score_explained = 4;
+            Score score = 3;
+
+            message Score {
+                float value = 1;
+                string explained = 2;
+            }
         }
 
         Status status = 1;

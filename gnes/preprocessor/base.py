@@ -81,7 +81,7 @@ class UnaryPreprocessor(BasePreprocessor):
         super().apply(doc)
         c = doc.chunks.add()
         c.doc_id = doc.doc_id
-        c.offset_1d = 0
+        c.offset = 0
         c.weight = 1.
         if doc.raw_bytes:
             self.raw_to_chunk(c, doc.raw_bytes)

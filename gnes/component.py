@@ -14,9 +14,9 @@ BaseNumericEncoder = encoder_base.BaseNumericEncoder
 PipelineEncoder = encoder_base.PipelineEncoder
 
 # Indexer
-BaseVectorIndexer = indexer_base.BaseVectorIndexer
+BaseChunkIndexer = indexer_base.BaseChunkIndexer
 BaseIndexer = indexer_base.BaseIndexer
-BaseTextIndexer = indexer_base.BaseTextIndexer
+BaseDocIndexer = indexer_base.BaseDocIndexer
 BaseKeyIndexer = indexer_base.BaseKeyIndexer
 JointIndexer = indexer_base.JointIndexer
 

@@ -16,7 +16,7 @@
 
 from typing import List, Union
 
-from .base import BaseService as BS, MessageHandler
+from .base import BaseService as BS, MessageHandler, ServiceError
 from ..proto import gnes_pb2, array2blob, blob2array
 
 
@@ -28,28 +28,41 @@ class EncoderService(BS):
         self._model = self.load_model(BaseEncoder)
         self.train_data = []
 
-    @staticmethod
-    def get_chunks_from_docs(docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']) -> List:
+    def embed_chunks_from_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']):
         if getattr(docs, 'doc_type', None) is not None:
             docs = [docs]
-        return [c.text if d.doc_type == gnes_pb2.Document.TEXT else blob2array(c.blob)
-                for d in docs for c in d.chunks]
+
+        contents = []
+        chunks = []
+
+        for d in docs:
+            for c in d.chunks:
+                chunks.append(c)
+                if d.doc_type == gnes_pb2.Document.TEXT:
+                    contents.append(c.text)
+                elif getattr(c, c.WhichOneof('content')) == 'blob':
+                    contents.append(blob2array(c.blob))
+                else:
+                    raise ServiceError(
+                        'chunk content is in type: %s, dont kow how to handle that' % c.WhichOneof('content'))
+
+        embeds = self._model.encode(contents)
+        if len(chunks) != embeds.shape[0]:
+            raise ServiceError(
+                'mismatched %d chunks and a %s shape embedding, '
+                'the first dimension must be the same' % (len(chunks), embeds.shape))
+        for idx, c in enumerate(chunks):
+            c.embedding.CopyFrom(array2blob(embeds[idx]))
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
-        chunks = self.get_chunks_from_docs(msg.request.index.docs)
-        vecs = self._model.encode(chunks)
-        s = 0
-        for d in msg.request.index.docs:
-            if len(d.chunks):
-                d.chunk_embeddings.CopyFrom(array2blob(vecs[s:(s + len(d.chunks))]))
-                s += len(d.chunks)
+        self.embed_chunks_from_docs(msg.request.index.docs)
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
         if msg.request.train.docs:
-            chunks = self.get_chunks_from_docs(msg.request.train.docs)
-            self.train_data.extend(chunks)
+            _, contents = self.get_chunks_from_docs(msg.request.train.docs)
+            self.train_data.extend(contents)
             msg.response.train.status = gnes_pb2.Response.PENDING
             # raise BlockMessage
         if msg.request.train.flush:
@@ -61,6 +74,4 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
-        chunks = self.get_chunks_from_docs(msg.request.search.query)
-        vecs = self._model.encode(chunks)
-        msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(vecs))
+        self.embed_chunks_from_docs(msg.request.search.query)

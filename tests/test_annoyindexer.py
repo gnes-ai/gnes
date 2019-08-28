@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer.vector.annoy import AnnoyIndexer
+from gnes.indexer.chunk.annoy import AnnoyIndexer
 
 
 class TestAnnoyIndexer(unittest.TestCase):

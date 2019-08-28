@@ -33,7 +33,7 @@ class BaseIndexer(TrainableBase):
         pass
 
 
-class BaseVectorIndexer(BaseIndexer):
+class BaseChunkIndexer(BaseIndexer):
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         pass
@@ -42,7 +42,7 @@ class BaseVectorIndexer(BaseIndexer):
         pass
 
 
-class BaseTextIndexer(BaseIndexer):
+class BaseDocIndexer(BaseIndexer):
 
     def add(self, keys: List[int], docs: Any, weights: List[float], *args, **kwargs):
         pass
@@ -80,9 +80,9 @@ class JointIndexer(CompositionalTrainableBase):
         self._binary_indexer = None
         self._doc_indexer = None
         for c in self.components:
-            if isinstance(c, BaseVectorIndexer):
+            if isinstance(c, BaseChunkIndexer):
                 self._binary_indexer = c
-            elif isinstance(c, BaseTextIndexer):
+            elif isinstance(c, BaseDocIndexer):
                 self._doc_indexer = c
         if not self._binary_indexer or not self._doc_indexer:
             raise ValueError('"JointIndexer" requires a valid pair of "BaseBinaryIndexer" and "BaseTextIndexer"')

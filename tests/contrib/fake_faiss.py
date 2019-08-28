@@ -1,7 +1,7 @@
-from gnes.indexer.base import BaseVectorIndexer
+from gnes.indexer.base import BaseChunkIndexer
 
 
-class FaissIndexer(BaseVectorIndexer):
+class FaissIndexer(BaseChunkIndexer):
 
     def __init__(self, bar: int, *args, **kwargs):
         super().__init__(*args, **kwargs)

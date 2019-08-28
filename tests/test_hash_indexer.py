@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from gnes.indexer.vector.hbindexer import HBIndexer
+from gnes.indexer.chunk.hbindexer import HBIndexer
 
 
 class TestMHIndexer(unittest.TestCase):

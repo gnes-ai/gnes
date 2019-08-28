@@ -20,8 +20,8 @@ import numpy as np
 
 from ..base import BaseVideoPreprocessor, RawChunkPreprocessor
 from ..helper import split_video_frames, phash_descriptor, get_gif
-from ...proto import gnes_pb2, array2blob, blob2array
 from ..io_utils import video as video_util
+from ...proto import gnes_pb2, array2blob, blob2array
 
 
 class FFmpegPreprocessor(BaseVideoPreprocessor):
@@ -62,7 +62,7 @@ class FFmpegPreprocessor(BaseVideoPreprocessor):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(chunk))
-                c.offset_1d = ci
+                c.offset = ci
                 c.weight = weight[ci]
 
         else:
@@ -175,7 +175,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
                     c.blob.CopyFrom(array2blob(np.array(chunk, dtype=np.uint8)))
-                    c.offset_1d = ci
+                    c.offset = ci
                     c.weight = 1 / len(sub_videos)
 
             else:

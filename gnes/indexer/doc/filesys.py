@@ -19,11 +19,11 @@
 import os
 from typing import List
 
-from ..base import BaseTextIndexer
+from ..base import BaseDocIndexer
 from ...proto import gnes_pb2
 
 
-class DirectoryIndexer(BaseTextIndexer):
+class DirectoryIndexer(BaseDocIndexer):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,

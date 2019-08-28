@@ -13,24 +13,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import json
 import re
 
 from ..base import BaseTextPreprocessor
 from ...proto import gnes_pb2
 
 
-class PunctSplitPreprocessor(BaseTextPreprocessor):
-    def __init__(self, deliminator: str = r'[.。！？!?]+', *args, **kwargs):
+class SentSplitPreprocessor(BaseTextPreprocessor):
+    def __init__(self, max_sent_len: int = 256, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.deliminator = deliminator
+        self.max_sent_len = max_sent_len
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
-        doc.raw_text = doc.raw_bytes.decode().strip()
-        for ci, s in enumerate(re.split(self.deliminator, doc.raw_text)):
-            if s.strip():
+        d = json.loads(doc.raw_bytes.decode())
+        doc.raw_text = d.pop('Content')
+        doc.meta_info = json.dumps(d).encode()
+
+        ret = [(m.group(0), m.start(), m.end()) for m in re.finditer(r'[^.!?]+[.!?]', doc.raw_text)]
+        for ci, (r, s, e) in enumerate(ret):
+            f = ''.join(filter(lambda x: x in string.printable, r))
+            f = re.sub('\n+', ' ', f).strip()
+            if f:
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
-                c.text = s.strip()
+                c.text = f[:self.max_sent_len]
                 c.offset_1d = ci
                 c.weight = len(c.text) / len(doc.raw_text)
+                c.offset_nd.extend([s, e])

@@ -13,23 +13,26 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import Any
 
-# A key-value map for Class to the (module)file it located in
-from ..base import register_all_class
+from ..base import TrainableBase
+from ..proto import gnes_pb2
 
-_cls2file_map = {
-    'FaissIndexer': 'chunk.faiss',
-    'LVDBIndexer': 'doc.leveldb',
-    'AsyncLVDBIndexer': 'doc.leveldb',
-    'NumpyIndexer': 'chunk.numpy',
-    'BIndexer': 'chunk.bindexer',
-    'HBIndexer': 'chunk.hbindexer',
-    'JointIndexer': 'base',
-    'BaseIndexer': 'base',
-    'BaseDocIndexer': 'base',
-    'AnnoyIndexer': 'chunk.annoy',
-    'DirectoryIndexer': 'doc.filesys',
-    'DictIndexer': 'doc.dict'
-}
 
-register_all_class(_cls2file_map, 'indexer')
+class BaseScorer(TrainableBase):
+
+    def compute(self, x: Any, y: Any, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
+
+
+class BaseChunkScorer(BaseScorer):
+
+    def compute(self, x: 'gnes_pb2.Chunk', y: 'gnes_pb2.Chunk', relevance: float = None, *args,
+                **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
+
+
+class BaseDocScorer(BaseScorer):
+
+    def compute(self, x: 'gnes_pb2.Document', *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError

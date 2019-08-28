@@ -13,11 +13,26 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import copy
 from typing import Generator
 
-from ..base import BaseMapRouter
-from ...helper import batch_iterator
-from ...proto import gnes_pb2
+from .base import BaseMapRouter
+from ..helper import batch_iterator
+from ..proto import gnes_pb2
+
+
+class SortedTopkRouter(BaseMapRouter):
+    def __init__(self, descending: bool = True, top_k: int = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.descending = descending
+        self.top_k = top_k
+
+    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        # resort all doc result as the doc_weight has been applied
+        final_docs = copy.deepcopy(
+            sorted(msg.response.search.topk_results, key=lambda x: x.score, reverse=self.descending))
+        msg.response.search.ClearField('topk_results')
+        msg.response.search.topk_results.extend(final_docs[:(self.top_k or msg.response.search.top_k)])
 
 
 class PublishRouter(BaseMapRouter):
@@ -28,10 +43,12 @@ class PublishRouter(BaseMapRouter):
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         msg.envelope.num_part.append(self.num_part)
-        yield msg
 
 
 class DocBatchRouter(BaseMapRouter):
+    def __init__(self, batch_size: int, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.batch_size = batch_size
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         if self.batch_size and self.batch_size > 0:

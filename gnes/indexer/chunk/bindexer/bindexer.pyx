@@ -19,10 +19,18 @@
 
 # pylint: disable=low-comment-ratio
 
-from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
-from cpython cimport array
-from libc.stdlib cimport qsort
-from libc.stdio cimport fopen, fclose, FILE, fwrite, fread
+from cpython cimport
+
+array
+from cpython.mem cimport
+
+PyMem_Malloc, PyMem_Realloc, PyMem_Free
+from libc.stdio cimport
+
+fopen, fclose, FILE, fwrite, fread
+from libc.stdlib cimport
+
+qsort
 
 cdef extern from "limits.h":
     cdef int USHRT_MAX

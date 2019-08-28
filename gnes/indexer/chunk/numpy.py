@@ -18,11 +18,11 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseVectorIndexer
+from ..base import BaseChunkIndexer
 from ..key_only import ListKeyIndexer
 
 
-class NumpyIndexer(BaseVectorIndexer):
+class NumpyIndexer(BaseChunkIndexer):
 
     def __init__(self, num_bytes: int = None, *args, **kwargs):
         super().__init__()
