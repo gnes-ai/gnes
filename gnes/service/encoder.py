@@ -28,12 +28,14 @@ class EncoderService(BS):
         self._model = self.load_model(BaseEncoder)
         self.train_data = []
 
-    def embed_chunks_in_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document']):
+    def embed_chunks_in_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document'],
+                             do_encoding: bool = True):
         if not isinstance(docs, list):
             docs = [docs]
 
         contents = []
         chunks = []
+        embeds = None
 
         for d in docs:
             for c in d.chunks:
@@ -46,14 +48,15 @@ class EncoderService(BS):
                     raise ServiceError(
                         'chunk content is in type: %s, dont kow how to handle that' % c.WhichOneof('content'))
 
-        embeds = self._model.encode(contents)
-        if len(chunks) != embeds.shape[0]:
-            raise ServiceError(
-                'mismatched %d chunks and a %s shape embedding, '
-                'the first dimension must be the same' % (len(chunks), embeds.shape))
-        for idx, c in enumerate(chunks):
-            c.embedding.CopyFrom(array2blob(embeds[idx]))
-        return embeds
+        if do_encoding:
+            embeds = self._model.encode(contents)
+            if len(chunks) != embeds.shape[0]:
+                raise ServiceError(
+                    'mismatched %d chunks and a %s shape embedding, '
+                    'the first dimension must be the same' % (len(chunks), embeds.shape))
+            for idx, c in enumerate(chunks):
+                c.embedding.CopyFrom(array2blob(embeds[idx]))
+        return contents, embeds
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
@@ -62,7 +65,7 @@ class EncoderService(BS):
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
         if msg.request.train.docs:
-            _, contents = self.embed_chunks_in_docs(msg.request.train.docs)
+            contents, _ = self.embed_chunks_in_docs(msg.request.train.docs, do_encoding=False)
             self.train_data.extend(contents)
             msg.response.train.status = gnes_pb2.Response.PENDING
             # raise BlockMessage
