@@ -19,6 +19,7 @@ from typing import List, Any, Union, Callable, Tuple
 import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
+from ..proto import gnes_pb2, blob2array
 
 
 class BaseIndexer(TrainableBase):
@@ -32,6 +33,13 @@ class BaseIndexer(TrainableBase):
     def normalize_score(self, *args, **kwargs):
         pass
 
+    def query_and_score(self, q_chunks: List[Union['gnes_pb2.Chunk', 'gnes_pb2.Document']], top_k: int) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        raise NotImplementedError
+
+    def score(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
+
 
 class BaseChunkIndexer(BaseIndexer):
 
@@ -41,14 +49,48 @@ class BaseChunkIndexer(BaseIndexer):
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         pass
 
+    def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        vecs = [blob2array(c.embedding) for c in q_chunks]
+        queried_results = self.query(np.concatenate(vecs, 0), top_k=top_k)
+        results = []
+        for q_chunk, topk_chunks in zip(q_chunks, queried_results):
+            for _doc_id, _offset, _weight, _relevance in topk_chunks:
+                r = gnes_pb2.Response.QueryResponse.ScoredResult()
+                r.chunk.doc_id = _doc_id
+                r.chunk.offset = _offset
+                r.chunk.weight = _weight
+                r.score.CopyFrom(self.score(q_chunk, r.chunk, _relevance))
+                results.append(r)
+        return results
+
+    def score(self, q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
+              relevance) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
+
 
 class BaseDocIndexer(BaseIndexer):
 
     def add(self, keys: List[int], docs: Any, weights: List[float], *args, **kwargs):
         pass
 
-    def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
+    def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         pass
+
+    def query_and_score(self, keys: List[int], *args, **kwargs) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        results = []
+        queried_results = self.query(keys, *args, **kwargs)
+        for d in queried_results:
+            r = gnes_pb2.Response.QueryResponse.ScoredResult()
+            if d:
+                r.doc.CopyFrom(d)
+                r.score.CopyFrom(self.score(d))
+            results.append(r)
+        return results
+
+    def score(self, d: 'gnes_pb2.Document', *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
 
 
 class BaseKeyIndexer(BaseIndexer):

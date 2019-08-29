@@ -26,8 +26,6 @@ class IndexerService(BS):
     def post_init(self):
         from ..indexer.base import BaseIndexer
         self._model = self.load_model(BaseIndexer)
-        from ..scorer.base import BaseScorer
-        self._scorer = self.load_model(BaseScorer, yaml_path=self.args.scorer_yaml_path)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
@@ -68,45 +66,19 @@ class IndexerService(BS):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
-        from ..scorer.base import BaseChunkScorer
-        if not isinstance(self._scorer, BaseChunkScorer):
-            raise ServiceError(
-                'unsupported scorer, dont know how to use %s to handle this message' % self._scorer.__bases__)
-
-        vecs = [blob2array(c.embedding) for c in msg.request.search.query.chunks]
-        topk = msg.request.search.top_k
-        results = self._model.query(np.concatenate(vecs, 0), top_k=msg.request.search.top_k)
-
-        for q_chunk, topk_chunks in zip(msg.request.search.query.chunks, results):
-            for _doc_id, _offset, _weight, _relevance in topk_chunks:
-                r = msg.response.search.topk_results.add()
-                r.chunk.doc_id = _doc_id
-                r.chunk.offset = _offset
-                r.chunk.weight = _weight
-                r.score = self._scorer.compute(q_chunk, r.chunk, _relevance)
-
-        msg.response.search.top_k = topk
+        results = self._model.query_and_score(msg.request.search.query.chunks, top_k=msg.request.search.top_k)
+        msg.response.search.ClearField('topk_results')
+        msg.response.search.topk_results.extend(results)
+        msg.response.search.top_k = len(results)
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_doc_search(self, msg: 'gnes_pb2.Message'):
-        # if msg.response.search.level != gnes_pb2.Response.QueryResponse.DOCUMENT_NOT_FILLED:
-        #     raise ServiceError('dont know how to handle QueryResponse at %s level' % msg.response.search.level)
         from ..indexer.base import BaseDocIndexer
         if not isinstance(self._model, BaseDocIndexer):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
-        from ..scorer.base import BaseDocScorer
-        if not isinstance(self._scorer, BaseDocScorer):
-            raise ServiceError(
-                'unsupported scorer, dont know how to use %s to handle this message' % self._scorer.__bases__)
-
         doc_ids = [r.doc.doc_id for r in msg.response.search.topk_results]
-        docs = self._model.query(doc_ids)
-        for r, d in zip(msg.response.search.topk_results, docs):
-            if d is not None:
-                # fill in the doc if this shard returns non-empty
-                r.doc.CopyFrom(d)
-                r.score = self._scorer.compute(d)
-
-        # msg.response.search.level = gnes_pb2.Response.QueryResponse.DOCUMENT
+        results = self._model.query_and_score(doc_ids)
+        msg.response.search.ClearField('topk_results')
+        msg.response.search.topk_results.extend(results)
