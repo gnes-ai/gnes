@@ -23,7 +23,7 @@ from ...proto import gnes_pb2
 
 class SentSplitPreprocessor(BaseTextPreprocessor):
     def __init__(self,
-                 min_sent_len: int = 8,
+                 min_sent_len: int = 1,
                  max_sent_len: int = 256,
                  deliminator: str = '.!?。！？',
                  is_json: bool = False,
