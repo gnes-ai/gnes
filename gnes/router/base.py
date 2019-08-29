@@ -12,7 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import json
 from collections import defaultdict
 from functools import reduce
 from typing import List, Generator
@@ -102,7 +102,12 @@ class BaseTopkReduceRouter(BaseReduceRouter):
         for k, v in sorted(score_dict.items(), key=lambda kv: kv[1]['reduced_value'] * (-1 if self.descending else 1)):
             r = msg.response.search.topk_results.add()
             r.score.value = v['reduced_value']
-            r.score.explained = ','.join('{%s}' % v['explains'])
+            r.score.explained = json.dumps({
+                'name': 'topk-reduce',
+                'op': self._reduce_op,
+                'operand': [json.loads(vv) for vv in v['explains']],
+                'value': r.score.value
+            })
             self.set_key(r, k)
 
         super().apply(msg, accum_msgs)

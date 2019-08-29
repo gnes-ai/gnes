@@ -78,7 +78,6 @@ class IndexerService(BS):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
-        doc_ids = [r.doc.doc_id for r in msg.response.search.topk_results]
-        results = self._model.query_and_score(doc_ids)
+        results = self._model.query_and_score(msg.response.search.topk_results)
         msg.response.search.ClearField('topk_results')
         msg.response.search.topk_results.extend(results)

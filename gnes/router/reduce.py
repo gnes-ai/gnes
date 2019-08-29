@@ -27,16 +27,16 @@ class DocFillReducer(BaseReduceRouter):
             # get result from all shards, some may return None, we only take the first non-None doc
             final_docs.append([m.response.search.topk_results[idx] for m in accum_msgs if
                                m.response.search.topk_results[idx].doc.WhichOneof('raw_data') is not None][0])
-
-        # resort all doc result as the doc_weight has been applied
-        final_docs = sorted(final_docs, key=lambda x: x.score, reverse=True)
         msg.response.search.ClearField('topk_results')
-        msg.response.search.topk_results.extend(final_docs[:msg.response.search.top_k])
+        msg.response.search.topk_results.extend(final_docs)
 
         super().apply(msg, accum_msgs)
 
 
 class DocTopkReducer(BaseTopkReduceRouter):
+    """
+    Gather all chunks by their doc_id, result in a topk doc list
+    """
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         return x.doc.doc_id
 
@@ -45,6 +45,9 @@ class DocTopkReducer(BaseTopkReduceRouter):
 
 
 class ChunkTopkReducer(BaseTopkReduceRouter):
+    """
+    Gather all chunks by their chunk_id, aka doc_id-offset, result in a topk chunk list
+    """
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         return '%d-%d' % (x.chunk.doc_id, x.chunk.offset)
 

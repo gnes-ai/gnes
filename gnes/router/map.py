@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import copy
 from typing import Generator
 
 from .base import BaseMapRouter
@@ -22,17 +21,12 @@ from ..proto import gnes_pb2
 
 
 class SortedTopkRouter(BaseMapRouter):
-    def __init__(self, descending: bool = True, top_k: int = None, *args, **kwargs):
+    def __init__(self, descending: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.descending = descending
-        self.top_k = top_k
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
-        # resort all doc result as the doc_weight has been applied
-        final_docs = copy.deepcopy(
-            sorted(msg.response.search.topk_results, key=lambda x: x.score, reverse=self.descending))
-        msg.response.search.ClearField('topk_results')
-        msg.response.search.topk_results.extend(final_docs[:(self.top_k or msg.response.search.top_k)])
+        msg.response.search.topk_results.sort(key=lambda x: x.score.value, reverse=self.descending)
 
 
 class PublishRouter(BaseMapRouter):

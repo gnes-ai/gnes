@@ -53,6 +53,7 @@ class EncoderService(BS):
                 'the first dimension must be the same' % (len(chunks), embeds.shape))
         for idx, c in enumerate(chunks):
             c.embedding.CopyFrom(array2blob(embeds[idx]))
+        return embeds
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
@@ -61,7 +62,7 @@ class EncoderService(BS):
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
         if msg.request.train.docs:
-            _, contents = self.get_chunks_from_docs(msg.request.train.docs)
+            _, contents = self.embed_chunks_in_docs(msg.request.train.docs)
             self.train_data.extend(contents)
             msg.response.train.status = gnes_pb2.Response.PENDING
             # raise BlockMessage
