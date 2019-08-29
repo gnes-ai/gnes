@@ -18,18 +18,18 @@
 from ..base import register_all_class
 
 _cls2file_map = {
-    'FaissIndexer': 'vector.faiss',
-    'LVDBIndexer': 'fulltext.leveldb',
-    'AsyncLVDBIndexer': 'fulltext.leveldb',
-    'NumpyIndexer': 'vector.numpy',
-    'BIndexer': 'vector.bindexer',
-    'HBIndexer': 'vector.hbindexer',
+    'FaissIndexer': 'chunk.faiss',
+    'LVDBIndexer': 'doc.leveldb',
+    'AsyncLVDBIndexer': 'doc.leveldb',
+    'NumpyIndexer': 'chunk.numpy',
+    'BIndexer': 'chunk.bindexer',
+    'HBIndexer': 'chunk.hbindexer',
     'JointIndexer': 'base',
     'BaseIndexer': 'base',
-    'BaseTextIndexer': 'base',
-    'AnnoyIndexer': 'vector.annoy',
-    'DirectoryIndexer': 'fulltext.filesys',
-    'DictIndexer': 'fulltext.dict'
+    'BaseDocIndexer': 'base',
+    'AnnoyIndexer': 'chunk.annoy',
+    'DirectoryIndexer': 'doc.filesys',
+    'DictIndexer': 'doc.dict'
 }
 
 register_all_class(_cls2file_map, 'indexer')

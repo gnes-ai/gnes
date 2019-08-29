@@ -18,11 +18,11 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseVectorIndexer
+from ..base import BaseChunkIndexer
 from ..key_only import ListKeyIndexer
 
 
-class AnnoyIndexer(BaseVectorIndexer):
+class AnnoyIndexer(BaseChunkIndexer):
 
     def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees=10, *args, **kwargs):
         super().__init__(*args, **kwargs)

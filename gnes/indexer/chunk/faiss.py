@@ -19,11 +19,11 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseVectorIndexer
+from ..base import BaseChunkIndexer
 from ..key_only import ListKeyIndexer
 
 
-class FaissIndexer(BaseVectorIndexer):
+class FaissIndexer(BaseChunkIndexer):
 
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)

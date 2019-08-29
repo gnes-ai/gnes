@@ -49,7 +49,7 @@ class _SlidingPreprocessor(SizedPreprocessor):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.blob.CopyFrom(array2blob(ele[0]))
-                c.offset_1d = ci
+                c.offset = ci
                 c.offset_nd.extend(self._get_slid_offset_nd(all_subareas, index, center_point_list[ci]))
                 c.weight = ele[1]
         else:

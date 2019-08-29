@@ -65,7 +65,7 @@ In this example, we define a `TorchvisionEncoder` that loads a pretrained VGG16 
 |`!CLS`| Component Type |
 |---|---|
 |`!BasePreprocessor`|Preprocessor|
-|`!PunctSplitPreprocessor`|Preprocessor|
+|`!SentSplitPreprocessor`|Preprocessor|
 |`!BaseImagePreprocessor`|Preprocessor|
 |`!BaseTextPreprocessor`|Preprocessor|
 |`!VanillaSlidingPreprocessor`|Preprocessor|
@@ -214,7 +214,7 @@ Note that how we defines a map under `kwargs` to describe the arguments, they wi
 The examples above are all about encoder. In fact, every component including encoder, preprocessor, router, indexer can all be described with YAML and loaded to GNES. For example,
 
 ```yaml
-!PunctSplitPreprocessor
+!SentSplitPreprocessor
 parameters:
   start_doc_id: 0
   random_doc_id: True

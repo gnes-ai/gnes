@@ -20,7 +20,7 @@ from ..base import register_all_class
 _cls2file_map = {
     'BasePreprocessor': 'base',
     'PipelinePreprocessor': 'base',
-    'PunctSplitPreprocessor': 'text.split_punct',
+    'SentSplitPreprocessor': 'text.split',
     'BaseImagePreprocessor': 'base',
     'BaseTextPreprocessor': 'base',
     'VanillaSlidingPreprocessor': 'image.sliding_window',

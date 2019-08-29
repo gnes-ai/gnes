@@ -15,9 +15,18 @@
 
 from typing import Generator
 
-from ..base import BaseMapRouter
-from ...helper import batch_iterator
-from ...proto import gnes_pb2
+from .base import BaseMapRouter
+from ..helper import batch_iterator
+from ..proto import gnes_pb2
+
+
+class SortedTopkRouter(BaseMapRouter):
+    def __init__(self, descending: bool = True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.descending = descending
+
+    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        msg.response.search.topk_results.sort(key=lambda x: x.score.value, reverse=self.descending)
 
 
 class PublishRouter(BaseMapRouter):
@@ -28,10 +37,11 @@ class PublishRouter(BaseMapRouter):
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         msg.envelope.num_part.append(self.num_part)
-        yield msg
 
 
 class DocBatchRouter(BaseMapRouter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs) -> Generator:
         if self.batch_size and self.batch_size > 0:

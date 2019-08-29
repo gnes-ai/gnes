@@ -2,7 +2,7 @@ import os
 import unittest
 from shutil import rmtree
 
-from gnes.indexer.fulltext.filesys import DirectoryIndexer
+from gnes.indexer.doc.filesys import DirectoryIndexer
 from gnes.preprocessor.base import BasePreprocessor
 from gnes.proto import gnes_pb2
 

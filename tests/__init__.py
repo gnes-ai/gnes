@@ -25,12 +25,12 @@ def line2pb_doc(line: str, doc_id: int = 0, deliminator: str = r'[.。！？!?]+
                 c = doc.chunks.add()
                 c.doc_id = doc_id
                 c.text = s
-                c.offset_1d = ci
+                c.offset = ci
     else:
         c = doc.chunks.add()
         c.doc_id = doc_id
         c.text = line
-        c.offset_1d = 0
+        c.offset = 0
     return doc
 
 

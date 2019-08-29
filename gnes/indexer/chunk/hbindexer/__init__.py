@@ -20,10 +20,10 @@ from typing import List, Tuple, Any
 import numpy as np
 
 from .cython import IndexCore
-from ...base import BaseVectorIndexer
+from ...base import BaseChunkIndexer
 
 
-class HBIndexer(BaseVectorIndexer):
+class HBIndexer(BaseChunkIndexer):
 
     def __init__(self,
                  num_clusters: int = 100,

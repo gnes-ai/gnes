@@ -15,13 +15,13 @@
 
 import io
 import re
+from typing import List
+
 import numpy as np
 import soundfile as sf
 
 from .ffmpeg import compile_args
 from .helper import _check_input, run_command
-
-from typing import List
 
 DEFAULT_SILENCE_DURATION = 0.3
 DEFAULT_SILENCE_THRESHOLD = -60
@@ -34,7 +34,6 @@ def capture_audio(input_fn: str = 'pipe:',
                   start_time: float = None,
                   end_time: float = None,
                   **kwargs) -> List['np.ndarray']:
-
     _check_input(input_fn, input_data)
 
     input_kwargs = {}
@@ -78,12 +77,10 @@ def get_chunk_times(input_fn: str = 'pipe:',
                     end_time: float = None):
     _check_input(input_fn, input_data)
 
-    silence_start_re = re.compile(
-        ' silence_start: (?P<start>[0-9]+(\.?[0-9]*))$')
-    silence_end_re = re.compile(' silence_end: (?P<end>[0-9]+(\.?[0-9]*)) ')
+    silence_start_re = re.compile(r' silence_start: (?P<start>[0-9]+(\.?[0-9]*))$')
+    silence_end_re = re.compile(r' silence_end: (?P<end>[0-9]+(\.?[0-9]*)) ')
     total_duration_re = re.compile(
-        'size=[^ ]+ time=(?P<hours>[0-9]{2}):(?P<minutes>[0-9]{2}):(?P<seconds>[0-9\.]{5}) bitrate='
-    )
+        r'size=[^ ]+ time=(?P<hours>[0-9]{2}):(?P<minutes>[0-9]{2}):(?P<seconds>[0-9\.]{5}) bitrate=')
 
     input_kwargs = {}
     if start_time is not None:
@@ -162,7 +159,6 @@ def split_audio(input_fn: str = 'pipe:',
     for i, (start_time, end_time) in enumerate(chunk_times):
         time = end_time - start_time
         if time < 0:
-
             continue
         input_kwargs = {
             'ss': start_time,

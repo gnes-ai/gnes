@@ -229,7 +229,7 @@ class BaseService(metaclass=ConcurrentService):
         try:
             self._run()
         except Exception as ex:
-            self.logger.error(ex)
+            self.logger.error(ex, exc_info=True)
 
     def _start_auto_dump(self):
         if self.args.dump_interval > 0 and not self.args.read_only:
@@ -352,9 +352,9 @@ class BaseService(metaclass=ConcurrentService):
     def post_init(self):
         pass
 
-    def load_model(self, base_class: Type[TrainableBase]) -> T:
+    def load_model(self, base_class: Type[TrainableBase], yaml_path=None) -> T:
         try:
-            return base_class.load_yaml(self.args.yaml_path)
+            return base_class.load_yaml(self.args.yaml_path if not yaml_path else yaml_path)
         except FileNotFoundError:
             raise ComponentNotLoad
 

@@ -35,13 +35,13 @@ except FileNotFoundError:
 
 extensions = [
     Extension(
-        'gnes.indexer.vector.bindexer.cython',
-        ['gnes/indexer/vector/bindexer/bindexer.pyx'],
+        'gnes.indexer.chunk.bindexer.cython',
+        ['gnes/indexer/chunk/bindexer/bindexer.pyx'],
         extra_compile_args=['-O3', '-g0'],
     ),
     Extension(
-        'gnes.indexer.vector.hbindexer.cython',
-        ['gnes/indexer/vector/hbindexer/hbindexer.pyx'],
+        'gnes.indexer.chunk.hbindexer.cython',
+        ['gnes/indexer/chunk/hbindexer/hbindexer.pyx'],
         extra_compile_args=['-O3', '-g0'],
     ),
 ]

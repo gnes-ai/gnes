@@ -12,13 +12,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-
+import json
 from typing import List, Any, Union, Callable, Tuple
 
 import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
+from ..proto import gnes_pb2, blob2array
 
 
 class BaseIndexer(TrainableBase):
@@ -32,8 +32,15 @@ class BaseIndexer(TrainableBase):
     def normalize_score(self, *args, **kwargs):
         pass
 
+    def query_and_score(self, q_chunks: List[Union['gnes_pb2.Chunk', 'gnes_pb2.Document']], top_k: int) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        raise NotImplementedError
 
-class BaseVectorIndexer(BaseIndexer):
+    def score(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        raise NotImplementedError
+
+
+class BaseChunkIndexer(BaseIndexer):
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         pass
@@ -41,14 +48,49 @@ class BaseVectorIndexer(BaseIndexer):
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         pass
 
+    def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        vecs = [blob2array(c.embedding) for c in q_chunks]
+        queried_results = self.query(np.concatenate(vecs, 0), top_k=top_k)
+        results = []
+        for q_chunk, topk_chunks in zip(q_chunks, queried_results):
+            for _doc_id, _offset, _weight, _relevance in topk_chunks:
+                r = gnes_pb2.Response.QueryResponse.ScoredResult()
+                r.chunk.doc_id = _doc_id
+                r.chunk.offset = _offset
+                r.chunk.weight = _weight
+                r.score.CopyFrom(self.score(q_chunk, r.chunk, _relevance))
+                results.append(r)
+        return results
 
-class BaseTextIndexer(BaseIndexer):
+    def score(self, q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
+              relevance) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        return ChunkScorer.eq1(q_chunk, d_chunk, relevance)
+
+
+class BaseDocIndexer(BaseIndexer):
 
     def add(self, keys: List[int], docs: Any, weights: List[float], *args, **kwargs):
         pass
 
-    def query(self, keys: List[int], *args, **kwargs) -> List[Any]:
+    def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         pass
+
+    def query_and_score(self, docs: List['gnes_pb2.Response.QueryResponse.ScoredResult'], *args, **kwargs) -> List[
+        'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        keys = [r.doc.doc_id for r in docs]
+        results = []
+        queried_results = self.query(keys, *args, **kwargs)
+        for d, r in zip(queried_results, docs):
+            if d:
+                r.doc.CopyFrom(d)
+                r.score.CopyFrom(self.score(d, r.score))
+            results.append(r)
+        return results
+
+    def score(self, d: 'gnes_pb2.Document', s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score', *args,
+              **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        return DocScorer.eq1(d, s)
 
 
 class BaseKeyIndexer(BaseIndexer):
@@ -58,6 +100,57 @@ class BaseKeyIndexer(BaseIndexer):
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         pass
+
+
+class ChunkScorer:
+
+    @staticmethod
+    def eq1(q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
+            relevance):
+        """
+        score = d_chunk.weight * relevance * q_chunk.weight
+        """
+        score = gnes_pb2.Response.QueryResponse.ScoredResult.Score()
+        score.value = d_chunk.weight * relevance * q_chunk.weight
+        score.explained = json.dumps({
+            'name': 'chunk-eq1',
+            'operand': [{'name': 'd_chunk_weight',
+                         'value': d_chunk.weight,
+                         'doc_id': d_chunk.doc_id,
+                         'offset': d_chunk.offset},
+                        {'name': 'q_chunk_weight',
+                         'value': q_chunk.weight,
+                         'offset': q_chunk.offset},
+                        {'name': 'relevance',
+                         'value': relevance}],
+            'op': 'prod',
+            'value': score.value
+        })
+        return score
+
+
+class DocScorer:
+
+    @staticmethod
+    def eq1(d: 'gnes_pb2.Document',
+            s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score') -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        """
+        score *= d.weight
+        :param d:
+        :param s:
+        :return:
+        """
+        s.value *= d.weight
+        s.explained = json.dumps({
+            'name': 'doc-eq1',
+            'operand': [json.loads(s.explained),
+                        {'name': 'doc_weight',
+                         'value': d.weight,
+                         'doc_id': d.doc_id}],
+            'op': 'prod',
+            'value': s.value
+        })
+        return s
 
 
 class JointIndexer(CompositionalTrainableBase):
@@ -80,9 +173,9 @@ class JointIndexer(CompositionalTrainableBase):
         self._binary_indexer = None
         self._doc_indexer = None
         for c in self.components:
-            if isinstance(c, BaseVectorIndexer):
+            if isinstance(c, BaseChunkIndexer):
                 self._binary_indexer = c
-            elif isinstance(c, BaseTextIndexer):
+            elif isinstance(c, BaseDocIndexer):
                 self._doc_indexer = c
         if not self._binary_indexer or not self._doc_indexer:
             raise ValueError('"JointIndexer" requires a valid pair of "BaseBinaryIndexer" and "BaseTextIndexer"')

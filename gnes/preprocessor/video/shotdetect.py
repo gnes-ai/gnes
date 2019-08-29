@@ -13,13 +13,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import numpy as np
 from typing import List
 
+import numpy as np
+
 from ..base import BaseVideoPreprocessor
-from ...proto import gnes_pb2, array2blob
-from ..io_utils import video as video_util
 from ..helper import compute_descriptor, compare_descriptor, detect_peak_boundary, compare_ecr
+from ..io_utils import video as video_util
+from ...proto import gnes_pb2, array2blob
 
 
 class ShotDetectPreprocessor(BaseVideoPreprocessor):
@@ -83,7 +84,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                 # chunk_data = np.concatenate(frames, axis=0)
                 chunk_data = np.array(frames)
                 c.blob.CopyFrom(array2blob(chunk_data))
-                c.offset_1d = ci
+                c.offset = ci
                 c.weight = len(frames) / num_frames
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')

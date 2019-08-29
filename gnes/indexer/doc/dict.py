@@ -2,11 +2,11 @@ from typing import List
 
 from google.protobuf.json_format import MessageToJson, Parse
 
-from ..base import BaseTextIndexer
+from ..base import BaseDocIndexer
 from ...proto import gnes_pb2
 
 
-class DictIndexer(BaseTextIndexer):
+class DictIndexer(BaseDocIndexer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

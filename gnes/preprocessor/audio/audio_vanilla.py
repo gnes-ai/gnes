@@ -37,7 +37,7 @@ class AudioVanilla(BaseAudioPreprocessor):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
                     c.blob.CopyFrom(array2blob(np.array(chunks, dtype=np.float32)))
-                    c.offset_1d = ci
+                    c.offset = ci
                     c.weight = 1 / len(audio)
             else:
                 self.logger.info('bad document: no audio extracted')

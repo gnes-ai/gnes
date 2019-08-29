@@ -21,14 +21,13 @@ _cls2file_map = {
     'BaseRouter': 'base',
     'BaseMapRouter': 'base',
     'BaseReduceRouter': 'base',
-    'ChunkToDocRouter': 'reduce.chunk',
-    'DocFillRouter': 'reduce.document',
-    'ConcatEmbedRouter': 'reduce.concat',
-    'PublishRouter': 'map.simple',
-    'DocBatchRouter': 'map.simple',
-    'ChunkSumRouter': 'reduce.chunk_sum',
-    'DocSumRouter': 'reduce.doc_sum'
-
+    'BaseTopkReduceRouter': 'base',
+    'DocTopkReducer': 'reduce',
+    'ChunkTopkReducer': 'reduce',
+    'DocFillReducer': 'reduce',
+    'PublishRouter': 'map',
+    'DocBatchRouter': 'map',
+    'SortedTopkRouter': 'map',
 }
 
 register_all_class(_cls2file_map, 'router')
