@@ -15,9 +15,7 @@
 
 from typing import List
 
-from .base import BaseReduceRouter
-from .base import BaseTopkReduceRouter
-from ..proto import gnes_pb2
+from .base import BaseReduceRouter, BaseTopkReduceRouter
 
 
 class DocFillReducer(BaseReduceRouter):
