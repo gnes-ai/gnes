@@ -24,7 +24,7 @@ from ...proto import gnes_pb2
 class SentSplitPreprocessor(BaseTextPreprocessor):
     def __init__(self, max_sent_len: int = 256,
                  deliminator: str = '.!?。！？',
-                 is_json: bool= False,
+                 is_json: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.max_sent_len = max_sent_len
