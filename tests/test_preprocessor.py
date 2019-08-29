@@ -49,7 +49,7 @@ class TestProto(unittest.TestCase):
             for v in fp:
                 if v.strip():
                     d = msg.request.train.docs.add()
-                    d.raw_text = v
+                    d.raw_bytes = v.encode()
                     all_text += v
             with PreprocessorService(args), ZmqClient(c_args) as client:
                 client.send_message(msg)
