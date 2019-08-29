@@ -229,7 +229,7 @@ class BaseService(metaclass=ConcurrentService):
         try:
             self._run()
         except Exception as ex:
-            self.logger.error(ex)
+            self.logger.error(ex, exc_info=True)
 
     def _start_auto_dump(self):
         if self.args.dump_interval > 0 and not self.args.read_only:

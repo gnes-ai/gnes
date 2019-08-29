@@ -35,10 +35,23 @@ class DocFillReducer(BaseReduceRouter):
 
 class DocTopkReducer(BaseTopkReduceRouter):
     """
-    Gather all chunks by their doc_id, result in a topk doc list
+    Gather all docs by their doc_id, result in a topk doc list
     """
+
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         return x.doc.doc_id
+
+    def set_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult', k: str):
+        x.doc.doc_id = k
+
+
+class Chunk2DocTopkReducer(BaseTopkReduceRouter):
+    """
+    Gather all chunks by their doc_id, result in a topk doc list
+    """
+
+    def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
+        return x.chunk.doc_id
 
     def set_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult', k: str):
         x.doc.doc_id = k
@@ -48,6 +61,7 @@ class ChunkTopkReducer(BaseTopkReduceRouter):
     """
     Gather all chunks by their chunk_id, aka doc_id-offset, result in a topk chunk list
     """
+
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         return '%d-%d' % (x.chunk.doc_id, x.chunk.offset)
 

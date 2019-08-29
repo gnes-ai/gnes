@@ -32,4 +32,6 @@ UnaryPreprocessor = prep_base.UnaryPreprocessor
 # Router
 BaseReduceRouter = router_base.BaseReduceRouter
 BaseRouter = router_base.BaseRouter
+BaseTopkReduceRouter = router_base.BaseTopkReduceRouter
 BaseMapRouter = router_base.BaseMapRouter
+PipelineRouter = router_base.PipelineRouter
