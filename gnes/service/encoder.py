@@ -38,6 +38,9 @@ class EncoderService(BS):
         embeds = None
 
         for d in docs:
+            if not d.chunks:
+                raise ServiceError('document contains no chunks! doc: %s' % d)
+
             for c in d.chunks:
                 chunks.append(c)
                 if d.doc_type == gnes_pb2.Document.TEXT:

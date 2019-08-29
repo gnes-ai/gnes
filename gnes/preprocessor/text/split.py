@@ -22,11 +22,14 @@ from ...proto import gnes_pb2
 
 
 class SentSplitPreprocessor(BaseTextPreprocessor):
-    def __init__(self, max_sent_len: int = 256,
+    def __init__(self,
+                 min_sent_len: int = 1,
+                 max_sent_len: int = 256,
                  deliminator: str = '.!?。！？',
-                 is_json: bool= False,
+                 is_json: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.min_sent_len = min_sent_len
         self.max_sent_len = max_sent_len
         self.deliminator = deliminator
         self.is_json = is_json
@@ -46,7 +49,7 @@ class SentSplitPreprocessor(BaseTextPreprocessor):
         for ci, (r, s, e) in enumerate(ret):
             f = ''.join(filter(lambda x: x in string.printable, r))
             f = re.sub('\n+', ' ', f).strip()
-            if f:
+            if len(f) > self.min_sent_len:
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.text = f[:self.max_sent_len]
