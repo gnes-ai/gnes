@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import json
+from _operator import add, mul
 from collections import defaultdict
 from functools import reduce
 from typing import List, Generator
@@ -69,11 +70,11 @@ class BaseTopkReduceRouter(BaseReduceRouter):
 
     def post_init(self):
         self.reduce_op = {
-            'prod': lambda v: reduce((lambda x, y: x * y), v),
-            'sum': lambda v: reduce((lambda x, y: x + y), v),
-            'max': lambda v: reduce((lambda x, y: max(x, y)), v),
-            'min': lambda v: reduce((lambda x, y: min(x, y)), v),
-            'avg': lambda v: reduce((lambda x, y: x + y), v) / len(v),
+            'prod': lambda v: reduce(mul, v),
+            'sum': lambda v: reduce(add, v),
+            'max': lambda v: reduce(max, v),
+            'min': lambda v: reduce(min, v),
+            'avg': lambda v: reduce(add, v) / len(v),
         }[self._reduce_op]
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
