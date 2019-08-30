@@ -73,13 +73,12 @@ class FrontendService:
             return msg
 
         def remove_envelope(self, m: 'gnes_pb2.Message'):
-            resp = m.response or m.request
+            resp = m.response
             resp.request_id = m.envelope.request_id
             self.logger.info('unpacking a message and return to client: %s' % router2str(m))
             return resp
 
         def Call(self, request, context):
-            self.logger.info('received a new request')
             with self.zmq_context as zmq_client:
                 zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
                 return self.remove_envelope(zmq_client.recv_message(self.args.timeout))

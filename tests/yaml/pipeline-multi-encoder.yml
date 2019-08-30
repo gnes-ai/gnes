@@ -1,0 +1,10 @@
+!PipelineEncoder
+components:
+  - !DummyEncoder
+    gnes_config:
+      is_trained: true
+  - !DummyEncoder {}
+  - !DummyEncoder {}
+  - !DummyEncoder {}
+gnes_config:
+  name: dummy-pipeline

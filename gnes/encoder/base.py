@@ -80,6 +80,8 @@ class PipelineEncoder(CompositionalTrainableBase):
         if not self.components:
             raise NotImplementedError
         for idx, be in enumerate(self.components):
-            be.train(data, *args, **kwargs)
+            if not be.is_trained:
+                be.train(data, *args, **kwargs)
+
             if idx + 1 < len(self.components):
                 data = be.encode(data, *args, **kwargs)

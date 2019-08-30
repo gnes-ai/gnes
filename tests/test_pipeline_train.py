@@ -8,6 +8,7 @@ from gnes.helper import train_required
 class DummyEncoder(BaseEncoder):
 
     def train(self, *args, **kwargs):
+        self.logger.info('you just trained me!')
         pass
 
     @train_required
@@ -16,6 +17,9 @@ class DummyEncoder(BaseEncoder):
 
 
 class TestPipeTrain(unittest.TestCase):
+    def setUp(self):
+        self.dirname = os.path.dirname(__file__)
+
     def test_train(self):
         de = DummyEncoder()
         self.assertRaises(RuntimeError, de.encode, 1)
@@ -39,3 +43,12 @@ class TestPipeTrain(unittest.TestCase):
         p.dump_yaml()
         a = BaseEncoder.load_yaml(p.yaml_full_path)
         self.assertEqual(4, a.encode(1))
+
+    @unittest.SkipTest
+    def test_load_yaml(self):
+        p = BaseEncoder.load_yaml(os.path.join(self.dirname, 'yaml', 'pipeline-multi-encoder.yml'))
+        self.assertRaises(RuntimeError, p.encode, 1)
+        p.train(1)
+        self.assertEqual(5, p.encode(1))
+        p = BaseEncoder.load_yaml(os.path.join(self.dirname, 'yaml', 'pipeline-multi-encoder.yml'))
+        self.assertRaises(RuntimeError, p.encode, 1)
