@@ -38,9 +38,6 @@ class EncoderService(BS):
         embeds = None
 
         for d in docs:
-            if not d.chunks:
-                raise ServiceError('document contains no chunks! doc: %s' % d)
-
             for c in d.chunks:
                 chunks.append(c)
                 if d.doc_type == gnes_pb2.Document.TEXT:
@@ -50,6 +47,8 @@ class EncoderService(BS):
                 else:
                     raise ServiceError(
                         'chunk content is in type: %s, dont kow how to handle that' % c.WhichOneof('content'))
+            else:
+                self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
 
         if do_encoding:
             embeds = self._model.encode(contents)
