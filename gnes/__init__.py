@@ -16,4 +16,4 @@
 
 # do not change this line
 # this is managed by git tag and replaced on every release
-__version__ = '0.0.35'
+__version__ = '0.0.36'

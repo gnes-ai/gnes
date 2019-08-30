@@ -91,6 +91,8 @@ class TrainableType(type):
                 v = gnes_config[k]
             v = _expand_env_var(v)
             if not hasattr(obj, k):
+                if k == 'is_trained' and isinstance(obj, CompositionalTrainableBase):
+                    continue
                 setattr(obj, k, v)
 
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
@@ -109,6 +111,7 @@ class TrainableType(type):
                         setattr(cls, f_name, profiling(getattr(cls, f_name)))
 
             if getattr(cls, 'train', None):
+                # print('registered train func of %s'%cls)
                 setattr(cls, 'train', TrainableType._as_train_func(getattr(cls, 'train')))
 
             reg_cls_set.add(cls.__name__)
@@ -124,7 +127,8 @@ class TrainableType(type):
                 self.logger.warning('"%s" has been trained already, '
                                     'training it again will override the previous training' % self.__class__.__name__)
             f = func(self, *args, **kwargs)
-            self.is_trained = True
+            if not isinstance(self, CompositionalTrainableBase):
+                self.is_trained = True
             return f
 
         return arg_wrapper
@@ -227,9 +231,9 @@ class TrainableBase(metaclass=TrainableType):
         self.logger = set_logger(self.__class__.__name__, self.verbose)
         try:
             self._post_init_wrapper()
-        except ImportError:
-            self.logger.info('ImportError is often caused by a missing component, '
-                             'which often can be solved by "pip install" relevant package.')
+        except ImportError as ex:
+            self.logger.warning('ImportError is often caused by a missing component, '
+                                'which often can be solved by "pip install" relevant package. %s' % ex, exc_info=True)
 
     def train(self, *args, **kwargs):
         """
@@ -248,7 +252,7 @@ class TrainableBase(metaclass=TrainableType):
             f = tempfile.NamedTemporaryFile('w', delete=False, dir=os.environ.get('GNES_VOLUME', None)).name
         with open(f, 'wb') as fp:
             pickle.dump(self, fp)
-        self.logger.info('model is stored to %s' % f)
+        self.logger.critical('model is serialized to %s' % f)
 
     @profiling
     def dump_yaml(self, filename: str = None) -> None:
@@ -334,7 +338,7 @@ class TrainableBase(metaclass=TrainableType):
         load_from_dump = False
         if dump_path:
             obj = cls.load(dump_path)
-            obj.logger.info('restore %s from %s' % (cls.__name__, dump_path))
+            obj.logger.critical('restore %s from %s' % (cls.__name__, dump_path))
             load_from_dump = True
         else:
             cls.init_from_yaml = True
@@ -351,7 +355,7 @@ class TrainableBase(metaclass=TrainableType):
                 tmp_p = {kk: _expand_env_var(vv) for kk, vv in data.get('parameters', {}).items()}
                 obj = cls(**tmp_p, gnes_config=data.get('gnes_config', {}))
 
-            obj.logger.info('initialize %s from a yaml config' % cls.__name__)
+            obj.logger.critical('initialize %s from a yaml config' % cls.__name__)
             cls.init_from_yaml = False
 
         if node.tag in {'!PipelineEncoder', '!CompositionalTrainableBase'}:
@@ -386,6 +390,10 @@ class CompositionalTrainableBase(TrainableBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._components = None  # type: List[T]
+
+    @property
+    def is_trained(self):
+        return self.components and all(c.is_trained for c in self.components)
 
     @property
     def components(self) -> Union[List[T], Dict[str, T]]:

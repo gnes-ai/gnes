@@ -40,6 +40,6 @@ class AudioVanilla(BaseAudioPreprocessor):
                     c.offset = ci
                     c.weight = 1 / len(audio)
             else:
-                self.logger.info('bad document: no audio extracted')
+                self.logger.warning('bad document: no audio extracted')
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')

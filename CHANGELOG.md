@@ -1,4 +1,63 @@
 
+# Release Note (`v0.0.36`)
+> Release time: 2019-08-30 17:32:23
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  felix,  🙇
+
+
+### 🆕 New Features
+
+ - [[```07534f89```](https://github.com/gnes-ai/gnes/commit/07534f894f7aa11feb3181257e02f118c40beeb1)] __-__ __score__: improve score explain for better interpretability (*hanhxiao*)
+ - [[```32d815d7```](https://github.com/gnes-ai/gnes/commit/32d815d7ef40a2e6629e95ee358e6898b2ee9d39)] __-__ __filesys__: keep doc meta info (*felix*)
+ - [[```92fc3d8c```](https://github.com/gnes-ai/gnes/commit/92fc3d8c5446f7a153fb7354204c2bf1e7d2cbd4)] __-__ __scale_video__: keep ratio of video frame (*felix*)
+
+### 🐞 Bug fixes
+
+ - [[```f1402f50```](https://github.com/gnes-ai/gnes/commit/f1402f5038cfd8d2f6fff6fc4ce0ba783424d121)] __-__ __cli__: fix cli chanel close (*hanhxiao*)
+ - [[```b140cca9```](https://github.com/gnes-ai/gnes/commit/b140cca9b9ba80414e281674a20f93ccdd94b7fc)] __-__ __service__: fix exception when no chunks (*hanhxiao*)
+ - [[```cee99a63```](https://github.com/gnes-ai/gnes/commit/cee99a63771d330ffa85e8d8e1ceaf80d16036b3)] __-__ __logger__: change the color semantic for loglevel (*hanhxiao*)
+ - [[```4efea726```](https://github.com/gnes-ai/gnes/commit/4efea7263dc4558eb74dd2544715ba1fb0d5312d)] __-__ __service__: raise except when empty chunk (*hanhxiao*)
+ - [[```31bffeb7```](https://github.com/gnes-ai/gnes/commit/31bffeb7fa585414f576e6a3f21c6ccbf15a1d33)] __-__ __preprocessor__: add min_len to split preprocessor (*hanhxiao*)
+ - [[```7b16354a```](https://github.com/gnes-ai/gnes/commit/7b16354aa1737aa19f9ba0a6557a5b2b479b53c8)] __-__ __style__: fix style issues (*hanhxiao*)
+ - [[```c6183960```](https://github.com/gnes-ai/gnes/commit/c6183960ac224f813f4b7859e6b935f61a8dcf57)] __-__ __service__: fix training logic in encoderservice (*hanhxiao*)
+ - [[```5828d20a```](https://github.com/gnes-ai/gnes/commit/5828d20a3cadb9d0cbf640e231db90138ffe4e92)] __-__ __preprocessor__: fix SentSplitPreprocessor (*hanhxiao*)
+ - [[```522c5a4e```](https://github.com/gnes-ai/gnes/commit/522c5a4ebbe79fc17b49cbda1287d2487dcb45b5)] __-__ __preprocessor__: rename SentSplitPreprocessor (*hanhxiao*)
+ - [[```030d6c66```](https://github.com/gnes-ai/gnes/commit/030d6c6695acdf445cf282d1607fec71d6e59bed)] __-__ __setup__: fix path in setup script (*hanhxiao*)
+ - [[```3818c9a3```](https://github.com/gnes-ai/gnes/commit/3818c9a3c0bacb3c8d59a9d390da2052595405cd)] __-__ __test__: fix router tests (*hanhxiao*)
+ - [[```9d03441e```](https://github.com/gnes-ai/gnes/commit/9d03441eb7a64b063a0dcc36fb37e832c5bd7db5)] __-__ __proto__: regenerate pb2 (*hanhxiao*)
+ - [[```f49f9a5b```](https://github.com/gnes-ai/gnes/commit/f49f9a5b5b8b61501f2d07768e2938d06d29a22b)] __-__ __indexer__: fix parsing in DictIndexer (*hanhxiao*)
+ - [[```0215c6bf```](https://github.com/gnes-ai/gnes/commit/0215c6bf08b09548f06834bd577b4efb725d99da)] __-__ __ffmpeg__: fix issue for start and durtion argument position (*felix*)
+ - [[```a735a719```](https://github.com/gnes-ai/gnes/commit/a735a719d5ce4f3dc5c38eef6395ee3f4fb312b0)] __-__ __service__: log error in base service (*hanhxiao*)
+ - [[```3263e96c```](https://github.com/gnes-ai/gnes/commit/3263e96c576ca2db9ef490984f25aa28c0d46e32)] __-__ __service__: move py_import from service manager to base service (*hanhxiao*)
+ - [[```990c879d```](https://github.com/gnes-ai/gnes/commit/990c879d544b2e0e76c05f33b41d52a85b9a4dc1)] __-__ __client__: fix client progress bar, http (*hanhxiao*)
+ - [[```d02cd757```](https://github.com/gnes-ai/gnes/commit/d02cd7572338165fad697eb1cd02b47731b9e837)] __-__ __router__: respect num_part when set (*hanhxiao*)
+ - [[```a76a4604```](https://github.com/gnes-ai/gnes/commit/a76a460423b1a095a197c740e5c13ceeb4bb2571)] __-__ __ffmpeg-video__: fig bug for scaling videos to stdout (*felix*)
+
+### 🚧 Code Refactoring
+
+ - [[```42e7c13b```](https://github.com/gnes-ai/gnes/commit/42e7c13ba988ad9fbbb46931159c36569f573dad)] __-__ __indexer__: separate score logic and index logic (*hanhxiao*)
+ - [[```0c6f4851```](https://github.com/gnes-ai/gnes/commit/0c6f4851d9408735b108287c1d1261434b263cb0)] __-__ __preprocessor__: use io utils in audio and gif (*Jem*)
+ - [[```bae75b8c```](https://github.com/gnes-ai/gnes/commit/bae75b8cff1a306782e3f97c36455944d338b168)] __-__ __router__: separate router and scoring logics (*hanhxiao*)
+ - [[```c3ebb93a```](https://github.com/gnes-ai/gnes/commit/c3ebb93a7e1361895ac1628ba54532c79ad72fcf)] __-__ __proto__: refactor offset nd (*Jem*)
+ - [[```e3bbbd9b```](https://github.com/gnes-ai/gnes/commit/e3bbbd9b940487c00b6b3274d0ec08fae1ac5bde)] __-__ __shot_detector__: update ffmpeg api (*felix*)
+ - [[```10cef54e```](https://github.com/gnes-ai/gnes/commit/10cef54ef489f896e50fae32dad5f00047a00bad)] __-__ __ffmpeg__: refactor ffmpeg again (*felix*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```1e9ef35c```](https://github.com/gnes-ai/gnes/commit/1e9ef35c68fc54e315e1f0c49697c81abb7f8b17)] __-__ __pipeline__: test pipeline load from yaml (*hanhxiao*)
+ - [[```5b7c9f19```](https://github.com/gnes-ai/gnes/commit/5b7c9f190b5ee62da7382b5e8e24d938a4c8455a)] __-__ __pipeline__: add unit test for pipeline encoder (*hanhxiao*)
+ - [[```bef2bf9c```](https://github.com/gnes-ai/gnes/commit/bef2bf9c799295bbc590d28b23c7bb22f0e1679c)] __-__ __indexer__: add unit test for dict indexer as service (*hanhxiao*)
+ - [[```620cf3bd```](https://github.com/gnes-ai/gnes/commit/620cf3bd3466a7f9ed17b9e4d3b637c40bfad5fb)] __-__ __ffmpeg__: add unittest for ffmpeg api (*felix*)
+
+### 🍹 Other Improvements
+
+ - [[```c83448b5```](https://github.com/gnes-ai/gnes/commit/c83448b567b504410981e9c9319e3c05824a0cf5)] __-__ __license__: add license header to frontend (*hanhxiao*)
+ - [[```04deea3a```](https://github.com/gnes-ai/gnes/commit/04deea3a3e3e0e1f7e16d63e5ba5a34773731e71)] __-__ __license__: remove unrelevant packages from license (*hanhxiao*)
+ - [[```10f4bedb```](https://github.com/gnes-ai/gnes/commit/10f4bedb1d97912ab77bbca3392f7a853015edf1)] __-__ fix error (*felix*)
+ - [[```4aa997c3```](https://github.com/gnes-ai/gnes/commit/4aa997c37199830af17a7b13b7b9cc5b086fb6bb)] __-__ __changelog__: update change log to v0.0.35 (*hanhxiao*)
+
 # Release Note (`v0.0.35`)
 > Release time: 2019-08-26 18:15:02
 

@@ -29,17 +29,14 @@ from ..proto import gnes_pb2_grpc, RequestGenerator
 class CLIClient:
     def __init__(self, args):
         self.args = args
-        self.use_channel()
+        self._use_channel()
 
-    def get_channel(self):
-        return grpc.insecure_channel(
-            '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
-            options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
-                     ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
-
-    def use_channel(self):
+    def _use_channel(self):
         all_bytes = self.read_all()
-        with self.get_channel() as channel:
+        with grpc.insecure_channel(
+                '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
+                options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
+                         ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             getattr(self, self.args.mode)(all_bytes, stub)
 

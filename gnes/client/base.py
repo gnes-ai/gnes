@@ -15,6 +15,7 @@
 
 
 import zmq
+from termcolor import colored
 
 from ..helper import set_logger
 from ..proto import send_message, gnes_pb2, recv_message
@@ -33,7 +34,10 @@ class ZmqClient:
                                                 getattr(self, 'identity', None))
         self.sender, send_addr = build_socket(self.ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                               getattr(self, 'identity', None))
-        self.logger.info('send via %s, receive via %s' % (send_addr, recv_addr))
+        self.logger.info(
+            'input %s:%s\t output %s:%s' % (
+                self.args.host_in, colored(self.args.port_in, 'yellow'),
+                self.args.host_out, colored(self.args.port_out, 'yellow')))
 
     def __enter__(self):
         return self
@@ -47,7 +51,10 @@ class ZmqClient:
         self.ctx.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
+        self.logger.info('send message: %s' % message.envelope)
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        return recv_message(self.receiver, timeout=timeout)
+        r = recv_message(self.receiver, timeout=timeout)
+        self.logger.info('recv a message: %s' % r.envelope)
+        return r
