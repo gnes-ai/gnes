@@ -38,17 +38,19 @@ class EncoderService(BS):
         embeds = None
 
         for d in docs:
+            if not d.chunks:
+                self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
+                continue
+
             for c in d.chunks:
-                chunks.append(c)
                 if d.doc_type == gnes_pb2.Document.TEXT:
                     contents.append(c.text)
                 elif getattr(c, c.WhichOneof('content')) == 'blob':
                     contents.append(blob2array(c.blob))
                 else:
-                    raise ServiceError(
-                        'chunk content is in type: %s, dont kow how to handle that' % c.WhichOneof('content'))
-            else:
-                self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
+                    self.logger.warning(
+                        'chunk content is in type: %s, dont kow how to handle that, ignored' % c.WhichOneof('content'))
+                chunks.append(c)
 
         if do_encoding:
             embeds = self._model.encode(contents)

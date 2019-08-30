@@ -46,11 +46,12 @@ class IndexerService(BS):
         for d in msg.request.index.docs:
             if not d.chunks:
                 self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
-            else:
-                vecs += [blob2array(c.embedding) for c in d.chunks]
-                doc_ids += [d.doc_id] * len(d.chunks)
-                offsets += [c.offset for c in d.chunks]
-                weights += [c.weight for c in d.chunks]
+                continue
+
+            vecs += [blob2array(c.embedding) for c in d.chunks]
+            doc_ids += [d.doc_id] * len(d.chunks)
+            offsets += [c.offset for c in d.chunks]
+            weights += [c.weight for c in d.chunks]
 
         if vecs:
             self._model.add(list(zip(doc_ids, offsets)), np.concatenate(vecs, 0), weights)
