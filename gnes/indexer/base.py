@@ -128,30 +128,6 @@ class ChunkScorer:
         })
         return score
 
-
-class DocScorer:
-
-    @staticmethod
-    def eq1(d: 'gnes_pb2.Document',
-            s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score') -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        """
-        score *= d.weight
-        :param d:
-        :param s:
-        :return:
-        """
-        s.value *= d.weight
-        s.explained = json.dumps({
-            'name': 'doc-eq1',
-            'operand': [json.loads(s.explained),
-                        {'name': 'doc_weight',
-                         'value': d.weight,
-                         'doc_id': d.doc_id}],
-            'op': 'prod',
-            'value': s.value
-        })
-        return s
-
     @staticmethod
     def eq2(q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
             relevance):
@@ -190,6 +166,30 @@ class DocScorer:
             'value': score.value
         })
         return score
+
+
+class DocScorer:
+
+    @staticmethod
+    def eq1(d: 'gnes_pb2.Document',
+            s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score') -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        """
+        score *= d.weight
+        :param d:
+        :param s:
+        :return:
+        """
+        s.value *= d.weight
+        s.explained = json.dumps({
+            'name': 'doc-eq1',
+            'operand': [json.loads(s.explained),
+                        {'name': 'doc_weight',
+                         'value': d.weight,
+                         'doc_id': d.doc_id}],
+            'op': 'prod',
+            'value': s.value
+        })
+        return s
 
 
 class JointIndexer(CompositionalTrainableBase):
