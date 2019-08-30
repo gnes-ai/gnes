@@ -109,6 +109,7 @@ class TrainableType(type):
                         setattr(cls, f_name, profiling(getattr(cls, f_name)))
 
             if getattr(cls, 'train', None):
+                # print('registered train func of %s'%cls)
                 setattr(cls, 'train', TrainableType._as_train_func(getattr(cls, 'train')))
 
             reg_cls_set.add(cls.__name__)
@@ -124,7 +125,8 @@ class TrainableType(type):
                 self.logger.warning('"%s" has been trained already, '
                                     'training it again will override the previous training' % self.__class__.__name__)
             f = func(self, *args, **kwargs)
-            self.is_trained = True
+            if not isinstance(self, CompositionalTrainableBase):
+                self.is_trained = True
             return f
 
         return arg_wrapper
@@ -386,6 +388,10 @@ class CompositionalTrainableBase(TrainableBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._components = None  # type: List[T]
+
+    @property
+    def is_trained(self):
+        return self.components and all(c.is_trained for c in self.components)
 
     @property
     def components(self) -> Union[List[T], Dict[str, T]]:

@@ -49,3 +49,5 @@ class TestPipeTrain(unittest.TestCase):
         self.assertRaises(RuntimeError, p.encode, 1)
         p.train(1)
         self.assertEqual(5, p.encode(1))
+        p = BaseEncoder.load_yaml(os.path.join(self.dirname, 'yaml', 'pipeline-multi-encoder.yml'))
+        self.assertRaises(RuntimeError, p.encode, 1)
