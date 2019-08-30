@@ -22,6 +22,7 @@ class TestPipeTrain(unittest.TestCase):
         self.assertRaises(RuntimeError, de.encode, 1)
         de.train()
         self.assertEqual(2, de.encode(1))
+        self.dirname = os.path.dirname(__file__)
 
     def tearDown(self):
         if os.path.exists('dummy-pipeline.bin'):
@@ -42,7 +43,7 @@ class TestPipeTrain(unittest.TestCase):
         self.assertEqual(4, a.encode(1))
 
     def test_load_yaml(self):
-        p = BaseEncoder.load_yaml('yaml/pipeline-multi-encoder.yml')
+        p = BaseEncoder.load_yaml(os.path.join(self.dirname, 'yaml', 'pipeline-multi-encoder.yml'))
         self.assertRaises(RuntimeError, p.encode, 1)
         p.train(1)
         self.assertEqual(5, p.encode(1))
