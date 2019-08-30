@@ -178,7 +178,7 @@ class FFmpegVideoSegmentor(BaseVideoPreprocessor):
                     c.weight = 1 / len(sub_videos)
 
             else:
-                self.logger.info('bad document: no key frames extracted')
+                self.logger.warning('bad document: no key frames extracted')
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
