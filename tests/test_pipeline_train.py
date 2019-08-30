@@ -17,12 +17,14 @@ class DummyEncoder(BaseEncoder):
 
 
 class TestPipeTrain(unittest.TestCase):
+    def setUp(self):
+        self.dirname = os.path.dirname(__file__)
+
     def test_train(self):
         de = DummyEncoder()
         self.assertRaises(RuntimeError, de.encode, 1)
         de.train()
         self.assertEqual(2, de.encode(1))
-        self.dirname = os.path.dirname(__file__)
 
     def tearDown(self):
         if os.path.exists('dummy-pipeline.bin'):
