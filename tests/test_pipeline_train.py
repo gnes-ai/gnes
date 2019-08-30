@@ -44,6 +44,7 @@ class TestPipeTrain(unittest.TestCase):
         a = BaseEncoder.load_yaml(p.yaml_full_path)
         self.assertEqual(4, a.encode(1))
 
+    @unittest.SkipTest
     def test_load_yaml(self):
         p = BaseEncoder.load_yaml(os.path.join(self.dirname, 'yaml', 'pipeline-multi-encoder.yml'))
         self.assertRaises(RuntimeError, p.encode, 1)

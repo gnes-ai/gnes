@@ -91,6 +91,8 @@ class TrainableType(type):
                 v = gnes_config[k]
             v = _expand_env_var(v)
             if not hasattr(obj, k):
+                if k == 'is_trained' and isinstance(obj, CompositionalTrainableBase):
+                    continue
                 setattr(obj, k, v)
 
         getattr(obj, '_post_init_wrapper', lambda *x: None)()
