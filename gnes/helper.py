@@ -191,10 +191,9 @@ class ColoredFormatter(Formatter):
     MAPPING = {
         'DEBUG': dict(color='white', on_color=None),  # white
         'INFO': dict(color='white', on_color=None),  # cyan
-        'WARNING': dict(color='red', on_color='on_yellow'),  # yellow
+        'WARNING': dict(color='yellow', on_color='on_grey'),  # yellow
         'ERROR': dict(color='white', on_color='on_red'),  # 31 for red
-        'CRITICAL': dict(color='red', on_color='on_white'),  # white on red bg
-        'SUCCESS': dict(color='white', on_color='on_green'),  # green
+        'CRITICAL': dict(color='white', on_color='on_green'),  # white on red bg
     }
 
     PREFIX = '\033['

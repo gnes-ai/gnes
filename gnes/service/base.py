@@ -255,7 +255,7 @@ class BaseService(metaclass=ConcurrentService):
                 self._model.dump()
                 self.logger.info('dumping finished!')
         else:
-            self.logger.info('pass dumping as "read_only" set to true.')
+            self.logger.info('no dumping as "read_only" set to true.')
 
     def message_handler(self, msg: 'gnes_pb2.Message', out_sck, ctrl_sck):
         try:
@@ -286,8 +286,8 @@ class BaseService(metaclass=ConcurrentService):
                 except EventLoopEnd:
                     send_message(out_sock, msg, timeout=self.args.timeout)
                     raise EventLoopEnd
-        except ServiceError as e:
-            self.logger.error(e)
+        except ServiceError as ex:
+            self.logger.error(ex, exc_info=True)
 
     @zmqd.context()
     def _run(self, ctx):
@@ -314,7 +314,7 @@ class BaseService(metaclass=ConcurrentService):
             self.is_ready.set()
             self.is_event_loop.set()
             self._start_auto_dump()
-            self.logger.info(colored('ready and listening', color='white', on_color='on_green'))
+            self.logger.critical('ready and listening')
             while self.is_event_loop.is_set():
                 pull_sock = None
                 socks = dict(poller.poll())
@@ -347,7 +347,7 @@ class BaseService(metaclass=ConcurrentService):
             in_sock.close()
             out_sock.close()
             ctrl_sock.close()
-        self.logger.info('terminated')
+        self.logger.critical('terminated')
 
     def post_init(self):
         pass

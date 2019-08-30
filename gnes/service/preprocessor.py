@@ -28,13 +28,18 @@ class PreprocessorService(BS):
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
         for d in msg.request.train.docs:
-            self._model.apply(d)
+            self._apply(d)
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
         for d in msg.request.index.docs:
-            self._model.apply(d)
+            self._apply(d)
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_query(self, msg: 'gnes_pb2.Message'):
-        self._model.apply(msg.request.search.query)
+        self._apply(msg.request.search.query)
+
+    def _apply(self, d: 'gnes_pb2.Document'):
+        self._model.apply(d)
+        if not d.chunks:
+            self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)

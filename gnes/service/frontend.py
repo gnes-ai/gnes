@@ -40,7 +40,7 @@ class FrontendService:
 
     def __enter__(self):
         self.server.start()
-        self.logger.info('listening at: %s' % self.bind_address)
+        self.logger.critical('listening at: %s' % self.bind_address)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
