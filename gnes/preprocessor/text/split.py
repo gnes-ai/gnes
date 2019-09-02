@@ -53,6 +53,6 @@ class SentSplitPreprocessor(BaseTextPreprocessor):
                 c = doc.chunks.add()
                 c.doc_id = doc.doc_id
                 c.text = f[:self.max_sent_len]
-                c.offset_1d = ci
+                c.offset = ci
                 c.weight = len(c.text) / len(doc.raw_text)
                 c.offset_nd.extend([s, e])
