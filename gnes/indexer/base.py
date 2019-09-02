@@ -51,7 +51,7 @@ class BaseChunkIndexer(BaseIndexer):
     def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
         vecs = [blob2array(c.embedding) for c in q_chunks]
-        queried_results = self.query(np.concatenate(vecs, 0), top_k=top_k)
+        queried_results = self.query(np.stack(vecs), top_k=top_k)
         results = []
         for q_chunk, topk_chunks in zip(q_chunks, queried_results):
             for _doc_id, _offset, _weight, _relevance in topk_chunks:
