@@ -1,0 +1,8 @@
+!IncepMixtureEncoder
+parameter:
+  model_dir_inception: /ext/inception_v4/inception_v4.ckpt
+  model_dir_mixture: /ext/video/video2video/fvnet/save.fv/model.ckpt
+gnes_config:
+  batch_size: 64
+  work_dir: save
+  name: inception-mixture

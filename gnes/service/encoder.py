@@ -30,19 +30,19 @@ class EncoderService(BS):
 
     def embed_chunks_in_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document'],
                              do_encoding: bool = True):
-        if not isinstance(docs, list):
+        if getattr(docs, 'doc_type', None) is not None:
             docs = [docs]
 
         contents = []
-        chunks = []
+        ids = []
         embeds = None
 
         for d in docs:
+            ids.append(len(d.chunks))
             for c in d.chunks:
-                chunks.append(c)
                 if d.doc_type == gnes_pb2.Document.TEXT:
                     contents.append(c.text)
-                elif getattr(c, c.WhichOneof('content')) == 'blob':
+                elif d.doc_type in {gnes_pb2.Document.IMAGE, gnes_pb2.Document.VIDEO}:
                     contents.append(blob2array(c.blob))
                 else:
                     raise ServiceError(
@@ -50,12 +50,16 @@ class EncoderService(BS):
 
         if do_encoding:
             embeds = self._model.encode(contents)
-            if len(chunks) != embeds.shape[0]:
+            if sum(ids) != embeds.shape[0]:
                 raise ServiceError(
                     'mismatched %d chunks and a %s shape embedding, '
-                    'the first dimension must be the same' % (len(chunks), embeds.shape))
-            for idx, c in enumerate(chunks):
-                c.embedding.CopyFrom(array2blob(embeds[idx]))
+                    'the first dimension must be the same' % (sum(ids), embeds.shape))
+            idx = 0
+            for d in docs:
+                for c in d.chunks:
+                    c.embedding.CopyFrom(array2blob(embeds[idx]))
+                    idx += 1
+
         return contents, embeds
 
     @handler.register(gnes_pb2.Request.IndexRequest)
