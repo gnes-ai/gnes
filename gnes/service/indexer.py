@@ -48,6 +48,8 @@ class IndexerService(BS):
                 self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
                 continue
 
+            for c in d.chunks:
+                self.logger.info(c.embedding)
             vecs += [blob2array(c.embedding) for c in d.chunks]
             doc_ids += [d.doc_id] * len(d.chunks)
             offsets += [c.offset for c in d.chunks]
