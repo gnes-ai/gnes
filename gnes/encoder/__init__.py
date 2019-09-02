@@ -41,7 +41,8 @@ _cls2file_map = {
     'VladEncoder': 'numeric.vlad',
     'MfccEncoder': 'audio.mfcc',
     'PoolingEncoder': 'numeric.pooling',
-    'PyTorchTransformers': 'text.transformer'
+    'PyTorchTransformers': 'text.transformer',
+    'VggishEncoder': 'audio.vggish'
 }
 
 register_all_class(_cls2file_map, 'encoder')

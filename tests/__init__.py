@@ -51,7 +51,8 @@ env_dict = {
         'MOBILENET_MODEL': '/',
         'FASTERRCNN_MODEL': '/',
         'GNES_PROFILING': '',
-        'TORCH_TRANSFORMERS_MODEL': '/torch_transformer'
+        'TORCH_TRANSFORMERS_MODEL': '/torch_transformer',
+        'VGGISH_MODEL': '/lab/vggish'
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -69,7 +70,8 @@ env_dict = {
         'MOBILENET_MODEL': '/ext_data/image_encoder',
         'FASTERRCNN_MODEL': '/ext_data/image_preprocessor',
         'GNES_PROFILING': '',
-        'TORCH_TRANSFORMERS_MODEL': '/ext_data/torch_transformer'
+        'TORCH_TRANSFORMERS_MODEL': '/ext_data/torch_transformer',
+        'VGGISH_MODEL': '/ext_data/lab/vggish'
     }
 
 }

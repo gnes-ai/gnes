@@ -1,0 +1,7 @@
+!VggishEncoder
+parameters:
+  model_dir: ${VGGISH_MODEL}
+  max_length: 10
+gnes_config:
+  name: vggish_encoder
+  is_trained: true
