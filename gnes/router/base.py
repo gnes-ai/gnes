@@ -92,7 +92,7 @@ class BaseTopkReduceRouter(BaseReduceRouter):
         for c in all_scored_results:
             k = self.get_key(c)
             score_dict[k]['values'].append(c.score.value)
-            score_dict[k]['explains'].append(c.score.explained)
+            score_dict[k]['explains'].append(json.loads(c.score.explained))
 
         for k, v in score_dict.items():
             score_dict[k]['reduced_value'] = self.reduce_op(v['values'])
@@ -106,7 +106,7 @@ class BaseTopkReduceRouter(BaseReduceRouter):
             r.score.explained = json.dumps({
                 'name': 'topk-reduce',
                 'op': self._reduce_op,
-                'operand': [json.loads(vv) for vv in v['explains']],
+                'operand': v['explains'],
                 'value': r.score.value
             })
             self.set_key(r, k)
