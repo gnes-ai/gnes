@@ -43,8 +43,11 @@ class EncoderService(BS):
             for c in d.chunks:
                 if d.doc_type == gnes_pb2.Document.TEXT:
                     contents.append(c.text)
-                else:
+                elif d.doc_type in {gnes_pb2.Document.IMAGE, gnes_pb2.Document.VIDEO}:
                     contents.append(blob2array(c.blob))
+                else:
+                    self.logger.warning(
+                        'chunk content is in type: %s, dont kow how to handle that, ignored' % c.WhichOneof('content'))
 
         if do_encoding:
             embeds = self._model.encode(contents)
