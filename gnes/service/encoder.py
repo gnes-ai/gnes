@@ -64,7 +64,12 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
-        self.embed_chunks_in_docs(msg.request.index.docs)
+        _, embeds = self.embed_chunks_in_docs(msg.request.index.docs)
+        idx = 0
+        for d in msg.request.index.docs:
+            for c in d.chunks:
+                c.embedding.CopyFrom(array2blob(embeds[idx]))
+                idx += 1
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
@@ -82,4 +87,5 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
-        self.embed_chunks_in_docs(msg.request.search.query)
+        _, embeds = self.embed_chunks_in_docs(msg.request.search.query)
+        msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(embeds))

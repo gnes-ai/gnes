@@ -116,7 +116,10 @@ class IncepMixtureEncoder(BaseVideoEncoder):
                                            feed_dict={self.inputs: data})
             return end_points_[self.select_layer]
 
-        v = [_ for vi in _encode1(self, img) for _ in vi]
+        if len(img) <= self.batch_size:
+            v = [_ for _ in _encode1(self, img)]
+        else:
+            v = [_ for vi in _encode1(self, img) for _ in vi]
 
         v_input = [v[s:e] for s, e in zip(pos_start, pos_end)]
         v_input = [(vi + [[0.0] * self.input_size] * (max_len - len(vi)))[:max_len] for vi in v_input]
