@@ -35,7 +35,8 @@ _cls2file_map = {
     'AudioVanilla': 'audio.audio_vanilla',
     'BaseAudioPreprocessor': 'base',
     'RawChunkPreprocessor': 'base',
-    'GifChunkPreprocessor': 'video.ffmpeg'
+    'GifChunkPreprocessor': 'video.ffmpeg',
+    'VggishPreprocessor': 'audio.vggish_example'
 }
 
 register_all_class(_cls2file_map, 'preprocessor')
