@@ -51,7 +51,7 @@ class VggishPreprocessor(BaseAudioPreprocessor):
         if doc.raw_bytes:
             for chunks in enumerate(doc.chunks):
                 chunks.blob.CopyFrom(array2blob(np.array(self.waveform_to_examples(blob2array(chunks.blob),
-                                                sample_rate=self.sample_rate), dtype=np.float32)))
+                                            sample_rate=self.sample_rate), dtype=np.float32)))
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
 
