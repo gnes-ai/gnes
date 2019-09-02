@@ -53,7 +53,7 @@ class EncoderService(BS):
                         'chunk content is in type: %s, dont kow how to handle that, ignored' % c.WhichOneof('content'))
                 chunks.append(c)
 
-        if do_encoding:
+        if do_encoding and contents:
             embeds = self._model.encode(contents)
             if len(chunks) != embeds.shape[0]:
                 raise ServiceError(

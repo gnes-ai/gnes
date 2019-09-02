@@ -53,8 +53,10 @@ class IndexerService(BS):
             offsets += [c.offset for c in d.chunks]
             weights += [c.weight for c in d.chunks]
 
+            # self.logger.info('%d %d %d %d' % (len(vecs), len(doc_ids), len(offsets), len(weights)))
+            # self.logger.info(np.stack(vecs).shape)
         if vecs:
-            self._model.add(list(zip(doc_ids, offsets)), np.concatenate(vecs, 0), weights)
+            self._model.add(list(zip(doc_ids, offsets)), np.stack(vecs), weights)
 
     def _handler_doc_index(self, msg: 'gnes_pb2.Message'):
         self._model.add([d.doc_id for d in msg.request.index.docs],

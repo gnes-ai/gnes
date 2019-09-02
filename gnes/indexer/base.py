@@ -51,7 +51,7 @@ class BaseChunkIndexer(BaseIndexer):
     def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
         vecs = [blob2array(c.embedding) for c in q_chunks]
-        queried_results = self.query(np.concatenate(vecs, 0), top_k=top_k)
+        queried_results = self.query(np.stack(vecs), top_k=top_k)
         results = []
         for q_chunk, topk_chunks in zip(q_chunks, queried_results):
             for _doc_id, _offset, _weight, _relevance in topk_chunks:
@@ -115,16 +115,16 @@ class ChunkScorer:
         score.explained = json.dumps({
             'name': 'chunk-eq1',
             'operand': [{'name': 'd_chunk_weight',
-                         'value': d_chunk.weight,
+                         'value': float(d_chunk.weight),
                          'doc_id': d_chunk.doc_id,
                          'offset': d_chunk.offset},
                         {'name': 'q_chunk_weight',
-                         'value': q_chunk.weight,
+                         'value': float(q_chunk.weight),
                          'offset': q_chunk.offset},
                         {'name': 'relevance',
-                         'value': relevance}],
+                         'value': float(relevance)}],
             'op': 'prod',
-            'value': score.value
+            'value': float(score.value)
         })
         return score
 
@@ -152,18 +152,18 @@ class ChunkScorer:
         score.explained = json.dumps({
             'name': 'chunk-eq2',
             'operand': [{'name': 'd_chunk_weight',
-                         'value': d_chunk.weight,
+                         'value': float(d_chunk.weight),
                          'doc_id': d_chunk.doc_id,
                          'offset': d_chunk.offset},
                         {'name': 'q_chunk_weight',
-                         'value': q_chunk.weight,
+                         'value': float(q_chunk.weight),
                          'offset': q_chunk.offset},
                         {'name': 'relevance',
-                         'value': relevance},
+                         'value': float(relevance)},
                         {'name': 'offset_divergence',
-                         'value': divergence}],
+                         'value': float(divergence)}],
             'op': 'prod',
-            'value': score.value
+            'value': float(score.value)
         })
         return score
 
@@ -184,10 +184,10 @@ class DocScorer:
             'name': 'doc-eq1',
             'operand': [json.loads(s.explained),
                         {'name': 'doc_weight',
-                         'value': d.weight,
+                         'value': float(d.weight),
                          'doc_id': d.doc_id}],
             'op': 'prod',
-            'value': s.value
+            'value': float(s.value)
         })
         return s
 
