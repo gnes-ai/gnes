@@ -14,93 +14,34 @@ A copy of the Apache License, Version 2.0 is included in this file.
 
 Open Source Software Licensed Under the Apache License, Version 2.0:
 -------------------------------------------------------------------------
-1. TensorFlow  1.10.1
-Copyright 2018 The TensorFlow Authors.  All rights reserved.
-
-2. aiohttp  3.5.4
+1. aiohttp  3.5.4
 Copyright 2013-2019 Nikolay Kim and Andrew Svetlov.
 
-3. grpc  1.21.2
+2. grpc  1.21.2
 Copyright Copyright 2014 gRPC authors.
 
 
-Open Source Software Licensed Under the BSD 2-Clause License:
--------------------------------------------------------------------------
-
-1. imagehash 4.0
-Copyright (c) 2013-2016, Johannes Buchner
-
 Open Source Software Licensed Under the BSD 3-Clause License:
 -------------------------------------------------------------------------
-1. pandas  0.24.2
-Copyright (c) 2008-2012, AQR Capital Management, LLC, Lambda Foundry, Inc.
-and PyData Development Team
-All rights reserved.
-
-2. numpy  1.16.2
+1. numpy  1.16.2
 Copyright ? 2005-2019, NumPy Developers.
 All rights reserved.
 
-3. psutil  5.6.2
-Copyright (c) 2009, Jay Loden, Dave Daeschler, Giampaolo Rodola'
-All rights reserved.
-
-4. memory-profiler  0.55.0
-Copyright (c) 2007®C2014 Fabian Pedregosa.
-All rights reserved.
-
-5. faiss  0.1
-Copyright (c) 2016-present, Facebook, Inc.
-All rights reserved.
-
-6. PyZMQ  18.0.1
+2. PyZMQ  18.0.1
 Copyright (c) 2009-2012, Brian Granger, Min Ragan-Kelley
 All rights reserved.
 
-7. PyTorch  1.0.1.post2
-Copyright (c) 2016-     Facebook, Inc            (Adam Paszke)
-Copyright (c) 2014-     Facebook, Inc            (Soumith Chintala)
-Copyright (c) 2011-2014 Idiap Research Institute (Ronan Collobert)
-Copyright (c) 2012-2014 Deepmind Technologies    (Koray Kavukcuoglu)
-Copyright (c) 2011-2012 NEC Laboratories America (Koray Kavukcuoglu)
-Copyright (c) 2011-2013 NYU                      (Clement Farabet)
-Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou,
-Iain Melvin, Jason Weston)
-Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
-Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio,
-Johnny Mariethoz)
-
-8. protobuf 3.7.1
+3. protobuf 3.7.1
 Copyright 2008 Google Inc.
-All rights reserved.
-
-9. torchvision 0.3.0
-Copyright (c) Soumith Chintala 2016,
 All rights reserved.
 
 Open Source Software Licensed Under the MIT License:
 -------------------------------------------------------------------------
-1. bert-as-service 1.8.9
-Copyright (c) 2018 Han Xiao.
-
-2. termcolor 1.1.0
+1. termcolor 1.1.0
 Copyright (c) 2008-2011 Konstantin Lepa.
 
-3. GPUtil 1.4.0
-Copyright (c) 2017 anderskm.
-
-4. flair 0.4.1
-Flair is licensed under the following MIT License (MIT) Copyright ? 2018 Zalando
-SE, https://tech.zalando.com
-
-5. ruamel.yaml  0.15.94
+2. ruamel.yaml  0.15.94
 Copyright (c) 2014-2019 Anthon van der Neut, Ruamel bvba
-
-6. jieba 0.39
-Copyright (c) 2013 Sun Junyi
-
-7. opencv-python 4.0.0
-Copyright (c) 2016-2018 Olli-Pekka Heinisuo and contributors
 
 
 

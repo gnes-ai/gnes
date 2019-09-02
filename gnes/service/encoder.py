@@ -29,8 +29,9 @@ class EncoderService(BS):
         self.train_data = []
 
     def embed_chunks_in_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document'],
-                             do_encoding: bool = True):
-        if getattr(docs, 'doc_type', None) is not None:
+                             do_encoding: bool = True,
+                             is_input_list: bool = True):
+        if not is_input_list:
             docs = [docs]
 
         contents = []
@@ -42,11 +43,8 @@ class EncoderService(BS):
             for c in d.chunks:
                 if d.doc_type == gnes_pb2.Document.TEXT:
                     contents.append(c.text)
-                elif d.doc_type in {gnes_pb2.Document.IMAGE, gnes_pb2.Document.VIDEO}:
-                    contents.append(blob2array(c.blob))
                 else:
-                    raise ServiceError(
-                        'chunk content is in type: %s, dont kow how to handle that' % c.WhichOneof('content'))
+                    contents.append(blob2array(c.blob))
 
         if do_encoding:
             embeds = self._model.encode(contents)

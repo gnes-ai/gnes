@@ -107,7 +107,7 @@ class BaseTopkReduceRouter(BaseReduceRouter):
                 'name': 'topk-reduce',
                 'op': self._reduce_op,
                 'operand': [json.loads(vv) for vv in v['explains']],
-                'value': r.score.value
+                'value': float(r.score.value)
             })
             self.set_key(r, k)
 

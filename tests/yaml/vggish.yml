@@ -1,0 +1,23 @@
+!PipelinePreprocessor
+components:
+ - !AudioVanilla
+   parameters:
+     sample_rate: 16000
+   gnes_config:
+     is_trained: true
+     name: audio_vanilla
+ - !VggishPreprocessor
+   parameters:
+     num_frames: 96
+     num_bands: 64
+     sample_rate: 16000
+     log_offset: 0.01
+     example_window_seconds: 0.96
+     example_hop_seconds: 0.96
+     stft_window_length_seconds: 0.025
+     stft_hop_length_seconds: 0.01
+     mel_min_hz: 125
+     mel_max_hz: 7500
+   gnes_config:
+     is_trained: true
+     name: vggish_preprocessor

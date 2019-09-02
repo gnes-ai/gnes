@@ -2,9 +2,17 @@ import os
 import unittest
 from shutil import rmtree
 
+import grpc
+
+from gnes.cli.parser import set_frontend_parser, set_preprocessor_parser, set_indexer_parser
+from gnes.indexer.base import BaseIndexer
 from gnes.indexer.doc.filesys import DirectoryIndexer
 from gnes.preprocessor.base import BasePreprocessor
-from gnes.proto import gnes_pb2
+from gnes.proto import gnes_pb2, gnes_pb2_grpc, RequestGenerator
+from gnes.service.base import SocketType, ServiceManager
+from gnes.service.frontend import FrontendService
+from gnes.service.indexer import IndexerService
+from gnes.service.preprocessor import PreprocessorService
 
 
 class TestDictIndexer(unittest.TestCase):
@@ -22,9 +30,51 @@ class TestDictIndexer(unittest.TestCase):
 
         self.init_db()
 
+    def test_pymode(self):
+        os.unsetenv('http_proxy')
+        os.unsetenv('https_proxy')
+        args = set_frontend_parser().parse_args([])
+
+        p_args = set_preprocessor_parser().parse_args([
+            '--port_in', str(args.port_out),
+            '--port_out', '5531',
+            '--socket_in', str(SocketType.PULL_CONNECT),
+            '--socket_out', str(SocketType.PUSH_BIND),
+            '--yaml_path', 'SentSplitPreprocessor'
+        ])
+
+        e_args = set_indexer_parser().parse_args([
+            '--port_in', str(p_args.port_out),
+            '--port_out', str(args.port_in),
+            '--socket_in', str(SocketType.PULL_CONNECT),
+            '--socket_out', str(SocketType.PUSH_CONNECT),
+            '--yaml_path', '!DictIndexer {gnes_config: {name: dummy_dict_indexer}}',
+        ])
+
+        with ServiceManager(IndexerService, e_args), \
+             ServiceManager(PreprocessorService, p_args), \
+             FrontendService(args), \
+             grpc.insecure_channel('%s:%s' % (args.grpc_host, args.grpc_port),
+                                   options=[('grpc.max_send_message_length', 70 * 1024 * 1024),
+                                            ('grpc.max_receive_message_length', 70 * 1024 * 1024)]) as channel:
+            stub = gnes_pb2_grpc.GnesRPCStub(channel)
+            all_bytes = []
+            with open(os.path.join(self.dirname, '26-doc-chinese.txt'), 'r', encoding='utf8') as fp:
+                for v in fp:
+                    if v.strip():
+                        all_bytes.append(v.encode())
+            for r in stub.StreamCall(RequestGenerator.index(all_bytes)):
+                print(r)
+
+        bi = BaseIndexer.load('dummy_dict_indexer.bin')
+        self.assertEqual(bi.size, 26)
+        print(bi.query([0]))
+
     def tearDown(self):
         if os.path.exists(self.data_path):
             rmtree(self.data_path)
+        if os.path.exists('dummy_dict_indexer.bin'):
+            os.remove('dummy_dict_indexer.bin')
 
     def init_db(self):
         self.db = DirectoryIndexer(self.data_path)

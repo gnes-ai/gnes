@@ -47,8 +47,8 @@ class LVDBIndexer(BaseDocIndexer):
                 if self.drop_raw_bytes:
                     d.raw_bytes = b''
                 if self.drop_chunk_blob:
-                    for i in range(len(d.chunks)):
-                        d.chunks[i].ClearField('blob')
+                    for c in d.chunks:
+                        c.ClearField('blob')
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
 

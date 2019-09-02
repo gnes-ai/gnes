@@ -45,14 +45,18 @@ class IndexerService(BS):
 
         for d in msg.request.index.docs:
             if not d.chunks:
-                raise ServiceError('document contains no chunks! doc: %s' % d)
-            else:
-                vecs += [blob2array(c.embedding) for c in d.chunks]
-                doc_ids += [d.doc_id] * len(d.chunks)
-                offsets += [c.offset for c in d.chunks]
-                weights += [c.weight for c in d.chunks]
+                self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
+                continue
 
-        self._model.add(list(zip(doc_ids, offsets)), np.concatenate(vecs, 0), weights)
+            vecs += [blob2array(c.embedding) for c in d.chunks]
+            doc_ids += [d.doc_id] * len(d.chunks)
+            offsets += [c.offset for c in d.chunks]
+            weights += [c.weight for c in d.chunks]
+
+            # self.logger.info('%d %d %d %d' % (len(vecs), len(doc_ids), len(offsets), len(weights)))
+            # self.logger.info(np.stack(vecs).shape)
+        if vecs:
+            self._model.add(list(zip(doc_ids, offsets)), np.stack(vecs), weights)
 
     def _handler_doc_index(self, msg: 'gnes_pb2.Message'):
         self._model.add([d.doc_id for d in msg.request.index.docs],
