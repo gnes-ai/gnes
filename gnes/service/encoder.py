@@ -29,8 +29,9 @@ class EncoderService(BS):
         self.train_data = []
 
     def embed_chunks_in_docs(self, docs: Union[List['gnes_pb2.Document'], 'gnes_pb2.Document'],
-                             do_encoding: bool = True):
-        if not isinstance(docs, list):
+                             do_encoding: bool = True,
+                             is_input_list: bool = True):
+        if not is_input_list:
             docs = [docs]
 
         contents = []
@@ -82,4 +83,4 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
-        self.embed_chunks_in_docs(msg.request.search.query)
+        self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
