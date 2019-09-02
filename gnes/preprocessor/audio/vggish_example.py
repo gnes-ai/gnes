@@ -49,7 +49,7 @@ class VggishPreprocessor(BaseAudioPreprocessor):
         super().apply(doc)
 
         if doc.raw_bytes:
-            for ci, chunks in enumerate(doc.chunks):
+            for chunks in enumerate(doc.chunks):
                 chunks.blob.CopyFrom(array2blob(np.array(self.waveform_to_examples(blob2array(chunks.blob),
                                                 sample_rate=self.sample_rate), dtype=np.float32)))
         else:
