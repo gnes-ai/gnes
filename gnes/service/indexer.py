@@ -53,6 +53,8 @@ class IndexerService(BS):
             offsets += [c.offset for c in d.chunks]
             weights += [c.weight for c in d.chunks]
 
+            self.logger.info('%d %d %d %d' % (len(vecs), len(doc_ids), len(offsets), len(weights)))
+            self.logger.info(np.concatenate(vecs, 0).shape)
         if vecs:
             self._model.add(list(zip(doc_ids, offsets)), np.concatenate(vecs, 0), weights)
 
