@@ -88,5 +88,5 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
-        _, embeds = self.embed_chunks_in_docs(msg.request.search.query)
+        _, embeds = self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
         msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(embeds))
