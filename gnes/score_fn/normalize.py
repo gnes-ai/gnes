@@ -6,7 +6,7 @@ class Normalizer1(ModifierFn):
 
     def __init__(self):
         super().__init__()
-        self.modifier = 'reciprocal1p'
+        self._modifier = 'reciprocal1p'
 
     def __call__(self, last_score, *args, **kwargs):
         return super().__call__(so.sqrt(last_score))
@@ -17,8 +17,9 @@ class Normalizer2(ModifierFn):
 
     def __init__(self, num_dim: int):
         super().__init__()
-        self.modifier = 'reciprocal1p'
+        self._modifier = 'reciprocal1p'
         self._factor = 1.0 / num_dim
+        self._factor_name = '1/num_dim'
 
 
 class Normalizer3(Normalizer2):
@@ -33,8 +34,9 @@ class Normalizer4(ModifierFn):
 
     def __init__(self, num_bytes: int):
         super().__init__()
-        self.modifier = 'invert1p'
+        self._modifier = 'invert1p'
         self._factor = 1.0 / num_bytes
+        self._factor_name = '1/num_bytes'
 
 
 class Normalizer5(ModifierFn):
@@ -42,7 +44,7 @@ class Normalizer5(ModifierFn):
 
     def __init__(self):
         super().__init__()
-        self.modifier = 'reciprocal1p'
+        self._modifier = 'reciprocal1p'
 
     def __call__(self, last_score, *args, **kwargs):
         return super().__call__(so.sqrt(so.abs(last_score)))

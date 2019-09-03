@@ -20,8 +20,6 @@ import numpy as np
 
 from ..base import BaseChunkIndexer
 from ..key_only import ListKeyIndexer
-from ...score_fn.base import ScoreOps
-from ...score_fn.normalize import Normalizer3, Normalizer2
 
 
 class AnnoyIndexer(BaseChunkIndexer):
@@ -33,13 +31,6 @@ class AnnoyIndexer(BaseChunkIndexer):
         self.metric = metric
         self.n_trees = n_trees
         self._key_info_indexer = ListKeyIndexer()
-        if self.metric in {'angular', 'hamming'}:
-            self.normalize_fn = ScoreOps.reciprocal1p
-        elif self.metric == 'euclidean':
-            self.normalize_fn = Normalizer3(self.num_dim)
-        elif self.metric == 'manhattan':
-            self.normalize_fn = Normalizer2(self.num_dim)
-
 
     def post_init(self):
         from annoy import AnnoyIndex
@@ -52,7 +43,6 @@ class AnnoyIndexer(BaseChunkIndexer):
             self._index.load(self.data_path)
         except:
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
-
 
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         last_idx = self._key_info_indexer.size

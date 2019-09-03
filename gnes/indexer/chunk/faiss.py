@@ -44,13 +44,6 @@ class FaissIndexer(BaseChunkIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
-        if 'HNSW' in self.index_key:
-            from ...score_fn.normalize import Normalizer3
-            self.normalize_fn = Normalizer3(self.num_dim)
-        elif ('Flat' in self.index_key) or ('PQ' in self.index_key):
-            from ...score_fn.normalize import Normalizer5
-            self.normalize_fn = Normalizer5(self.num_dim)
-
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")

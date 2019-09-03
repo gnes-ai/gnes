@@ -21,7 +21,6 @@ import numpy as np
 
 from .cython import IndexCore
 from ...base import BaseChunkIndexer
-from ....score_fn.normalize import Normalizer4
 
 
 class HBIndexer(BaseChunkIndexer):
@@ -42,7 +41,6 @@ class HBIndexer(BaseChunkIndexer):
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
 
-
     def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
         try:
@@ -53,8 +51,6 @@ class HBIndexer(BaseChunkIndexer):
             self.hbindexer.load(self.data_path)
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
-
-        self.normalize_fn = Normalizer4(self.n_bytes * 8)
 
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
