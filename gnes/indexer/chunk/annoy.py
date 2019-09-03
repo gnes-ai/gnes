@@ -65,23 +65,9 @@ class AnnoyIndexer(BaseChunkIndexer):
         res = []
         for k in keys:
             ret, relevance_score = self._index.get_nns_by_vector(k, top_k, include_distances=True)
-            relevance_score = self.normalize_score(relevance_score, self.metric)
             chunk_info = self._key_info_indexer.query(ret)
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
-
-    def normalize_score(self, score: List[float], metrics: str, *args, **kwargs) -> List[float]:
-        if metrics == 'angular':
-            return list(map(lambda x: 1 / (1 + x), score))
-        elif metrics == 'euclidean':
-            import math
-            return list(map(lambda x: 1 / (1 + math.sqrt(x) / self.num_dim), score))
-        elif metrics == 'manhattan':
-            return list(map(lambda x: 1 / (1 + x / self.num_dim), score))
-        elif metrics == 'hamming':
-            return list(map(lambda x: 1 / (1 + x), score))
-        elif metrics == 'dot':
-            raise NotImplementedError
 
     @property
     def size(self):
