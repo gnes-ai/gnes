@@ -1,4 +1,4 @@
-from .base import ModifierFn, ScoreOps as so, get_unary_score
+from .base import ModifierFn, ScoreOps as so
 
 
 class Normalizer1(ModifierFn):
@@ -18,7 +18,7 @@ class Normalizer2(ModifierFn):
     def __init__(self, num_dim: int):
         super().__init__()
         self.modifier = 'reciprocal1p'
-        self.factor = so.reciprocal(get_unary_score(value=num_dim, name='GivenConstant'))
+        self._factor = 1.0 / num_dim
 
 
 class Normalizer3(Normalizer2):
@@ -34,7 +34,7 @@ class Normalizer4(ModifierFn):
     def __init__(self, num_bytes: int):
         super().__init__()
         self.modifier = 'invert1p'
-        self.factor = so.reciprocal(get_unary_score(value=num_bytes, name='GivenConstant'))
+        self._factor = 1.0 / num_bytes
 
 
 class Normalizer5(ModifierFn):

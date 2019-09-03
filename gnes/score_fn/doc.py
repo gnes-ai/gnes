@@ -1,5 +1,4 @@
 from .base import get_unary_score, ScoreCombinedFn
-from ..proto import gnes_pb2
 
 
 class WeightedDocScoreFn(ScoreCombinedFn):

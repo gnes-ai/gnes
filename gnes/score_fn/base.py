@@ -66,12 +66,17 @@ class ModifierFn(BaseScoreFn):
     score = modifier(factor * value)
     """
 
-    def __init__(self, modifier: str = 'none', factor: float = 1.0):
+    def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant'):
         if modifier not in {'none', 'log', 'log1p', 'log2p', 'ln', 'ln1p', 'ln2p', 'square', 'sqrt', 'reciprocal',
                             'reciprocal1p', 'abs'}:
             raise AttributeError('modifier=%s is not supported!' % modifier)
-        self.modifier = modifier
-        self.factor = get_unary_score(factor)
+        self._modifier = modifier
+        self._factor = factor
+        self._factor_name = factor_name
+
+    @property
+    def factor(self):
+        return get_unary_score(value=self._factor, name=self._factor_name)
 
     def op(self, *args, **kwargs) -> float:
         return {
@@ -89,19 +94,19 @@ class ModifierFn(BaseScoreFn):
             'abs': abs,
             'invert': lambda x: - x,
             'invert1p': lambda x: 1 - x
-        }[self.modifier](*args, **kwargs)
+        }[self._modifier](*args, **kwargs)
 
     def __call__(self,
                  last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                  *args, **kwargs) -> \
             'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        if self.modifier == 'none' and self.factor.value == 1.0:
+        if self._modifier == 'none' and self._factor == 1.0:
             return last_score
         else:
             return self.new_score(
                 value=self.op(self.factor.value * last_score.value),
                 operands=[last_score],
-                modifier=self.modifier,
+                modifier=self._modifier,
                 factor=json.loads(self.factor.explained))
 
 
