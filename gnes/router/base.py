@@ -12,12 +12,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import json
-from _operator import add, mul
 from collections import defaultdict
-from functools import reduce
 from typing import List, Generator
 
+from gnes.score_fn.base import ScoreCombinedFn
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, merge_routes
 
@@ -63,19 +61,11 @@ class BaseReduceRouter(BaseRouter):
 class BaseTopkReduceRouter(BaseReduceRouter):
     def __init__(self, reduce_op: str = 'sum', descending: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if reduce_op not in {'sum', 'prod', 'max', 'min', 'avg'}:
-            raise ValueError('reduce_op=%s is not acceptable' % reduce_op)
         self._reduce_op = reduce_op
         self.descending = descending
 
     def post_init(self):
-        self.reduce_op = {
-            'prod': lambda v: reduce(mul, v),
-            'sum': lambda v: reduce(add, v),
-            'max': lambda v: reduce(max, v),
-            'min': lambda v: reduce(min, v),
-            'avg': lambda v: reduce(add, v) / len(v),
-        }[self._reduce_op]
+        self.reduce_op = ScoreCombinedFn(score_mode=self._reduce_op)
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         raise NotImplementedError
@@ -86,29 +76,22 @@ class BaseTopkReduceRouter(BaseReduceRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
         # now convert chunk results to doc results
         all_scored_results = [sr for m in accum_msgs for sr in m.response.search.topk_results]
-        score_dict = defaultdict(lambda: {'values': [], 'explains': [], 'reduced_value': 0})
+        score_dict = defaultdict(list)
 
         # count score by iterating over chunks
         for c in all_scored_results:
             k = self.get_key(c)
-            score_dict[k]['values'].append(c.score.value)
-            score_dict[k]['explains'].append(c.score.explained)
+            score_dict[k].append(c.score)
 
         for k, v in score_dict.items():
-            score_dict[k]['reduced_value'] = self.reduce_op(v['values'])
+            score_dict[k] = self.reduce_op(*v)
 
         msg.response.search.ClearField('topk_results')
 
         # sort and add docs
-        for k, v in sorted(score_dict.items(), key=lambda kv: kv[1]['reduced_value'] * (-1 if self.descending else 1)):
+        for k, v in sorted(score_dict.items(), key=lambda kv: kv[1].value, reverse=self.descending):
             r = msg.response.search.topk_results.add()
-            r.score.value = v['reduced_value']
-            r.score.explained = json.dumps({
-                'name': 'topk-reduce',
-                'op': self._reduce_op,
-                'operand': [json.loads(vv) for vv in v['explains']],
-                'value': float(r.score.value)
-            })
+            r.score.CopyFrom(v)
             self.set_key(r, k)
 
         super().apply(msg, accum_msgs)

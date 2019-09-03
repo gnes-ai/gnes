@@ -87,12 +87,9 @@ class HBIndexer(BaseChunkIndexer):
         doc_ids, offsets, weights, dists, q_idx = self.hbindexer.query(
             vectors, clusters, n, top_k * self.n_idx)
         for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-            result[q][(i, o, w / self._weight_norm)] = self.normalize_score(d)
+            result[q][(i, o, w / self._weight_norm)] = d
 
-        return [sorted(ret.items(), key=lambda x: -x[1])[:top_k] for ret in result]
-
-    def normalize_score(self, distance: int, *args, **kwargs) -> float:
-        return 1. - distance / self.n_bytes * 8
+        return [list(ret.items()) for ret in result]
 
     def __getstate__(self):
         self.hbindexer.save(self.data_path)
