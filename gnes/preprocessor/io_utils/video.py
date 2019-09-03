@@ -18,7 +18,7 @@ import numpy as np
 
 from typing import List
 
-from .ffmpeg import get_media_meta, compile_args
+from .ffmpeg import get_media_meta, compile_args, probe
 from .helper import _check_input, run_command, run_command_async
 
 
@@ -53,7 +53,7 @@ def scale_video(input_fn: str = 'pipe:',
         'crf': crf,
         'framerate': frame_rate,
         'acodec': 'aac',
-        'strict': 'experimental',  # AAC audio encoder is experimental
+        'strict': 'experimental',    # AAC audio encoder is experimental
     }
 
     if scale:
@@ -142,71 +142,78 @@ def capture_frames(input_fn: str = 'pipe:',
                    **kwargs) -> List['np.ndarray']:
     _check_input(input_fn, input_data)
 
-    video_meta = get_media_meta(input_fn=input_fn, input_data=input_data)
-    width = video_meta['frame_width']
-    height = video_meta['frame_height']
+    import tempfile
 
-    if scale is not None:
-        _width, _height = map(int, scale.split(':'))
-        if _width * _height < 0:
-            if _width > 0:
-                ratio = _width / width
-                height = int(ratio * height)
-                if _height == -2:
-                    height += height % 2
-                width = _width
+    with tempfile.NamedTemporaryFile() as f:
+        if input_data:
+            f.write(input_data)
+            f.flush()
+            input_fn = f.name
+
+        video_meta = probe(input_fn)
+        width = video_meta['width']
+        height = video_meta['height']
+
+        if scale is not None:
+            _width, _height = map(int, scale.split(':'))
+            if _width * _height < 0:
+                if _width > 0:
+                    ratio = _width / width
+                    height = int(ratio * height)
+                    if _height == -2:
+                        height += height % 2
+                    width = _width
+                else:
+                    ratio = _height / height
+                    width = int(ratio * width)
+                    if _width == -2:
+                        width += width % 2
+
+                    height = _height
+
+                scale = '%d:%d' % (width, height)
             else:
-                ratio = _height / height
-                width = int(ratio * width)
-                if _width == -2:
-                    width += width % 2
-
+                width = _width
                 height = _height
 
-            scale = '%d:%d' % (width, height)
+        input_kwargs = {
+            'err_detect': 'aggressive',
+            'fflags': 'discardcorrupt'    # discard corrupted frames
+        }
+        if start_time is not None:
+            input_kwargs['ss'] = str(start_time)
         else:
-            width = _width
-            height = _height
+            start_time = 0.
+        if end_time is not None:
+            input_kwargs['t'] = str(end_time - start_time)
 
-    input_kwargs = {
-        'err_detect': 'aggressive',
-        'fflags': 'discardcorrupt'    # discard corrupted frames
-    }
-    if start_time is not None:
-        input_kwargs['ss'] = str(start_time)
-    else:
-        start_time = 0.
-    if end_time is not None:
-        input_kwargs['t'] = str(end_time - start_time)
+        video_filters = []
+        if fps:
+            video_filters += ['fps=%d' % fps]
+        if scale:
+            video_filters += ['scale=%s' % scale]
 
-    video_filters = []
-    if fps:
-        video_filters += ['fps=%d' % fps]
-    if scale:
-        video_filters += ['scale=%s' % scale]
+        output_kwargs = {
+            'format': 'image2pipe',
+            'pix_fmt': pix_fmt,
+            'vcodec': 'rawvideo',
+            'movflags': 'faststart',
+        }
 
-    output_kwargs = {
-        'format': 'image2pipe',
-        'pix_fmt': pix_fmt,
-        'vcodec': 'rawvideo',
-        'movflags': 'frag_keyframe+empty_moov',
-    }
+        cmd_args = compile_args(
+            input_fn=input_fn,
+            input_options=input_kwargs,
+            video_filters=video_filters,
+            output_options=output_kwargs)
+        out, _ = run_command(cmd_args, pipe_stdout=True, pipe_stderr=True)
 
-    cmd_args = compile_args(
-        input_fn=input_fn,
-        input_options=input_kwargs,
-        video_filters=video_filters,
-        output_options=output_kwargs)
+        depth = 3
+        if pix_fmt == 'rgba':
+            depth = 4
 
-    out, _ = run_command(
-        cmd_args, input=input_data, pipe_stdout=True, pipe_stderr=True)
-
-    depth = 3
-    if pix_fmt == 'rgba':
-        depth = 4
-
-    frames = np.frombuffer(out, np.uint8).reshape([-1, height, width, depth])
-    return frames
+        frames = np.frombuffer(out,
+                               np.uint8).reshape([-1, height, width, depth])
+        return frames
 
 
 # def read_frame_as_jpg(in_filename, frame_num):
