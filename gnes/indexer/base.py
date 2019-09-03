@@ -22,8 +22,11 @@ from ..score_fn.base import get_unary_score, ModifierFn
 
 
 class BaseIndexer(TrainableBase):
-    normalize_fn = ModifierFn()
-    score_fn = ModifierFn()
+    def __init__(self, normalize_fn=ModifierFn(),
+                 score_fn=ModifierFn(), *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.normalize_fn = normalize_fn
+        self.score_fn = score_fn
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass

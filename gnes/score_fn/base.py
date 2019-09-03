@@ -4,6 +4,7 @@ from math import log, log1p, log10, sqrt
 from operator import mul, add
 from typing import Sequence
 
+from ..base import TrainableBase
 from ..proto import gnes_pb2
 
 
@@ -16,7 +17,8 @@ def get_unary_score(value: float, **kwargs):
     return score
 
 
-class BaseScoreFn:
+class BaseScoreFn(TrainableBase):
+    unnamed_warning = False
 
     def __call__(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
         raise NotImplementedError
@@ -37,10 +39,11 @@ class BaseScoreFn:
 class ScoreCombinedFn(BaseScoreFn):
     """Combine multiple scores into one score, defaults to 'multiply'"""
 
-    def __init__(self, score_mode: str = 'multiply'):
+    def __init__(self, score_mode: str = 'multiply', *args, **kwargs):
         """
         :param score_mode: specifies how the computed scores are combined
         """
+        super().__init__(*args, **kwargs)
         if score_mode not in {'multiply', 'sum', 'avg', 'max', 'min'}:
             raise AttributeError('score_mode=%s is not supported!' % score_mode)
         self.score_mode = score_mode
@@ -66,7 +69,9 @@ class ModifierFn(BaseScoreFn):
     score = modifier(factor * value)
     """
 
-    def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant'):
+    def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant', *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
         if modifier not in {'none', 'log', 'log1p', 'log2p', 'ln', 'ln1p', 'ln2p', 'square', 'sqrt', 'reciprocal',
                             'reciprocal1p', 'abs'}:
             raise AttributeError('modifier=%s is not supported!' % modifier)

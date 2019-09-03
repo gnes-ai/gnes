@@ -40,7 +40,7 @@ class Normalizer4(ModifierFn):
 class Normalizer5(ModifierFn):
     """Do normalizing: score = 1 / (1 + sqrt(abs(score)))"""
 
-    def __init__(self, num_dim: int):
+    def __init__(self):
         super().__init__()
         self.modifier = 'reciprocal1p'
 

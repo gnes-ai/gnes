@@ -25,3 +25,4 @@ class TestAnnoyIndexer(unittest.TestCase):
         self.assertEqual(top_1, list(range(10)))
         a.close()
         a.dump()
+        a.dump_yaml()

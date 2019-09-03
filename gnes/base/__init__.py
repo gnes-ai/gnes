@@ -66,7 +66,8 @@ class TrainableType(type):
         'batch_size': None,
         'work_dir': os.environ.get('GNES_VOLUME', os.getcwd()),
         'name': None,
-        'on_gpu': False
+        'on_gpu': False,
+        'unnamed_warning': True
     }
 
     def __new__(cls, *args, **kwargs):
@@ -180,11 +181,12 @@ class TrainableBase(metaclass=TrainableType):
         if not getattr(self, 'name', None) and os.environ.get('GNES_WARN_UNNAMED_COMPONENT', '1') == '1':
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
-            self.logger.warning(
-                'this object is not named ("name" is not found under "gnes_config" in YAML config), '
-                'i will call it "%s". '
-                'naming the object is important as it provides an unique identifier when '
-                'serializing/deserializing this object.' % _name)
+            if self.unnamed_warning:
+                self.logger.warning(
+                    'this object is not named ("name" is not found under "gnes_config" in YAML config), '
+                    'i will call it "%s". '
+                    'naming the object is important as it provides an unique identifier when '
+                    'serializing/deserializing this object.' % _name)
             setattr(self, 'name', _name)
 
         _before = set(list(self.__dict__.keys()))
