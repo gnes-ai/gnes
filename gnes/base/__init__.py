@@ -67,7 +67,7 @@ class TrainableType(type):
         'work_dir': os.environ.get('GNES_VOLUME', os.getcwd()),
         'name': None,
         'on_gpu': False,
-        'unnamed_warning': True
+        'warn_unnamed': True
     }
 
     def __new__(cls, *args, **kwargs):
@@ -181,7 +181,7 @@ class TrainableBase(metaclass=TrainableType):
         if not getattr(self, 'name', None) and os.environ.get('GNES_WARN_UNNAMED_COMPONENT', '1') == '1':
             _id = str(uuid.uuid4()).split('-')[0]
             _name = '%s-%s' % (self.__class__.__name__, _id)
-            if self.unnamed_warning:
+            if self.warn_unnamed:
                 self.logger.warning(
                     'this object is not named ("name" is not found under "gnes_config" in YAML config), '
                     'i will call it "%s". '

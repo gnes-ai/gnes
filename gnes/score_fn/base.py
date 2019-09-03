@@ -18,7 +18,7 @@ def get_unary_score(value: float, **kwargs):
 
 
 class BaseScoreFn(TrainableBase):
-    unnamed_warning = False
+    warn_unnamed = False
 
     def __call__(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
         raise NotImplementedError
