@@ -188,7 +188,8 @@ def capture_frames(input_fn: str = 'pipe:',
     output_kwargs = {
         'format': 'image2pipe',
         'pix_fmt': pix_fmt,
-        'vcodec': 'rawvideo'
+        'vcodec': 'rawvideo',
+        'movflags': 'frag_keyframe+empty_moov',
     }
 
     cmd_args = compile_args(
