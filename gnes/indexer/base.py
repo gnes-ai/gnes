@@ -62,10 +62,6 @@ class BaseChunkIndexer(BaseIndexer):
                 results.append(r)
         return results
 
-    # def score(self, q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
-    #           relevance, relevance_cls) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-    #     return ChunkScorer.eq1(q_chunk, d_chunk, relevance, relevance_cls)
-
 
 class BaseDocIndexer(BaseIndexer):
 
