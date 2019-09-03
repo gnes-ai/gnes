@@ -24,3 +24,4 @@ class TestAnnoyIndexer(unittest.TestCase):
         top_1 = [i[0][0] for i in a.query(self.toy_data, top_k=1)]
         self.assertEqual(top_1, list(range(10)))
         a.close()
+        a.dump()

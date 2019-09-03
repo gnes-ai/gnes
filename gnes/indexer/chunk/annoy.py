@@ -20,6 +20,8 @@ import numpy as np
 
 from ..base import BaseChunkIndexer
 from ..key_only import ListKeyIndexer
+from ...score_fn.base import ScoreOps
+from ...score_fn.normalize import Normalizer3, Normalizer2
 
 
 class AnnoyIndexer(BaseChunkIndexer):
@@ -44,6 +46,13 @@ class AnnoyIndexer(BaseChunkIndexer):
         except:
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
+        if self.metric in {'angular', 'hamming'}:
+            self.normalize_fn = ScoreOps.reciprocal1p
+        elif self.metric == 'euclidean':
+            self.normalize_fn = Normalizer3(self.num_dim)
+        elif self.metric == 'manhattan':
+            self.normalize_fn = Normalizer2(self.num_dim)
+
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         last_idx = self._key_info_indexer.size
 
@@ -65,23 +74,9 @@ class AnnoyIndexer(BaseChunkIndexer):
         res = []
         for k in keys:
             ret, relevance_score = self._index.get_nns_by_vector(k, top_k, include_distances=True)
-            relevance_score = self.normalize_score(relevance_score, self.metric)
             chunk_info = self._key_info_indexer.query(ret)
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
-
-    def normalize_score(self, score: List[float], metrics: str, *args, **kwargs) -> List[float]:
-        if metrics == 'angular':
-            return list(map(lambda x: 1 / (1 + x), score))
-        elif metrics == 'euclidean':
-            import math
-            return list(map(lambda x: 1 / (1 + math.sqrt(x) / self.num_dim), score))
-        elif metrics == 'manhattan':
-            return list(map(lambda x: 1 / (1 + x / self.num_dim), score))
-        elif metrics == 'hamming':
-            return list(map(lambda x: 1 / (1 + x), score))
-        elif metrics == 'dot':
-            raise NotImplementedError
 
     @property
     def size(self):

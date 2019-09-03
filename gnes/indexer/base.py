@@ -12,16 +12,18 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import json
 from typing import List, Any, Union, Callable, Tuple
 
 import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, blob2array
+from ..score_fn.base import get_unary_score, ModifierFn
 
 
 class BaseIndexer(TrainableBase):
+    normalize_fn = ModifierFn()
+    score_fn = ModifierFn()
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
@@ -29,14 +31,8 @@ class BaseIndexer(TrainableBase):
     def query(self, keys: Any, *args, **kwargs) -> List[Any]:
         pass
 
-    def normalize_score(self, *args, **kwargs):
-        pass
-
     def query_and_score(self, q_chunks: List[Union['gnes_pb2.Chunk', 'gnes_pb2.Document']], top_k: int) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
-        raise NotImplementedError
-
-    def score(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
         raise NotImplementedError
 
 
@@ -59,13 +55,16 @@ class BaseChunkIndexer(BaseIndexer):
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset = _offset
                 r.chunk.weight = _weight
-                r.score.CopyFrom(self.score(q_chunk, r.chunk, _relevance))
+                _score = get_unary_score(value=_relevance, name=self.__class__.__name__)
+                _score = self.normalize_fn(_score)
+                _score = self.score_fn(_score, q_chunk, r.chunk)
+                r.score.CopyFrom(_score)
                 results.append(r)
         return results
 
-    def score(self, q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
-              relevance) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        return ChunkScorer.eq1(q_chunk, d_chunk, relevance)
+    # def score(self, q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
+    #           relevance, relevance_cls) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+    #     return ChunkScorer.eq1(q_chunk, d_chunk, relevance, relevance_cls)
 
 
 class BaseDocIndexer(BaseIndexer):
@@ -84,13 +83,11 @@ class BaseDocIndexer(BaseIndexer):
         for d, r in zip(queried_results, docs):
             if d:
                 r.doc.CopyFrom(d)
-                r.score.CopyFrom(self.score(d, r.score))
+                _score = self.normalize_fn(r.score)
+                _score = self.score_fn(_score, d)
+                r.score.CopyFrom(_score)
             results.append(r)
         return results
-
-    def score(self, d: 'gnes_pb2.Document', s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score', *args,
-              **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        return DocScorer.eq1(d, s)
 
 
 class BaseKeyIndexer(BaseIndexer):
@@ -100,96 +97,6 @@ class BaseKeyIndexer(BaseIndexer):
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         pass
-
-
-class ChunkScorer:
-
-    @staticmethod
-    def eq1(q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
-            relevance):
-        """
-        score = d_chunk.weight * relevance * q_chunk.weight
-        """
-        score = gnes_pb2.Response.QueryResponse.ScoredResult.Score()
-        score.value = d_chunk.weight * relevance * q_chunk.weight
-        score.explained = json.dumps({
-            'name': 'chunk-eq1',
-            'operand': [{'name': 'd_chunk_weight',
-                         'value': float(d_chunk.weight),
-                         'doc_id': d_chunk.doc_id,
-                         'offset': d_chunk.offset},
-                        {'name': 'q_chunk_weight',
-                         'value': float(q_chunk.weight),
-                         'offset': q_chunk.offset},
-                        {'name': 'relevance',
-                         'value': float(relevance)}],
-            'op': 'prod',
-            'value': float(score.value)
-        })
-        return score
-
-    @staticmethod
-    def eq2(q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk',
-            relevance):
-        """
-        score = d_chunk.weight * relevance * offset_divergence * q_chunk.weight
-        offset_divergence is calculated based on doc_type:
-            TEXT && VIDEO && AUDIO: offset is 1-D
-            IMAGE: offset is 2-D
-        """
-
-        def _cal_divergence(q_chunk: 'gnes_pb2.Chunk', d_chunk: 'gnes_pb2.Chunk'):
-            if q_chunk.offset_nd and d_chunk.offset_nd:
-                return 1 / (1 + np.sqrt((q_chunk.offset_nd[0] - d_chunk.offset_nd[0]) ** 2 +
-                                        (q_chunk.offset_nd[1] - d_chunk.offset_nd[1]) ** 2))
-            else:
-                return np.abs(q_chunk.offset - d_chunk.offset)
-
-        score = gnes_pb2.Response.QueryResponse.ScoredResult.Score()
-
-        divergence = _cal_divergence(q_chunk, d_chunk)
-        score.value = d_chunk.weight * relevance * divergence * q_chunk.weight
-        score.explained = json.dumps({
-            'name': 'chunk-eq2',
-            'operand': [{'name': 'd_chunk_weight',
-                         'value': float(d_chunk.weight),
-                         'doc_id': d_chunk.doc_id,
-                         'offset': d_chunk.offset},
-                        {'name': 'q_chunk_weight',
-                         'value': float(q_chunk.weight),
-                         'offset': q_chunk.offset},
-                        {'name': 'relevance',
-                         'value': float(relevance)},
-                        {'name': 'offset_divergence',
-                         'value': float(divergence)}],
-            'op': 'prod',
-            'value': float(score.value)
-        })
-        return score
-
-
-class DocScorer:
-
-    @staticmethod
-    def eq1(d: 'gnes_pb2.Document',
-            s: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score') -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        """
-        score *= d.weight
-        :param d:
-        :param s:
-        :return:
-        """
-        s.value *= d.weight
-        s.explained = json.dumps({
-            'name': 'doc-eq1',
-            'operand': [json.loads(s.explained),
-                        {'name': 'doc_weight',
-                         'value': float(d.weight),
-                         'doc_id': d.doc_id}],
-            'op': 'prod',
-            'value': float(s.value)
-        })
-        return s
 
 
 class JointIndexer(CompositionalTrainableBase):

@@ -44,6 +44,13 @@ class FaissIndexer(BaseChunkIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
+        if 'HNSW' in self.index_key:
+            from ...score_fn.normalize import Normalizer3
+            self.normalize_fn = Normalizer3(self.num_dim)
+        elif ('Flat' in self.index_key) or ('PQ' in self.index_key):
+            from ...score_fn.normalize import Normalizer5
+            self.normalize_fn = Normalizer5(self.num_dim)
+
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
@@ -59,7 +66,6 @@ class FaissIndexer(BaseChunkIndexer):
             raise ValueError("vectors should be ndarray of float32")
 
         score, ids = self._faiss_index.search(keys, top_k)
-        score = self.normalize_score(score)
         ret = []
         for _id, _score in zip(ids, score):
             ret_i = []
@@ -69,12 +75,6 @@ class FaissIndexer(BaseChunkIndexer):
             ret.append(ret_i)
 
         return ret
-
-    def normalize_score(self, score: np.ndarray, *args, **kwargs) -> np.ndarray:
-        if 'HNSW' in self.index_key:
-            return 1 / (1 + np.sqrt(score) / self.num_dim)
-        elif 'PQ' or 'Flat' in self.index_key:
-            return 1 / (1 + np.abs(np.sqrt(score)))
 
     @property
     def size(self):

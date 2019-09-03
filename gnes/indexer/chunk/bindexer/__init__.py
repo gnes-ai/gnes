@@ -21,6 +21,7 @@ import numpy as np
 
 from .cython import IndexCore
 from ...base import BaseChunkIndexer
+from ....score_fn.normalize import Normalizer4
 
 
 class BIndexer(BaseChunkIndexer):
@@ -54,6 +55,8 @@ class BIndexer(BaseChunkIndexer):
             self.bindexer.load(self.data_path)
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
+
+        self.normalize_fn = Normalizer4(self.num_bytes)
 
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
@@ -99,7 +102,7 @@ class BIndexer(BaseChunkIndexer):
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 if d == 0:
                     continue
-                result[q].append((i, o, w / self._weight_norm, self.normalize_score(d)))
+                result[q].append((i, o, w / self._weight_norm, d))
 
             # get the top-k
             for q in range(num_rows):
@@ -108,11 +111,8 @@ class BIndexer(BaseChunkIndexer):
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-                result[q].append((i, o, w / self._weight_norm, self.normalize_score(d)))
+                result[q].append((i, o, w / self._weight_norm, d))
         return result
-
-    def normalize_score(self, distance: int, *args, **kwargs) -> float:
-        return 1. - distance / self.num_bytes
 
     def __getstate__(self):
         self.bindexer.save(self.data_path)

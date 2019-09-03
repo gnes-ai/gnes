@@ -142,11 +142,11 @@ class TestProto(unittest.TestCase):
             self.assertGreaterEqual(r.response.search.topk_results[0].score.value,
                                     r.response.search.topk_results[-1].score.value)
             print(r.response.search.topk_results)
-            self.assertEqual(json.loads(r.response.search.topk_results[0].score.explained)['operand'],
+            self.assertEqual(json.loads(r.response.search.topk_results[0].score.explained)['operands'],
                              ['1-c1', '1-c3', '2-c1'])
-            self.assertEqual(json.loads(r.response.search.topk_results[1].score.explained)['operand'],
+            self.assertEqual(json.loads(r.response.search.topk_results[1].score.explained)['operands'],
                              ['1-c2', '2-c2'])
-            self.assertEqual(json.loads(r.response.search.topk_results[2].score.explained)['operand'], ['2-c3'])
+            self.assertEqual(json.loads(r.response.search.topk_results[2].score.explained)['operands'], ['2-c3'])
 
             self.assertAlmostEqual(r.response.search.topk_results[0].score.value, 0.6)
             self.assertAlmostEqual(r.response.search.topk_results[1].score.value, 0.4)
