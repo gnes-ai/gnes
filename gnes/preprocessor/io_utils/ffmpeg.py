@@ -18,7 +18,7 @@ from .helper import _check_input, kwargs_to_cmd_args, run_command
 
 VIDEO_DUR_PATTERN = re.compile(r".*Duration: (\d+):(\d+):(\d+)", re.DOTALL)
 VIDEO_INFO_PATTERN = re.compile(
-    r'.*Stream #0:(\d+)(?:\(\w+\))?: Video: (\w+).*, (yuv\w+)[(,].* (\d+)x(\d+).* (\d+)(\.\d.)? fps',
+    r'.*Stream #0:(\d+)(?:\(\w+\))?: Video: (\w+).*, (\w+)[(,].* (\d+)x(\d+).* (\d+)(\.\d.)? fps',
     re.DOTALL)
 AUDIO_INFO_PATTERN = re.compile(
     r'^\s+Stream #0:(?P<stream>\d+)(\((?P<lang>\w+)\))?: Audio: (?P<format>\w+).*?(?P<default>\(default\))?$',
