@@ -18,13 +18,13 @@ import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, blob2array
-from ..score_fn.base import get_unary_score, ModifierFn
+from ..score_fn.base import get_unary_score, ModifierScoreFn
 
 
 class BaseIndexer(TrainableBase):
     def __init__(self,
-                 normalize_fn: 'BaseScoreFn' = ModifierFn(),
-                 score_fn: 'BaseScoreFn' = ModifierFn(), *args, **kwargs):
+                 normalize_fn: 'BaseScoreFn' = ModifierScoreFn(),
+                 score_fn: 'BaseScoreFn' = ModifierScoreFn(), *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.normalize_fn = normalize_fn
         self.score_fn = score_fn
