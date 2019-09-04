@@ -16,7 +16,6 @@
 from typing import List
 
 import numpy as np
-from PIL import Image
 
 from ..base import BaseImageEncoder
 from ...helper import batching, get_first_available_gpu
@@ -62,9 +61,7 @@ class TFInceptionEncoder(BaseImageEncoder):
             self.saver.restore(self.sess, self.model_dir)
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
-        img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
-                                                     self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
-               in img]
+        img = [(im * 2 / 255. - 1.) for im in img]
 
         @batching
         def _encode(_, data):
