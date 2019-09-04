@@ -38,7 +38,7 @@ class BaseImageEncoder(BaseEncoder):
 
 class BaseVideoEncoder(BaseEncoder):
 
-    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> Union[np.ndarray, List['np.ndarray']]:
         pass
 
 

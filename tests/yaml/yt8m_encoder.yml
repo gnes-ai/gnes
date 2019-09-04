@@ -1,0 +1,7 @@
+!YouTube8MEncoder
+parameters:
+  model_dir: ${YT8M_MODEL}
+  model_name: RVLAD-avg-new
+gnes_config:
+  name: yt8m_encoder
+  is_trained: true
