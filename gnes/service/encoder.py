@@ -89,3 +89,6 @@ class EncoderService(BS):
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
         self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
+        self.logger.info(len(msg.request.search.query.chunks))
+        for c in msg.request.search.query.chunks:
+            self.logger.info(c.embedding)
