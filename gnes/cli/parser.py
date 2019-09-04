@@ -203,6 +203,8 @@ def set_router_parser(parser=None):
     _set_loadable_service_parser(parser)
     parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
+    parser.add_argument('--sort_response', type=bool, default=True,
+                        help='sort the response (if exist) by the score')
     parser.set_defaults(read_only=True)
     return parser
 
@@ -213,7 +215,8 @@ def set_indexer_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_loadable_service_parser(parser)
-
+    parser.add_argument('--sort_response', type=bool, default=True,
+                        help='sort the response (if exist) by the score')
     # encoder's port_out is indexer's port_in
     parser.set_defaults(port_in=parser.get_default('port_out'),
                         port_out=parser.get_default('port_out') + 2,

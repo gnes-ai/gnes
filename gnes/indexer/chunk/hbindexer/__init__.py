@@ -37,7 +37,6 @@ class HBIndexer(BaseChunkIndexer):
         self.n_clusters = num_clusters
         self.n_idx = n_idx
         self.data_path = data_path
-        self._weight_norm = 2 ** 16 - 1
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
 
@@ -63,10 +62,19 @@ class HBIndexer(BaseChunkIndexer):
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        weights = np.array(weights * self._weight_norm, dtype=np.uint16).tobytes()
+        weights = self.float2uint_weight(weights).tobytes()
         clusters = vectors[:, :self.n_idx].tobytes()
         vectors = vectors[:, self.n_idx:].astype(np.uint8).tobytes()
         self.hbindexer.index_trie(vectors, clusters, keys, offsets, weights, n)
+
+    @staticmethod
+    def float2uint_weight(weights: List[float], norm: int = 2 ** 16 - 1):
+        weights = norm * np.array(weights)
+        return np.array(weights, dtype=np.uint16)
+
+    @staticmethod
+    def uint2float_weight(weight: int, norm: int = 2 ** 16 - 1):
+        return weight / norm
 
     def query(self,
               vectors: np.ndarray,
@@ -87,7 +95,7 @@ class HBIndexer(BaseChunkIndexer):
         doc_ids, offsets, weights, dists, q_idx = self.hbindexer.query(
             vectors, clusters, n, top_k * self.n_idx)
         for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-            result[q][(i, o, w / self._weight_norm)] = d
+            result[q][(i, o, self.uint2float_weight(w))] = d
 
         return [list(ret.items()) for ret in result]
 

@@ -257,6 +257,16 @@ class BaseService(metaclass=ConcurrentService):
         else:
             self.logger.info('no dumping as "read_only" set to true.')
 
+    def post_handler(self, msg: 'gnes_pb2.Message'):
+        if 'sort_result' in self.args.sort_result and self.args.sort_result and msg.response.search.topk_results:
+            msg.response.search.topk_results.sort(key=lambda x: x.score.value,
+                                                  reverse=msg.response.search.is_big_score_similar)
+
+            msg.response.search.is_sorted = True
+            self.logger.info('sorted %d results in %s order' %
+                             (len(msg.response.search.topk_results),
+                              'descending' if msg.response.search.is_big_score_similar else 'ascending'))
+
     def message_handler(self, msg: 'gnes_pb2.Message', out_sck, ctrl_sck):
         try:
             fn = self.handler.serve(msg)
@@ -273,9 +283,11 @@ class BaseService(metaclass=ConcurrentService):
                     ret = fn(self, msg)
                     if ret is None:
                         # assume 'msg' is modified inside fn()
+                        self.post_handler(msg)
                         send_message(out_sock, msg, timeout=self.args.timeout)
                     elif isinstance(ret, types.GeneratorType):
                         for r_msg in ret:
+                            self.post_handler(r_msg)
                             send_message(out_sock, r_msg, timeout=self.args.timeout)
                     else:
                         raise ServiceError('unknown return type from the handler: %s' % fn)

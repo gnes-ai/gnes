@@ -63,6 +63,12 @@ class IndexerService(BS):
                         [d for d in msg.request.index.docs],
                         [d.weight for d in msg.request.index.docs])
 
+    def _put_result_into_message(self, results, msg: 'gnes_pb2.Message'):
+        msg.response.search.ClearField('topk_results')
+        msg.response.search.topk_results.extend(results)
+        msg.response.search.top_k = len(results)
+        msg.response.search.is_big_score_similar = self._model.is_big_score_similar
+
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_chunk_search(self, msg: 'gnes_pb2.Message'):
         from ..indexer.base import BaseChunkIndexer
@@ -70,10 +76,10 @@ class IndexerService(BS):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
+        # assume the chunk search will change the whatever sort order the message has
+        msg.response.search.is_sorted = False
         results = self._model.query_and_score(msg.request.search.query.chunks, top_k=msg.request.search.top_k)
-        msg.response.search.ClearField('topk_results')
-        msg.response.search.topk_results.extend(results)
-        msg.response.search.top_k = len(results)
+        self._put_result_into_message(results, msg)
 
     @handler.register(gnes_pb2.Response.QueryResponse)
     def _handler_doc_search(self, msg: 'gnes_pb2.Message'):
@@ -82,6 +88,15 @@ class IndexerService(BS):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
+        # check if chunk_indexer and doc_indexer has the same sorting order
+        if msg.response.search.is_big_score_similar is not None and \
+                msg.response.search.is_big_score_similar != self._model.is_big_score_similar:
+            raise ServiceError(
+                'is_big_score_similar is inconsistent. last topk-list: is_big_score_similar=%s, but '
+                'this indexer: is_big_score_similar=%s' % (
+                    msg.response.search.is_big_score_similar, self._model.is_big_score_similar))
+
+        # assume the doc search will change the whatever sort order the message has
+        msg.response.search.is_sorted = False
         results = self._model.query_and_score(msg.response.search.topk_results)
-        msg.response.search.ClearField('topk_results')
-        msg.response.search.topk_results.extend(results)
+        self._put_result_into_message(results, msg)
