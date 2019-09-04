@@ -57,12 +57,17 @@ class YouTube8MFeatureExtractor(BaseVideoEncoder):
     def __init__(self, model_dir: str,
                  pca_dir: str,
                  select_layer: str = 'PreLogits',
+                 ignore_audio_feature: bool = True,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.model_dir = model_dir
         self.pca_dir = pca_dir
         self.select_layer = select_layer
+        self.ignore_audio_feature = ignore_audio_feature
+        self.audio_dim = 128
+        self.incep_dim = 2048
+        self.pca_dim = 1024
         self.inception_size_x = 299
         self.inception_size_y = 299
 
@@ -74,8 +79,8 @@ class YouTube8MFeatureExtractor(BaseVideoEncoder):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
 
         self.pca_mean = np.load(os.path.join(self.pca_dir, 'mean.npy'))[:, 0]
-        self.pca_eigenvals = np.load(os.path.join(self.pca_dir, 'eigenvals.npy'))[:1024, 0]
-        self.pca_eigenvecs = np.load(os.path.join(self.pca_dir, 'eigenvecs.npy')).T[:, :1024]
+        self.pca_eigenvals = np.load(os.path.join(self.pca_dir, 'eigenvals.npy'))[:self.pca_dim, 0]
+        self.pca_eigenvecs = np.load(os.path.join(self.pca_dir, 'eigenvecs.npy')).T[:, :self.pca_dim]
 
         g = tf.Graph()
         with g.as_default():
@@ -98,24 +103,40 @@ class YouTube8MFeatureExtractor(BaseVideoEncoder):
             self.saver = tf.train.Saver()
             self.saver.restore(self.sess, self.model_dir)
 
-    def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
-        img = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
-                                                     self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.) for im
-               in img]
+    def encode(self, data: List['np.ndarray'], *args, **kwargs) -> List['np.ndarray']:
+        video_length = [len(d) for d in data]
+        for i in range(1, len(video_length)):
+            video_length[i] = video_length[i] + video_length[i - 1]
+
+        data = [(np.array(Image.fromarray(im).resize((self.inception_size_x,
+                                                      self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.)
+                for video in data for im in video]
+
+        data = np.stack((list(data[i] for i in range(len(data)))), axis=0)
 
         @batching
         def _encode(_, data):
             def _pca(data):
                 data = np.squeeze(data, axis=(1, 2))
-                data = (data - self.pca_mean).reshape((len(data), 2048))
+                data = (data - self.pca_mean).reshape((len(data), self.incep_dim))
                 data = np.matmul(data, self.pca_eigenvecs)
                 data = data / np.sqrt(self.pca_eigenvals + 1e-4)
                 return data
 
             _, end_points_ = self.sess.run((self.logits, self.end_points),
                                            feed_dict={self.inputs: data})
+            data = _pca(end_points_[self.select_layer])
+            return data
 
-            return _pca(end_points_[self.select_layer])
+        def _fill_audio_feature(data):
+            return list(map(lambda x: np.concatenate((x, np.zeros(shape=(x.shape[0], self.audio_dim))), axis=1), data))
 
-        return _encode(self, img).astype(np.float32)
+        data = _encode(self, data)
+
+        data = np.split(data, video_length[:-1])
+
+        if self.ignore_audio_feature:
+            return _fill_audio_feature(data)
+        else:
+            return data.astype(np.float32)
 
