@@ -1,3 +1,18 @@
+#  Tencent is pleased to support the open source community by making GNES available.
+#
+#  Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import json
 from functools import reduce
 from math import log, log1p, log10, sqrt
@@ -18,6 +33,8 @@ def get_unary_score(value: float, **kwargs):
 
 
 class BaseScoreFn(TrainableBase):
+    """Base score function. A score function must implement __call__ method"""
+
     warn_unnamed = False
 
     def __call__(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
@@ -32,9 +49,6 @@ class BaseScoreFn(TrainableBase):
                                operands=[json.loads(s.explained) for s in operands],
                                **kwargs)
 
-    def op(self, *args, **kwargs) -> float:
-        raise NotImplementedError
-
 
 class ScoreCombinedFn(BaseScoreFn):
     """Combine multiple scores into one score, defaults to 'multiply'"""
@@ -44,24 +58,29 @@ class ScoreCombinedFn(BaseScoreFn):
         :param score_mode: specifies how the computed scores are combined
         """
         super().__init__(*args, **kwargs)
-        if score_mode not in {'multiply', 'sum', 'avg', 'max', 'min'}:
-            raise AttributeError('score_mode=%s is not supported!' % score_mode)
+        if score_mode not in self.supported_ops:
+            raise AttributeError(
+                'score_mode=%s is not supported! must be one of %s' % (score_mode, self.supported_ops.keys()))
         self.score_mode = score_mode
 
-    def __call__(self, *last_scores) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
-        return self.new_score(
-            value=self.op(s.value for s in last_scores),
-            operands=last_scores,
-            score_mode=self.score_mode)
-
-    def op(self, *args, **kwargs) -> float:
+    @property
+    def supported_ops(self):
         return {
             'multiply': lambda v: reduce(mul, v),
             'sum': lambda v: reduce(add, v),
             'max': lambda v: reduce(max, v),
             'min': lambda v: reduce(min, v),
             'avg': lambda v: reduce(add, v) / len(v),
-        }[self.score_mode](*args, **kwargs)
+        }
+
+    def post_init(self):
+        self.op = self.supported_ops[self.score_mode]
+
+    def __call__(self, *last_scores) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+        return self.new_score(
+            value=self.op(s.value for s in last_scores),
+            operands=last_scores,
+            score_mode=self.score_mode)
 
 
 class ModifierFn(BaseScoreFn):
@@ -72,18 +91,15 @@ class ModifierFn(BaseScoreFn):
     def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant', *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        if modifier not in {'none', 'log', 'log1p', 'log2p', 'ln', 'ln1p', 'ln2p', 'square', 'sqrt', 'reciprocal',
-                            'reciprocal1p', 'abs'}:
-            raise AttributeError('modifier=%s is not supported!' % modifier)
+        if modifier not in self.supported_ops:
+            raise AttributeError(
+                'modifier=%s is not supported! must be one of %s' % (modifier, self.supported_ops.keys()))
         self._modifier = modifier
         self._factor = factor
         self._factor_name = factor_name
 
     @property
-    def factor(self):
-        return get_unary_score(value=self._factor, name=self._factor_name)
-
-    def op(self, *args, **kwargs) -> float:
+    def supported_ops(self):
         return {
             'none': lambda x: x,
             'log': log10,
@@ -99,7 +115,11 @@ class ModifierFn(BaseScoreFn):
             'abs': abs,
             'invert': lambda x: - x,
             'invert1p': lambda x: 1 - x
-        }[self._modifier](*args, **kwargs)
+        }
+
+    def post_init(self):
+        self.factor = get_unary_score(value=self._factor, name=self._factor_name)
+        self.op = self.supported_ops[self._modifier]
 
     def __call__(self,
                  last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
