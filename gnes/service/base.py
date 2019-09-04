@@ -258,7 +258,7 @@ class BaseService(metaclass=ConcurrentService):
             self.logger.info('no dumping as "read_only" set to true.')
 
     def post_handler(self, msg: 'gnes_pb2.Message'):
-        if 'sort_result' in self.args.sort_result and self.args.sort_result and msg.response.search.topk_results:
+        if 'sorted_response' in self.args and self.args.sorted_response and msg.response.search.topk_results:
             msg.response.search.topk_results.sort(key=lambda x: x.score.value,
                                                   reverse=msg.response.search.is_big_score_similar)
 
