@@ -20,7 +20,7 @@ from ...helper import batching, get_first_available_gpu
 
 
 class YouTube8MEncoder(BaseVideoEncoder):
-    batch_size = 2
+    batch_size = 64
 
     def __init__(self, model_dir: str,
                  model_name: str,
