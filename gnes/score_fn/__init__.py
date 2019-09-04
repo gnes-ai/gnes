@@ -18,8 +18,8 @@ from ..base import register_all_class
 
 _cls2file_map = {
     'BaseScoreFn': 'base',
-    'ScoreCombinedFn': 'base',
-    'ModifierFn': 'base',
+    'CombinedScoreFn': 'base',
+    'ModifierScoreFn': 'base',
     'WeightedChunkScoreFn': 'chunk',
     'WeightedDocScoreFn': 'doc',
     'Normalizer1': 'normalize',
