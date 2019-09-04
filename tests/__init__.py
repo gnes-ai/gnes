@@ -52,7 +52,9 @@ env_dict = {
         'FASTERRCNN_MODEL': '/',
         'GNES_PROFILING': '',
         'TORCH_TRANSFORMERS_MODEL': '/torch_transformer',
-        'VGGISH_MODEL': '/lab/vggish'
+        'VGGISH_MODEL': '/lab/vggish',
+        'YT8M_MODEL': '/lab/yt8m',
+        'YT8MPCA_MODEL': '/lab/yt8m_pca'
     },
     'idc-165': {
         'BERT_CI_PORT': 7125,
@@ -71,7 +73,9 @@ env_dict = {
         'FASTERRCNN_MODEL': '/ext_data/image_preprocessor',
         'GNES_PROFILING': '',
         'TORCH_TRANSFORMERS_MODEL': '/ext_data/torch_transformer',
-        'VGGISH_MODEL': '/ext_data/lab/vggish'
+        'VGGISH_MODEL': '/ext_data/lab/vggish',
+        'YT8M_MODEL': '/ext_data/lab/yt8m',
+        'YT8MPCA_MODEL': '/ext_data/lab/yt8m_pca'
     }
 
 }
