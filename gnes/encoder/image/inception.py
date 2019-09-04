@@ -61,6 +61,7 @@ class TFInceptionEncoder(BaseImageEncoder):
             self.saver.restore(self.sess, self.model_dir)
 
     def encode(self, img: List['np.ndarray'], *args, **kwargs) -> np.ndarray:
+        img = [(im * 2 / 255. - 1.) for im in img]
 
         @batching
         def _encode(_, data):
