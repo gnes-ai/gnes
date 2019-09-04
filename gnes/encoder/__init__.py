@@ -42,7 +42,8 @@ _cls2file_map = {
     'MfccEncoder': 'audio.mfcc',
     'PoolingEncoder': 'numeric.pooling',
     'PyTorchTransformers': 'text.transformer',
-    'VggishEncoder': 'audio.vggish'
+    'VggishEncoder': 'audio.vggish',
+    'YouTube8MFeatureExtractor': 'video.yt8m_feature_extractor'
 }
 
 register_all_class(_cls2file_map, 'encoder')
