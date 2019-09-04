@@ -13,10 +13,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .base import get_unary_score, ScoreCombinedFn
+from .base import get_unary_score, CombinedScoreFn
 
 
-class WeightedChunkScoreFn(ScoreCombinedFn):
+class WeightedChunkScoreFn(CombinedScoreFn):
     """score = d_chunk.weight * relevance * q_chunk.weight"""
 
     def __call__(self, last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',

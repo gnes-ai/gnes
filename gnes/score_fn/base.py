@@ -50,7 +50,7 @@ class BaseScoreFn(TrainableBase):
                                **kwargs)
 
 
-class ScoreCombinedFn(BaseScoreFn):
+class CombinedScoreFn(BaseScoreFn):
     """Combine multiple scores into one score, defaults to 'multiply'"""
 
     def __init__(self, score_mode: str = 'multiply', *args, **kwargs):
@@ -83,7 +83,7 @@ class ScoreCombinedFn(BaseScoreFn):
             score_mode=self.score_mode)
 
 
-class ModifierFn(BaseScoreFn):
+class ModifierScoreFn(BaseScoreFn):
     """Modifier to apply to the value
     score = modifier(factor * value)
     """
@@ -136,20 +136,20 @@ class ModifierFn(BaseScoreFn):
 
 
 class ScoreOps:
-    multiply = ScoreCombinedFn('multiply')
-    sum = ScoreCombinedFn('sum')
-    max = ScoreCombinedFn('max')
-    min = ScoreCombinedFn('min')
-    avg = ScoreCombinedFn('avg')
-    none = ModifierFn('none')
-    log = ModifierFn('log')
-    log1p = ModifierFn('log1p')
-    log2p = ModifierFn('log2p')
-    ln = ModifierFn('ln')
-    ln1p = ModifierFn('ln1p')
-    ln2p = ModifierFn('ln2p')
-    square = ModifierFn('square')
-    sqrt = ModifierFn('sqrt')
-    abs = ModifierFn('abs')
-    reciprocal = ModifierFn('reciprocal')
-    reciprocal1p = ModifierFn('reciprocal1p')
+    multiply = CombinedScoreFn('multiply')
+    sum = CombinedScoreFn('sum')
+    max = CombinedScoreFn('max')
+    min = CombinedScoreFn('min')
+    avg = CombinedScoreFn('avg')
+    none = ModifierScoreFn('none')
+    log = ModifierScoreFn('log')
+    log1p = ModifierScoreFn('log1p')
+    log2p = ModifierScoreFn('log2p')
+    ln = ModifierScoreFn('ln')
+    ln1p = ModifierScoreFn('ln1p')
+    ln2p = ModifierScoreFn('ln2p')
+    square = ModifierScoreFn('square')
+    sqrt = ModifierScoreFn('sqrt')
+    abs = ModifierScoreFn('abs')
+    reciprocal = ModifierScoreFn('reciprocal')
+    reciprocal1p = ModifierScoreFn('reciprocal1p')

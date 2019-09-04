@@ -13,10 +13,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .base import ModifierFn, ScoreOps as so
+from .base import ModifierScoreFn, ScoreOps as so
 
 
-class Normalizer1(ModifierFn):
+class Normalizer1(ModifierScoreFn):
     """Do normalizing: score = 1 / (1 + sqrt(score))"""
 
     def __init__(self):
@@ -26,7 +26,7 @@ class Normalizer1(ModifierFn):
         return super().__call__(so.sqrt(last_score))
 
 
-class Normalizer2(ModifierFn):
+class Normalizer2(ModifierScoreFn):
     """Do normalizing: score = 1 / (1 + score / num_dim)"""
 
     def __init__(self, num_dim: int):
@@ -40,14 +40,14 @@ class Normalizer3(Normalizer2):
         return super().__call__(so.sqrt(last_score))
 
 
-class Normalizer4(ModifierFn):
+class Normalizer4(ModifierScoreFn):
     """Do normalizing: score = 1 - score / num_bytes """
 
     def __init__(self, num_bytes: int):
         super().__init__(modifier='invert1p', factor=1.0 / num_bytes, factor_name='1/num_bytes')
 
 
-class Normalizer5(ModifierFn):
+class Normalizer5(ModifierScoreFn):
     """Do normalizing: score = 1 / (1 + sqrt(abs(score)))"""
 
     def __init__(self):

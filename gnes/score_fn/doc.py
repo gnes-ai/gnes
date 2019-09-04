@@ -13,10 +13,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .base import get_unary_score, ScoreCombinedFn
+from .base import get_unary_score, CombinedScoreFn
 
 
-class WeightedDocScoreFn(ScoreCombinedFn):
+class WeightedDocScoreFn(CombinedScoreFn):
     def __call__(self, last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                  doc: 'gnes_pb2.Document', *args, **kwargs):
         d_weight = get_unary_score(value=doc.weight,

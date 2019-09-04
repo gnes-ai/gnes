@@ -15,7 +15,7 @@
 from collections import defaultdict
 from typing import List, Generator
 
-from gnes.score_fn.base import ScoreCombinedFn
+from gnes.score_fn.base import CombinedScoreFn
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, merge_routes
 
@@ -65,7 +65,7 @@ class BaseTopkReduceRouter(BaseReduceRouter):
         self.descending = descending
 
     def post_init(self):
-        self.reduce_op = ScoreCombinedFn(score_mode=self._reduce_op)
+        self.reduce_op = CombinedScoreFn(score_mode=self._reduce_op)
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         raise NotImplementedError
