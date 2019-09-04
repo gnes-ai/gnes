@@ -187,14 +187,6 @@ message Response {
         uint32 top_k = 2;
         repeated ScoredResult topk_results = 3;
 
-        enum ResponseLevel {
-            CHUNK = 0;
-            DOCUMENT_NOT_FILLED = 1;
-            DOCUMENT = 2;
-        }
-
-        ResponseLevel level = 4;
-
     }
 }
 
