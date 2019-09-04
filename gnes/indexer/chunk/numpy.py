@@ -52,7 +52,7 @@ class NumpyIndexer(BaseChunkIndexer):
               ) -> List[List[Tuple]]:
         keys = np.expand_dims(keys, axis=1)
         dist = keys - np.expand_dims(self._vectors, axis=0)
-        score = 1 - np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
+        score = np.sum(np.minimum(np.abs(dist), 1), -1) / self.num_bytes
 
         ret = []
         for ids in score:

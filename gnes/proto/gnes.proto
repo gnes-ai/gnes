@@ -186,7 +186,8 @@ message Response {
         Status status = 1;
         uint32 top_k = 2;
         repeated ScoredResult topk_results = 3;
-
+        bool is_big_score_similar = 4;
+        bool is_sorted = 5;
     }
 }
 

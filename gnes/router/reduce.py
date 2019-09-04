@@ -19,6 +19,13 @@ from .base import BaseReduceRouter, BaseTopkReduceRouter
 
 
 class DocFillReducer(BaseReduceRouter):
+    """
+    Gather all documents raw content from multiple shards.
+    This is only useful when you have
+    - multiple doc-indexer and docs are spreaded over multiple shards.
+    - require full-doc retrieval with the original content, not just an doc id
+    Ideally, only each doc can only belong to one shard.
+    """
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
         final_docs = []
         for idx in range(len(msg.response.search.topk_results)):
@@ -45,7 +52,9 @@ class DocTopkReducer(BaseTopkReduceRouter):
 
 class Chunk2DocTopkReducer(BaseTopkReduceRouter):
     """
-    Gather all chunks by their doc_id, result in a topk doc list
+    Gather all chunks by their doc_id, result in a topk doc list.
+    This is almost always useful, as the final result should be group by doc_id
+    not chunk
     """
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
@@ -57,7 +66,7 @@ class Chunk2DocTopkReducer(BaseTopkReduceRouter):
 
 class ChunkTopkReducer(BaseTopkReduceRouter):
     """
-    Gather all chunks by their chunk_id, aka doc_id-offset, result in a topk chunk list
+    Gather all chunks by their chunk_id from all shards, aka doc_id-offset, result in a topk chunk list
     """
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:

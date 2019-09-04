@@ -27,7 +27,6 @@ _cls2file_map = {
     'DocFillReducer': 'reduce',
     'PublishRouter': 'map',
     'DocBatchRouter': 'map',
-    'SortedTopkRouter': 'map',
 }
 
 register_all_class(_cls2file_map, 'router')
