@@ -29,9 +29,8 @@ class BaseGrpcClient:
     def __init__(self, args):
         self.args = args
 
-        self._address = '%s:%d' % (self.args.grpc_host, self.args.grpc_port)
         self._channel = grpc.insecure_channel(
-            address=self._address,
+            '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
             options={
                 "grpc.max_send_message_length": -1,
                 "grpc.max_receive_message_length": -1,
@@ -137,13 +136,13 @@ class _SyncStream(object):
                 pass
 
 
-class StreamingSyncClient(BaseGrpcClient):
+class StreamingSyncClient(UnarySyncClient):
 
     def __init__(self, args):
         super().__init__(args)
 
         self._streams = [
-            _SyncStream(self._stub, self._request, self._handle_response)
+            _SyncStream(self._stub, self._handle_response)
             for _ in range(self.args.max_concurrency)
         ]
         self._curr_stream = 0
