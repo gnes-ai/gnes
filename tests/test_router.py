@@ -334,7 +334,7 @@ class TestProto(unittest.TestCase):
             self.assertGreaterEqual(r.response.search.topk_results[0].score.value,
                                     r.response.search.topk_results[-1].score.value)
 
-    @unittest.SkipTest
+    # @unittest.SkipTest
     def test_concat_router(self):
         args = set_router_parser().parse_args([
             '--yaml_path', self.concat_router_yaml,
@@ -345,9 +345,12 @@ class TestProto(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT)
         ])
+        # 10 chunks in each doc, dimension of chunk embedding is (5, 2)
         with RouterService(args), ZmqClient(c_args) as c1:
             msg = gnes_pb2.Message()
-            msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2])))
+            for i in range(10):
+                c = msg.request.search.query.chunks.add()
+                c.embedding.CopyFrom(array2blob(np.random.random([5, 2])))
             msg.envelope.num_part.extend([1, 3])
             c1.send_message(msg)
             c1.send_message(msg)
@@ -355,11 +358,14 @@ class TestProto(unittest.TestCase):
             r = c1.recv_message()
             self.assertSequenceEqual(r.envelope.num_part, [1])
             print(r.envelope.routes)
-            self.assertEqual(r.request.search.query.chunk_embeddings.shape, [5, 6])
+            for i in range(10):
+                self.assertEqual(r.request.search.query.chunks[i].embedding.shape, [5, 6])
 
             for j in range(1, 4):
                 d = msg.request.index.docs.add()
-                d.chunk_embeddings.CopyFrom(array2blob(np.random.random([5, 2 * j])))
+                for k in range(10):
+                    c = d.chunks.add()
+                    c.embedding.CopyFrom(array2blob(np.random.random([5, 2])))
 
             c1.send_message(msg)
             c1.send_message(msg)
@@ -367,7 +373,8 @@ class TestProto(unittest.TestCase):
             r = c1.recv_message()
             self.assertSequenceEqual(r.envelope.num_part, [1])
             for j in range(1, 4):
-                self.assertEqual(r.request.index.docs[j - 1].chunk_embeddings.shape, [5, 6 * j])
+                for i in range(10):
+                    self.assertEqual(r.request.index.docs[j - 1].chunks[i].embedding.shape, [5, 6])
 
     def test_multimap_multireduce(self):
         # p1 ->
