@@ -24,40 +24,32 @@ import grpc
 from termcolor import colored
 
 from ..proto import gnes_pb2_grpc, RequestGenerator
+from .grpc import StreamingSyncClient
 
 
-class CLIClient:
+class CLIClient(StreamingSyncClient):
     def __init__(self, args):
-        self.args = args
-        self._use_channel()
-
-    def _use_channel(self):
-        all_bytes = self.read_all()
-        with grpc.insecure_channel(
-                '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
-                options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
-                         ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)]) as channel:
-            stub = gnes_pb2_grpc.GnesRPCStub(channel)
-            getattr(self, self.args.mode)(all_bytes, stub)
+        super().__init__(args)
+        self.start()
+        getattr(self, self.args.mode)(all_bytes)
+        self.stop()
 
     def train(self, all_bytes: List[bytes], stub):
         with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
-            for _ in stub.StreamCall(RequestGenerator.train(all_bytes,
-                                                            doc_id_start=self.args.start_doc_id,
-                                                            batch_size=self.args.batch_size)):
+            for req in RequestGenerator.train(all_bytes, doc_id_start=self.args.start_doc_id, batch_size=self.args.batch_size):
+                self.send_request(req)
                 p_bar.update()
 
     def index(self, all_bytes: List[bytes], stub):
         with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
-            for _ in stub.StreamCall(RequestGenerator.index(all_bytes,
-                                                            doc_id_start=self.args.start_doc_id,
-                                                            batch_size=self.args.batch_size)):
+            for req in RequestGenerator.index(all_bytes, doc_id_start=self.args.start_doc_id, batch_size=self.args.batch_size):
+                self.send_request(req)
                 p_bar.update()
 
     def query(self, all_bytes: List[bytes], stub):
         for idx, q in enumerate(all_bytes):
             for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
-                resp = stub.Call(req)
+                resp = self._stub.Call(req)
                 print(resp)
                 print('query %d result: %s' % (idx, resp))
                 input('press any key to continue...')
