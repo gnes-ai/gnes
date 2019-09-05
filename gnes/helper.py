@@ -250,18 +250,23 @@ class NTLogger:
 
 
 class TimeContext:
-    def __init__(self, msg):
+    def __init__(self, msg: str, logger=None):
         self._msg = msg
+        self._logger = logger
         self.duration = 0
 
     def __enter__(self):
         self.start = time.perf_counter()
-        print(self._msg, end=' ...\t', flush=True)
+        if not self._logger:
+            print(self._msg, end=' ...\t', flush=True)
         return self
 
     def __exit__(self, typ, value, traceback):
         self.duration = time.perf_counter() - self.start
-        print(colored('    [%3.3f secs]' % self.duration, 'green'), flush=True)
+        if self._logger:
+            self._logger.info('%s takes %3.3f secs' % (self._msg, self.duration))
+        else:
+            print(colored('    [%3.3f secs]' % self.duration, 'green'), flush=True)
 
 
 class Tokenizer:
