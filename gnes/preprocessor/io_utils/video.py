@@ -18,7 +18,7 @@ import numpy as np
 
 from typing import List
 
-from .ffmpeg import get_media_meta, compile_args, probe
+from .ffmpeg import compile_args, probe
 from .helper import _check_input, run_command, run_command_async
 
 
