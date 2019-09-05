@@ -1,0 +1,7 @@
+!QuantizerEncoder
+parameters:
+  upper_bound: 500
+  lower_bound: -200
+  partition_method: 'random'
+  cluster_per_byte: 255
+  dim_per_byte: 10
