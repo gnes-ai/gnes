@@ -7,7 +7,7 @@ from gnes.encoder.base import BaseNumericEncoder
 
 class TestQuantizerEncoder(unittest.TestCase):
     def setUp(self):
-        self.vecs = np.random.randint(-1500, 1500, size=[1000, 160]).astype('float32')
+        self.vecs = np.random.randint(-150, 150, size=[1000, 160]).astype('float32')
         dirname = os.path.dirname(__file__)
         self.vanilla_quantizer_yaml = os.path.join(dirname, 'yaml', 'quantizer_encoder.yml')
 

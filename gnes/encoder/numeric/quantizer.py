@@ -27,7 +27,7 @@ class QuantizerEncoder(BaseBinaryEncoder):
     def __init__(self, dim_per_byte: int, cluster_per_byte: int = 255,
                  upper_bound: int = 10000,
                  lower_bound: int = -10000,
-                 divide_method: str = 'average',
+                 partition_method: str = 'average',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert 1 < cluster_per_byte <= 255, 'cluster number should >1 and <= 255 (0 is reserved for NOP)'
@@ -35,10 +35,11 @@ class QuantizerEncoder(BaseBinaryEncoder):
         self.num_clusters = cluster_per_byte
         self.upper_bound = upper_bound
         self.lower_bound = lower_bound
-        self.divide_method = divide_method
+        self.partition_method = partition_method
         self.centroids = None
+        self._get_centroids()
 
-    def train(self):
+    def _get_centroids(self):
         """
         calculate centroids for quantizer
         two kinds of divide methods are supported now: average, random
@@ -48,19 +49,18 @@ class QuantizerEncoder(BaseBinaryEncoder):
             num_sample_per_dim: number of points to be sample on each dimension
         """
 
+        if self.upper_bound < self.lower_bound:
+            raise ValueError("upper bound is smaller than lower bound")
+
         self.centroids = []
         num_sample_per_dim = np.ceil(pow(self.num_clusters, 1 / self.dim_per_byte)).astype(np.uint8)
-        axis_point = []
-        if self.divide_method == 'average':
-            interval = (self.upper_bound - self.lower_bound) / (num_sample_per_dim + 1)
-            for i in range(1, num_sample_per_dim + 1):
-                axis_point.append(self.lower_bound + i * interval)
-            coordinates = [axis_point for _ in range(self.dim_per_byte)]
-        elif self.divide_method == 'random':
-            for i in range(self.dim_per_byte):
-                axis_point.append(np.random.randint(self.lower_bound, self.upper_bound,
-                                                    size=[num_sample_per_dim]))
-            coordinates = axis_point
+        if self.partition_method == 'average':
+            axis_point = np.linspace(self.lower_bound, self.upper_bound, num=num_sample_per_dim+1,
+                                     endpoint=False, retstep=False, dtype=None)[1:]
+            coordinates = np.tile(axis_point, (self.dim_per_byte, 1))
+        elif self.partition_method == 'random':
+            coordinates = np.random.randint(self.lower_bound, self.upper_bound,
+                                                    size=[self.dim_per_byte, num_sample_per_dim])
         else:
             raise NotImplementedError
 
@@ -71,6 +71,9 @@ class QuantizerEncoder(BaseBinaryEncoder):
     @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
         num_bytes = self._get_num_bytes(vecs)
+        max_value, min_value = self._get_max_min_value(vecs)
+
+        self._check_bound(max_value, min_value)
 
         x = np.reshape(vecs, [vecs.shape[0], num_bytes, 1, self.dim_per_byte])
         x = np.sum(np.square(x - self.centroids), -1)
@@ -85,3 +88,19 @@ class QuantizerEncoder(BaseBinaryEncoder):
             'input dimension (=%d) should be divided by dim_per_byte (=%d)!' % (
                 num_dim, self.dim_per_byte)
         return int(num_dim / self.dim_per_byte)
+
+    @staticmethod
+    def _get_max_min_value(vecs):
+        return np.amax(vecs, axis=None), np.amin(vecs, axis=None)
+
+    def _check_bound(self, max_value, min_value):
+        if self.upper_bound < max_value:
+            self.logger.warning("upper bound (=%.3f) is smaller than max value of input data (=%.3f), you should choose"
+                                "a bigger value for upper bound" % (self.upper_bound, max_value))
+        if self.lower_bound > min_value:
+            self.logger.warning("lower bound (=%.3f) is bigger than min value of input data (=%.3f), you should choose"
+                                "a smaller value for lower bound" % (self.lower_bound, min_value))
+        if (self.upper_bound-self.lower_bound) >= 10*(max_value - min_value):
+            self.logger.warning("(upper bound - lower_bound) (=%.3f) is 10 times larger than (max value - min value) "
+                                "(=%.3f) of data, maybe you should choose a suitable bound" %
+                                ((self.upper_bound-self.lower_bound), (max_value - min_value)))
