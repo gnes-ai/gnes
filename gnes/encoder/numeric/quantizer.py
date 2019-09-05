@@ -59,7 +59,7 @@ class QuantizerEncoder(BaseBinaryEncoder):
                                      endpoint=False, retstep=False, dtype=None)[1:]
             coordinates = np.tile(axis_point, (self.dim_per_byte, 1))
         elif self.partition_method == 'random':
-            coordinates = np.random.randint(self.lower_bound, self.upper_bound,
+            coordinates = np.random.uniform(self.lower_bound, self.upper_bound,
                                                     size=[self.dim_per_byte, num_sample_per_dim])
         else:
             raise NotImplementedError
@@ -95,12 +95,12 @@ class QuantizerEncoder(BaseBinaryEncoder):
 
     def _check_bound(self, max_value, min_value):
         if self.upper_bound < max_value:
-            self.logger.warning("upper bound (=%.3f) is smaller than max value of input data (=%.3f), you should choose"
+            raise Warning("upper bound (=%.3f) is smaller than max value of input data (=%.3f), you should choose"
                                 "a bigger value for upper bound" % (self.upper_bound, max_value))
         if self.lower_bound > min_value:
-            self.logger.warning("lower bound (=%.3f) is bigger than min value of input data (=%.3f), you should choose"
+            raise Warning("lower bound (=%.3f) is bigger than min value of input data (=%.3f), you should choose"
                                 "a smaller value for lower bound" % (self.lower_bound, min_value))
         if (self.upper_bound-self.lower_bound) >= 10*(max_value - min_value):
-            self.logger.warning("(upper bound - lower_bound) (=%.3f) is 10 times larger than (max value - min value) "
+            raise Warning("(upper bound - lower_bound) (=%.3f) is 10 times larger than (max value - min value) "
                                 "(=%.3f) of data, maybe you should choose a suitable bound" %
                                 ((self.upper_bound-self.lower_bound), (max_value - min_value)))
