@@ -44,7 +44,8 @@ _cls2file_map = {
     'PyTorchTransformers': 'text.transformer',
     'VggishEncoder': 'audio.vggish',
     'YouTube8MFeatureExtractor': 'video.yt8m_feature_extractor',
-    'YouTube8MEncoder': 'video.yt8m_model'
+    'YouTube8MEncoder': 'video.yt8m_model',
+    'QuantizerEncoder': 'numeric.quantizer'
 }
 
 register_all_class(_cls2file_map, 'encoder')
