@@ -1,0 +1,7 @@
+!YouTube8MFeatureExtractor
+parameters:
+  model_dir: ${YT8M_INCEPTION}
+  pca_dir: ${YT8M_PCA_MODEL}
+gnes_config:
+  name: yt8m
+  is_trained: true

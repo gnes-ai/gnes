@@ -15,7 +15,7 @@
 from collections import defaultdict
 from typing import List, Generator
 
-from gnes.score_fn.base import ScoreCombinedFn
+from gnes.score_fn.base import CombinedScoreFn
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, merge_routes
 
@@ -59,13 +59,12 @@ class BaseReduceRouter(BaseRouter):
 
 
 class BaseTopkReduceRouter(BaseReduceRouter):
-    def __init__(self, reduce_op: str = 'sum', descending: bool = True, *args, **kwargs):
+    def __init__(self, reduce_op: str = 'sum', *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._reduce_op = reduce_op
-        self.descending = descending
 
     def post_init(self):
-        self.reduce_op = ScoreCombinedFn(score_mode=self._reduce_op)
+        self.reduce_op = CombinedScoreFn(score_mode=self._reduce_op)
 
     def get_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult') -> str:
         raise NotImplementedError
@@ -80,16 +79,14 @@ class BaseTopkReduceRouter(BaseReduceRouter):
 
         # count score by iterating over chunks
         for c in all_scored_results:
-            k = self.get_key(c)
-            score_dict[k].append(c.score)
+            score_dict[self.get_key(c)].append(c.score)
 
         for k, v in score_dict.items():
             score_dict[k] = self.reduce_op(*v)
 
         msg.response.search.ClearField('topk_results')
 
-        # sort and add docs
-        for k, v in sorted(score_dict.items(), key=lambda kv: kv[1].value, reverse=self.descending):
+        for k, v in score_dict.items():
             r = msg.response.search.topk_results.add()
             r.score.CopyFrom(v)
             self.set_key(r, k)

@@ -3,7 +3,7 @@ import unittest
 from pprint import pprint
 
 from gnes.proto import gnes_pb2
-from gnes.score_fn.base import get_unary_score, ScoreCombinedFn, ModifierFn
+from gnes.score_fn.base import get_unary_score, CombinedScoreFn, ModifierScoreFn
 from gnes.score_fn.chunk import WeightedChunkScoreFn
 from gnes.score_fn.normalize import Normalizer1, Normalizer2, Normalizer3, Normalizer4
 
@@ -18,11 +18,11 @@ class TestScoreFn(unittest.TestCase):
     def test_op(self):
         a = get_unary_score(0.5)
         b = get_unary_score(0.7)
-        sum_op = ScoreCombinedFn(score_mode='sum')
+        sum_op = CombinedScoreFn(score_mode='sum')
         c = sum_op(a, b)
         self.assertAlmostEqual(c.value, 1.2)
 
-        sq_op = ModifierFn(modifier='square')
+        sq_op = ModifierScoreFn(modifier='square')
         c = sum_op(a, sq_op(b))
         self.assertAlmostEqual(c.value, 0.99)
         print(c)
@@ -51,7 +51,7 @@ class TestScoreFn(unittest.TestCase):
         pprint(json.loads(b.explained))
         self.assertEqual(b.value, 0.75)
 
-        norm_op = ModifierFn('none')
+        norm_op = ModifierScoreFn('none')
         b = norm_op(a)
         pprint(json.loads(b.explained))
         self.assertEqual(b.value, 0.5)

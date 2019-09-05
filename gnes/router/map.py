@@ -20,15 +20,6 @@ from ..helper import batch_iterator
 from ..proto import gnes_pb2
 
 
-class SortedTopkRouter(BaseMapRouter):
-    def __init__(self, descending: bool = True, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.descending = descending
-
-    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
-        msg.response.search.topk_results.sort(key=lambda x: x.score.value, reverse=self.descending)
-
-
 class PublishRouter(BaseMapRouter):
 
     def __init__(self, num_part: int, *args, **kwargs):

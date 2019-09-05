@@ -16,7 +16,7 @@
 
 from typing import List, Union
 
-from .base import BaseService as BS, MessageHandler, ServiceError
+from .base import BaseService as BS, MessageHandler
 from ..proto import gnes_pb2, array2blob, blob2array
 
 
@@ -35,11 +35,13 @@ class EncoderService(BS):
             docs = [docs]
 
         contents = []
-        ids = []
-        embeds = None
+        chunks = []
 
         for d in docs:
-            ids.append(len(d.chunks))
+            if not d.chunks:
+                self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
+                continue
+
             for c in d.chunks:
                 if d.doc_type == gnes_pb2.Document.TEXT:
                     contents.append(c.text)
@@ -48,34 +50,32 @@ class EncoderService(BS):
                 else:
                     self.logger.warning(
                         'chunk content is in type: %s, dont kow how to handle that, ignored' % c.WhichOneof('content'))
+                chunks.append(c)
 
-        if do_encoding:
-            embeds = self._model.encode(contents)
-            if sum(ids) != embeds.shape[0]:
-                raise ServiceError(
-                    'mismatched %d chunks and a %s shape embedding, '
-                    'the first dimension must be the same' % (sum(ids), embeds.shape))
-            idx = 0
-            for d in docs:
-                for c in d.chunks:
+        if do_encoding and contents:
+            try:
+                embeds = self._model.encode(contents)
+                if len(chunks) != embeds.shape[0]:
+                    self.logger.error(
+                        'mismatched %d chunks and a %s shape embedding, '
+                        'the first dimension must be the same' % (len(chunks), embeds.shape))
+                for idx, c in enumerate(chunks):
                     c.embedding.CopyFrom(array2blob(embeds[idx]))
-                    idx += 1
+            except Exception as ex:
+                self.logger.error(ex, exc_info=True)
+                self.logger.warning('encoder service throws an exception, '
+                                    'the sequel pipeline may not work properly')
 
-        return contents, embeds
+        return contents
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
-        _, embeds = self.embed_chunks_in_docs(msg.request.index.docs)
-        idx = 0
-        for d in msg.request.index.docs:
-            for c in d.chunks:
-                c.embedding.CopyFrom(array2blob(embeds[idx]))
-                idx += 1
+        self.embed_chunks_in_docs(msg.request.index.docs)
 
     @handler.register(gnes_pb2.Request.TrainRequest)
     def _handler_train(self, msg: 'gnes_pb2.Message'):
         if msg.request.train.docs:
-            contents, _ = self.embed_chunks_in_docs(msg.request.train.docs, do_encoding=False)
+            contents = self.embed_chunks_in_docs(msg.request.train.docs, do_encoding=False)
             self.train_data.extend(contents)
             msg.response.train.status = gnes_pb2.Response.PENDING
             # raise BlockMessage
@@ -88,5 +88,4 @@ class EncoderService(BS):
 
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
-        _, embeds = self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
-        msg.request.search.query.chunk_embeddings.CopyFrom(array2blob(embeds))
+        self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
