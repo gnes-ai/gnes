@@ -38,9 +38,7 @@ class BIndexer(BaseChunkIndexer):
         self.ef = ef
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
-
         self.data_path = data_path
-        self._weight_norm = 2 ** 16 - 1
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -67,8 +65,17 @@ class BIndexer(BaseChunkIndexer):
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
-        weights = np.array([w * self._weight_norm for w in weights], dtype=np.uint16).tobytes()
+        weights = self.float2uint_weight(weights).tobytes()
         self.bindexer.index_trie(vectors.tobytes(), num_rows, keys, offsets, weights)
+
+    @staticmethod
+    def float2uint_weight(weights: List[float], norm: int = 2 ** 16 - 1):
+        weights = norm * np.array(weights)
+        return np.array(weights, dtype=np.uint16)
+
+    @staticmethod
+    def uint2float_weight(weight: int, norm: int = 2 ** 16 - 1):
+        return weight / norm
 
     def query(self,
               keys: np.ndarray,
@@ -91,7 +98,7 @@ class BIndexer(BaseChunkIndexer):
             q_idx, doc_ids, offsets, weights = self.bindexer.find_batch_trie(
                 keys, num_rows)
             for (i, q, o, w) in zip(doc_ids, q_idx, offsets, weights):
-                result[q].append((i, o, w / self._weight_norm, 1))
+                result[q].append((i, o, self.uint2float_weight(w), 0))
 
             # search the indexed items with similar value
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.nsw_search(
@@ -99,7 +106,7 @@ class BIndexer(BaseChunkIndexer):
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 if d == 0:
                     continue
-                result[q].append((i, o, w / self._weight_norm, d))
+                result[q].append((i, o, self.uint2float_weight(w), d))
 
             # get the top-k
             for q in range(num_rows):
@@ -108,7 +115,7 @@ class BIndexer(BaseChunkIndexer):
             doc_ids, offsets, weights, dists, q_idx = self.bindexer.force_search(
                 keys, num_rows, top_k)
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
-                result[q].append((i, o, w / self._weight_norm, d))
+                result[q].append((i, o, self.uint2float_weight(w), d))
         return result
 
     def __getstate__(self):

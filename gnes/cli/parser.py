@@ -185,6 +185,16 @@ def _set_loadable_service_parser(parser=None):
     return parser
 
 
+def _set_sortable_service_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    _set_loadable_service_parser(parser)
+
+    parser.add_argument('--sorted_response', action='store_true', default=False,
+                        help='sort the response (if exist) by the score')
+    return parser
+
+
 # shortcut to keep consistent
 set_encoder_parser = _set_loadable_service_parser
 
@@ -200,7 +210,8 @@ def set_preprocessor_parser(parser=None):
 def set_router_parser(parser=None):
     if not parser:
         parser = set_base_parser()
-    _set_loadable_service_parser(parser)
+    _set_sortable_service_parser(parser)
+
     parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
@@ -208,17 +219,10 @@ def set_router_parser(parser=None):
 
 
 def set_indexer_parser(parser=None):
-    from ..service.base import SocketType
-
     if not parser:
         parser = set_base_parser()
-    _set_loadable_service_parser(parser)
+    _set_sortable_service_parser(parser)
 
-    # encoder's port_out is indexer's port_in
-    parser.set_defaults(port_in=parser.get_default('port_out'),
-                        port_out=parser.get_default('port_out') + 2,
-                        socket_in=SocketType.PULL_CONNECT,
-                        socket_out=SocketType.PUB_BIND)
     return parser
 
 

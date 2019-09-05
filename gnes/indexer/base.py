@@ -18,16 +18,25 @@ import numpy as np
 
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, blob2array
-from ..score_fn.base import get_unary_score, ModifierFn
+from ..score_fn.base import get_unary_score, ModifierScoreFn
 
 
 class BaseIndexer(TrainableBase):
     def __init__(self,
-                 normalize_fn: 'BaseScoreFn' = ModifierFn(),
-                 score_fn: 'BaseScoreFn' = ModifierFn(), *args, **kwargs):
+                 normalize_fn: 'BaseScoreFn' = ModifierScoreFn(),
+                 score_fn: 'BaseScoreFn' = ModifierScoreFn(),
+                 is_big_score_similar: bool = False,
+                 *args, **kwargs):
+        """
+        Base indexer, a valid indexer must implement `add` and `query` methods
+        :type score_fn: advanced score function
+        :type normalize_fn: normalizing score function
+        :type is_big_score_similar: when set to true, then larger score means more similar
+        """
         super().__init__(*args, **kwargs)
         self.normalize_fn = normalize_fn
         self.score_fn = score_fn
+        self.is_big_score_similar = is_big_score_similar
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
@@ -59,7 +68,14 @@ class BaseChunkIndexer(BaseIndexer):
                 r.chunk.doc_id = _doc_id
                 r.chunk.offset = _offset
                 r.chunk.weight = _weight
-                _score = get_unary_score(value=_relevance, name=self.__class__.__name__)
+                _score = get_unary_score(value=_relevance,
+                                         name=self.__class__.__name__,
+                                         operands=[
+                                             dict(name='doc_chunk',
+                                                  doc_id=_doc_id,
+                                                  offset=_offset),
+                                             dict(name='query_chunk',
+                                                  offset=q_chunk.offset)])
                 _score = self.normalize_fn(_score)
                 _score = self.score_fn(_score, q_chunk, r.chunk)
                 r.score.CopyFrom(_score)
