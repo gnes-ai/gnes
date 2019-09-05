@@ -267,7 +267,7 @@ class BaseService(metaclass=ConcurrentService):
     def _hook_warn_body_type_change(self, msg: 'gnes_pb2.Message', old_body_type: str, *args, **kwargs):
         new_type = msg.WhichOneof('body')
         if new_type != old_body_type:
-            self.logger.warning('message body is changed from %s to %s' % (new_type, old_body_type))
+            self.logger.warning('message body is changed from %s to %s' % (old_body_type, new_type))
 
     def _hook_sort_response(self, msg: 'gnes_pb2.Message', *args, **kwargs):
         if 'sorted_response' in self.args and self.args.sorted_response and msg.response.search.topk_results:
