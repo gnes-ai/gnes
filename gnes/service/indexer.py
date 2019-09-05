@@ -76,7 +76,12 @@ class IndexerService(BS):
             raise ServiceError(
                 'unsupported indexer, dont know how to use %s to handle this message' % self._model.__bases__)
 
-        results = self._model.query_and_score(msg.request.search.query.chunks, top_k=msg.request.search.top_k)
+        results = []
+        if not msg.request.search.query.chunks:
+            self.logger.warning('query contains no chunks!')
+        else:
+            results = self._model.query_and_score(msg.request.search.query.chunks, top_k=msg.request.search.top_k)
+
         self._put_result_into_message(results, msg)
 
     @handler.register(gnes_pb2.Response.QueryResponse)
