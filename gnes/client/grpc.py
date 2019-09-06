@@ -14,17 +14,13 @@
 #  limitations under the License.
 
 import grpc
-import time
-
 import queue
 from concurrent import futures
 
 from gnes.proto import gnes_pb2_grpc
 
-_TIMEOUT = 60 * 60 * 24
 
-
-class BaseGrpcClient:
+class BaseClient:
 
     def __init__(self, args):
         self.args = args
@@ -36,71 +32,66 @@ class BaseGrpcClient:
                 "grpc.max_receive_message_length": -1,
             }.items(),
         )
-        # waits for the channel to be ready before we start sending messages
-        grpc.channel_ready_future(self._channel).result()
 
-        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
+    def call(self, request):
+        resp = self._stub.Call(request)
+        return resp
 
-        self._response_callbacks = []
-
-    def add_response_callback(self, callback):
-        """callback will be invoked as callback(client, query_time)"""
-        self._response_callbacks.append(callback)
+    def async_call(self, request, callback_fn=None):
+        response_future = self._stub.Call.future(self._request)
+        if callback_fn:
+            response_future.add_done_callback(lambda resp: callback_fn(resp))
+        else:
+            return response_future
 
     def send_request(self, request):
         """Non-blocking wrapper for a client's request operation."""
         raise NotImplementedError
 
     def start(self):
-        pass
+        # waits for the channel to be ready before we start sending messages
+        grpc.channel_ready_future(self._channel).result()
+        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
 
     def stop(self):
-        pass
+        self._channel.close()
+        self._stub = None
 
-    def _handle_response(self, client, response, response_time):
-        for callback in self._response_callbacks:
-            callback(client, response, response_time)
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
-class UnarySyncClient(BaseGrpcClient):
+class UnarySyncClient(BaseClient):
 
     def __init__(self, args):
         super().__init__(args)
         self._pool = futures.ThreadPoolExecutor(
-            max_workers=self.args.max_concurrency)
+            max_workers=self.args.outstanding_rpcs_per_channel)
+        self._response_callbacks = []
 
     def send_request(self, request):
         # Send requests in seperate threads to support multiple outstanding rpcs
-        # (See src/proto/grpc/testing/control.proto)
         self._pool.submit(self._dispatch_request, request)
 
     def stop(self):
         self._pool.shutdown(wait=True)
-        self._stub = None
+        super().stop()
 
     def _dispatch_request(self, request):
-        start_time = time.time()
         resp = self._stub.Call(request)
-        end_time = time.time()
-        self._handle_response(self, resp, end_time - start_time)
+        self._handle_response(self, resp)
 
+    def _handle_response(self, client, response):
+        for callback in self._response_callbacks:
+            callback(client, response)
 
-class UnaryAsyncClient(BaseGrpcClient):
-
-    def send_request(self, request):
-        # Use the Future callback api to support multiple outstanding rpcs
-        start_time = time.time()
-        response_future = self._stub.Call.future(self._request, _TIMEOUT)
-        response_future.add_done_callback(
-            lambda resp: self._response_received(start_time, resp))
-
-    def _response_received(self, start_time, resp):
-        resp = resp.result()
-        end_time = time.time()
-        self._handle_response(self, resp, end_time - start_time)
-
-    def stop(self):
-        self._stub = None
+    def add_response_callback(self, callback):
+        """callback will be invoked as callback(client, response)"""
+        self._response_callbacks.append(callback)
 
 
 class _SyncStream(object):
@@ -110,19 +101,15 @@ class _SyncStream(object):
         self._handle_response = handle_response
         self._is_streaming = False
         self._request_queue = queue.Queue()
-        self._send_time_queue = queue.Queue()
 
     def send_request(self, request):
-        self._send_time_queue.put(time.time())
         self._request_queue.put(request)
 
     def start(self):
         self._is_streaming = True
         response_stream = self._stub.StreamCall(self._request_generator())
         for resp in response_stream:
-            self._handle_response(
-                self, resp,
-                time.time() - self._send_time_queue.get_nowait())
+            self._handle_response(self, resp)
 
     def stop(self):
         self._is_streaming = False
@@ -136,14 +123,14 @@ class _SyncStream(object):
                 pass
 
 
-class StreamingSyncClient(UnarySyncClient):
+class StreamingClient(UnarySyncClient):
 
     def __init__(self, args):
         super().__init__(args)
 
         self._streams = [
             _SyncStream(self._stub, self._handle_response)
-            for _ in range(self.args.max_concurrency)
+            for _ in range(self.args.outstanding_rpcs_per_channel)
         ]
         self._curr_stream = 0
 
@@ -153,6 +140,7 @@ class StreamingSyncClient(UnarySyncClient):
         self._curr_stream = (self._curr_stream + 1) % len(self._streams)
 
     def start(self):
+        super().start()
         for stream in self._streams:
             self._pool.submit(stream.start)
 
@@ -160,4 +148,4 @@ class StreamingSyncClient(UnarySyncClient):
         for stream in self._streams:
             stream.stop()
         self._pool.shutdown(wait=True)
-        self._stub = None
+        super().stop()
