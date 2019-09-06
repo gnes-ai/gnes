@@ -398,8 +398,8 @@ class BaseService(metaclass=ConcurrentService):
 
                         # choose output sock
                         if msg.request and msg.request.WhichOneof('body') and \
-                                type(getattr(msg.request,
-                                             msg.request.WhichOneof('body'))) == gnes_pb2.Request.ControlRequest:
+                                isinstance(getattr(msg.request, msg.request.WhichOneof('body')),
+                                           gnes_pb2.Request.ControlRequest):
                             o_sock = ctrl_sock
                         else:
                             o_sock = out_sock
