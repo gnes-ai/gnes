@@ -297,7 +297,6 @@ class BaseService(metaclass=ConcurrentService):
         self.identity = args.identity if 'identity' in args else None
         self.use_event_loop = True
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
-        self.handler.service_context = self
 
     def run(self):
         try:
@@ -348,20 +347,16 @@ class BaseService(metaclass=ConcurrentService):
                              (len(msg.response.search.topk_results),
                               'descending' if msg.response.search.is_big_score_similar else 'ascending'))
 
-    @handler.register_hook(hook_type=('pre', 'post'), only_when_verbose=True)
-    def _hook_debug_msg(self, msg: 'gnes_pb2.Message', *args, **kwargs):
-        pass
-
     @handler.register_hook(hook_type='pre')
     def _hook_add_route(self, msg: 'gnes_pb2.Message', *args, **kwargs):
         add_route(msg.envelope, self._model.__class__.__name__)
         self._msg_old_type = msg.WhichOneof('body')
-        self.logger.info('a message with route: %s' % router2str(msg))
-
+        self.logger.info('a message in type: %s with route: %s' % (self._msg_old_type, router2str(msg)))
 
     @zmqd.context()
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
+        self.handler.service_context = self
         self.logger.info('bind sockets...')
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
                                   getattr(self, 'identity', None))
@@ -413,6 +408,7 @@ class BaseService(metaclass=ConcurrentService):
                         self.handler.call_hooks(msg, hook_type='pre')
                         # call main handler and send result back
                         self.handler.call_routes_send_back(msg, o_sock)
+
                         self.is_handler_done.set()
                 else:
                     self.logger.warning(
