@@ -647,7 +647,7 @@ If you use GNES in an academic paper, you are more than welcome to make a citati
     ```latex
     @misc{tencent2019GNES,
       title={GNES: Generic Neural Elastic Search},
-      author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie},
+      author={Xiao, Han and Yan, Jianfeng and Wang, Feng and Fu, Jie and Liu, Kai},
       howpublished={\url{https://github.com/gnes-ai}},
       year={2019}
     }
