@@ -50,7 +50,7 @@ class PyTorchTransformers(BaseTextEncoder):
               (RobertaModel, RobertaTokenizer, 'roberta-base')]}[self.model_name]
 
         def load_model_tokenizer(x):
-            return model_class.from_pretrained(x), tokenizer_class.from_pretrained(x)
+            return model_class.from_pretrained(x).eval(), tokenizer_class.from_pretrained(x)
 
         try:
             self.model, self.tokenizer = load_model_tokenizer(self.work_dir)
