@@ -60,15 +60,15 @@ def capture_frames(input_fn: str = 'pipe:',
         return frames
 
 
-def encode_gif(images: 'np.ndarray', fps: int, pix_fmt: str = 'rgb24'):
+def encode_video(images: 'np.ndarray', frame_rate: int, pix_fmt: str = 'rgb24'):
 
     cmd = [
         'ffmpeg', '-y', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-r',
-        '%.02f' % fps, '-s',
+        '%.02f' % frame_rate, '-s',
         '%dx%d' % (images[0].shape[1], images[0].shape[0]), '-pix_fmt',
         'rgb24', '-i', '-', '-filter_complex',
         '[0:v]split[x][z];[z]palettegen[y];[x]fifo[x];[x][y]paletteuse', '-r',
-        '%.02f' % fps, '-f', 'gif', '-'
+        '%.02f' % frame_rate, '-f', 'gif', '-'
     ]
     proc = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
     for image in images:

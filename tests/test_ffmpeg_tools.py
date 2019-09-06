@@ -52,7 +52,7 @@ class TestFFmpeg(unittest.TestCase):
         self.assertEqual(meta['frame_height'], 360)
 
     def test_gif_encode(self):
-        gif_data = gif.encode_gif(images=self.frames, fps=10)
+        gif_data = gif.encode_video(images=self.frames, frame_rate=10)
         frames = gif.capture_frames(input_data=gif_data)
         self.assertEqual(self.frames.shape, frames.shape)
 
