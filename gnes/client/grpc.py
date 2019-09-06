@@ -40,7 +40,7 @@ class BaseClient:
     def async_call(self, request, callback_fn=None):
         response_future = self._stub.Call.future(self._request)
         if callback_fn:
-            response_future.add_done_callback(lambda resp: callback_fn(resp))
+            response_future.add_done_callback(callback_fn)
         else:
             return response_future
 

@@ -20,10 +20,9 @@ import zipfile
 from math import ceil
 from typing import List
 
-import grpc
 from termcolor import colored
 
-from ..proto import gnes_pb2_grpc, RequestGenerator
+from ..proto import RequestGenerator
 from .grpc import StreamingSyncClient
 
 
