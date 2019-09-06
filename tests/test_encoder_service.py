@@ -23,7 +23,7 @@ class TestEncoderService(unittest.TestCase):
         self.test_numeric = np.random.randint(0, 255, (1000, 1024)).astype('float32')
 
     def test_empty_service(self):
-        args = set_encoder_parser().parse_args(['--yaml_path', '!TestEncoder {gnes_config: {name: EncoderService, is_trained: True}}'])
+        args = set_encoder_parser().parse_args(['--yaml_path', '!TestEncoder {gnes_config: {name: EncoderService, is_trained: true}}'])
         c_args = _set_client_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in)])
