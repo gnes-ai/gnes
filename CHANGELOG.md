@@ -1,4 +1,70 @@
 
+# Release Note (`v0.0.37`)
+> Release time: 2019-09-06 16:46:20
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  felix,  Jem,  raccoonliu,  raccoonliukai,  Han Xiao,  Larry Yan,  🙇
+
+
+### 🆕 New Features
+
+ - [[```105a0abf```](https://github.com/gnes-ai/gnes/commit/105a0abf32b287e04e2809abcc840a1e169ae5b0)] __-__ __encoder__: add debug hook (*hanhxiao*)
+ - [[```0f04877f```](https://github.com/gnes-ai/gnes/commit/0f04877f65d3876c6ad0e5a1939139f94be5fa3a)] __-__ __service__: add pre and post hooks to baseservice (*hanhxiao*)
+ - [[```92860848```](https://github.com/gnes-ai/gnes/commit/928608483c63571df870bc1023503c16067d62c8)] __-__ __reducer__: add concat reducer (*Jem*)
+ - [[```2e6e80db```](https://github.com/gnes-ai/gnes/commit/2e6e80db7932998f61be1c3d6c29d4d679cc3988)] __-__ __encoder__: add PCAEncoder support in gnes buster image (*raccoonliukai*)
+ - [[```16fa80bd```](https://github.com/gnes-ai/gnes/commit/16fa80bdc2862b3009f0c391d21b2a4ba3a74c08)] __-__ __tests__: add unittest for PCAEncoder (*raccoonliukai*)
+ - [[```5a745b1e```](https://github.com/gnes-ai/gnes/commit/5a745b1e8f9a158ab3ce488ff0eb53d59364291b)] __-__ __tests__: add unittest for EncoderService and IndexerService (*raccoonliukai*)
+ - [[```a0fec684```](https://github.com/gnes-ai/gnes/commit/a0fec684f2506b7c663b596d22648ecfa52a4026)] __-__ __service__: logging elapsed time and body type change (*hanhxiao*)
+ - [[```57cc95ff```](https://github.com/gnes-ai/gnes/commit/57cc95ffc80c3e582e4017c94fdbe85690d05b5a)] __-__ __encoder__: add quantizer (*Jem*)
+ - [[```00e6280d```](https://github.com/gnes-ai/gnes/commit/00e6280d4b44689f6f7706c925612abe87fe9cd6)] __-__ __score_fn__: use numpy for score fn (*hanhxiao*)
+ - [[```201c27e7```](https://github.com/gnes-ai/gnes/commit/201c27e79f9f86075c27fe26b8d28c1f9477635f)] __-__ __cli__: add --sorted_response as cli argument (*hanhxiao*)
+ - [[```81b21093```](https://github.com/gnes-ai/gnes/commit/81b210930e3d4248ad077728f4d983568ab51934)] __-__ __index__: move sort logic to base (*hanhxiao*)
+ - [[```a2d55dda```](https://github.com/gnes-ai/gnes/commit/a2d55dda809d5ad82635cc599862b5e5d6f2f186)] __-__ __index__: move sort logic out to base (*hanhxiao*)
+ - [[```674a9da2```](https://github.com/gnes-ai/gnes/commit/674a9da28e4aa121bb8cf0ee9c235957b4bdfadd)] __-__ __encoder__: add lab video model (*Jem*)
+ - [[```50a944b6```](https://github.com/gnes-ai/gnes/commit/50a944b65c6037dae46ed04925fbb9af6b5523ab)] __-__ __encoder__: add yt8m feature extractor (*Jem*)
+ - [[```f908f381```](https://github.com/gnes-ai/gnes/commit/f908f3811790b17209154c638a1fe6d67f81780a)] __-__ __score_fn__: make score_fn as a TrainableBase (*hanhxiao*)
+ - [[```14c7e522```](https://github.com/gnes-ai/gnes/commit/14c7e52261b80c8ddde6f760fbe6857ca2dc6c55)] __-__ __score_fn__: make score_fn dumpable (*hanhxiao*)
+ - [[```0b78798d```](https://github.com/gnes-ai/gnes/commit/0b78798d5e6dc0b1b4df9ffd547b611ad837a467)] __-__ __score_fn__: add score_fn as a new module (*hanhxiao*)
+ - [[```da56544f```](https://github.com/gnes-ai/gnes/commit/da56544f7299d87eaa464d86d8c9ee75b8c206e7)] __-__ __encoder__: add PCAEncoder for incremental pca training (*raccoonliukai*)
+ - [[```97bb6de2```](https://github.com/gnes-ai/gnes/commit/97bb6de2b7e39503bbe67f2192b1096a31a7c6e0)] __-__ __lab encoder__: add vggish for audio (*Jem*)
+ - [[```8cdcb7e8```](https://github.com/gnes-ai/gnes/commit/8cdcb7e8a079aa0c8234f24baecce552a75b4a26)] __-__ __chunk scorer__: add offset divergence (*Jem*)
+
+### 🐞 Bug fixes
+
+ - [[```d404b8a7```](https://github.com/gnes-ai/gnes/commit/d404b8a7f275c197d5e44fa813c2e974e3f1a953)] __-__ __tests__: use lowercase for true (*raccoonliu*)
+ - [[```bb9bbe9d```](https://github.com/gnes-ai/gnes/commit/bb9bbe9d4246239a0263a3cb884c556322a2f046)] __-__ __tests__: modify EncoderService unittest (*raccoonliukai*)
+ - [[```cd53a24b```](https://github.com/gnes-ai/gnes/commit/cd53a24bfb708adf4c7df6b673a1515550fe6022)] __-__ __indexer__: fix numpy indexer (*hanhxiao*)
+ - [[```d70e877e```](https://github.com/gnes-ai/gnes/commit/d70e877e352eb16d77526aaf01eab622d321bd92)] __-__ __shot-detector__: fix case of only one shot in video (*felix*)
+ - [[```e631d396```](https://github.com/gnes-ai/gnes/commit/e631d3963601e66d347e65ac7c1a5afbcf0f9562)] __-__ __service__: indexer service return empty when no chunk (*hanhxiao*)
+ - [[```67b211da```](https://github.com/gnes-ai/gnes/commit/67b211da58d8f0bef2221cce07509d69ff551fc1)] __-__ __encoder__: remove image resize from TFInceptionEncoder (*raccoonliukai*)
+ - [[```40849abc```](https://github.com/gnes-ai/gnes/commit/40849abc92b0fe263754712bcec34358cd10a55f)] __-__ __indexer__: fix is_sorted in response flush away the request (*hanhxiao*)
+ - [[```ab819387```](https://github.com/gnes-ai/gnes/commit/ab81938741d93a273b9a755492d2c354c91291d2)] __-__ __ffmpeg__: use tempfile as input instead of pipe (*felix*)
+ - [[```a8d2acfd```](https://github.com/gnes-ai/gnes/commit/a8d2acfdc9c89bfa1e233e7513d26a11be693bee)] __-__ __service__: is input list is false when query (*Jem*)
+ - [[```ba21c4e7```](https://github.com/gnes-ai/gnes/commit/ba21c4e7176eb84a860edb1b8b9cfe74821addab)] __-__ __service__: fix bug for doc type in encoder (*Larry Yan*)
+ - [[```a4658250```](https://github.com/gnes-ai/gnes/commit/a46582508727c0247cf855fd6d88a1279e6ed05f)] __-__ __scorer__: fix np float conversion (*hanhxiao*)
+ - [[```2d6c70fc```](https://github.com/gnes-ai/gnes/commit/2d6c70fc389d2928714576ef1d58afb5805ce838)] __-__ __indexer__: fix vec np.concat (*hanhxiao*)
+ - [[```2ba135db```](https://github.com/gnes-ai/gnes/commit/2ba135dbfe1be58841694b25da9fa360fdcd7ced)] __-__ __indexer__: fix empty chunks indexing (*hanhxiao*)
+ - [[```40dd1d5a```](https://github.com/gnes-ai/gnes/commit/40dd1d5a8bfd41a4edd0729259c8e5fe5411c13e)] __-__ __encoder__: fix embed_chunks_in_docs function (*hanhxiao*)
+ - [[```d94329b3```](https://github.com/gnes-ai/gnes/commit/d94329b369e3181077efada65212814dd5e1a5d1)] __-__ __preprocess__: fix offset in sentence splitter (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```a8e87d9f```](https://github.com/gnes-ai/gnes/commit/a8e87d9f9f48b7f7605d25923979dcd9a40e862a)] __-__ __service__: minimize event loop, move handling to handler (*hanhxiao*)
+ - [[```06aab813```](https://github.com/gnes-ai/gnes/commit/06aab81331286193a0f39a11fb5df01d7b854267)] __-__ __grpc-client__: implement async client via multi-threaded (*felix*)
+ - [[```35fa3ba4```](https://github.com/gnes-ai/gnes/commit/35fa3ba4be9fa9311fae67ee60cf01ead354d66e)] __-__ __pb__: remove unused field (*hanhxiao*)
+ - [[```6bbfc993```](https://github.com/gnes-ai/gnes/commit/6bbfc9936576d4051ffa4fc11d4fd08689060f44)] __-__ __score_fn__: rename score functions (*hanhxiao*)
+ - [[```e9feaa61```](https://github.com/gnes-ai/gnes/commit/e9feaa6174ada9242b42a66564607d86671c6bab)] __-__ __score_fn__: use post_init instead of property (*hanhxiao*)
+ - [[```f406f8f0```](https://github.com/gnes-ai/gnes/commit/f406f8f06d6b5c4068f8473d3f9faedeffc32b9f)] __-__ __score_fn__: move normalize_fn and score_fn to the init (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```c988c7dd```](https://github.com/gnes-ai/gnes/commit/c988c7dde45fbacd6b3fef91f06e4da3c0c98782)] __-__ remove sklearn from base dep (*felix*)
+ - [[```2fd8dab4```](https://github.com/gnes-ai/gnes/commit/2fd8dab48397579adbb09d74cebff704d575dfe9)] __-__ minor fix on the styling (*Han Xiao*)
+ - [[```066d6e99```](https://github.com/gnes-ai/gnes/commit/066d6e993a59076bb2470502642081d01c1ea172)] __-__ __pb2__: do not reformat pb2 generated python file (*hanhxiao*)
+ - [[```1bbc4358```](https://github.com/gnes-ai/gnes/commit/1bbc4358f9e8caba5b1252d346faaf42576aad42)] __-__ __service__: revert encoder service (*hanhxiao*)
+ - [[```b97b718f```](https://github.com/gnes-ai/gnes/commit/b97b718f9e17eb1bc8044381be89287997e104b1)] __-__ __changelog__: update change log to v0.0.36 (*hanhxiao*)
+
 # Release Note (`v0.0.36`)
 > Release time: 2019-08-30 17:32:23
 
