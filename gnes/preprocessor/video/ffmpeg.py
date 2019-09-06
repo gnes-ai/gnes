@@ -188,4 +188,4 @@ class GifChunkPreprocessor(RawChunkPreprocessor, BaseVideoPreprocessor):
     def _parse_chunk(chunk: 'gnes_pb2.Chunk', *args, **kwargs):
         from ..io_utils import gif as gif_util
 
-        return gif_util.encode_gif(blob2array(chunk.blob), fps=10)
+        return gif_util.encode_video(blob2array(chunk.blob), frame_rate=10)

@@ -93,13 +93,11 @@ class FrontendService:
             return self.Call(request, context)
 
         def StreamCall(self, request_iterator, context):
-            num_result = 0
             with self.zmq_context as zmq_client:
                 for request in request_iterator:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
-                    num_result += 1
-                for _ in range(num_result):
-                    yield self.remove_envelope(zmq_client.recv_message(self.args.timeout))
+                    msg = zmq_client.recv_message(self.args.timeout)
+                    yield self.remove_envelope(msg)
 
         class ZmqContext:
             """The zmq context class."""
