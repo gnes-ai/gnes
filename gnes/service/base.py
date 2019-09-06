@@ -356,7 +356,7 @@ class BaseService(metaclass=ConcurrentService):
     def _hook_add_route(self, msg: 'gnes_pb2.Message', *args, **kwargs):
         add_route(msg.envelope, self._model.__class__.__name__)
         self._msg_old_type = msg.WhichOneof('body')
-        self.logger.info('handling a message with route: %s using handler %s' % (router2str(msg), fn.__name__))
+        self.logger.info('a message with route: %s' % router2str(msg))
 
 
     @zmqd.context()
