@@ -71,6 +71,7 @@ class UnarySyncClient(BaseClient):
         super().__init__(args)
         self._pool = futures.ThreadPoolExecutor(
             max_workers=self.args.max_concurrency)
+        self.request_cnt = 0
         self._response_callbacks = []
 
     def send_request(self, request):
@@ -147,5 +148,4 @@ class StreamingClient(UnarySyncClient):
     def stop(self):
         for stream in self._streams:
             stream.stop()
-        self._pool.shutdown(wait=True)
         super().stop()
