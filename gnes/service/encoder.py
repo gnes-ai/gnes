@@ -89,3 +89,25 @@ class EncoderService(BS):
     @handler.register(gnes_pb2.Request.QueryRequest)
     def _handler_search(self, msg: 'gnes_pb2.Message'):
         self.embed_chunks_in_docs(msg.request.search.query, is_input_list=False)
+
+    @handler.register_hook(hook_type=('pre', 'post'), only_when_verbose=True)
+    def _hook_debug_msg(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        from pprint import pformat
+
+        debug_kv = {
+            'envelope': lambda: msg.envelope,
+            'num_docs': lambda: len(msg.request.index.docs),
+            'num_chunks in doc[0]': lambda: len(msg.request.index.docs[0].chunks),
+            'docs[0].chunks[0].content_type': lambda: msg.request.index.docs[0].chunks[0].WhichOneof('content'),
+            'docs[0].chunks[0].weight': lambda: msg.request.index.docs[0].chunks[0].weight,
+            'docs[0].chunks[0].embedding': lambda: blob2array(msg.request.index.docs[0].chunks[0].embedding),
+            'docs[0].chunks[0].embedding[0]': lambda: blob2array(msg.request.index.docs[0].chunks[0].embedding)[0]
+        }
+        debug_info = {}
+        for k, v in debug_kv.items():
+            try:
+                r = v()
+            except Exception as ex:
+                r = 'fail to get the value, reason: %s' % ex
+            debug_info[k] = r
+        self.logger.info(pformat(debug_info))
