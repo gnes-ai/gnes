@@ -27,6 +27,7 @@ _cls2file_map = {
     'DocFillReducer': 'reduce',
     'PublishRouter': 'map',
     'DocBatchRouter': 'map',
+    'ConcatEmbedRouter': 'reduce'
 }
 
 register_all_class(_cls2file_map, 'router')

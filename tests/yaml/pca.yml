@@ -1,0 +1,8 @@
+!PCAEncoder
+parameters:
+  output_dim: 300
+gnes_config:
+  name: pca_encoder
+  on_gpu: false
+  work_dir: ./
+
