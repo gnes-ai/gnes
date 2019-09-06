@@ -14,8 +14,10 @@
 #  limitations under the License.
 
 from typing import List
+import numpy as np
 
 from .base import BaseReduceRouter, BaseTopkReduceRouter
+from ..proto import gnes_pb2, blob2array, array2blob
 
 
 class DocFillReducer(BaseReduceRouter):
@@ -74,3 +76,32 @@ class ChunkTopkReducer(BaseTopkReduceRouter):
 
     def set_key(self, x: 'gnes_pb2.Response.QueryResponse.ScoredResult', k: str):
         x.chunk.doc_id, x.chunk.offset = map(int, k.split('-'))
+
+
+class ConcatEmbedRouter(BaseReduceRouter):
+    """
+    Gather all embeddings from multiple encoders and concat them on a specific axis.
+    In default, concat will happen on the last axis.
+    """
+
+    def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
+        body = getattr(msg, msg.WhichOneof('body'))
+        msg_type = type(getattr(body, body.WhichOneof('body')))
+        if msg_type == gnes_pb2.Request.QueryRequest:
+            for i in range(len(msg.request.search.query.chunks)):
+                concat_embedding = array2blob(
+                    np.concatenate([blob2array(m.request.search.query.chunks[i].embedding) for m in accum_msgs],
+                                   axis=1))
+                msg.request.search.query.chunks[i].embedding.CopyFrom(concat_embedding)
+
+        elif msg_type == gnes_pb2.Request.IndexRequest:
+            for i in range(len(msg.request.index.docs)):
+                for j in range(len(msg.request.index.docs[i].chunks)):
+                    concat_embedding = array2blob(
+                        np.concatenate(
+                            [blob2array(m.request.index.docs[i].chunks[j].embedding) for m in accum_msgs], axis=1))
+                    msg.request.index.docs[i].chunks[j].embedding.CopyFrom(concat_embedding)
+        else:
+            self.logger.error('dont know how to handle %s' % msg_type)
+
+        super().apply(msg, accum_msgs)
