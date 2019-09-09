@@ -16,8 +16,8 @@
 from typing import List
 import numpy as np
 
-from .base import BaseReduceRouter, BaseTopkReduceRouter
-from ..proto import gnes_pb2, blob2array, array2blob
+from .base import BaseReduceRouter, BaseTopkReduceRouter, BaseEmbedReduceRouter
+from ..proto import blob2array
 
 
 class DocFillReducer(BaseReduceRouter):
@@ -78,30 +78,37 @@ class ChunkTopkReducer(BaseTopkReduceRouter):
         x.chunk.doc_id, x.chunk.offset = map(int, k.split('-'))
 
 
-class ConcatEmbedRouter(BaseReduceRouter):
+class ConcatEmbedRouter(BaseEmbedReduceRouter):
     """
     Gather all embeddings from multiple encoders and concat them on a specific axis.
     In default, concat will happen on the last axis.
+    chunk_idx, doc_idx denote index in for loop used in BaseEmbedReduceRouter
     """
 
-    def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs):
-        body = getattr(msg, msg.WhichOneof('body'))
-        msg_type = type(getattr(body, body.WhichOneof('body')))
-        if msg_type == gnes_pb2.Request.QueryRequest:
-            for i in range(len(msg.request.search.query.chunks)):
-                concat_embedding = array2blob(
-                    np.concatenate([blob2array(m.request.search.query.chunks[i].embedding) for m in accum_msgs],
-                                   axis=1))
-                msg.request.search.query.chunks[i].embedding.CopyFrom(concat_embedding)
-
-        elif msg_type == gnes_pb2.Request.IndexRequest:
-            for i in range(len(msg.request.index.docs)):
-                for j in range(len(msg.request.index.docs[i].chunks)):
-                    concat_embedding = array2blob(
-                        np.concatenate(
-                            [blob2array(m.request.index.docs[i].chunks[j].embedding) for m in accum_msgs], axis=1))
-                    msg.request.index.docs[i].chunks[j].embedding.CopyFrom(concat_embedding)
+    def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):
+        if msg_type == 'query':
+            return np.concatenate([blob2array(m.request.search.query.chunks[chunk_idx].embedding)
+                                   for m in accum_msgs], axis=1)
+        elif msg_type == 'index':
+            return np.concatenate([blob2array(m.request.index.docs[doc_idx].chunks[chunk_idx].embedding)
+                                   for m in accum_msgs], axis=1)
         else:
             self.logger.error('dont know how to handle %s' % msg_type)
 
-        super().apply(msg, accum_msgs)
+
+class AvgEmbedRouter(BaseEmbedReduceRouter):
+    """
+    Gather all embeddings from multiple encoders and do average on a specific axis.
+    In default, average will happen on the first axis.
+    chunk_idx, doc_idx denote index in for loop used in BaseEmbedReduceRouter
+    """
+
+    def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):
+        if msg_type == 'query':
+            return np.mean([blob2array(m.request.search.query.chunks[chunk_idx].embedding)
+                                   for m in accum_msgs], axis=0)
+        elif msg_type == 'index':
+            return np.mean([blob2array(m.request.index.docs[doc_idx].chunks[chunk_idx].embedding)
+                                   for m in accum_msgs], axis=0)
+        else:
+            self.logger.error('dont know how to handle %s' % msg_type)
