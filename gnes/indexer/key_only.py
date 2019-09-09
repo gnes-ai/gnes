@@ -59,6 +59,21 @@ class ListKeyIndexer(BaseKeyIndexer):
     def size(self):
         return len(self._int2key)
 
+    @property
+    def num_chunk_per_doc(self):
+        from collections import defaultdict
+        from itertools import groupby
+
+        res = defaultdict(int)
+
+        for key, value in groupby(self._int2key, key=lambda x: x[0]):
+            res[key] = len(list(v for v in value))
+        return res
+
+    @property
+    def num_doc(self):
+        return len(set(map(lambda x: x[0], self._int2key)))
+
 
 class ListNumpyKeyIndexer(ListKeyIndexer):
     def __init__(self, *args, **kwargs):

@@ -3,6 +3,7 @@ import unittest
 from shutil import rmtree
 
 import grpc
+import json
 
 from gnes.cli.parser import set_frontend_parser, set_preprocessor_parser, set_indexer_parser
 from gnes.indexer.base import BaseIndexer
@@ -67,7 +68,7 @@ class TestDictIndexer(unittest.TestCase):
                 print(r)
 
         bi = BaseIndexer.load('dummy_dict_indexer.bin')
-        self.assertEqual(bi.size, 26)
+        self.assertEqual(json.loads(bi.get_indexer_info)['num_doc'], 26)
         print(bi.query([0]))
 
     def tearDown(self):

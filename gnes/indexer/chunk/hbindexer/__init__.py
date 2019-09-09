@@ -16,6 +16,7 @@
 
 import os
 from typing import List, Tuple, Any
+from collections import defaultdict
 
 import numpy as np
 
@@ -39,6 +40,7 @@ class HBIndexer(BaseChunkIndexer):
         self.data_path = data_path
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
+        self._data_counter = defaultdict(int)
 
     def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
@@ -60,6 +62,8 @@ class HBIndexer(BaseChunkIndexer):
 
         n = len(keys)
         keys, offsets = zip(*keys)
+        for key in keys:
+            self._data_counter[key] += 1
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
         weights = self.float2uint_weight(weights).tobytes()
@@ -98,6 +102,15 @@ class HBIndexer(BaseChunkIndexer):
             result[q][(i, o, self.uint2float_weight(w))] = d
 
         return [list(ret.items()) for ret in result]
+
+    @property
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_chunks_total': sum(list(self._data_counter.values())),
+            'num_chunks_per_doc': list(self._data_counter.values()),
+            'num_doc': len(self._data_counter.keys())
+        })
 
     def __getstate__(self):
         self.hbindexer.save(self.data_path)

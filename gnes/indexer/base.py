@@ -44,6 +44,9 @@ class BaseIndexer(TrainableBase):
     def query(self, keys: Any, *args, **kwargs) -> List[Any]:
         pass
 
+    def get_indexer_info(self):
+        pass
+
     def query_and_score(self, q_chunks: List[Union['gnes_pb2.Chunk', 'gnes_pb2.Document']], top_k: int) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
         raise NotImplementedError
@@ -55,6 +58,9 @@ class BaseChunkIndexer(BaseIndexer):
         pass
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
+        pass
+
+    def get_indexer_info(self):
         pass
 
     def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
@@ -89,6 +95,9 @@ class BaseDocIndexer(BaseIndexer):
         pass
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
+        pass
+
+    def get_indexer_info(self):
         pass
 
     def query_and_score(self, docs: List['gnes_pb2.Response.QueryResponse.ScoredResult'], *args, **kwargs) -> List[

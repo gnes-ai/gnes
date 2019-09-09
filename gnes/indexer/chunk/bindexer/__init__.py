@@ -18,6 +18,7 @@ import os
 from typing import List, Tuple, Any
 
 import numpy as np
+from collections import defaultdict
 
 from .cython import IndexCore
 from ...base import BaseChunkIndexer
@@ -39,6 +40,7 @@ class BIndexer(BaseChunkIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
         self.data_path = data_path
+        self._data_counter = defaultdict(int)
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -63,6 +65,8 @@ class BIndexer(BaseChunkIndexer):
 
         num_rows = len(keys)
         keys, offsets = zip(*keys)
+        for key in keys:
+            self._data_counter[key] += 1
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
         weights = self.float2uint_weight(weights).tobytes()
@@ -117,6 +121,15 @@ class BIndexer(BaseChunkIndexer):
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append((i, o, self.uint2float_weight(w), d))
         return result
+
+    @property
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_chunks_total': sum(list(self._data_counter.values())),
+            'num_chunks_per_doc': list(self._data_counter.values()),
+            'num_doc': len(self._data_counter.keys())
+        })
 
     def __getstate__(self):
         self.bindexer.save(self.data_path)

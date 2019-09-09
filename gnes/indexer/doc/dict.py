@@ -33,6 +33,13 @@ class DictIndexer(BaseDocIndexer):
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         return [Parse(self._content[k], gnes_pb2.Document()) for k in keys]
 
+    # @property
+    # def size(self):
+    #     return len(self._content)
+
     @property
-    def size(self):
-        return len(self._content)
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_doc': len(self._content)
+        })

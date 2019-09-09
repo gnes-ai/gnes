@@ -66,3 +66,12 @@ class NumpyIndexer(BaseChunkIndexer):
             chunk_info = self._key_info_indexer.query([j[0] for j in rk])
             ret.append([(*r, s) for r, s in zip(chunk_info, [j[1] for j in rk])])
         return ret
+
+    @property
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_chunks_total': self._key_info_indexer.size,
+            'num_chunks_per_doc': self._key_info_indexer.num_chunk_per_doc,
+            'num_doc': self._key_info_indexer.num_doc
+        })
