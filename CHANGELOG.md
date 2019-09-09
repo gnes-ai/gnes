@@ -1,4 +1,17 @@
 
+# Release Note (`v0.0.38`)
+> Release time: 2019-09-06 17:25:48
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```71a3073a```](https://github.com/gnes-ai/gnes/commit/71a3073a797901fe7e0262923ab4d80639386d3e)] __-__ bump version (*hanhxiao*)
+ - [[```9666a462```](https://github.com/gnes-ai/gnes/commit/9666a462dcd78e8423e17217ac2d475f1c3a5df0)] __-__ __changelog__: update change log to v0.0.37 (*hanhxiao*)
+
 # Release Note (`v0.0.37`)
 > Release time: 2019-09-06 16:46:20
 
