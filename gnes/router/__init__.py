@@ -22,12 +22,14 @@ _cls2file_map = {
     'BaseMapRouter': 'base',
     'BaseReduceRouter': 'base',
     'BaseTopkReduceRouter': 'base',
+    'BaseEmbedReduceRouter': 'base',
     'DocTopkReducer': 'reduce',
     'ChunkTopkReducer': 'reduce',
     'DocFillReducer': 'reduce',
     'PublishRouter': 'map',
     'DocBatchRouter': 'map',
-    'ConcatEmbedRouter': 'reduce'
+    'ConcatEmbedRouter': 'reduce',
+    'AvgEmbedRouter': 'reduce'
 }
 
 register_all_class(_cls2file_map, 'router')
