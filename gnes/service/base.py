@@ -394,7 +394,7 @@ class BaseService(metaclass=ConcurrentService):
                         self.is_handler_done.clear()
 
                         # receive message
-                        msg = recv_message(pull_sock)
+                        msg = recv_message(pull_sock, check_version=self.args.check_version)
 
                         # choose output sock
                         if msg.request and msg.request.WhichOneof('body') and \

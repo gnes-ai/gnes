@@ -92,6 +92,10 @@ message Envelope {
         google.protobuf.Timestamp timestamp = 2;
     }
     repeated route routes = 6;
+
+    string gnes_version = 7;
+
+    string proto_version = 8;
 }
 
 message Message {
