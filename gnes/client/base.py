@@ -55,6 +55,6 @@ class ZmqClient:
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        r = recv_message(self.receiver, timeout=timeout)
+        r = recv_message(self.receiver, timeout=timeout, check_version=self.args.check_version)
         self.logger.info('recv a message: %s' % r.envelope)
         return r

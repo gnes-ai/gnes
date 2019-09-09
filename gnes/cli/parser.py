@@ -151,6 +151,9 @@ def set_service_parser(parser=None):
     parser.add_argument('--parallel_type', type=ParallelType.from_string, choices=list(ParallelType),
                         default=ParallelType.PUSH_NONBLOCK,
                         help='parallel type of the concurrent services')
+    parser.add_argument('--check_version', action='store_true', default=False,
+                        help='comparing the GNES and proto version of incoming message with local setup, '
+                             'mismatch raise an exception')
     return parser
 
 

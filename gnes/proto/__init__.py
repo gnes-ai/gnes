@@ -133,7 +133,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
         sock.setsockopt(zmq.SNDTIMEO, -1)
 
 
-def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Message']:
+def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False) -> Optional['gnes_pb2.Message']:
     response = []
     try:
         if timeout > 0:
@@ -144,6 +144,21 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1) -> Optional['gnes_pb2.Me
         _, msg_data = sock.recv_multipart()
         msg = gnes_pb2.Message()
         msg.ParseFromString(msg_data)
+
+        if check_version and msg.envelope:
+            from .. import __version__, __proto_version__
+            if hasattr(msg.envelope, 'gnes_version') and __version__ != msg.envelope.gnes_version:
+                raise AttributeError('mismatched GNES version! '
+                                     'incoming message has GNES version %s, whereas local GNES version %s' % (
+                                         msg.envelope.gnes_version, __version__))
+            if hasattr(msg.envelope, 'proto_version') and __proto_version__ != msg.envelope.proto_version:
+                raise AttributeError('mismatched protobuf version! '
+                                     'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                         msg.envelope.proto_version, __proto_version__))
+            if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
+                raise AttributeError('version_check=True locally, '
+                                     'but incoming message contains no version info in its envelope. '
+                                     'the message is probably sent from an outdated GNES service')
         return msg
 
     except ValueError:
