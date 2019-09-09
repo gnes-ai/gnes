@@ -47,8 +47,8 @@ class VladEncoder(BaseNumericEncoder):
 
     def kmeans_pred(self, vecs):
         if self.using_faiss_pred:
-            D, I = self.index_flat.search(vecs.astype(np.float32), 1)
-            return np.reshape(I, [-1])
+            _, pred = self.index_flat.search(vecs.astype(np.float32), 1)
+            return np.reshape(pred, [-1])
         else:
             vecs = np.reshape(vecs, [vecs.shape[0], 1, 1, vecs.shape[1]])
             dist = np.sum(np.square(vecs - self.centroids), -1)
