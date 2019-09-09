@@ -35,6 +35,7 @@ class LVDBIndexer(BaseDocIndexer):
         self.drop_raw_bytes = drop_raw_bytes
         self.drop_chunk_blob = drop_chunk_blob
         self._NOT_FOUND = None
+        self._num_doc = 0
 
     def post_init(self):
         import plyvel
@@ -51,6 +52,7 @@ class LVDBIndexer(BaseDocIndexer):
                         c.ClearField('blob')
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
+                self._num_doc += 1
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         res = []
@@ -64,6 +66,13 @@ class LVDBIndexer(BaseDocIndexer):
             elif self.keep_na_doc:
                 res.append(self._NOT_FOUND)
         return res
+
+    @property
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_doc': self._num_doc
+        })
 
     def close(self):
         super().close()

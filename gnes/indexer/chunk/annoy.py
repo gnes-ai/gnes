@@ -69,9 +69,18 @@ class AnnoyIndexer(BaseChunkIndexer):
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
 
+    # @property
+    # def size(self):
+    #     return self._index.get_n_items()
+
     @property
-    def size(self):
-        return self._index.get_n_items()
+    def get_indexer_info(self):
+        import json
+        return json.dump({
+            'num_chunks_total': self._key_info_indexer.size,
+            'num_chunks_per_doc': self._key_info_indexer.num_chunk_per_doc,
+            'num_doc': self._key_info_indexer.num_doc
+        })
 
     def __getstate__(self):
         d = super().__getstate__()
