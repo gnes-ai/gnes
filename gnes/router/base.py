@@ -17,7 +17,7 @@ from typing import List, Generator
 
 from gnes.score_fn.base import CombinedScoreFn
 from ..base import TrainableBase, CompositionalTrainableBase
-from ..proto import gnes_pb2, merge_routes
+from ..proto import gnes_pb2, merge_routes, array2blob
 
 
 class BaseRouter(TrainableBase):
@@ -94,6 +94,31 @@ class BaseTopkReduceRouter(BaseReduceRouter):
         super().apply(msg, accum_msgs)
 
 
+class BaseEmbedReduceRouter(BaseReduceRouter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):
+        raise NotImplementedError
+
+    def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs) -> None:
+        body = getattr(msg, msg.WhichOneof('body'))
+        msg_type = type(getattr(body, body.WhichOneof('body')))
+        if msg_type == gnes_pb2.Request.QueryRequest:
+            for i in range(len(msg.request.search.query.chunks)):
+                reduced_embedding = array2blob(self.reduce_embedding(accum_msgs, 'query', chunk_idx=i, doc_idx=-1))
+                msg.request.search.query.chunks[i].embedding.CopyFrom(reduced_embedding)
+        elif msg_type == gnes_pb2.Request.IndexRequest:
+            for i in range(len(msg.request.index.docs)):
+                for j in range(len(msg.request.index.docs[i].chunks)):
+                    reduced_embedding = array2blob(self.reduce_embedding(accum_msgs, 'index', chunk_idx=j, doc_idx=i))
+                    msg.request.index.docs[i].chunks[j].embedding.CopyFrom(reduced_embedding)
+        else:
+            self.logger.error('dont know how to handle %s' % msg_type)
+
+        super().apply(msg, accum_msgs)
+        
+        
 class PipelineRouter(CompositionalTrainableBase):
     def apply(self, *args, **kwargs) -> None:
         if not self.components:
