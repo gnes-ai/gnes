@@ -70,7 +70,7 @@ class NumpyIndexer(BaseChunkIndexer):
     @property
     def get_indexer_info(self):
         import json
-        return json.dump({
+        return json.dumps({
             'num_chunks_total': self._key_info_indexer.size,
             'num_chunks_per_doc': self._key_info_indexer.num_chunk_per_doc,
             'num_doc': self._key_info_indexer.num_doc

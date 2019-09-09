@@ -70,7 +70,7 @@ class LVDBIndexer(BaseDocIndexer):
     @property
     def get_indexer_info(self):
         import json
-        return json.dump({
+        return json.dumps({
             'num_doc': self._num_doc
         })
 

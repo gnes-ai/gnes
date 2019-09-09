@@ -106,7 +106,7 @@ class HBIndexer(BaseChunkIndexer):
     @property
     def get_indexer_info(self):
         import json
-        return json.dump({
+        return json.dumps({
             'num_chunks_total': sum(list(self._data_counter.values())),
             'num_chunks_per_doc': list(self._data_counter.values()),
             'num_doc': len(self._data_counter.keys())

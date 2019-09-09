@@ -85,7 +85,7 @@ class DirectoryIndexer(BaseDocIndexer):
 
     def get_indexer_info(self):
         import json
-        return json.dump({
+        return json.dumps({
             'num_doc': self._num_doc,
             'num_chunks_per_doc': self._num_chunks_per_doc
         })
