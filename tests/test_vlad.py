@@ -6,8 +6,8 @@ from gnes.encoder.numeric.vlad import VladEncoder
 
 class TestVladEncoder(unittest.TestCase):
     def setUp(self):
-        self.mock_train_data = np.random.random([200, 128])
-        self.mock_eval_data = np.random.random([2, 2, 128])
+        self.mock_train_data = np.random.random([1, 200, 128]).astype(np.float32)
+        self.mock_eval_data = np.random.random([2, 2, 128]).astype(np.float32)
         self.dump_path = os.path.join(os.path.dirname(__file__), 'vlad.bin')
 
     def tearDown(self):

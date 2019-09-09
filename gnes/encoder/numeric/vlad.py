@@ -14,8 +14,6 @@
 #  limitations under the License.
 
 
-import copy
-
 import numpy as np
 
 from ..base import BaseNumericEncoder
@@ -39,6 +37,11 @@ class VladEncoder(BaseNumericEncoder):
         kmeans = faiss.Kmeans(vecs.shape[1], self.num_clusters, niter=5, verbose=False)
         kmeans.train(vecs)
         self.centroids = kmeans.centroids
+        if self.using_faiss_pred:
+            self.faiss_index()
+
+    def faiss_index(self):
+        import faiss
         self.index_flat = faiss.IndexFlatL2(self.centroids.shape[1])
         self.index_flat.add(self.centroids)
 
@@ -53,10 +56,9 @@ class VladEncoder(BaseNumericEncoder):
 
     @batching
     def train(self, vecs: np.ndarray, *args, **kwargs):
+        vecs = vecs.reshape([-1, vecs.shape[-1]])
         assert len(vecs) > self.num_clusters, 'number of data should be larger than number of clusters'
-        vecs_ = copy.deepcopy(vecs)
-        vecs_ = np.concatenate((list(vecs_[i] for i in range(len(vecs_)))), axis=0)
-        self.kmeans_train(vecs_)
+        self.kmeans_train(vecs)
 
     @train_required
     @batching
@@ -79,7 +81,14 @@ class VladEncoder(BaseNumericEncoder):
         self.centroids = x.centroids
         self.using_faiss_pred = x.using_faiss_pred
         if self.using_faiss_pred:
-            import faiss
-            self.index_flat = faiss.IndexFlatL2(self.centroids.shape[1])
-            self.index_flat.add(self.centroids)
+            self.faiss_index()
 
+    def __setstate__(self, state):
+        super().__setstate__(state)
+        if self.using_faiss_pred:
+            self.faiss_index()
+
+    def __getstate__(self):
+        state = super().__getstate__()
+        del state['index_flat']
+        return state
