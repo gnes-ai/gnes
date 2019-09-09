@@ -18,9 +18,12 @@ class TestVladEncoder(unittest.TestCase):
         model = VladEncoder(20)
         model.train(self.mock_train_data)
         self.assertEqual(model.centroids.shape, (20, 128))
-        model.dump(self.dump_path)
-
-    def test_vlad_encode(self):
-        model = VladEncoder.load(self.dump_path)
         v = model.encode(self.mock_eval_data)
         self.assertEqual(v.shape, (2, 2560))
+
+    def test_vlad_dump_load(self):
+        model = VladEncoder(20)
+        model.train(self.mock_train_data)
+        model.dump(self.dump_path)
+        model_new = VladEncoder.load(self.dump_path)
+        self.assertEqual(model_new.centroids.shape, (20, 128))

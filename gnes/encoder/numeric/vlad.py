@@ -26,7 +26,7 @@ class VladEncoder(BaseNumericEncoder):
     batch_size = 2048
 
     def __init__(self, num_clusters: int,
-                 using_faiss_pred: True,
+                 using_faiss_pred: bool=True,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_clusters = num_clusters
