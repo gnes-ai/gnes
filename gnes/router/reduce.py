@@ -17,7 +17,7 @@ from typing import List
 import numpy as np
 
 from .base import BaseReduceRouter, BaseTopkReduceRouter, BaseEmbedReduceRouter
-from ..proto import gnes_pb2, blob2array
+from ..proto import blob2array
 
 
 class DocFillReducer(BaseReduceRouter):

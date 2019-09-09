@@ -117,8 +117,8 @@ class BaseEmbedReduceRouter(BaseReduceRouter):
             self.logger.error('dont know how to handle %s' % msg_type)
 
         super().apply(msg, accum_msgs)
-        
-        
+
+
 class PipelineRouter(CompositionalTrainableBase):
     def apply(self, *args, **kwargs) -> None:
         if not self.components:
