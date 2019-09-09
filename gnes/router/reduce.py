@@ -82,6 +82,7 @@ class ConcatEmbedRouter(BaseEmbedReduceRouter):
     """
     Gather all embeddings from multiple encoders and concat them on a specific axis.
     In default, concat will happen on the last axis.
+    chunk_idx, doc_idx denote index in for loop used in BaseEmbedReduceRouter
     """
 
     def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):
@@ -99,6 +100,7 @@ class AvgEmbedRouter(BaseEmbedReduceRouter):
     """
     Gather all embeddings from multiple encoders and do average on a specific axis.
     In default, average will happen on the first axis.
+    chunk_idx, doc_idx denote index in for loop used in BaseEmbedReduceRouter
     """
 
     def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):

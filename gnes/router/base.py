@@ -95,13 +95,15 @@ class BaseTopkReduceRouter(BaseReduceRouter):
 
 
 class BaseEmbedReduceRouter(BaseReduceRouter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def reduce_embedding(self, accum_msgs: List['gnes_pb2.Message'], msg_type: str, chunk_idx: int, doc_idx: int):
         raise NotImplementedError
 
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs) -> None:
+        """
+        reduce embeddings from encoders (means, concat ...)
+        :param msg: the current message
+        :param accum_msgs: accumulated messages
+        """
         body = getattr(msg, msg.WhichOneof('body'))
         msg_type = type(getattr(body, body.WhichOneof('body')))
         if msg_type == gnes_pb2.Request.QueryRequest:
