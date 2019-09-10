@@ -2,7 +2,6 @@ import os
 import unittest
 
 import numpy as np
-import json
 from gnes.indexer.chunk.faiss import FaissIndexer
 
 
@@ -24,9 +23,9 @@ class TestEUIndexer(unittest.TestCase):
     def test_add(self):
         fd = FaissIndexer(20, 'HNSW32', self.dump_path)
         fd.add(self.toy_label, self.toy_query, [1.] * len(self.toy_label))
-        self.assertEqual(json.loads(fd.get_indexer_info)['num_chunks_total'], self.toy_query.shape[0])
+        self.assertEqual(fd.num_chunks, self.toy_query.shape[0])
         fd.add(self.add_label, self.add_query, [1.] * len(self.add_label))
-        self.assertEqual(json.loads(fd.get_indexer_info)['num_chunks_total'],
+        self.assertEqual(fd.num_chunks,
                          self.toy_query.shape[0] + self.add_query.shape[0])
 
     def test_query(self):

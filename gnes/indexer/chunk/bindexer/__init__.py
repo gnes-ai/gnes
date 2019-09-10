@@ -40,7 +40,7 @@ class BIndexer(BaseChunkIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
         self.data_path = data_path
-        self._data_counter = defaultdict(int)
+        self._all_docs = []
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -63,10 +63,9 @@ class BIndexer(BaseChunkIndexer):
         if vectors.dtype != np.uint8:
             raise ValueError('vectors should be ndarray of uint8')
 
+        self._update_counter(keys)
         num_rows = len(keys)
         keys, offsets = zip(*keys)
-        for key in keys:
-            self._data_counter[key] += 1
         keys = np.array(keys, dtype=np.uint32).tobytes()
         offsets = np.array(offsets, dtype=np.uint16).tobytes()
         weights = self.float2uint_weight(weights).tobytes()
@@ -122,14 +121,26 @@ class BIndexer(BaseChunkIndexer):
                 result[q].append((i, o, self.uint2float_weight(w), d))
         return result
 
+    def _update_counter(self, keys: List[Tuple[int, Any]]):
+        self._update_docs(keys)
+        self._num_chunks += len(keys)
+
+    def _update_docs(self, keys: List[Tuple[int, Any]]):
+        for key in keys:
+            if key not in self._all_docs:
+                self._all_docs.append(key)
+
     @property
-    def get_indexer_info(self):
-        import json
-        return json.dumps({
-            'num_chunks_total': sum(list(self._data_counter.values())),
-            'num_chunks_per_doc': list(self._data_counter.values()),
-            'num_doc': len(self._data_counter.keys())
-        })
+    def num_doc(self):
+        return len(self._all_docs)
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / len(self._all_docs)
 
     def __getstate__(self):
         self.bindexer.save(self.data_path)

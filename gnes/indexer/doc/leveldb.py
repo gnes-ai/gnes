@@ -35,7 +35,6 @@ class LVDBIndexer(BaseDocIndexer):
         self.drop_raw_bytes = drop_raw_bytes
         self.drop_chunk_blob = drop_chunk_blob
         self._NOT_FOUND = None
-        self._num_doc = 0
 
     def post_init(self):
         import plyvel
@@ -67,12 +66,21 @@ class LVDBIndexer(BaseDocIndexer):
                 res.append(self._NOT_FOUND)
         return res
 
+    def _update_counter(self, docs: List['gnes_pb2.Document']):
+        self._num_doc += len(docs)
+        self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
+
     @property
-    def get_indexer_info(self):
-        import json
-        return json.dumps({
-            'num_doc': self._num_doc
-        })
+    def num_doc(self):
+        return self._num_doc
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / self._num_doc
 
     def close(self):
         super().close()

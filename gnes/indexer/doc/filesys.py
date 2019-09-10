@@ -34,8 +34,6 @@ class DirectoryIndexer(BaseDocIndexer):
         self.file_suffix = file_suffix
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
-        self._num_doc = 0
-        self._num_chunks_per_doc = []
 
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         """
@@ -48,7 +46,6 @@ class DirectoryIndexer(BaseDocIndexer):
             dirs = os.path.join(self.data_path, str(k))
             if not os.path.exists(dirs):
                 os.makedirs(dirs)
-                self._num_doc += 1
             # keep doc meta in .meta file
             with open(os.path.join(dirs, '.meta'), 'wb') as f:
                 f.write(d.meta_info or b'')
@@ -56,7 +53,7 @@ class DirectoryIndexer(BaseDocIndexer):
             for i, chunk in enumerate(d.chunks):
                 with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
-            self._num_chunks_per_doc.append(len(d.chunks))
+        self._update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """
@@ -83,11 +80,20 @@ class DirectoryIndexer(BaseDocIndexer):
                 res.append(doc)
         return res
 
-    def get_indexer_info(self):
-        import json
-        return json.dumps({
-            'num_doc': self._num_doc,
-            'num_chunks_per_doc': self._num_chunks_per_doc
-        })
+    def _update_counter(self, docs: List['gnes_pb2.Document']):
+        self._num_doc += len(docs)
+        self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
+
+    @property
+    def num_doc(self):
+        return self._num_doc
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / self._num_doc
 
 

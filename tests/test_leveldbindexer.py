@@ -1,7 +1,6 @@
 import os
 import unittest
 from shutil import rmtree
-import json
 
 from gnes.indexer.doc.dict import DictIndexer
 from gnes.indexer.doc.leveldb import LVDBIndexer
@@ -35,16 +34,16 @@ class TestBaseLVDB(unittest.TestCase):
         db = DictIndexer()
         db.add(range(len(self.test_docs)), self.test_docs)
         db.dump(self.dump_path)
-        self.assertEqual(len(self.test_docs), json.loads(db.get_indexer_info)['num_doc'])
+        self.assertEqual(len(self.test_docs), db.num_doc)
         db2 = DictIndexer.load(self.dump_path)
-        self.assertEqual(len(self.test_docs), json.loads(db2.get_indexer_info)['num_doc'])
+        self.assertEqual(len(self.test_docs), db2.num_doc)
         db.name = 'my-indexer-531'
         db.dump()
         db.dump_yaml()
         db3 = DictIndexer.load_yaml(db.yaml_full_path)
         for k in db3.query([1, 2, 3]):
             self.assertIsInstance(k, gnes_pb2.Document)
-        self.assertEqual(len(self.test_docs), json.loads(db3.get_indexer_info)['num_doc'])
+        self.assertEqual(len(self.test_docs), db3.num_doc)
 
     def test_add_docs(self):
         db = LVDBIndexer(self.db_path)

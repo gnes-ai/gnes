@@ -45,7 +45,7 @@ class AnnoyIndexer(BaseChunkIndexer):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
-        last_idx = self._key_info_indexer.size
+        last_idx = self._key_info_indexer.num_chunks
 
         if len(vectors) != len(keys):
             raise ValueError('vectors length should be equal to doc_ids')
@@ -69,18 +69,17 @@ class AnnoyIndexer(BaseChunkIndexer):
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
 
-    # @property
-    # def size(self):
-    #     return self._index.get_n_items()
+    @property
+    def num_chunks(self):
+        return self._key_info_indexer.num_chunks
 
     @property
-    def get_indexer_info(self):
-        import json
-        return json.dumps({
-            'num_chunks_total': self._key_info_indexer.size,
-            'num_chunks_per_doc': self._key_info_indexer.num_chunk_per_doc,
-            'num_doc': self._key_info_indexer.num_doc
-        })
+    def num_doc(self):
+        return self._key_info_indexer.num_doc
+
+    @property
+    def num_chunks_avg(self):
+        return self._key_info_indexer.num_chunks_avg
 
     def __getstate__(self):
         d = super().__getstate__()

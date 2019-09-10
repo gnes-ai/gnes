@@ -2,7 +2,6 @@ import os
 import unittest
 
 import numpy as np
-import json
 
 from gnes.indexer.chunk.annoy import AnnoyIndexer
 
@@ -21,7 +20,7 @@ class TestAnnoyIndexer(unittest.TestCase):
     def test_search(self):
         a = AnnoyIndexer(5, self.dump_path)
         a.add(list(zip(list(range(10)), list(range(10)))), self.toy_data, [1.] * 10)
-        self.assertEqual(json.loads(a.get_indexer_info)['num_chunks_total'], 10)
+        self.assertEqual(a.num_chunks, 10)
         top_1 = [i[0][0] for i in a.query(self.toy_data, top_k=1)]
         self.assertEqual(top_1, list(range(10)))
         a.close()
