@@ -51,13 +51,13 @@ class ListKeyIndexer(BaseKeyIndexer):
             raise ValueError('"keys" and "weights" must have the same length')
         self._int2key.extend(keys)
         self._int2key_weight.extend(weights)
-        self._update_counter(keys)
+        self.update_counter(keys)
         return len(self._int2key)
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         return [(*self._int2key[k], self._int2key_weight[k]) for k in keys]
 
-    def _update_counter(self, keys: List[Tuple[int, int]]):
+    def update_counter(self, keys: List[Tuple[int, int]]):
         self._update_docs(keys)
         self._num_chunks += len(keys)
 

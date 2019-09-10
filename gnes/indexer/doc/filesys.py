@@ -53,7 +53,7 @@ class DirectoryIndexer(BaseDocIndexer):
             for i, chunk in enumerate(d.chunks):
                 with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
-        self._update_counter(docs)
+        self.update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """
@@ -80,7 +80,7 @@ class DirectoryIndexer(BaseDocIndexer):
                 res.append(doc)
         return res
 
-    def _update_counter(self, docs: List['gnes_pb2.Document']):
+    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
         self._num_doc += len(docs)
         self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
 

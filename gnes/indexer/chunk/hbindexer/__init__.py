@@ -60,7 +60,7 @@ class HBIndexer(BaseChunkIndexer):
         if vectors.dtype != np.uint32:
             raise ValueError("vectors should be ndarray of uint32")
 
-        self._update_counter(keys)
+        self.update_counter(keys)
         n = len(keys)
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
@@ -102,7 +102,7 @@ class HBIndexer(BaseChunkIndexer):
 
         return [list(ret.items()) for ret in result]
 
-    def _update_counter(self, keys: List[Tuple[int, Any]]):
+    def update_counter(self, keys: List[Tuple[int, Any]], *args, **kwargs):
         self._update_docs(keys)
         self._num_chunks += len(keys)
 

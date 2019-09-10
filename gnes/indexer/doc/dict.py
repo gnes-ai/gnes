@@ -29,12 +29,12 @@ class DictIndexer(BaseDocIndexer):
 
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         self._content.update({k: MessageToJson(d) for (k, d) in zip(keys, docs)})
-        self._update_counter(docs)
+        self.update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         return [Parse(self._content[k], gnes_pb2.Document()) for k in keys]
 
-    def _update_counter(self, docs: List['gnes_pb2.Document']):
+    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
         self._num_doc += len(docs)
         self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
 
