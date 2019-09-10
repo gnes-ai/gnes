@@ -25,7 +25,8 @@ from .helper import _check_input, run_command
 def capture_frames(input_fn: str = 'pipe:',
                    input_data: bytes = None,
                    fps: int = None,
-                   pix_fmt: str = 'rgb24') -> 'np.ndarray':
+                   pix_fmt: str = 'rgb24',
+                   vframes: int = -1) -> 'np.ndarray':
     _check_input(input_fn, input_data)
 
 
@@ -41,6 +42,8 @@ def capture_frames(input_fn: str = 'pipe:',
             video_filters += ['fps=%d' % fps]
 
         output_kwargs = {'format': 'rawvideo', 'pix_fmt': pix_fmt}
+        if vframes > 0:
+            output_kwargs['vframes'] = vframes
 
         cmd_args = compile_args(
             input_fn=input_fn,

@@ -139,6 +139,7 @@ def capture_frames(input_fn: str = 'pipe:',
                    scale: str = None,
                    start_time: float = None,
                    end_time: float = None,
+                   vframes: int = -1,
                    **kwargs) -> List['np.ndarray']:
     _check_input(input_fn, input_data)
 
@@ -199,6 +200,8 @@ def capture_frames(input_fn: str = 'pipe:',
             'vcodec': 'rawvideo',
             'movflags': 'faststart',
         }
+        if vframes > 0:
+            output_kwargs['vframes'] = vframes
 
         cmd_args = compile_args(
             input_fn=input_fn,

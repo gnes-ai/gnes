@@ -32,6 +32,8 @@ class TestFFmpeg(unittest.TestCase):
 
     def test_capture_frames(self):
         frames1 = video.capture_frames(input_fn=self.video_path, fps=10, scale='640:-2')
+        sub_frames = video.capture_frames(input_fn=self.video_path, fps=10, scale='640:-2', vframes=5)
+        self.assertEqual((sub_frames == frames1[:5]).all(), True)
 
         with open(self.video_path, 'rb') as f:
             data = f.read()
@@ -54,7 +56,9 @@ class TestFFmpeg(unittest.TestCase):
     def test_gif_encode(self):
         gif_data = gif.encode_video(images=self.frames, frame_rate=10)
         frames = gif.capture_frames(input_data=gif_data)
+        sub_frames = gif.capture_frames(input_data=gif_data, vframes=5)
         self.assertEqual(self.frames.shape, frames.shape)
+        self.assertEqual((sub_frames == frames[:5]).all(), True)
 
     def test_capture_audio(self):
         audio_data1 = audio.capture_audio(input_fn=self.video_path)
