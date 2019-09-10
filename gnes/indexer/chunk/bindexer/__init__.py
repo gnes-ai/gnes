@@ -127,8 +127,8 @@ class BIndexer(BaseChunkIndexer):
 
     def _update_docs(self, keys: List[Tuple[int, Any]]):
         for key in keys:
-            if key not in self._all_docs:
-                self._all_docs.append(key)
+            if key[0] not in self._all_docs:
+                self._all_docs.append(key[0])
 
     @property
     def num_doc(self):

@@ -24,7 +24,7 @@ class TestProto(unittest.TestCase):
 
     def _test_any(self, cls):
         a = cls()
-        self.assertEqual(a.size, 0)
+        self.assertEqual(a.num_chunks, 0)
         a.add(self.key_offset, self.weights)
         self.assertEqual(a.size, self.num_sample)
 
