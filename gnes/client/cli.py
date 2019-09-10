@@ -23,10 +23,10 @@ from typing import List
 from termcolor import colored
 
 from ..proto import RequestGenerator
-from .grpc import StreamingSyncClient
+from .grpc import StreamingClient
 
 
-class CLIClient(StreamingSyncClient):
+class CLIClient(StreamingClient):
     def __init__(self, args):
         super().__init__(args)
         self.start()
