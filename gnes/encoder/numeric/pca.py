@@ -48,7 +48,7 @@ class PCAEncoder(BaseNumericEncoder):
         self.pca.partial_fit(vecs)
 
         self.pca_components = np.transpose(self.pca.components_)
-        self.mean = self.pca.mean_
+        self.mean = self.pca.mean_.astype('float32')
 
     @train_required
     @batching
