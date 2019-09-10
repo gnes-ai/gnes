@@ -66,3 +66,15 @@ class NumpyIndexer(BaseChunkIndexer):
             chunk_info = self._key_info_indexer.query([j[0] for j in rk])
             ret.append([(*r, s) for r, s in zip(chunk_info, [j[1] for j in rk])])
         return ret
+
+    @property
+    def num_chunks(self):
+        return self._key_info_indexer.num_chunks
+
+    @property
+    def num_doc(self):
+        return self._key_info_indexer.num_doc
+
+    @property
+    def num_chunks_avg(self):
+        return self._key_info_indexer.num_chunks_avg

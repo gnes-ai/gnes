@@ -51,6 +51,7 @@ class LVDBIndexer(BaseDocIndexer):
                         c.ClearField('blob')
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
+            self.update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         res = []
@@ -64,6 +65,22 @@ class LVDBIndexer(BaseDocIndexer):
             elif self.keep_na_doc:
                 res.append(self._NOT_FOUND)
         return res
+
+    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
+        self._num_doc += len(docs)
+        self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
+
+    @property
+    def num_doc(self):
+        return self._num_doc
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / self._num_doc
 
     def close(self):
         super().close()

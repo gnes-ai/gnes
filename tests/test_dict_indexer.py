@@ -67,7 +67,7 @@ class TestDictIndexer(unittest.TestCase):
                 print(r)
 
         bi = BaseIndexer.load('dummy_dict_indexer.bin')
-        self.assertEqual(bi.size, 26)
+        self.assertEqual(bi.num_doc, 26)
         print(bi.query([0]))
 
     def tearDown(self):

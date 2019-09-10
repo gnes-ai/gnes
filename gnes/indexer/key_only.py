@@ -35,7 +35,7 @@ class DictKeyIndexer(BaseKeyIndexer):
         return [(k, *self._key_info[k]) for k in keys]
 
     @property
-    def size(self):
+    def num_chunks(self):
         return len(self._key_info)
 
 
@@ -44,20 +44,50 @@ class ListKeyIndexer(BaseKeyIndexer):
         super().__init__(*args, **kwargs)
         self._int2key = []  # type: List[Tuple[int, int]]
         self._int2key_weight = []  # type: List[float]
+        self._all_docs = []
 
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         if len(keys) != len(weights):
             raise ValueError('"keys" and "weights" must have the same length')
         self._int2key.extend(keys)
         self._int2key_weight.extend(weights)
+        self.update_counter(keys)
         return len(self._int2key)
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         return [(*self._int2key[k], self._int2key_weight[k]) for k in keys]
 
+    def update_counter(self, keys: List[Tuple[int, int]]):
+        self._update_docs(keys)
+        self._num_chunks += len(keys)
+
+    def _update_docs(self, keys: List[Tuple[int, int]]):
+        for key in keys:
+            if key[0] not in self._all_docs:
+                self._all_docs.append(key[0])
+
     @property
-    def size(self):
+    def num_chunks(self):
         return len(self._int2key)
+
+    @property
+    def num_doc(self):
+        return len(self._all_docs)
+
+    @property
+    def num_chunks_avg(self):
+        return len(self._int2key) / len(self._all_docs)
+
+    # @property
+    # def num_chunk_per_doc(self):
+    #     from collections import defaultdict
+    #     from itertools import groupby
+    #
+    #     res = defaultdict(int)
+    #
+    #     for key, value in groupby(self._int2key, key=lambda x: x[0]):
+    #         res[key] = len(list(v for v in value))
+    #     return res
 
 
 class ListNumpyKeyIndexer(ListKeyIndexer):
@@ -116,7 +146,7 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         return [(*ko, w) for ko, w in zip(key_offset, weights)]
 
     @property
-    def size(self):
+    def num_chunks(self):
         return self._size
 
     @property

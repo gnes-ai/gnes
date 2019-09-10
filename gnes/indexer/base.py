@@ -37,6 +37,8 @@ class BaseIndexer(TrainableBase):
         self.normalize_fn = normalize_fn
         self.score_fn = score_fn
         self.is_big_score_similar = is_big_score_similar
+        self._num_doc = 0
+        self._num_chunks = 0
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
@@ -47,6 +49,9 @@ class BaseIndexer(TrainableBase):
     def query_and_score(self, q_chunks: List[Union['gnes_pb2.Chunk', 'gnes_pb2.Document']], top_k: int) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
         raise NotImplementedError
+
+    def update_counter(self, *args, **kwargs):
+        pass
 
 
 class BaseChunkIndexer(BaseIndexer):
@@ -82,6 +87,9 @@ class BaseChunkIndexer(BaseIndexer):
                 results.append(r)
         return results
 
+    def update_counter(self, keys: List[Tuple[int, int]], *args, **kwargs):
+        pass
+
 
 class BaseDocIndexer(BaseIndexer):
 
@@ -104,6 +112,9 @@ class BaseDocIndexer(BaseIndexer):
                 r.score.CopyFrom(_score)
             results.append(r)
         return results
+
+    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
+        pass
 
 
 class BaseKeyIndexer(BaseIndexer):

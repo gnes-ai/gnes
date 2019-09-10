@@ -24,9 +24,9 @@ class TestEUIndexer(unittest.TestCase):
     def test_add(self):
         fd = FaissIndexer(20, 'HNSW32', self.dump_path)
         fd.add(self.toy_label, self.toy_query, [1.] * len(self.toy_label))
-        self.assertEqual(fd.size, self.toy_query.shape[0])
+        self.assertEqual(fd.num_chunks, self.toy_query.shape[0])
         fd.add(self.add_label, self.add_query, [1.] * len(self.add_label))
-        self.assertEqual(fd.size,
+        self.assertEqual(fd.num_chunks,
                          self.toy_query.shape[0] + self.add_query.shape[0])
 
     def test_query(self):
