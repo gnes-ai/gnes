@@ -32,6 +32,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                  distance_metric: str = 'bhattacharya',
                  detect_method: str = 'threshold',
                  frame_rate: int = 10,
+                 frame_num: int = -1,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,6 +41,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
         self.distance_metric = distance_metric
         self.detect_method = detect_method
         self.frame_rate = frame_rate
+        self.frame_num = frame_num
         self._detector_kwargs = kwargs
 
     def detect_shots(self, frames: 'np.ndarray') -> List[List['np.ndarray']]:
@@ -73,7 +75,8 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             all_frames = video_util.capture_frames(
                 input_data=doc.raw_bytes,
                 scale=self.frame_size,
-                fps=self.frame_rate)
+                fps=self.frame_rate,
+                vframes=self.frame_num)
             num_frames = len(all_frames)
             assert num_frames > 0
             shots = self.detect_shots(all_frames)
