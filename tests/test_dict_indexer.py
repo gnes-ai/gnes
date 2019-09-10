@@ -87,6 +87,7 @@ class TestDictIndexer(unittest.TestCase):
         preprocess.apply(self.d)
 
         self.db.add(list(range(len(self.video_bytes))), [self.d])
+        self.assertEqual(self.db.num_doc, len(self.video_bytes))
 
     def test_add_docs(self):
         # self.init_db()

@@ -25,18 +25,32 @@ class DictKeyIndexer(BaseKeyIndexer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._key_info = {}
+        self._all_docs = []
 
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         for (k, o), w in zip(keys, weights):
             self._key_info[k] = o, w
+        self.update_counter(keys)
         return len(self._key_info)
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         return [(k, *self._key_info[k]) for k in keys]
 
+    def update_counter(self, keys: List[Tuple[int, int]]):
+        self._num_doc = len(self._key_info)
+        self._num_chunks += len(keys)
+
     @property
     def num_chunks(self):
-        return len(self._key_info)
+        return self._num_chunks
+
+    @property
+    def num_doc(self):
+        return self._num_doc
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_doc / len(self._key_info)
 
 
 class ListKeyIndexer(BaseKeyIndexer):
@@ -63,20 +77,19 @@ class ListKeyIndexer(BaseKeyIndexer):
 
     def _update_docs(self, keys: List[Tuple[int, int]]):
         for key in keys:
-            if key[0] not in self._all_docs:
-                self._all_docs.append(key[0])
+            self._all_docs.append(key[0])
 
     @property
     def num_chunks(self):
-        return len(self._int2key)
+        return self._num_chunks
 
     @property
     def num_doc(self):
-        return len(self._all_docs)
+        return len(set(self._all_docs))
 
     @property
     def num_chunks_avg(self):
-        return len(self._int2key) / len(self._all_docs)
+        return self._num_chunks / len(set(self._all_docs))
 
     # @property
     # def num_chunk_per_doc(self):
@@ -96,6 +109,7 @@ class ListNumpyKeyIndexer(ListKeyIndexer):
         self._data_updated = False
         self._np_int2key = None
         self._np_int2key_weight = None
+        self._all_docs = []
 
     def _build_np_buffer(self):
         if self._data_updated or not self._np_int2key or not self._np_int2key_weight:
@@ -127,6 +141,7 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         self._col_size = col_size
         self._size = 0
         self._max_size = self._buffer_size
+        self._all_docs = []
 
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         l = len(keys)
@@ -138,6 +153,7 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         self._int2key_info[self._size:(self._size + l), 0:(self._col_size - 1)] = np.array(keys)
         self._int2key_info[self._size:(self._size + l), self._col_size - 1] = np.array(weights)
         self._size += l
+        self.update_counter(keys)
         return self._size
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
@@ -145,9 +161,25 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         weights = self._int2key_info[keys, self._col_size - 1].astype(float).tolist()
         return [(*ko, w) for ko, w in zip(key_offset, weights)]
 
+    def update_counter(self, keys: List[Tuple[int, int]]):
+        self._update_docs(keys)
+        self._num_chunks += len(keys)
+
+    def _update_docs(self, keys: List[Tuple[int, int]]):
+        for key in keys:
+            self._all_docs.append(key[0])
+
     @property
     def num_chunks(self):
-        return self._size
+        return self._num_chunks
+
+    @property
+    def num_doc(self):
+        return len(set(self._all_docs))
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / len(set(self._all_docs))
 
     @property
     def capacity(self):

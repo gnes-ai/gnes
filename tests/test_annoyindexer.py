@@ -21,6 +21,8 @@ class TestAnnoyIndexer(unittest.TestCase):
         a = AnnoyIndexer(5, self.dump_path)
         a.add(list(zip(list(range(10)), list(range(10)))), self.toy_data, [1.] * 10)
         self.assertEqual(a.num_chunks, 10)
+        self.assertEqual(a.num_doc, 10)
+        self.assertEqual(a.num_chunks_avg, 1)
         top_1 = [i[0][0] for i in a.query(self.toy_data, top_k=1)]
         self.assertEqual(top_1, list(range(10)))
         a.close()
