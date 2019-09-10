@@ -26,7 +26,7 @@ class TestProto(unittest.TestCase):
         a = cls()
         self.assertEqual(a.num_chunks, 0)
         a.add(self.key_offset, self.weights)
-        self.assertEqual(a.size, self.num_sample)
+        self.assertEqual(a.num_chunks, self.num_sample)
 
         res1 = a.query(self.query)
         res2 = [(*self.key_offset[q], self.weights[q]) for q in self.query]
