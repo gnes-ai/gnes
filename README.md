@@ -258,7 +258,7 @@ For the impatient, we present a complete demo using GNES that enables semantic i
 Please checkout [this repository for details](https://github.com/gnes-ai/demo-poems-ir) and follow the instructions to reproduce.
 
 <p align="center">
-<a href="https://gnes.ai">
+<a href="https://github.com/gnes-ai/demo-poems-ir">
 <img src=".github/demo-poem-index.svg" alt="query">
 </a>
 </p>
