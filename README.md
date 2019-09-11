@@ -220,6 +220,8 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
 - [🐣 Preliminaries](#-preliminaries)
   * [Microservice](#microservice)
   * [Runtime](#runtime)
+- [Demo for the impatient](#demo-for-the-impatient)
+  * [Semantic poem search in 3-minutes or less](#building-a-semantic-poem-search-engine-in-3-minutes-or-less)
 - [Build your first GNES app on local machine](#build-your-first-gnes-app-on-local-machine)
 - [Scale your GNES app to the cloud](#scale-your-gnes-app-to-the-cloud)
 - [Customize GNES on your need](#customize-gnes-to-your-need)
@@ -246,6 +248,20 @@ In GNES, we have implemented dozens of preprocessor, encoder, indexer to process
 Okay, now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three tasks: indexing, querying and training are what we call three **runtimes** in GNES.
 
 💡 The key to understand GNES is to know *which runtime requires what microservices, and each microservice does what*.
+
+### Demo for the impatient
+
+#### Building a semantic poem search engine in 3-minutes or less
+
+For the impatient, we present a complete demo using GNES that enables semantic index and query on poems.
+
+Please checkout [this repository for details](https://github.com/gnes-ai/demo-poems-ir) and follow the instructions to reproduce.
+
+<p align="center">
+<a href="https://github.com/gnes-ai/demo-poems-ir">
+<img src=".github/demo-poem-index.svg" alt="query">
+</a>
+</p>
 
 ### Build your first GNES app on local machine
 
