@@ -23,7 +23,7 @@ from typing import List
 from termcolor import colored
 
 from .base import GrpcClient
-from ..proto import RequestGenerator
+from ..proto import RequestGenerator, gnes_pb2
 
 
 class CLIClient(GrpcClient):
@@ -50,9 +50,19 @@ class CLIClient(GrpcClient):
         for idx, q in enumerate(all_bytes):
             for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
                 resp = self._stub.Call(req)
-                print(resp)
-                print('query %d result: %s' % (idx, resp))
-                input('press any key to continue...')
+                self.query_callback(resp, req)
+
+    @staticmethod
+    def query_callback(resp: 'gnes_pb2.Response', query: 'gnes_pb2.Request'):
+        """
+        callback after get the query result
+        override this method to customize query behavior
+        :param resp: response
+        :param query: query
+        :return:
+        """
+        print(query)
+        print(resp)
 
     def read_all(self) -> List[bytes]:
         if self.args.txt_file:
