@@ -22,30 +22,31 @@ from typing import List
 
 from termcolor import colored
 
+from .base import GrpcClient
 from ..proto import RequestGenerator
-from .grpc import StreamingClient
 
 
-class CLIClient(StreamingClient):
+class CLIClient(GrpcClient):
     def __init__(self, args):
         super().__init__(args)
-        self.start()
-        getattr(self, self.args.mode)(all_bytes)
-        self.stop()
+        getattr(self, self.args.mode)(self.read_all())
+        self.close()
 
-    def train(self, all_bytes: List[bytes], stub):
+    def train(self, all_bytes: List[bytes]):
         with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
-            for req in RequestGenerator.train(all_bytes, doc_id_start=self.args.start_doc_id, batch_size=self.args.batch_size):
-                self.send_request(req)
+            for _ in self._stub.StreamCall(RequestGenerator.train(all_bytes,
+                                                                  doc_id_start=self.args.start_doc_id,
+                                                                  batch_size=self.args.batch_size)):
                 p_bar.update()
 
-    def index(self, all_bytes: List[bytes], stub):
+    def index(self, all_bytes: List[bytes]):
         with ProgressBar(all_bytes, self.args.batch_size, task_name=self.args.mode) as p_bar:
-            for req in RequestGenerator.index(all_bytes, doc_id_start=self.args.start_doc_id, batch_size=self.args.batch_size):
-                self.send_request(req)
+            for _ in self._stub.StreamCall(RequestGenerator.index(all_bytes,
+                                                                  doc_id_start=self.args.start_doc_id,
+                                                                  batch_size=self.args.batch_size)):
                 p_bar.update()
 
-    def query(self, all_bytes: List[bytes], stub):
+    def query(self, all_bytes: List[bytes]):
         for idx, q in enumerate(all_bytes):
             for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
                 resp = self._stub.Call(req)

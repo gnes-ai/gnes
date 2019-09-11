@@ -14,10 +14,12 @@
 #  limitations under the License.
 
 
+import grpc
 import zmq
 from termcolor import colored
 
 from ..helper import set_logger
+from ..proto import gnes_pb2_grpc
 from ..proto import send_message, gnes_pb2, recv_message
 from ..service.base import build_socket
 
@@ -58,3 +60,33 @@ class ZmqClient:
         r = recv_message(self.receiver, timeout=timeout, check_version=self.args.check_version)
         self.logger.info('recv a message: %s' % r.envelope)
         return r
+
+
+class GrpcClient:
+
+    def __init__(self, args):
+        self.args = args
+        self.logger = set_logger(self.__class__.__name__, self.args.verbose)
+
+        self._channel = grpc.insecure_channel(
+            '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
+            options={
+                'grpc.max_send_message_length': -1,
+                'grpc.max_receive_message_length': -1,
+            }.items(),
+        )
+        grpc.channel_ready_future(self._channel).result()
+        self.stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
+
+    def send_request(self, request):
+        raise NotImplementedError
+
+    def close(self):
+        self._channel.close()
+        self._stub = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
