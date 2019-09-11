@@ -50,18 +50,17 @@ class CLIClient(GrpcClient):
         for idx, q in enumerate(all_bytes):
             for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
                 resp = self._stub.Call(req)
-                self.query_callback(resp, req)
+                self.query_callback(req, resp)
 
-    @staticmethod
-    def query_callback(resp: 'gnes_pb2.Response', query: 'gnes_pb2.Request'):
+    def query_callback(self, req: 'gnes_pb2.Request', resp: 'gnes_pb2.Response'):
         """
         callback after get the query result
         override this method to customize query behavior
         :param resp: response
-        :param query: query
+        :param req: query
         :return:
         """
-        print(query)
+        print(req)
         print(resp)
 
     def read_all(self) -> List[bytes]:
