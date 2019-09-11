@@ -1,4 +1,51 @@
 
+# Release Note (`v0.0.39`)
+> Release time: 2019-09-11 17:22:11
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  Jem,  raccoonliukai,  Larry Yan,  🙇
+
+
+### 🆕 New Features
+
+ - [[```fdb53a09```](https://github.com/gnes-ai/gnes/commit/fdb53a09ad1b9d15beba93813d1e59e6f9722d49)] __-__ __client__: add status logging (*hanhxiao*)
+ - [[```621c06b3```](https://github.com/gnes-ai/gnes/commit/621c06b326f4ca5ff2df2ec6cef0176aa5dc8ab2)] __-__ __client__: abstract query_callback (*hanhxiao*)
+ - [[```2c2a4d83```](https://github.com/gnes-ai/gnes/commit/2c2a4d8327e83dfbe992ada17add8f1d820e2f93)] __-__ __indexer__: add indexer info (*Jem*)
+ - [[```cfe97aab```](https://github.com/gnes-ai/gnes/commit/cfe97aab65743c8027e6abf5a418b9c79a6318fc)] __-__ __proto__: add version info to proto (*hanhxiao*)
+ - [[```f1a187c1```](https://github.com/gnes-ai/gnes/commit/f1a187c1ffd0a8b9273052f45b97afc20ebbe3d1)] __-__ __proto__: versioning protobuf and validating in recv_message (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```31c796d3```](https://github.com/gnes-ai/gnes/commit/31c796d3f09216ce6643e533041f65e355d725cf)] __-__ __client__: fix weights in helper indexer (*hanhxiao*)
+ - [[```21c3a8a9```](https://github.com/gnes-ai/gnes/commit/21c3a8a926165cbda667611557fba072e0db58c4)] __-__ __client__: rename stub to _stub (*hanhxiao*)
+ - [[```235d901a```](https://github.com/gnes-ai/gnes/commit/235d901a6eeaae5cd7d1f3d9e9148dded5c13169)] __-__ __parser__: add max_concurrency to client (*hanhxiao*)
+ - [[```c988b327```](https://github.com/gnes-ai/gnes/commit/c988b327aa11c6156ae4f7301ed3b2de8af4b898)] __-__ __client__: fix sync client (*hanhxiao*)
+ - [[```54a252e5```](https://github.com/gnes-ai/gnes/commit/54a252e5ec6fa8c408f1d2103d28bbde4ef6ad30)] __-__ __indexer__: add helper indexer to registeration (*hanhxiao*)
+ - [[```a1aed8f4```](https://github.com/gnes-ai/gnes/commit/a1aed8f40e5b83b1e3257f5645e9fe18cc2e9841)] __-__ __client__: use StreamingClient as the parent class of CLIClient (*raccoonliukai*)
+ - [[```a5999828```](https://github.com/gnes-ai/gnes/commit/a5999828297494a1bb0644718de373bb915eeb14)] __-__ __preprocessor__: add vframe(frame_num) for video and gif frames capture (*raccoonliukai*)
+ - [[```8357754a```](https://github.com/gnes-ai/gnes/commit/8357754abe143c8073196c70f561911a462db395)] __-__ __encoder__: fix PCAEncoder mean from fp64 to fp32 (*raccoonliukai*)
+ - [[```654a5ba4```](https://github.com/gnes-ai/gnes/commit/654a5ba40a30ef51d57ab6ff0942c77d68d5a102)] __-__ __encoder__: fix vlad to speed up centroids calculation (*Larry Yan*)
+ - [[```814b2ee6```](https://github.com/gnes-ai/gnes/commit/814b2ee6a8d2cf8c3b436c02c15176ca227233dc)] __-__ __encoder__: fix vald encocer (*Larry Yan*)
+ - [[```ffc822b3```](https://github.com/gnes-ai/gnes/commit/ffc822b39e39dad05fbfa84f28a4844a31d3e785)] __-__ __encoder__: fix vlad unittest (*Larry Yan*)
+ - [[```ddf13ff1```](https://github.com/gnes-ai/gnes/commit/ddf13ff1ecf014599a32031e2071f0b57336fe55)] __-__ __encoder__: fix bug in vlad encoder (*Larry Yan*)
+ - [[```1ba4e11c```](https://github.com/gnes-ai/gnes/commit/1ba4e11cb7f18b97cb35faed61b7d82fb512cd84)] __-__ __encoder__: fix vald encoder and add unittest (*Larry Yan*)
+ - [[```f8e18d06```](https://github.com/gnes-ai/gnes/commit/f8e18d067722a9454e13a978cf7be41ea7241ed3)] __-__ __encoder__: fix vald in numeric encoder (*Larry Yan*)
+ - [[```fbfa1e47```](https://github.com/gnes-ai/gnes/commit/fbfa1e4746b42a75f807d5e691249048ccf4e732)] __-__ __transformer__: add model eval (*Jem*)
+
+### 🚧 Code Refactoring
+
+ - [[```421e21f7```](https://github.com/gnes-ai/gnes/commit/421e21f7844b74d53f346e01a86562656fb969e5)] __-__ __indexer__: add counter and move key_only to chunk helper (*hanhxiao*)
+ - [[```2a3f1210```](https://github.com/gnes-ai/gnes/commit/2a3f1210b49f26ccb8ac28b707308483d29f1a0f)] __-__ __router__: refactor base embed reduce router (*Jem*)
+
+### 📗 Documentation
+
+ - [[```d4f59211```](https://github.com/gnes-ai/gnes/commit/d4f592117959165678c86f36152b73fa8651db57)] __-__ update component overview (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```ded79bee```](https://github.com/gnes-ai/gnes/commit/ded79beeccab38fba3f7f33d019dc9a18e6f0af9)] __-__ __changelog__: update change log to v0.0.38 (*hanhxiao*)
+
 # Release Note (`v0.0.38`)
 > Release time: 2019-09-06 17:25:48
 
