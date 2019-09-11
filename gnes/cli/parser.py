@@ -279,7 +279,7 @@ def set_frontend_parser(parser=None):
                         socket_out=SocketType.PUSH_BIND,
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
-                        help='maximum concurrent client allowed')
+                        help='maximum concurrent connections allowed')
     return parser
 
 
@@ -288,9 +288,6 @@ def set_client_cli_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
-
-    parser.add_argument('--max_concurrency', type=int, default=10,
-                        help='maximum concurrent client allowed')
 
     group = parser.add_mutually_exclusive_group()
 
@@ -313,6 +310,8 @@ def set_client_cli_parser(parser=None):
     parser.add_argument('--start_doc_id', type=int,
                         default=0,
                         help='the start number of doc id')
+    parser.add_argument('--max_concurrency', type=int, default=10,
+                        help='maximum concurrent connections allowed')
     return parser
 
 
