@@ -288,6 +288,10 @@ def set_client_cli_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_grpc_parser(parser)
+
+    parser.add_argument('--max_concurrency', type=int, default=10,
+                        help='maximum concurrent client allowed')
+
     group = parser.add_mutually_exclusive_group()
 
     group.add_argument('--txt_file', type=argparse.FileType('r'),
