@@ -33,7 +33,7 @@ PipelineEncoder = encoder_base.PipelineEncoder
 BaseChunkIndexer = indexer_base.BaseChunkIndexer
 BaseIndexer = indexer_base.BaseIndexer
 BaseDocIndexer = indexer_base.BaseDocIndexer
-BaseKeyIndexer = indexer_base.BaseKeyIndexer
+BaseKeyIndexer = indexer_base.BaseChunkIndexerHelper
 JointIndexer = indexer_base.JointIndexer
 
 # Preprocessor

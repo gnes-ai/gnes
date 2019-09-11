@@ -18,11 +18,11 @@ import pickle
 from threading import Thread, Event
 from typing import List, Any
 
-from ..base import BaseDocIndexer
+from ..base import BaseDocIndexer as BDI
 from ...proto import gnes_pb2
 
 
-class LVDBIndexer(BaseDocIndexer):
+class LVDBIndexer(BDI):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,
@@ -40,6 +40,7 @@ class LVDBIndexer(BaseDocIndexer):
         import plyvel
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
+    @BDI.update_counter
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         with self._db.write_batch() as wb:
             for k, d in zip(keys, docs):
@@ -51,7 +52,6 @@ class LVDBIndexer(BaseDocIndexer):
                         c.ClearField('blob')
                 doc = d.SerializeToString()
                 wb.put(doc_id, doc)
-            self.update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         res = []

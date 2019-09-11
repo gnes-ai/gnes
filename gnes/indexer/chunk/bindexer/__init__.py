@@ -20,10 +20,11 @@ from typing import List, Tuple, Any
 import numpy as np
 
 from .cython import IndexCore
-from ...base import BaseChunkIndexer
+from ..helper import ListKeyIndexer
+from ...base import BaseChunkIndexer as BCI
 
 
-class BIndexer(BaseChunkIndexer):
+class BIndexer(BCI):
 
     def __init__(self,
                  num_bytes: int = None,
@@ -39,7 +40,7 @@ class BIndexer(BaseChunkIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
         self.data_path = data_path
-        self._all_docs = []
+        self.helper_indexer = ListKeyIndexer()
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -54,6 +55,7 @@ class BIndexer(BaseChunkIndexer):
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) != len(keys):
@@ -62,7 +64,6 @@ class BIndexer(BaseChunkIndexer):
         if vectors.dtype != np.uint8:
             raise ValueError('vectors should be ndarray of uint8')
 
-        self.update_counter(keys)
         num_rows = len(keys)
         keys, offsets = zip(*keys)
         keys = np.array(keys, dtype=np.uint32).tobytes()
@@ -119,27 +120,6 @@ class BIndexer(BaseChunkIndexer):
             for (i, o, w, d, q) in zip(doc_ids, offsets, weights, dists, q_idx):
                 result[q].append((i, o, self.uint2float_weight(w), d))
         return result
-
-    def update_counter(self, keys: List[Tuple[int, Any]], *args, **kwargs):
-        self._update_docs(keys)
-        self._num_chunks += len(keys)
-
-    def _update_docs(self, keys: List[Tuple[int, Any]]):
-        for key in keys:
-            if key[0] not in self._all_docs:
-                self._all_docs.append(key[0])
-
-    @property
-    def num_doc(self):
-        return len(self._all_docs)
-
-    @property
-    def num_chunks(self):
-        return self._num_chunks
-
-    @property
-    def num_chunks_avg(self):
-        return self._num_chunks / len(self._all_docs)
 
     def __getstate__(self):
         self.bindexer.save(self.data_path)

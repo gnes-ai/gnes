@@ -12,6 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from functools import wraps
 from typing import List, Any, Union, Callable, Tuple
 
 import numpy as np
@@ -37,7 +38,7 @@ class BaseIndexer(TrainableBase):
         self.normalize_fn = normalize_fn
         self.score_fn = score_fn
         self.is_big_score_similar = is_big_score_similar
-        self._num_doc = 0
+        self._num_docs = 0
         self._num_chunks = 0
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
@@ -50,13 +51,29 @@ class BaseIndexer(TrainableBase):
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
         raise NotImplementedError
 
-    def update_counter(self, *args, **kwargs):
-        pass
+    @property
+    def num_docs(self):
+        return self._num_docs
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
 
 
 class BaseChunkIndexer(BaseIndexer):
+    """Storing chunks and their vector representations """
+
+    def __init__(self, helper_indexer: 'BaseChunkIndexerHelper' = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper_indexer = helper_indexer
 
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
+        """
+        adding new chunks and their vector representations
+        :param keys: list of (doc_id, offset) tuple
+        :param vectors: vector representations
+        :param weights: weight of the chunks
+        """
         pass
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
@@ -87,13 +104,52 @@ class BaseChunkIndexer(BaseIndexer):
                 results.append(r)
         return results
 
-    def update_counter(self, keys: List[Tuple[int, int]], *args, **kwargs):
-        pass
+    @staticmethod
+    def update_counter(func):
+        @wraps(func)
+        def arg_wrapper(self, keys: List[Tuple[int, int]], *args, **kwargs):
+            doc_ids, _ = zip(*keys)
+            self._num_docs += len(set(doc_ids))
+            self._num_chunks += len(keys)
+            return func(self, keys, *args, **kwargs)
+
+        return arg_wrapper
+
+    @staticmethod
+    def update_helper_indexer(func):
+        @wraps(func)
+        def arg_wrapper(self, keys: List[Tuple[int, int]], *args, **kwargs):
+            r = func(self, keys, *args, **kwargs)
+            if self.helper_indexer:
+                self.helper_indexer.add(keys, *args, **kwargs)
+            return r
+
+        return arg_wrapper
+
+    @property
+    def num_docs(self):
+        if self.helper_indexer:
+            return self.helper_indexer._num_docs
+        else:
+            return self._num_docs
+
+    @property
+    def num_chunks(self):
+        if self.helper_indexer:
+            return self.helper_indexer._num_chunks
+        else:
+            return self._num_chunks
 
 
 class BaseDocIndexer(BaseIndexer):
+    """Storing documents and contents """
 
-    def add(self, keys: List[int], docs: Any, weights: List[float], *args, **kwargs):
+    def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
+        """
+        adding new docs and their protobuf representation
+        :param keys: list of doc_id
+        :param docs: list of protobuf Document objects
+        """
         pass
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
@@ -113,11 +169,21 @@ class BaseDocIndexer(BaseIndexer):
             results.append(r)
         return results
 
-    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
-        pass
+    @staticmethod
+    def update_counter(func):
+        @wraps(func)
+        def arg_wrapper(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
+            self._num_docs += len(keys)
+            self._num_chunks += sum(len(d.chunks) for d in docs)
+            return func(self, keys, docs, *args, **kwargs)
+
+        return arg_wrapper
 
 
-class BaseKeyIndexer(BaseIndexer):
+class BaseChunkIndexerHelper(BaseChunkIndexer):
+    """A helper class for storing chunk info, doc mapping, weights.
+    This is especially useful when ChunkIndexer can not store these information by itself
+    """
 
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         pass

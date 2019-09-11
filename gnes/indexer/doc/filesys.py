@@ -14,16 +14,14 @@
 #  limitations under the License.
 
 
-
-
 import os
 from typing import List
 
-from ..base import BaseDocIndexer
+from ..base import BaseDocIndexer as BDI
 from ...proto import gnes_pb2
 
 
-class DirectoryIndexer(BaseDocIndexer):
+class DirectoryIndexer(BDI):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,
@@ -35,6 +33,7 @@ class DirectoryIndexer(BaseDocIndexer):
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
 
+    @BDI.update_counter
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         """
         write GIFs of each document into disk
@@ -53,7 +52,6 @@ class DirectoryIndexer(BaseDocIndexer):
             for i, chunk in enumerate(d.chunks):
                 with open(os.path.join(dirs, '%d.%s' % (i, self.file_suffix)), 'wb') as f:
                     f.write(chunk.raw)
-        self.update_counter(docs)
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """
@@ -79,20 +77,4 @@ class DirectoryIndexer(BaseDocIndexer):
                             c.raw = raw.read()
                 res.append(doc)
         return res
-
-    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
-        self._num_doc += len(docs)
-        self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
-
-    @property
-    def num_doc(self):
-        return self._num_doc
-
-    @property
-    def num_chunks(self):
-        return self._num_chunks
-
-    @property
-    def num_chunks_avg(self):
-        return self._num_chunks / self._num_doc
 
