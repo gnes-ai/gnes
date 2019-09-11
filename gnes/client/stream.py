@@ -13,89 +13,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import grpc
 import queue
 from concurrent import futures
 
-from gnes.proto import gnes_pb2_grpc
+from .base import GrpcClient
 
 
-class BaseClient:
-
-    def __init__(self, args):
-        self.args = args
-
-        self._channel = grpc.insecure_channel(
-            '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
-            options={
-                "grpc.max_send_message_length": -1,
-                "grpc.max_receive_message_length": -1,
-            }.items(),
-        )
-
-    def call(self, request):
-        resp = self._stub.Call(request)
-        return resp
-
-    def async_call(self, request, callback_fn=None):
-        response_future = self._stub.Call.future(self._request)
-        if callback_fn:
-            response_future.add_done_callback(callback_fn)
-        else:
-            return response_future
-
-    def send_request(self, request):
-        """Non-blocking wrapper for a client's request operation."""
-        raise NotImplementedError
-
-    def start(self):
-        # waits for the channel to be ready before we start sending messages
-        grpc.channel_ready_future(self._channel).result()
-        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
-
-    def stop(self):
-        self._channel.close()
-        self._stub = None
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
-
-class UnarySyncClient(BaseClient):
-
-    def __init__(self, args):
-        super().__init__(args)
-        self._pool = futures.ThreadPoolExecutor(
-            max_workers=self.args.max_concurrency)
-        self.request_cnt = 0
-        self._response_callbacks = []
-
-    def send_request(self, request):
-        # Send requests in seperate threads to support multiple outstanding rpcs
-        self._pool.submit(self._dispatch_request, request)
-
-    def stop(self):
-        self._pool.shutdown(wait=True)
-        super().stop()
-
-    def _dispatch_request(self, request):
-        resp = self._stub.Call(request)
-        self._handle_response(self, resp)
-
-    def _handle_response(self, client, response):
-        for callback in self._response_callbacks:
-            callback(client, response)
-
-    def add_response_callback(self, callback):
-        """callback will be invoked as callback(client, response)"""
-        self._response_callbacks.append(callback)
-
-
-class _SyncStream(object):
+class _SyncStream:
 
     def __init__(self, stub, handle_response):
         self._stub = stub
@@ -124,6 +48,35 @@ class _SyncStream(object):
                 pass
 
 
+class UnarySyncClient(GrpcClient):
+
+    def __init__(self, args):
+        super().__init__(args)
+        self._pool = futures.ThreadPoolExecutor(
+            max_workers=self.args.max_concurrency)
+        self._response_callbacks = []
+
+    def send_request(self, request):
+        # Send requests in seperate threads to support multiple outstanding rpcs
+        self._pool.submit(self._dispatch_request, request)
+
+    def close(self):
+        self._pool.shutdown(wait=True)
+        super().close()
+
+    def _dispatch_request(self, request):
+        resp = self._stub.Call(request)
+        self._handle_response(self, resp)
+
+    def _handle_response(self, client, response):
+        for callback in self._response_callbacks:
+            callback(client, response)
+
+    def add_response_callback(self, callback):
+        """callback will be invoked as callback(client, response)"""
+        self._response_callbacks.append(callback)
+
+
 class StreamingClient(UnarySyncClient):
 
     def __init__(self, args):
@@ -141,11 +94,10 @@ class StreamingClient(UnarySyncClient):
         self._curr_stream = (self._curr_stream + 1) % len(self._streams)
 
     def start(self):
-        super().start()
         for stream in self._streams:
             self._pool.submit(stream.start)
 
-    def stop(self):
+    def close(self):
         for stream in self._streams:
             stream.stop()
-        super().stop()
+        super().close()
