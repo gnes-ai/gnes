@@ -19,18 +19,18 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseChunkIndexer
-from ..key_only import ListKeyIndexer
+from .helper import ListKeyIndexer
+from ..base import BaseChunkIndexer as BCI
 
 
-class FaissIndexer(BaseChunkIndexer):
+class FaissIndexer(BCI):
 
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data_path = data_path
         self.num_dim = num_dim
         self.index_key = index_key
-        self._key_info_indexer = ListKeyIndexer()
+        self.helper_indexer = ListKeyIndexer()
 
     def post_init(self):
         import faiss
@@ -44,6 +44,7 @@ class FaissIndexer(BaseChunkIndexer):
             self.logger.warning('fail to load model from %s, will init an empty one' % self.data_path)
             self._faiss_index = faiss.index_factory(self.num_dim, self.index_key)
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")
@@ -51,7 +52,6 @@ class FaissIndexer(BaseChunkIndexer):
         if vectors.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
 
-        self._key_info_indexer.add(keys, weights)
         self._faiss_index.add(vectors)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
@@ -62,16 +62,12 @@ class FaissIndexer(BaseChunkIndexer):
         ret = []
         for _id, _score in zip(ids, score):
             ret_i = []
-            chunk_info = self._key_info_indexer.query(_id)
+            chunk_info = self.helper_indexer.query(_id)
             for c_info, _score_i in zip(chunk_info, _score):
                 ret_i.append((*c_info, _score_i))
             ret.append(ret_i)
 
         return ret
-
-    @property
-    def size(self):
-        return self._faiss_index.ntotal
 
     def __getstate__(self):
         import faiss

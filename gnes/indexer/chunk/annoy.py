@@ -18,11 +18,11 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseChunkIndexer
-from ..key_only import ListKeyIndexer
+from .helper import ListKeyIndexer
+from ..base import BaseChunkIndexer as BCI
 
 
-class AnnoyIndexer(BaseChunkIndexer):
+class AnnoyIndexer(BCI):
 
     def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees=10, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +30,7 @@ class AnnoyIndexer(BaseChunkIndexer):
         self.data_path = data_path
         self.metric = metric
         self.n_trees = n_trees
-        self._key_info_indexer = ListKeyIndexer()
+        self.helper_indexer = ListKeyIndexer()
 
     def post_init(self):
         from annoy import AnnoyIndex
@@ -44,8 +44,9 @@ class AnnoyIndexer(BaseChunkIndexer):
         except:
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
-        last_idx = self._key_info_indexer.size
+        last_idx = self.helper_indexer.num_chunks
 
         if len(vectors) != len(keys):
             raise ValueError('vectors length should be equal to doc_ids')
@@ -56,8 +57,6 @@ class AnnoyIndexer(BaseChunkIndexer):
         for idx, vec in enumerate(vectors):
             self._index.add_item(last_idx + idx, vec)
 
-        self._key_info_indexer.add(keys, weights)
-
     def query(self, keys: 'np.ndarray', top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         self._index.build(self.n_trees)
         if keys.dtype != np.float32:
@@ -65,13 +64,9 @@ class AnnoyIndexer(BaseChunkIndexer):
         res = []
         for k in keys:
             ret, relevance_score = self._index.get_nns_by_vector(k, top_k, include_distances=True)
-            chunk_info = self._key_info_indexer.query(ret)
+            chunk_info = self.helper_indexer.query(ret)
             res.append([(*r, s) for r, s in zip(chunk_info, relevance_score)])
         return res
-
-    @property
-    def size(self):
-        return self._index.get_n_items()
 
     def __getstate__(self):
         d = super().__getstate__()

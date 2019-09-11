@@ -20,10 +20,11 @@ from typing import List, Tuple, Any
 import numpy as np
 
 from .cython import IndexCore
-from ...base import BaseChunkIndexer
+from ..helper import ListKeyIndexer
+from ...base import BaseChunkIndexer as BCI
 
 
-class BIndexer(BaseChunkIndexer):
+class BIndexer(BCI):
 
     def __init__(self,
                  num_bytes: int = None,
@@ -39,6 +40,7 @@ class BIndexer(BaseChunkIndexer):
         self.insert_iterations = insert_iterations
         self.query_iterations = query_iterations
         self.data_path = data_path
+        self.helper_indexer = ListKeyIndexer()
 
     def post_init(self):
         self.bindexer = IndexCore(self.num_bytes, 4, self.ef,
@@ -53,6 +55,7 @@ class BIndexer(BaseChunkIndexer):
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) != len(keys):

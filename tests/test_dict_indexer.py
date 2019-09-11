@@ -67,7 +67,7 @@ class TestDictIndexer(unittest.TestCase):
                 print(r)
 
         bi = BaseIndexer.load('dummy_dict_indexer.bin')
-        self.assertEqual(bi.size, 26)
+        self.assertEqual(bi.num_docs, 26)
         print(bi.query([0]))
 
     def tearDown(self):
@@ -87,6 +87,7 @@ class TestDictIndexer(unittest.TestCase):
         preprocess.apply(self.d)
 
         self.db.add(list(range(len(self.video_bytes))), [self.d])
+        self.assertEqual(self.db.num_docs, len(self.video_bytes))
 
     def test_add_docs(self):
         # self.init_db()

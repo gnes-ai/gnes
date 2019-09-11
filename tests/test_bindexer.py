@@ -36,6 +36,9 @@ class TestBIndexer(unittest.TestCase):
     def test_nsw_search(self):
         fd = BIndexer(self.toy_data.shape[1], data_path=self.dump_path + '_1')
         fd.add(self.toy_label, self.toy_data, self.weights)
+        self.assertEqual(fd.num_doc, 7)
+        self.assertEqual(fd.num_chunks, 7)
+        self.assertEqual(fd.num_chunks_avg, 1)
 
         rs = fd.query(self.toy_query, 2, method='nsw', normalized_score=False)
         for i in range(len(rs)):

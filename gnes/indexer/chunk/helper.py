@@ -18,14 +18,15 @@ from typing import List, Tuple
 
 import numpy as np
 
-from ..indexer.base import BaseKeyIndexer
+from ..base import BaseChunkIndexerHelper as CIH
 
 
-class DictKeyIndexer(BaseKeyIndexer):
+class DictKeyIndexer(CIH):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._key_info = {}
 
+    @CIH.update_counter
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         for (k, o), w in zip(keys, weights):
             self._key_info[k] = o, w
@@ -34,17 +35,14 @@ class DictKeyIndexer(BaseKeyIndexer):
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         return [(k, *self._key_info[k]) for k in keys]
 
-    @property
-    def size(self):
-        return len(self._key_info)
 
-
-class ListKeyIndexer(BaseKeyIndexer):
+class ListKeyIndexer(CIH):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._int2key = []  # type: List[Tuple[int, int]]
         self._int2key_weight = []  # type: List[float]
 
+    @CIH.update_counter
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         if len(keys) != len(weights):
             raise ValueError('"keys" and "weights" must have the same length')
@@ -54,10 +52,6 @@ class ListKeyIndexer(BaseKeyIndexer):
 
     def query(self, keys: List[int], *args, **kwargs) -> List[Tuple[int, int, float]]:
         return [(*self._int2key[k], self._int2key_weight[k]) for k in keys]
-
-    @property
-    def size(self):
-        return len(self._int2key)
 
 
 class ListNumpyKeyIndexer(ListKeyIndexer):
@@ -89,7 +83,7 @@ class ListNumpyKeyIndexer(ListKeyIndexer):
         return d
 
 
-class NumpyKeyIndexer(BaseKeyIndexer):
+class NumpyKeyIndexer(CIH):
     def __init__(self, buffer_size: int = 10000, col_size: int = 3, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._int2key_info = np.zeros([buffer_size, col_size])
@@ -97,7 +91,9 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         self._col_size = col_size
         self._size = 0
         self._max_size = self._buffer_size
+        self._all_docs = []
 
+    @CIH.update_counter
     def add(self, keys: List[Tuple[int, int]], weights: List[float], *args, **kwargs) -> int:
         l = len(keys)
         if self._size + l > self._max_size:
@@ -114,10 +110,6 @@ class NumpyKeyIndexer(BaseKeyIndexer):
         key_offset = self._int2key_info[keys, 0:(self._col_size - 1)].astype(int).tolist()
         weights = self._int2key_info[keys, self._col_size - 1].astype(float).tolist()
         return [(*ko, w) for ko, w in zip(key_offset, weights)]
-
-    @property
-    def size(self):
-        return self._size
 
     @property
     def capacity(self):

@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from gnes.helper import batch_iterator, TimeContext
-from gnes.indexer.key_only import DictKeyIndexer, NumpyKeyIndexer, ListKeyIndexer, ListNumpyKeyIndexer
+from gnes.indexer.chunk.helper import DictKeyIndexer, NumpyKeyIndexer, ListKeyIndexer, ListNumpyKeyIndexer
 
 
 class TestProto(unittest.TestCase):
@@ -24,9 +24,9 @@ class TestProto(unittest.TestCase):
 
     def _test_any(self, cls):
         a = cls()
-        self.assertEqual(a.size, 0)
+        self.assertEqual(a.num_chunks, 0)
         a.add(self.key_offset, self.weights)
-        self.assertEqual(a.size, self.num_sample)
+        self.assertEqual(a.num_chunks, self.num_sample)
 
         res1 = a.query(self.query)
         res2 = [(*self.key_offset[q], self.weights[q]) for q in self.query]
@@ -58,6 +58,8 @@ class TestProto(unittest.TestCase):
             with TimeContext('%s:add()' % cls.__name__):
                 for k, w in zip(batch_iterator(self.key_offset, b_size), batch_iterator(self.weights, b_size)):
                     a.add(k, w)
+                self.assertEqual(a.num_docs, self.num_sample)
+                self.assertEqual(a.num_chunks, self.num_sample)
 
             with TimeContext('%s:query()' % cls.__name__):
                 for k in batch_iterator(self.query, b_size):

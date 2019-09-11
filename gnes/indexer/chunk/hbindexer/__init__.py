@@ -20,10 +20,11 @@ from typing import List, Tuple, Any
 import numpy as np
 
 from .cython import IndexCore
-from ...base import BaseChunkIndexer
+from ..helper import ListKeyIndexer
+from ...base import BaseChunkIndexer as BCI
 
 
-class HBIndexer(BaseChunkIndexer):
+class HBIndexer(BCI):
 
     def __init__(self,
                  num_clusters: int = 100,
@@ -39,6 +40,7 @@ class HBIndexer(BaseChunkIndexer):
         self.data_path = data_path
         if self.n_idx <= 0:
             raise ValueError('There should be at least 1 clustering slot')
+        self.helper_indexer = ListKeyIndexer()
 
     def post_init(self):
         self.hbindexer = IndexCore(self.n_clusters, self.n_bytes, self.n_idx)
@@ -51,6 +53,7 @@ class HBIndexer(BaseChunkIndexer):
         except (FileNotFoundError, IsADirectoryError):
             self.logger.warning('fail to load model from %s, will create an empty one' % self.data_path)
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
             raise ValueError("vectors length should be equal to doc_ids")

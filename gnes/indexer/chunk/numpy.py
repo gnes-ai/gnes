@@ -18,22 +18,23 @@ from typing import List, Tuple, Any
 
 import numpy as np
 
-from ..base import BaseChunkIndexer
-from ..key_only import ListKeyIndexer
+from .helper import ListKeyIndexer
+from ..base import BaseChunkIndexer as BCI
 
 
-class NumpyIndexer(BaseChunkIndexer):
+class NumpyIndexer(BCI):
     """An exhaustive search indexer using numpy
     The distance is computed as L1 distance normalized by the number of dimension
     """
 
     def __init__(self, is_binary: bool = False, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self._num_dim = None
         self._vectors = None  # type: np.ndarray
         self._is_binary = is_binary
-        self._key_info_indexer = ListKeyIndexer()
+        self.helper_indexer = ListKeyIndexer()
 
+    @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args,
             **kwargs):
         if len(vectors) % len(keys) != 0:
@@ -50,7 +51,6 @@ class NumpyIndexer(BaseChunkIndexer):
             self._vectors = np.concatenate([self._vectors, vectors], axis=0)
         else:
             self._vectors = vectors
-        self._key_info_indexer.add(keys, weights)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         dist = np.abs(np.expand_dims(keys, axis=1) - np.expand_dims(self._vectors, axis=0))
@@ -63,6 +63,6 @@ class NumpyIndexer(BaseChunkIndexer):
         ret = []
         for ids in score:
             rk = sorted(enumerate(ids), key=lambda x: x[1])[:top_k]
-            chunk_info = self._key_info_indexer.query([j[0] for j in rk])
+            chunk_info = self.helper_indexer.query([j[0] for j in rk])
             ret.append([(*r, s) for r, s in zip(chunk_info, [j[1] for j in rk])])
         return ret

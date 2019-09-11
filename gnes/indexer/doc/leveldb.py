@@ -18,11 +18,11 @@ import pickle
 from threading import Thread, Event
 from typing import List, Any
 
-from ..base import BaseDocIndexer
+from ..base import BaseDocIndexer as BDI
 from ...proto import gnes_pb2
 
 
-class LVDBIndexer(BaseDocIndexer):
+class LVDBIndexer(BDI):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,
@@ -40,6 +40,7 @@ class LVDBIndexer(BaseDocIndexer):
         import plyvel
         self._db = plyvel.DB(self.data_path, create_if_missing=True)
 
+    @BDI.update_counter
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         with self._db.write_batch() as wb:
             for k, d in zip(keys, docs):
@@ -64,6 +65,22 @@ class LVDBIndexer(BaseDocIndexer):
             elif self.keep_na_doc:
                 res.append(self._NOT_FOUND)
         return res
+
+    def update_counter(self, docs: List['gnes_pb2.Document'], *args, **kwargs):
+        self._num_doc += len(docs)
+        self._num_chunks += sum(list(map(lambda x: len(x.chunks), docs)))
+
+    @property
+    def num_doc(self):
+        return self._num_doc
+
+    @property
+    def num_chunks(self):
+        return self._num_chunks
+
+    @property
+    def num_chunks_avg(self):
+        return self._num_chunks / self._num_doc
 
     def close(self):
         super().close()

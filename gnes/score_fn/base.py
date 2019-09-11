@@ -75,7 +75,7 @@ class CombinedScoreFn(BaseScoreFn):
     def post_init(self):
         self.op = self.supported_ops[self.score_mode]
 
-    def __call__(self, *last_scores) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
+    def __call__(self, *last_scores, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
         return self.new_score(
             value=self.op([s.value for s in last_scores]),
             operands=last_scores,

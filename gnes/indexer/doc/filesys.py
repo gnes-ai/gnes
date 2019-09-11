@@ -14,16 +14,14 @@
 #  limitations under the License.
 
 
-
-
 import os
 from typing import List
 
-from ..base import BaseDocIndexer
+from ..base import BaseDocIndexer as BDI
 from ...proto import gnes_pb2
 
 
-class DirectoryIndexer(BaseDocIndexer):
+class DirectoryIndexer(BDI):
 
     def __init__(self, data_path: str,
                  keep_na_doc: bool = True,
@@ -35,6 +33,7 @@ class DirectoryIndexer(BaseDocIndexer):
         self.keep_na_doc = keep_na_doc
         self._NOT_FOUND = None
 
+    @BDI.update_counter
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         """
         write GIFs of each document into disk
@@ -78,5 +77,4 @@ class DirectoryIndexer(BaseDocIndexer):
                             c.raw = raw.read()
                 res.append(doc)
         return res
-
 
