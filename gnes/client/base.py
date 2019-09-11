@@ -76,7 +76,7 @@ class GrpcClient:
             }.items(),
         )
         grpc.channel_ready_future(self._channel).result()
-        self.stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
+        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
 
     def send_request(self, request):
         raise NotImplementedError
