@@ -118,10 +118,10 @@ class BaseChunkIndexer(BaseIndexer):
     @staticmethod
     def update_helper_indexer(func):
         @wraps(func)
-        def arg_wrapper(self, keys: List[Tuple[int, int]], *args, **kwargs):
-            r = func(self, keys, *args, **kwargs)
+        def arg_wrapper(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
+            r = func(self, keys, vectors, weights, *args, **kwargs)
             if self.helper_indexer:
-                self.helper_indexer.add(keys, *args, **kwargs)
+                self.helper_indexer.add(keys, weights, *args, **kwargs)
             return r
 
         return arg_wrapper

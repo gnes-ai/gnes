@@ -67,7 +67,7 @@ class GrpcClient:
     def __init__(self, args):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-
+        self.logger.info('setting up channel...')
         self._channel = grpc.insecure_channel(
             '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
             options={
@@ -75,8 +75,11 @@ class GrpcClient:
                 'grpc.max_receive_message_length': -1,
             }.items(),
         )
+        self.logger.info('waiting channel to be ready...')
         grpc.channel_ready_future(self._channel).result()
+        self.logger.info('making stub...')
         self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
+        self.logger.critical('ready!')
 
     def send_request(self, request):
         raise NotImplementedError
