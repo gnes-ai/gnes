@@ -29,7 +29,11 @@ _cls2file_map = {
     'BaseDocIndexer': 'base',
     'AnnoyIndexer': 'chunk.annoy',
     'DirectoryIndexer': 'doc.filesys',
-    'DictIndexer': 'doc.dict'
+    'DictIndexer': 'doc.dict',
+    'DictKeyIndexer': 'chunk.helper',
+    'ListKeyIndexer': 'chunk.helper',
+    'ListNumpyKeyIndexer': 'chunk.helper',
+    'NumpyKeyIndexer': 'chunk.helper',
 }
 
 register_all_class(_cls2file_map, 'indexer')
