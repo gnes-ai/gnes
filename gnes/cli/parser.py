@@ -379,17 +379,18 @@ def set_client_http_parser(parser=None):
 def get_main_parser():
     # create the top-level parser
     parser = set_base_parser()
+    adf = argparse.ArgumentDefaultsHelpFormatter
     sp = parser.add_subparsers(dest='cli', title='GNES sub-commands',
                                description='use "gnes [sub-command] --help" '
                                            'to get detailed information about each sub-command')
 
     # microservices
-    set_frontend_parser(sp.add_parser('frontend', help='start a frontend service'))
-    set_encoder_parser(sp.add_parser('encode', help='start an encoder service'))
-    set_indexer_parser(sp.add_parser('index', help='start an indexer service'))
-    set_router_parser(sp.add_parser('route', help='start a router service'))
-    set_preprocessor_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
-    set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
+    set_frontend_parser(sp.add_parser('frontend', help='start a frontend service', formatter_class=adf))
+    set_encoder_parser(sp.add_parser('encode', help='start an encoder service', formatter_class=adf))
+    set_indexer_parser(sp.add_parser('index', help='start an indexer service', formatter_class=adf))
+    set_router_parser(sp.add_parser('route', help='start a router service', formatter_class=adf))
+    set_preprocessor_parser(sp.add_parser('preprocess', help='start a preprocessor service', formatter_class=adf))
+    set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service', formatter_class=adf))
 
     pp = sp.add_parser('client', help='start a GNES client of the selected type')
     spp = pp.add_subparsers(dest='client', title='GNES client sub-commands',
@@ -397,10 +398,13 @@ def get_main_parser():
                                         'to get detailed information about each client sub-command')
     spp.required = True
     # clients
-    set_client_http_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
-    set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
-    set_client_benchmark_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
+    set_client_http_parser(
+        spp.add_parser('http', help='start a client that allows HTTP requests as input', formatter_class=adf))
+    set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input', formatter_class=adf))
+    set_client_benchmark_parser(
+        spp.add_parser('benchmark', help='start a client for benchmark and unittest', formatter_class=adf))
 
     # others
-    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))
+    set_composer_flask_parser(
+        sp.add_parser('compose', help='start a GNES Board to visualize YAML configs', formatter_class=adf))
     return parser
