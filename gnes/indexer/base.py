@@ -36,8 +36,8 @@ class BaseIndexer(TrainableBase):
         :type is_big_score_similar: when set to true, then larger score means more similar
         """
         super().__init__(*args, **kwargs)
-        self.normalize_fn = normalize_fn if normalize_fn else ModifierScoreFn(context=self)
-        self.score_fn = score_fn if score_fn else ModifierScoreFn(context=self)
+        self.normalize_fn = normalize_fn if normalize_fn else ModifierScoreFn()
+        self.score_fn = score_fn if score_fn else ModifierScoreFn()
         self.normalize_fn._context = self
         self.score_fn._context = self
         self.is_big_score_similar = is_big_score_similar
@@ -150,7 +150,7 @@ class BaseChunkIndexer(BaseIndexer):
         if self.helper_indexer:
             return self.helper_indexer._num_chunks_in_doc[doc_id]
         else:
-            self.logger.warning("enable helper_indexer to record num_chunks_in_doc")
+            self.logger.warning('enable helper_indexer to track num_chunks_in_doc')
 
 
 class BaseDocIndexer(BaseIndexer):
