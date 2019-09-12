@@ -31,8 +31,8 @@ class FrontendService:
         self.logger = set_logger(self.__class__.__name__, args.verbose)
         self.server = grpc.server(
             ThreadPoolExecutor(max_workers=args.max_concurrency),
-            options=[('grpc.max_send_message_length', args.max_message_size * 1024 * 1024),
-                     ('grpc.max_receive_message_length', args.max_message_size * 1024 * 1024)])
+            options=[('grpc.max_send_message_length', args.max_message_size),
+                     ('grpc.max_receive_message_length', args.max_message_size)])
         self.logger.info('start a frontend with %d workers' % args.max_concurrency)
         gnes_pb2_grpc.add_GnesRPCServicer_to_server(self._Servicer(args), self.server)
 

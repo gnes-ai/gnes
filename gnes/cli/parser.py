@@ -240,8 +240,8 @@ def _set_grpc_parser(parser=None):
                         type=int,
                         default=8800,
                         help='host port of the grpc service')
-    parser.add_argument('--max_message_size', type=int, default=100,
-                        help='maximum send and receive size for grpc server in (MB)')
+    parser.add_argument('--max_message_size', type=int, default=-1,
+                        help='maximum send and receive size for grpc server in bytes, -1 means unlimited')
     return parser
 
 
