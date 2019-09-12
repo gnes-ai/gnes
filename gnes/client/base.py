@@ -91,12 +91,12 @@ class ZmqClient:
         self.ctx.term()
 
     def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
-        self.logger.info('send message: %s' % message.envelope)
+        self.logger.debug('send message: %s' % message.envelope)
         send_message(self.sender, message, timeout=timeout)
 
     def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
         r = recv_message(self.receiver, timeout=timeout, check_version=self.args.check_version)
-        self.logger.info('recv a message: %s' % r.envelope)
+        self.logger.debug('recv a message: %s' % r.envelope)
         return r
 
 

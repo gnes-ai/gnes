@@ -137,7 +137,7 @@ def set_service_parser(parser=None):
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
-    parser.add_argument('--dump_interval', type=int, default=-1,
+    parser.add_argument('--dump_interval', type=int, default=5,
                         help='serialize the service to a file every n seconds, -1 means --read_only')
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
@@ -240,8 +240,8 @@ def _set_grpc_parser(parser=None):
                         type=int,
                         default=8800,
                         help='host port of the grpc service')
-    parser.add_argument('--max_message_size', type=int, default=100,
-                        help='maximum send and receive size for grpc server in (MB)')
+    parser.add_argument('--max_message_size', type=int, default=-1,
+                        help='maximum send and receive size for grpc server in bytes, -1 means unlimited')
     return parser
 
 
@@ -280,6 +280,8 @@ def set_frontend_parser(parser=None):
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent connections allowed')
+    parser.add_argument('--show_route_table', action='store_true', default=False,
+                        help='showing a route table with time cost after receiving the result')
     return parser
 
 

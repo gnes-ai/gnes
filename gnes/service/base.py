@@ -317,9 +317,7 @@ class BaseService(metaclass=ConcurrentService):
                 self.logger.info(
                     'auto-dumping the new change of the model every %ds...' % self.args.dump_interval)
                 self.dump()
-                time.sleep(self.args.dump_interval)
-            else:
-                time.sleep(1)
+            time.sleep(self.args.dump_interval)
 
     def dump(self):
         if not self.args.read_only:
@@ -334,7 +332,7 @@ class BaseService(metaclass=ConcurrentService):
     def _hook_warn_body_type_change(self, msg: 'gnes_pb2.Message', *args, **kwargs):
         new_type = msg.WhichOneof('body')
         if new_type != self._msg_old_type:
-            self.logger.warning('message body type has changed from %s to %s' % (self._msg_old_type, new_type))
+            self.logger.warning('message body type has changed from "%s" to "%s"' % (self._msg_old_type, new_type))
 
     @handler.register_hook(hook_type='post')
     def _hook_sort_response(self, msg: 'gnes_pb2.Message', *args, **kwargs):
@@ -352,6 +350,10 @@ class BaseService(metaclass=ConcurrentService):
         add_route(msg.envelope, self._model.__class__.__name__)
         self._msg_old_type = msg.WhichOneof('body')
         self.logger.info('a message in type: %s with route: %s' % (self._msg_old_type, router2str(msg)))
+
+    @handler.register_hook(hook_type='post')
+    def _hook_update_route_timestamp(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        msg.envelope.routes[-1].end_time.GetCurrentTime()
 
     @zmqd.context()
     def _run(self, ctx):

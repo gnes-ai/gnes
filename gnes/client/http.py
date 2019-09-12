@@ -31,7 +31,12 @@ class HttpClient:
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
 
     def start(self):
-        from aiohttp import web
+        try:
+            from aiohttp import web
+        except ImportError:
+            self.logger.error('can not import aiohttp, it is not installed correctly. please do '
+                              '"pip install gnes[aiohttp]"')
+            return
         loop = asyncio.get_event_loop()
         executor = ThreadPoolExecutor(max_workers=self.args.max_workers)
 
@@ -94,8 +99,8 @@ class HttpClient:
 
         with grpc.insecure_channel(
                 '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
-                options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
-                         ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024),
+                options=[('grpc.max_send_message_length', self.args.max_message_size),
+                         ('grpc.max_receive_message_length', self.args.max_message_size),
                          ('grpc.keepalive_timeout_ms', 100 * 1000)]) as channel:
             stub = gnes_pb2_grpc.GnesRPCStub(channel)
             loop.run_until_complete(init(loop))
