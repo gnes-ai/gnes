@@ -371,6 +371,7 @@ def get_main_parser():
     spp = pp.add_subparsers(dest='client', title='GNES client sub-commands',
                             description='use "gnes client [sub-command] --help" '
                                         'to get detailed information about each client sub-command')
+    spp.required = True
     # clients
     set_client_http_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
     set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
