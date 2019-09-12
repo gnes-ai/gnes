@@ -28,7 +28,6 @@ class ZmqClient:
 
     def __init__(self, args):
         self.args = args
-        self.identity = args.identity if 'identity' in args else None
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.ctx = zmq.Context()
         self.ctx.setsockopt(zmq.LINGER, 0)

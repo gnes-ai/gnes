@@ -22,7 +22,7 @@ import grpc
 from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger
-from ..proto import gnes_pb2_grpc, gnes_pb2, router2str
+from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route
 
 
 class FrontendService:
@@ -57,7 +57,7 @@ class FrontendService:
 
         def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
             msg = gnes_pb2.Message()
-            msg.envelope.client_id = zmq_client.identity if zmq_client.identity else ''
+            msg.envelope.client_id = zmq_client.args.identity
             if body.request_id is not None:
                 msg.envelope.request_id = body.request_id
             else:
@@ -69,9 +69,7 @@ class FrontendService:
             msg.envelope.timeout = 5000
             msg.envelope.gnes_version = __version__
             msg.envelope.proto_version = __proto_version__
-            r = msg.envelope.routes.add()
-            r.service = FrontendService.__name__
-            r.start_time.GetCurrentTime()
+            add_route(msg.envelope, FrontendService.__name__, self.args.identity)
             msg.request.CopyFrom(body)
             return msg
 

@@ -116,6 +116,7 @@ def set_composer_flask_parser(parser=None):
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
     import random
+    import uuid
     if not parser:
         parser = set_base_parser()
     min_port, max_port = 49152, 65536
@@ -154,6 +155,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--check_version', action='store_true', default=False,
                         help='comparing the GNES and proto version of incoming message with local setup, '
                              'mismatch raise an exception')
+    parser.add_argument('--identity', type=str, default=str(uuid.uuid4()).split('-')[0],
+                        help='identity of the service, by default a random uuid string')
     return parser
 
 
