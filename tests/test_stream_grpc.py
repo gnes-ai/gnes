@@ -44,6 +44,7 @@ class TestStreamgRPC(unittest.TestCase):
     def test_bm_frontend(self):
         args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
+
         ])
 
         p_args = set_router_parser().parse_args([
@@ -64,6 +65,7 @@ class TestStreamgRPC(unittest.TestCase):
     def test_grpc_frontend(self):
         args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
+
         ])
 
         p_args = set_router_parser().parse_args([

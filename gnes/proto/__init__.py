@@ -23,7 +23,7 @@ import zmq
 from termcolor import colored
 
 from . import gnes_pb2
-from ..helper import batch_iterator
+from ..helper import batch_iterator, default_logger
 
 __all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
 
@@ -103,33 +103,22 @@ def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
 
 
 def router2str(m: 'gnes_pb2.Message') -> str:
-    route_str = []
-    for r in m.envelope.routes:
-        if r.num_replicas and r.num_replicas > 1:
-            route_str.append('%s%s' % (r.service, colored(' x%d' % r.num_replicas, 'yellow')))
-        else:
-            route_str.append(r.service)
-
+    route_str = [r.service for r in m.envelope.routes]
     return colored('▸', 'green').join(route_str)
 
 
-def add_route(evlp: 'gnes_pb2.Envelope', name: str):
+def add_route(evlp: 'gnes_pb2.Envelope', name: str, identity: str):
     r = evlp.routes.add()
     r.service = name
     r.start_time.GetCurrentTime()
+    r.service_identity = identity
 
 
-def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message'], idx: int = -1):
-    r = msg.envelope.routes[idx]
-    if len(msg.envelope.routes) > 1:
-        msg.envelope.routes[idx - 1].service = '[%s]' % ', '.join([r.service for r in msg.envelope.routes])
-    r.num_replicas = len(prev_msgs)
-    r.first_start_time.CopyFrom(
-        sorted((m.envelope.routes[idx].start_time for m in prev_msgs),
-               key=lambda x: (x.seconds, x.nanos))[0])
-    r.last_end_time.CopyFrom(
-        sorted((m.envelope.routes[idx].end_time for m in prev_msgs),
-               key=lambda x: (x.seconds, x.nanos), reverse=True)[0])
+def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):
+    # take unique routes by service identity
+    routes = {r.service_identity: r for m in prev_msgs for r in m.envelope.routes}
+    msg.envelope.ClearField('routes')
+    msg.envelope.routes.extend(sorted(routes.values(), key=lambda x: (x.start_time.seconds, x.start_time.nanos)))
 
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
@@ -163,18 +152,30 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
 
         if check_version and msg.envelope:
             from .. import __version__, __proto_version__
-            if hasattr(msg.envelope, 'gnes_version') and __version__ != msg.envelope.gnes_version:
-                raise AttributeError('mismatched GNES version! '
-                                     'incoming message has GNES version %s, whereas local GNES version %s' % (
-                                         msg.envelope.gnes_version, __version__))
-            if hasattr(msg.envelope, 'proto_version') and __proto_version__ != msg.envelope.proto_version:
-                raise AttributeError('mismatched protobuf version! '
-                                     'incoming message has protobuf version %s, whereas local protobuf version %s' % (
-                                         msg.envelope.proto_version, __proto_version__))
+            if hasattr(msg.envelope, 'gnes_version'):
+                if not msg.envelope.gnes_version:
+                    # only happen in unittest
+                    default_logger.warning('incoming message contains empty "gnes_version", '
+                                           'you may ignore it in debug/unittest mode. '
+                                           'otherwise please check if frontend service set correct version')
+                elif __version__ != msg.envelope.gnes_version:
+                    raise AttributeError('mismatched GNES version! '
+                                         'incoming message has GNES version %s, whereas local GNES version %s' % (
+                                             msg.envelope.gnes_version, __version__))
+            if hasattr(msg.envelope, 'proto_version'):
+                if not msg.envelope.proto_version:
+                    # only happen in unittest
+                    default_logger.warning('incoming message contains empty "proto_version", '
+                                           'you may ignore it in debug/unittest mode. '
+                                           'otherwise please check if frontend service set correct version')
+                elif __proto_version__ != msg.envelope.proto_version:
+                    raise AttributeError('mismatched protobuf version! '
+                                         'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                             msg.envelope.proto_version, __proto_version__))
             if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
                 raise AttributeError('version_check=True locally, '
                                      'but incoming message contains no version info in its envelope. '
-                                     'the message is probably sent from an outdated GNES service')
+                                     'the message is probably sent from a very outdated GNES version')
         return msg
 
     except ValueError:

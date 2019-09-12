@@ -17,6 +17,29 @@
 import argparse
 
 
+class ActionNoYes(argparse.Action):
+    def __init__(self, option_strings, dest, default=None, required=False, help=None):
+
+        if default is None:
+            raise ValueError('you must provide a default with yes/no action')
+        if len(option_strings) != 1:
+            raise ValueError('only single argument is allowed with yes/no action')
+        opt = option_strings[0]
+        if not opt.startswith('--'):
+            raise ValueError('yes/no arguments must be prefixed with --')
+
+        opt = opt[2:]
+        opts = ['--' + opt, '--no-' + opt]
+        super(ActionNoYes, self).__init__(opts, dest, nargs=0, const=None,
+                                          default=default, required=required, help=help)
+
+    def __call__(self, parser, namespace, values, option_strings=None):
+        if option_strings.startswith('--no-'):
+            setattr(namespace, self.dest, False)
+        else:
+            setattr(namespace, self.dest, True)
+
+
 def resolve_py_path(path):
     import os
     if not os.path.exists(path):
@@ -54,7 +77,8 @@ def set_base_parser():
                     'It enables large-scale index and semantic search for text-to-text, image-to-image, '
                     'video-to-video and any content form. Visit %s for tutorials and documentations.' % (
                         colored('GNES v%s: Generic Neural Elastic Search' % __version__, 'green'),
-                        colored('https://gnes.ai', 'cyan', attrs=['underline'])))
+                        colored('https://gnes.ai', 'cyan', attrs=['underline'])),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     parser.add_argument('--verbose', action='store_true', default=False,
                         help='turn on detailed logging for debug')
@@ -116,6 +140,7 @@ def set_composer_flask_parser(parser=None):
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
     import random
+    import uuid
     if not parser:
         parser = set_base_parser()
     min_port, max_port = 49152, 65536
@@ -151,9 +176,11 @@ def set_service_parser(parser=None):
     parser.add_argument('--parallel_type', type=ParallelType.from_string, choices=list(ParallelType),
                         default=ParallelType.PUSH_NONBLOCK,
                         help='parallel type of the concurrent services')
-    parser.add_argument('--check_version', action='store_true', default=False,
+    parser.add_argument('--check_version', action=ActionNoYes, default=True,
                         help='comparing the GNES and proto version of incoming message with local setup, '
                              'mismatch raise an exception')
+    parser.add_argument('--identity', type=str, default=str(uuid.uuid4()).split('-')[0],
+                        help='identity of the service, by default a random uuid string')
     return parser
 
 
@@ -280,7 +307,7 @@ def set_frontend_parser(parser=None):
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent connections allowed')
-    parser.add_argument('--show_route_table', action='store_true', default=False,
+    parser.add_argument('--route_table', action=ActionNoYes, default=True,
                         help='showing a route table with time cost after receiving the result')
     return parser
 
@@ -352,27 +379,32 @@ def set_client_http_parser(parser=None):
 def get_main_parser():
     # create the top-level parser
     parser = set_base_parser()
+    adf = argparse.ArgumentDefaultsHelpFormatter
     sp = parser.add_subparsers(dest='cli', title='GNES sub-commands',
                                description='use "gnes [sub-command] --help" '
                                            'to get detailed information about each sub-command')
 
     # microservices
-    set_frontend_parser(sp.add_parser('frontend', help='start a frontend service'))
-    set_encoder_parser(sp.add_parser('encode', help='start an encoder service'))
-    set_indexer_parser(sp.add_parser('index', help='start an indexer service'))
-    set_router_parser(sp.add_parser('route', help='start a router service'))
-    set_preprocessor_parser(sp.add_parser('preprocess', help='start a preprocessor service'))
-    set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service'))
+    set_frontend_parser(sp.add_parser('frontend', help='start a frontend service', formatter_class=adf))
+    set_encoder_parser(sp.add_parser('encode', help='start an encoder service', formatter_class=adf))
+    set_indexer_parser(sp.add_parser('index', help='start an indexer service', formatter_class=adf))
+    set_router_parser(sp.add_parser('route', help='start a router service', formatter_class=adf))
+    set_preprocessor_parser(sp.add_parser('preprocess', help='start a preprocessor service', formatter_class=adf))
+    set_grpc_service_parser(sp.add_parser('grpc', help='start a general purpose grpc service', formatter_class=adf))
 
     pp = sp.add_parser('client', help='start a GNES client of the selected type')
     spp = pp.add_subparsers(dest='client', title='GNES client sub-commands',
                             description='use "gnes client [sub-command] --help" '
                                         'to get detailed information about each client sub-command')
+    spp.required = True
     # clients
-    set_client_http_parser(spp.add_parser('http', help='start a client that allows HTTP requests as input'))
-    set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input'))
-    set_client_benchmark_parser(spp.add_parser('benchmark', help='start a client for benchmark and unittest'))
+    set_client_http_parser(
+        spp.add_parser('http', help='start a client that allows HTTP requests as input', formatter_class=adf))
+    set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input', formatter_class=adf))
+    set_client_benchmark_parser(
+        spp.add_parser('benchmark', help='start a client for benchmark and unittest', formatter_class=adf))
 
     # others
-    set_composer_flask_parser(sp.add_parser('compose', help='start a GNES Board to visualize YAML configs'))
+    set_composer_flask_parser(
+        sp.add_parser('compose', help='start a GNES Board to visualize YAML configs', formatter_class=adf))
     return parser
