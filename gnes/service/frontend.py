@@ -18,7 +18,6 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
-from termcolor import colored
 
 from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
@@ -118,7 +117,6 @@ class FrontendService:
                 d_s -= 1
                 d_n += 1e9
             return d_s + d_n / 1e9
-
 
         def Call(self, request, context):
             with self.zmq_context as zmq_client:
