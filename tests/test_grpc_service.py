@@ -56,6 +56,7 @@ class TestGRPCService(unittest.TestCase):
             '--grpc_port', '9999',
             '--port_in', str(self.s_args.port_out),
             '--port_out', str(self.s_args.port_in),
+
         ])
 
     def test_grpc_empty_service(self):

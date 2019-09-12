@@ -31,6 +31,7 @@ class TestServiceManager(unittest.TestCase):
     def _test_grpc_multiple_router(self, backend='thread', num_parallel=5):
         args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
+
         ])
 
         p_args = set_router_parser().parse_args([
@@ -54,6 +55,7 @@ class TestServiceManager(unittest.TestCase):
     def _test_grpc_multiple_pub(self, backend='thread', num_parallel=5):
         args = set_frontend_parser().parse_args([
             '--grpc_host', '127.0.0.1',
+
         ])
 
         p_args = set_router_parser().parse_args([

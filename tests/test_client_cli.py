@@ -1,10 +1,11 @@
-import unittest
 import os
+import unittest
+
 from gnes.cli.parser import set_frontend_parser, set_router_parser, set_client_cli_parser
+from gnes.client.cli import CLIClient
 from gnes.service.base import SocketType
 from gnes.service.frontend import FrontendService
 from gnes.service.router import RouterService
-from gnes.client.cli import CLIClient
 
 
 class TestCLI(unittest.TestCase):
@@ -21,6 +22,7 @@ class TestCLI(unittest.TestCase):
         ])
 
         args = set_frontend_parser().parse_args([
+
         ])
 
         p_args = set_router_parser().parse_args([
