@@ -41,8 +41,39 @@ __all__ = ['get_sys_info', 'get_optimal_sample_size',
            'profile_logger', 'load_contrib_module',
            'parse_arg', 'profiling', 'FileLock',
            'train_required', 'get_first_available_gpu',
-           'PathImporter']
+           'PathImporter', 'progressbar']
 
+
+def progressbar(i, prefix="", suffix="", count=100, size=60):
+    """
+
+    Example:
+
+    for i in range(10000):
+        progressbar(i, prefix="computing: ", count=100, size=60)
+
+    The resulted output is:
+        computing: [###########################################################.] 99/100
+        computing: [###########################################################.] 199/200
+        computing: [###########################################################.] 299/300
+        computing: [###########################################################.] 399/400
+        computing: [###########################################################.] 499/500
+        computing: [###########################################################.] 599/600
+        computing: [###########################################################.] 699/700
+        computing: [###########################################################.] 799/800
+        computing: [###########################################################.] 899/900
+        computing: [#############################...............................] 950/1000
+    """
+    step = int(i / count)
+    _i = i
+    i = i % count
+    if step > 0 and i == 0:
+        sys.stdout.write('\n')
+    x = int(size * i / count)
+    sys.stdout.write(
+        "%s[%s%s] %i/%i %s\r" % (prefix, "#" * x, "." * (size - x), _i,
+                                   (step + 1) * count, suffix))
+    sys.stdout.flush()
 
 def get_first_available_gpu():
     try:
