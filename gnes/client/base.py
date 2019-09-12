@@ -17,11 +17,49 @@
 import grpc
 import zmq
 from termcolor import colored
+from typing import Tuple, List, Union, Type
 
 from ..helper import set_logger
 from ..proto import gnes_pb2_grpc
 from ..proto import send_message, gnes_pb2, recv_message
 from ..service.base import build_socket
+
+
+class ResponseHandler:
+    def __init__(self, h: 'ResponseHandler' = None):
+        self.routes = {k: v for k, v in h.routes.items()} if h else {}
+        self.logger = set_logger(self.__class__.__name__)
+        self._context = None
+
+    def register(self, resp_type: Union[List, Tuple, type]):
+        def decorator(f):
+            if isinstance(resp_type, list) or isinstance(resp_type, tuple):
+                for t in resp_type:
+                    self.routes[t] = f
+            else:
+                self.routes[resp_type] = f
+            return f
+
+        return decorator
+
+    def call_routes(self, resp: 'gnes_pb2.Response'):
+        def get_default_fn(r_type):
+            self.logger.warning('cant find handler for response type: %s, fall back to the default handler' % r_type)
+            f = self.routes.get(r_type, self.routes[NotImplementedError])
+            return f
+
+        self.logger.info('received a response for request %d' % resp.request_id)
+        if resp.WhichOneof('body'):
+            body = getattr(resp, resp.WhichOneof('body'))
+            resp_type = type(body)
+
+            if resp_type in self.routes:
+                fn = self.routes.get(resp_type)
+            else:
+                fn = get_default_fn(type(resp))
+
+        self.logger.info('handling response with %s' % fn.__name__)
+        return fn(self._context, resp)
 
 
 class ZmqClient:
@@ -63,11 +101,18 @@ class ZmqClient:
 
 
 class GrpcClient:
+    """
+    A Base Unary gRPC client which the other client application can build from.
+
+    """
+
+    handler = ResponseHandler()
 
     def __init__(self, args):
         self.args = args
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
-        self.logger.info('setting up channel...')
+        self.logger.info('setting up grpc insecure channel...')
+        # A gRPC channel provides a connection to a remote gRPC server.
         self._channel = grpc.insecure_channel(
             '%s:%d' % (self.args.grpc_host, self.args.grpc_port),
             options={
@@ -77,19 +122,44 @@ class GrpcClient:
         )
         self.logger.info('waiting channel to be ready...')
         grpc.channel_ready_future(self._channel).result()
-        self.logger.info('making stub...')
-        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
-        self.logger.critical('ready!')
+        self.logger.critical('gnes client ready!')
 
-    def send_request(self, request):
+        # create new stub
+        self.logger.info('create new stub...')
+        self._stub = gnes_pb2_grpc.GnesRPCStub(self._channel)
+
+        # attache response handler
+        self.handler._context = self
+
+    def call(self, request):
+        resp = self._stub.call(request)
+        self.handler.call_routes(resp)
+        return resp
+
+    def stream_call(self, request_iterator):
+        response_stream = self._stub.StreamCall(request_iterator)
+        for resp in response_stream:
+            self.handler.call_routes(resp)
+
+    @handler.register(NotImplementedError)
+    def _handler_default(self, msg: 'gnes_pb2.Response'):
         raise NotImplementedError
 
-    def close(self):
-        self._channel.close()
-        self._stub = None
+    @handler.register(gnes_pb2.Response)
+    def _handler_response_default(self, msg: 'gnes_pb2.Response'):
+        pass
 
     def __enter__(self):
+        self.open()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def open(self):
+        pass
+
+    def close(self):
+        self._channel.close()
+        self._stub = None
+        self.total_response = 0

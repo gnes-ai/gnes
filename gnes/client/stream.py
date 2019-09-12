@@ -13,91 +13,63 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import time
+import threading
 import queue
 from concurrent import futures
 
-from .base import GrpcClient
+from .base import GrpcClient, ResponseHandler
 
 
-class _SyncStream:
+class SyncClient(GrpcClient):
+    handler = ResponseHandler(GrpcClient.handler)
 
-    def __init__(self, stub, handle_response):
-        self._stub = stub
-        self._handle_response = handle_response
-        self._is_streaming = False
+    def __init__(self, args):
+        super().__init__(args)
+        self._pool = futures.ThreadPoolExecutor(
+            max_workers=self.args.max_concurrency)
+
+    def send_request(self, request):
+        # Send requests in seperate threads to support multiple outstanding rpcs
+        self._pool.submit(self.call, request)
+
+    def close(self):
+        self._pool.shutdown(wait=True)
+        super().close()
+
+class StreamingClient(GrpcClient):
+    handler = ResponseHandler(GrpcClient.handler)
+
+    def __init__(self, args):
+        super().__init__(args)
+
         self._request_queue = queue.Queue()
+        self._is_streaming = threading.Event()
+
+        self._dispatch_thread = threading.Thread(target=self._start)
+        self._dispatch_thread.setDaemon(1)
+        self._dispatch_thread.start()
 
     def send_request(self, request):
         self._request_queue.put(request)
 
-    def start(self):
-        self._is_streaming = True
-        response_stream = self._stub.StreamCall(self._request_generator())
-        for resp in response_stream:
-            self._handle_response(self, resp)
-
-    def stop(self):
-        self._is_streaming = False
+    def _start(self):
+        self._is_streaming.set()
+        response_stream = self.stream_call(self._request_generator())
 
     def _request_generator(self):
-        while self._is_streaming:
+        while self._is_streaming.is_set():
             try:
                 request = self._request_queue.get(block=True, timeout=1.0)
                 yield request
             except queue.Empty:
                 pass
 
-
-class UnarySyncClient(GrpcClient):
-
-    def __init__(self, args):
-        super().__init__(args)
-        self._pool = futures.ThreadPoolExecutor(
-            max_workers=self.args.max_concurrency)
-        self._response_callbacks = []
-
-    def send_request(self, request):
-        # Send requests in seperate threads to support multiple outstanding rpcs
-        self._pool.submit(self._dispatch_request, request)
+    @handler.register(NotImplementedError)
+    def _handler_default(self, resp: 'gnes_pb2.Response'):
+        raise NotImplementedError
 
     def close(self):
-        self._pool.shutdown(wait=True)
-        super().close()
-
-    def _dispatch_request(self, request):
-        resp = self._stub.Call(request)
-        self._handle_response(self, resp)
-
-    def _handle_response(self, client, response):
-        for callback in self._response_callbacks:
-            callback(client, response)
-
-    def add_response_callback(self, callback):
-        """callback will be invoked as callback(client, response)"""
-        self._response_callbacks.append(callback)
-
-
-class StreamingClient(UnarySyncClient):
-
-    def __init__(self, args):
-        super().__init__(args)
-
-        self._streams = [
-            _SyncStream(self._stub, self._handle_response)
-            for _ in range(self.args.max_concurrency)
-        ]
-        self._curr_stream = 0
-
-    def send_request(self, request):
-        # Use a round_robin scheduler to determine what stream to send on
-        self._streams[self._curr_stream].send_request(request)
-        self._curr_stream = (self._curr_stream + 1) % len(self._streams)
-
-    def start(self):
-        for stream in self._streams:
-            self._pool.submit(stream.start)
-
-    def close(self):
-        for stream in self._streams:
-            stream.stop()
+        self._is_streaming.clear()
+        self._dispatch_thread.join()
         super().close()
