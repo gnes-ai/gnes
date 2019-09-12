@@ -87,7 +87,7 @@ class FrontendService:
 
                 sum_duration = 0
                 for k in m.envelope.routes[1:]:
-                    if k.num_replicas and k.num_replicas >= 1:
+                    if k.first_start_time and k.last_end_time:
                         d = self.get_duration(k.first_start_time, k.last_end_time)
                     else:
                         d = self.get_duration(k.start_time, k.end_time)
