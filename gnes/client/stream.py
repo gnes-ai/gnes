@@ -37,6 +37,7 @@ class SyncClient(GrpcClient):
         self._pool.shutdown(wait=True)
         super().close()
 
+
 class StreamingClient(GrpcClient):
     handler = ResponseHandler(GrpcClient.handler)
 
