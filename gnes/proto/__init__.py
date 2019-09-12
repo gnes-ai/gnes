@@ -23,7 +23,7 @@ import zmq
 from termcolor import colored
 
 from . import gnes_pb2
-from ..helper import batch_iterator
+from ..helper import batch_iterator, default_logger
 
 __all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
 
@@ -155,7 +155,9 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
             if hasattr(msg.envelope, 'gnes_version'):
                 if not msg.envelope.gnes_version:
                     # only happen in unittest
-                    pass
+                    default_logger.warning('incoming message contains empty "gnes_version", '
+                                           'you may ignore it in debug/unittest mode. '
+                                           'otherwise please check if frontend service set correct version')
                 elif __version__ != msg.envelope.gnes_version:
                     raise AttributeError('mismatched GNES version! '
                                          'incoming message has GNES version %s, whereas local GNES version %s' % (
@@ -163,7 +165,9 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
             if hasattr(msg.envelope, 'proto_version'):
                 if not msg.envelope.proto_version:
                     # only happen in unittest
-                    pass
+                    default_logger.warning('incoming message contains empty "proto_version", '
+                                           'you may ignore it in debug/unittest mode. '
+                                           'otherwise please check if frontend service set correct version')
                 elif __proto_version__ != msg.envelope.proto_version:
                     raise AttributeError('mismatched protobuf version! '
                                          'incoming message has protobuf version %s, whereas local protobuf version %s' % (
