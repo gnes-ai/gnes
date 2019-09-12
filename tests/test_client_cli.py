@@ -17,7 +17,7 @@ class TestCLI(unittest.TestCase):
         cli_args = set_client_cli_parser().parse_args([
             '--mode', 'train',
             '--grpc_host', '127.0.0.1',
-            '--txt_file', 'sonnets.txt'
+            '--txt_file', os.path.join(self.dirname, 'sonnets.txt')
         ])
 
         args = set_frontend_parser().parse_args([
