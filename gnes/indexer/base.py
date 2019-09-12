@@ -14,6 +14,7 @@
 #  limitations under the License.
 from functools import wraps
 from typing import List, Any, Union, Callable, Tuple
+from collections import defaultdict
 
 import numpy as np
 
@@ -40,6 +41,7 @@ class BaseIndexer(TrainableBase):
         self.is_big_score_similar = is_big_score_similar
         self._num_docs = 0
         self._num_chunks = 0
+        self._num_chunks_in_doc = defaultdict(int)
 
     def add(self, keys: Any, docs: Any, weights: List[float], *args, **kwargs):
         pass
@@ -88,7 +90,12 @@ class BaseChunkIndexer(BaseIndexer):
             for _doc_id, _offset, _weight, _relevance in topk_chunks:
                 r = gnes_pb2.Response.QueryResponse.ScoredResult()
                 r.chunk.doc_id = _doc_id
-                r.chunk.offset = _offset
+                if isinstance(_offset, list):
+                    r.chunk.offset_nd.extend(_offset)
+                    q_offset = q_chunk.offset_nd
+                else:
+                    r.chunk.offset = _offset
+                    q_offset = q_chunk.offset
                 r.chunk.weight = _weight
                 _score = get_unary_score(value=_relevance,
                                          name=self.__class__.__name__,
@@ -97,9 +104,9 @@ class BaseChunkIndexer(BaseIndexer):
                                                   doc_id=_doc_id,
                                                   offset=_offset),
                                              dict(name='query_chunk',
-                                                  offset=q_chunk.offset)])
+                                                  offset=str(q_offset))])
                 _score = self.normalize_fn(_score)
-                _score = self.score_fn(_score, q_chunk, r.chunk)
+                _score = self.score_fn(_score, q_chunk, r.chunk, queried_results, self)
                 r.score.CopyFrom(_score)
                 results.append(r)
         return results
@@ -111,6 +118,8 @@ class BaseChunkIndexer(BaseIndexer):
             doc_ids, _ = zip(*keys)
             self._num_docs += len(set(doc_ids))
             self._num_chunks += len(keys)
+            for doc_id in doc_ids:
+                self._num_chunks_in_doc[doc_id] += 1
             return func(self, keys, *args, **kwargs)
 
         return arg_wrapper
@@ -139,6 +148,12 @@ class BaseChunkIndexer(BaseIndexer):
             return self.helper_indexer._num_chunks
         else:
             return self._num_chunks
+
+    def num_chunks_in_doc(self, doc_id: int):
+        if self.helper_indexer:
+            return self.helper_indexer._num_chunks_in_doc[doc_id]
+        else:
+            self.logger.warning("enable helper_indexer to record num_chunks_in_doc")
 
 
 class BaseDocIndexer(BaseIndexer):
