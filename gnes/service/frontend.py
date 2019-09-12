@@ -17,8 +17,9 @@
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-import grpc
 
+import grpc
+from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger
 from ..proto import gnes_pb2_grpc, gnes_pb2, router2str
@@ -66,6 +67,8 @@ class FrontendService:
             msg.envelope.part_id = 1
             msg.envelope.num_part.append(1)
             msg.envelope.timeout = 5000
+            msg.envelope.gnes_version = __version__
+            msg.envelope.proto_version = __proto_version__
             r = msg.envelope.routes.add()
             r.service = FrontendService.__name__
             r.timestamp.GetCurrentTime()
