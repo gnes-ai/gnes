@@ -103,13 +103,7 @@ def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
 
 
 def router2str(m: 'gnes_pb2.Message') -> str:
-    route_str = []
-    for r in m.envelope.routes:
-        if r.num_replicas and r.num_replicas > 1:
-            route_str.append('%s%s' % (r.service, colored(' x%d' % r.num_replicas, 'yellow')))
-        else:
-            route_str.append(r.service)
-
+    route_str = [r.service for r in m.envelope.routes]
     return colored('▸', 'green').join(route_str)
 
 
@@ -122,8 +116,8 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str):
 def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message'], idx: int = -1):
     r = msg.envelope.routes[idx]
     if len(msg.envelope.routes) > 1:
-        msg.envelope.routes[idx - 1].service = '[%s]' % ', '.join([r.service for r in msg.envelope.routes])
-    r.num_replicas = len(prev_msgs)
+        msg.envelope.routes[idx - 1].service = colored('[%s]' % ', '.join(
+            [m.envelope.routes[idx - 1].service for m in prev_msgs]), 'yellow')
     r.first_start_time.CopyFrom(
         sorted((m.envelope.routes[idx].start_time for m in prev_msgs),
                key=lambda x: (x.seconds, x.nanos))[0])

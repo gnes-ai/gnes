@@ -93,7 +93,6 @@ message Envelope {
         google.protobuf.Timestamp end_time = 3;
         google.protobuf.Timestamp first_start_time = 4;
         google.protobuf.Timestamp last_end_time = 5;
-        uint32 num_replicas = 6;
     }
     repeated route routes = 6;
 

@@ -95,13 +95,18 @@ class FrontendService:
                     route_time.append((k.service, d))
                     sum_duration += d
 
-                route_time.append(('system', total_duration - sum_duration))
-                route_time.append(('total', total_duration))
-                route_time.append(('job', sum_duration))
+                def get_table_str(time_table):
+                    return '\n'.join(
+                        ['%40s\t%3.3fs\t%3d%%' % (k[0], k[1], k[1] / total_duration * 100) for k in
+                         sorted(time_table, key=lambda x: x[1], reverse=True)])
 
-                route_table = '\n'.join(
-                    ['%40s\t%.3fs\t%2.0f%%' % (k[0], k[1], k[1] / total_duration * 100) for k in
-                     sorted(route_time, key=lambda x: x[1], reverse=True)])
+                summary = [('system', total_duration - sum_duration),
+                           ('total', total_duration),
+                           ('job', sum_duration)]
+
+                route_table = ('\n%s\n' % ('-' * 80)).join(
+                    ['%40s\t%-6s\t%3s' % ('Breakdown', 'Time', 'Percent'), get_table_str(route_time),
+                     get_table_str(summary)])
                 self.logger.info('route table: \n%s' % route_table)
 
             return resp
@@ -111,12 +116,12 @@ class FrontendService:
             d_s = end_time.seconds - start_time.seconds
             d_n = end_time.nanos - start_time.nanos
             if d_s < 0 and d_n > 0:
-                d_s += 1
-                d_n -= 1e9
+                d_s = max(d_s + 1, 0)
+                d_n = max(d_n - 1e9, 0)
             elif d_s > 0 and d_n < 0:
-                d_s -= 1
-                d_n += 1e9
-            return d_s + d_n / 1e9
+                d_s = max(d_s - 1, 0)
+                d_n = max(d_n + 1e9, 0)
+            return max(d_s + d_n / 1e9, 0)
 
         def Call(self, request, context):
             with self.zmq_context as zmq_client:
