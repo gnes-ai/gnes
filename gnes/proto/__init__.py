@@ -152,18 +152,26 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
 
         if check_version and msg.envelope:
             from .. import __version__, __proto_version__
-            if hasattr(msg.envelope, 'gnes_version') and __version__ != msg.envelope.gnes_version:
-                raise AttributeError('mismatched GNES version! '
-                                     'incoming message has GNES version %s, whereas local GNES version %s' % (
-                                         msg.envelope.gnes_version, __version__))
-            if hasattr(msg.envelope, 'proto_version') and __proto_version__ != msg.envelope.proto_version:
-                raise AttributeError('mismatched protobuf version! '
-                                     'incoming message has protobuf version %s, whereas local protobuf version %s' % (
-                                         msg.envelope.proto_version, __proto_version__))
+            if hasattr(msg.envelope, 'gnes_version'):
+                if not msg.envelope.gnes_version:
+                    # only happen in unittest
+                    pass
+                elif __version__ != msg.envelope.gnes_version:
+                    raise AttributeError('mismatched GNES version! '
+                                         'incoming message has GNES version %s, whereas local GNES version %s' % (
+                                             msg.envelope.gnes_version, __version__))
+            if hasattr(msg.envelope, 'proto_version'):
+                if not msg.envelope.proto_version:
+                    # only happen in unittest
+                    pass
+                elif __proto_version__ != msg.envelope.proto_version:
+                    raise AttributeError('mismatched protobuf version! '
+                                         'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                             msg.envelope.proto_version, __proto_version__))
             if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
                 raise AttributeError('version_check=True locally, '
                                      'but incoming message contains no version info in its envelope. '
-                                     'the message is probably sent from an outdated GNES service')
+                                     'the message is probably sent from a very outdated GNES version')
         return msg
 
     except ValueError:
