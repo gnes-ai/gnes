@@ -4,7 +4,7 @@ from pprint import pprint
 
 from gnes.proto import gnes_pb2
 from gnes.score_fn.base import get_unary_score, CombinedScoreFn, ModifierScoreFn
-from gnes.score_fn.chunk import WeightedChunkScoreFn
+from gnes.score_fn.chunk import WeightedChunkScoreFn, WeightedChunkOffsetScoreFn, CoordChunkScoreFn, TFIDFChunkScoreFn, BM25ChunkScoreFn
 from gnes.score_fn.normalize import Normalizer1, Normalizer2, Normalizer3, Normalizer4
 
 
@@ -26,6 +26,23 @@ class TestScoreFn(unittest.TestCase):
         c = sum_op(a, sq_op(b))
         self.assertAlmostEqual(c.value, 0.99)
         print(c)
+
+    def test_combine_score_fn(self):
+        from gnes.indexer.chunk.helper import ListKeyIndexer
+        from gnes.indexer.chunk.numpy import NumpyIndexer
+        from gnes.proto import array2blob
+        import numpy as np
+
+        q_chunk = gnes_pb2.Chunk()
+        q_chunk.doc_id = 2
+        q_chunk.weight = 0.3
+        q_chunk.offset = 0
+        q_chunk.embedding.CopyFrom(array2blob(np.array([3, 3, 3])))
+
+        for _fn in [WeightedChunkOffsetScoreFn, CoordChunkScoreFn, TFIDFChunkScoreFn, BM25ChunkScoreFn]:
+            indexer = NumpyIndexer(helper_indexer=ListKeyIndexer(), score_fn=_fn())
+            indexer.add(keys=[(0, 1), (1, 2)], vectors=np.array([[1, 1, 1], [2, 2, 2]]), weights=[0.5, 0.8])
+            queried_result = indexer.query_and_score(q_chunks=[q_chunk], top_k=2)
 
     def test_normalizer(self):
         a = get_unary_score(0.5)

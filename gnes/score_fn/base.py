@@ -36,6 +36,10 @@ class BaseScoreFn(TrainableBase):
 
     warn_unnamed = False
 
+    def __init__(self, context=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._context = context
+
     def __call__(self, *args, **kwargs) -> 'gnes_pb2.Response.QueryResponse.ScoredResult.Score':
         raise NotImplementedError
 
@@ -87,8 +91,8 @@ class ModifierScoreFn(BaseScoreFn):
     score = modifier(factor * value)
     """
 
-    def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant', *args,
-                 **kwargs):
+    def __init__(self, modifier: str = 'none', factor: float = 1.0, factor_name: str = 'GivenConstant',
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         if modifier not in self.supported_ops:
             raise AttributeError(
