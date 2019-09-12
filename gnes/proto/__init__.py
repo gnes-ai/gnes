@@ -114,16 +114,16 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str):
 
 
 def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message'], idx: int = -1):
-    r = msg.envelope.routes[idx]
-    if len(msg.envelope.routes) > 1:
-        msg.envelope.routes[idx - 1].service = colored('[%s]' % ', '.join(
-            [m.envelope.routes[idx - 1].service for m in prev_msgs]), 'yellow')
-    r.first_start_time.CopyFrom(
-        sorted((m.envelope.routes[idx].start_time for m in prev_msgs),
-               key=lambda x: (x.seconds, x.nanos))[0])
-    r.last_end_time.CopyFrom(
-        sorted((m.envelope.routes[idx].end_time for m in prev_msgs),
-               key=lambda x: (x.seconds, x.nanos), reverse=True)[0])
+    r = msg.envelope.routes.pop(idx)
+    msg.envelope.routes.extend([m.envelope.routes[idx - 1] for m in prev_msgs[:-1] if len(m.envelope.routes) > 1])
+    msg.envelope.routes.extend([r])
+
+    # r.first_start_time.CopyFrom(
+    #     sorted((m.envelope.routes[idx].start_time for m in prev_msgs),
+    #            key=lambda x: (x.seconds, x.nanos))[0])
+    # r.last_end_time.CopyFrom(
+    #     sorted((m.envelope.routes[idx].end_time for m in prev_msgs),
+    #            key=lambda x: (x.seconds, x.nanos), reverse=True)[0])
 
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
