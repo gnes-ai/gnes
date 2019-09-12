@@ -40,7 +40,7 @@ class TestScoreFn(unittest.TestCase):
         q_chunk.embedding.CopyFrom(array2blob(np.array([3, 3, 3])))
 
         for _fn in [WeightedChunkOffsetScoreFn, CoordChunkScoreFn, TFIDFChunkScoreFn, BM25ChunkScoreFn]:
-            indexer = NumpyIndexer(helper_indexer=ListKeyIndexer(), score_fn=_fn)
+            indexer = NumpyIndexer(helper_indexer=ListKeyIndexer(), score_fn=_fn())
             indexer.add(keys=[(0, 1), (1, 2)], vectors=np.array([[1, 1, 1], [2, 2, 2]]), weights=[0.5, 0.8])
             queried_result = indexer.query_and_score(q_chunks=[q_chunk], top_k=2)
 

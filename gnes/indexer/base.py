@@ -36,8 +36,10 @@ class BaseIndexer(TrainableBase):
         :type is_big_score_similar: when set to true, then larger score means more similar
         """
         super().__init__(*args, **kwargs)
-        self.normalize_fn = normalize_fn(context=self) if normalize_fn else ModifierScoreFn(context=self)
-        self.score_fn = score_fn(context=self) if score_fn else ModifierScoreFn(context=self)
+        self.normalize_fn = normalize_fn if normalize_fn else ModifierScoreFn(context=self)
+        self.score_fn = score_fn if score_fn else ModifierScoreFn(context=self)
+        self.normalize_fn._context = self
+        self.score_fn._context = self
         self.is_big_score_similar = is_big_score_similar
         self._num_docs = 0
         self._num_chunks = 0
