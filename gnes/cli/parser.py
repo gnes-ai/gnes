@@ -280,6 +280,8 @@ def set_frontend_parser(parser=None):
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent connections allowed')
+    parser.add_argument('--show_route_table', action='store_true', default=False,
+                        help='showing a route table with time cost after receiving the result')
     return parser
 
 

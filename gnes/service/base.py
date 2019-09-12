@@ -353,6 +353,10 @@ class BaseService(metaclass=ConcurrentService):
         self._msg_old_type = msg.WhichOneof('body')
         self.logger.info('a message in type: %s with route: %s' % (self._msg_old_type, router2str(msg)))
 
+    @handler.register_hook(hook_type='post')
+    def _hook_update_route_timestamp(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        msg.envelope.routes[-1].end_time.GetCurrentTime()
+
     @zmqd.context()
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)

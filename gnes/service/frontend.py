@@ -17,8 +17,9 @@
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-
 import grpc
+from termcolor import colored
+
 from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger
@@ -71,15 +72,53 @@ class FrontendService:
             msg.envelope.proto_version = __proto_version__
             r = msg.envelope.routes.add()
             r.service = FrontendService.__name__
-            r.timestamp.GetCurrentTime()
+            r.start_time.GetCurrentTime()
             msg.request.CopyFrom(body)
             return msg
 
         def remove_envelope(self, m: 'gnes_pb2.Message'):
             resp = m.response
             resp.request_id = m.envelope.request_id
-            self.logger.info('unpacking a message and return to client: %s' % router2str(m))
+            m.envelope.routes[0].end_time.GetCurrentTime()
+            if self.args.show_route_table:
+                self.logger.info('route: %s' % router2str(m))
+                route_time = []
+                k = m.envelope.routes[0]
+                total_duration = self.get_duration(k.start_time, k.end_time)
+
+                sum_duration = 0
+                for k in m.envelope.routes[1:]:
+                    if k.num_replicas and k.num_replicas >= 1:
+                        d = self.get_duration(k.first_start_time, k.last_end_time)
+                    else:
+                        d = self.get_duration(k.start_time, k.end_time)
+
+                    route_time.append((k.service, d))
+                    sum_duration += d
+
+                route_time.append(('system', total_duration - sum_duration))
+                route_time.append(('total', total_duration))
+                route_time.append(('job', sum_duration))
+
+                route_table = '\n'.join(
+                    ['%40s\t%.3fs\t%2.0f%%' % (k[0], k[1], k[1] / total_duration * 100) for k in
+                     sorted(route_time, key=lambda x: x[1], reverse=True)])
+                self.logger.info('route table: \n%s' % route_table)
+
             return resp
+
+        @staticmethod
+        def get_duration(start_time, end_time):
+            d_s = end_time.seconds - start_time.seconds
+            d_n = end_time.nanos - start_time.nanos
+            if d_s < 0 and d_n > 0:
+                d_s += 1
+                d_n -= 1e9
+            elif d_s > 0 and d_n < 0:
+                d_s -= 1
+                d_n += 1e9
+            return d_s + d_n / 1e9
+
 
         def Call(self, request, context):
             with self.zmq_context as zmq_client:
@@ -97,8 +136,12 @@ class FrontendService:
 
         def StreamCall(self, request_iterator, context):
             with self.zmq_context as zmq_client:
+                num_request = 0
                 for request in request_iterator:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
+                    num_request += 1
+
+                for _ in range(num_request):
                     msg = zmq_client.recv_message(self.args.timeout)
                     yield self.remove_envelope(msg)
 
