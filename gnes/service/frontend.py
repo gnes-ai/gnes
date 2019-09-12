@@ -77,7 +77,7 @@ class FrontendService:
             resp = m.response
             resp.request_id = m.envelope.request_id
             m.envelope.routes[0].end_time.GetCurrentTime()
-            if self.args.show_route_table:
+            if self.args.route_table:
                 self.logger.info('route: %s' % router2str(m))
                 route_time = []
                 k = m.envelope.routes[0]

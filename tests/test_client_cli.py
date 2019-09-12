@@ -22,7 +22,7 @@ class TestCLI(unittest.TestCase):
         ])
 
         args = set_frontend_parser().parse_args([
-            '--show_route_table'
+
         ])
 
         p_args = set_router_parser().parse_args([

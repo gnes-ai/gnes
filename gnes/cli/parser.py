@@ -17,6 +17,29 @@
 import argparse
 
 
+class ActionNoYes(argparse.Action):
+    def __init__(self, option_strings, dest, default=None, required=False, help=None):
+
+        if default is None:
+            raise ValueError('you must provide a default with yes/no action')
+        if len(option_strings) != 1:
+            raise ValueError('only single argument is allowed with yes/no action')
+        opt = option_strings[0]
+        if not opt.startswith('--'):
+            raise ValueError('yes/no arguments must be prefixed with --')
+
+        opt = opt[2:]
+        opts = ['--' + opt, '--no-' + opt]
+        super(ActionNoYes, self).__init__(opts, dest, nargs=0, const=None,
+                                          default=default, required=required, help=help)
+
+    def __call__(self, parser, namespace, values, option_strings=None):
+        if option_strings.startswith('--no-'):
+            setattr(namespace, self.dest, False)
+        else:
+            setattr(namespace, self.dest, True)
+
+
 def resolve_py_path(path):
     import os
     if not os.path.exists(path):
@@ -54,7 +77,8 @@ def set_base_parser():
                     'It enables large-scale index and semantic search for text-to-text, image-to-image, '
                     'video-to-video and any content form. Visit %s for tutorials and documentations.' % (
                         colored('GNES v%s: Generic Neural Elastic Search' % __version__, 'green'),
-                        colored('https://gnes.ai', 'cyan', attrs=['underline'])))
+                        colored('https://gnes.ai', 'cyan', attrs=['underline'])),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
     parser.add_argument('--verbose', action='store_true', default=False,
                         help='turn on detailed logging for debug')
@@ -152,7 +176,7 @@ def set_service_parser(parser=None):
     parser.add_argument('--parallel_type', type=ParallelType.from_string, choices=list(ParallelType),
                         default=ParallelType.PUSH_NONBLOCK,
                         help='parallel type of the concurrent services')
-    parser.add_argument('--check_version', action='store_true', default=False,
+    parser.add_argument('--check_version', action=ActionNoYes, default=True,
                         help='comparing the GNES and proto version of incoming message with local setup, '
                              'mismatch raise an exception')
     parser.add_argument('--identity', type=str, default=str(uuid.uuid4()).split('-')[0],
@@ -283,7 +307,7 @@ def set_frontend_parser(parser=None):
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent connections allowed')
-    parser.add_argument('--show_route_table', action='store_true', default=False,
+    parser.add_argument('--route_table', action=ActionNoYes, default=True,
                         help='showing a route table with time cost after receiving the result')
     return parser
 
