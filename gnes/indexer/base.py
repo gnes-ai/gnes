@@ -25,8 +25,8 @@ from ..score_fn.base import get_unary_score, ModifierScoreFn
 
 class BaseIndexer(TrainableBase):
     def __init__(self,
-                 normalize_fn: 'BaseScoreFn' = ModifierScoreFn(),
-                 score_fn: 'BaseScoreFn' = ModifierScoreFn(),
+                 normalize_fn: 'BaseScoreFn' = None,
+                 score_fn: 'BaseScoreFn' = None,
                  is_big_score_similar: bool = False,
                  *args, **kwargs):
         """
@@ -36,8 +36,8 @@ class BaseIndexer(TrainableBase):
         :type is_big_score_similar: when set to true, then larger score means more similar
         """
         super().__init__(*args, **kwargs)
-        self.normalize_fn = normalize_fn
-        self.score_fn = score_fn
+        self.normalize_fn = normalize_fn(context=self) if normalize_fn else ModifierScoreFn(context=self)
+        self.score_fn = score_fn(context=self) if score_fn else ModifierScoreFn(context=self)
         self.is_big_score_similar = is_big_score_similar
         self._num_docs = 0
         self._num_chunks = 0
@@ -90,12 +90,7 @@ class BaseChunkIndexer(BaseIndexer):
             for _doc_id, _offset, _weight, _relevance in topk_chunks:
                 r = gnes_pb2.Response.QueryResponse.ScoredResult()
                 r.chunk.doc_id = _doc_id
-                if isinstance(_offset, list):
-                    r.chunk.offset_nd.extend(_offset)
-                    q_offset = q_chunk.offset_nd
-                else:
-                    r.chunk.offset = _offset
-                    q_offset = q_chunk.offset
+                r.chunk.offset = _offset
                 r.chunk.weight = _weight
                 _score = get_unary_score(value=_relevance,
                                          name=self.__class__.__name__,
@@ -104,9 +99,9 @@ class BaseChunkIndexer(BaseIndexer):
                                                   doc_id=_doc_id,
                                                   offset=_offset),
                                              dict(name='query_chunk',
-                                                  offset=str(q_offset))])
+                                                  offset=q_chunk.offset)])
                 _score = self.normalize_fn(_score)
-                _score = self.score_fn(_score, q_chunk, r.chunk, queried_results, self)
+                _score = self.score_fn(_score, q_chunk, r.chunk, queried_results)
                 r.score.CopyFrom(_score)
                 results.append(r)
         return results

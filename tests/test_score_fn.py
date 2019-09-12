@@ -36,13 +36,12 @@ class TestScoreFn(unittest.TestCase):
         q_chunk = gnes_pb2.Chunk()
         q_chunk.doc_id = 2
         q_chunk.weight = 0.3
-        q_chunk.offset_nd.extend([0, 0])
-        # q_chunk.offset = 0
+        q_chunk.offset = 0
         q_chunk.embedding.CopyFrom(array2blob(np.array([3, 3, 3])))
 
         for _fn in [WeightedChunkOffsetScoreFn, CoordChunkScoreFn, TFIDFChunkScoreFn, BM25ChunkScoreFn]:
-            indexer = NumpyIndexer(helper_indexer=ListKeyIndexer(), score_fn=_fn())
-            indexer.add(keys=[(0, [1, 1]), (1, [2, 2])], vectors=np.array([[1, 1, 1], [2, 2, 2]]), weights=[0.5, 0.8])
+            indexer = NumpyIndexer(helper_indexer=ListKeyIndexer(), score_fn=_fn)
+            indexer.add(keys=[(0, 1), (1, 2)], vectors=np.array([[1, 1, 1], [2, 2, 2]]), weights=[0.5, 0.8])
             queried_result = indexer.query_and_score(q_chunks=[q_chunk], top_k=2)
 
     def test_normalizer(self):

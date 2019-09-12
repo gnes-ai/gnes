@@ -72,22 +72,18 @@ class CoordChunkScoreFn(CombinedScoreFn):
     query_coordination: #chunks return / #chunks in this doc(query doc)
     """
 
-    from ..indexer.base import BaseChunkIndexer
-
     def __call__(self, last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                  q_chunk: 'gnes_pb2.Chunk',
                  d_chunk: 'gnes_pb2.Chunk',
                  queried_results: List[List[Tuple]],
-                 indexer: BaseChunkIndexer, *args, **kwargs):
-        query_coordination = get_unary_score(value=self._cal_query_coord(d_chunk, queried_results, indexer),
+                 *args, **kwargs):
+        query_coordination = get_unary_score(value=self._cal_query_coord(d_chunk, queried_results),
                                              name='query coordination')
         return super().__call__(last_score, query_coordination)
 
-    @staticmethod
-    def _cal_query_coord(d_chunk: 'gnes_pb2.Chunk', queried_results: List[List[Tuple]],
-                         indexer: BaseChunkIndexer):
+    def _cal_query_coord(self, d_chunk: 'gnes_pb2.Chunk', queried_results: List[List[Tuple]]):
         doc_id = d_chunk.doc_id
-        total_chunks = indexer.num_chunks_in_doc(doc_id)
+        total_chunks = self._context.num_chunks_in_doc(doc_id)
         queried_doc_id, _, _, _ = zip(*(queried_results[0]))
         recall_chunks = queried_doc_id.count(doc_id)
         return recall_chunks / total_chunks
@@ -101,8 +97,6 @@ class TFIDFChunkScoreFn(CombinedScoreFn):
     idf(q_chunk) = log(total_chunks / tf(q_chunk) + 1)
     """
 
-    from ..indexer.base import BaseChunkIndexer
-
     def __init__(self, threshold: float = 0.8, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.threshold = threshold
@@ -111,16 +105,16 @@ class TFIDFChunkScoreFn(CombinedScoreFn):
                  q_chunk: 'gnes_pb2.Chunk',
                  d_chunk: 'gnes_pb2.Chunk',
                  queried_results: List[List[Tuple]],
-                 indexer: BaseChunkIndexer, *args, **kwargs):
-        tf_idf = get_unary_score(value=self._cal_tf_idf(queried_results, indexer),
+                 *args, **kwargs):
+        tf_idf = get_unary_score(value=self._cal_tf_idf(queried_results),
                                              name='query tf-idf')
         return super().__call__(last_score, tf_idf)
 
-    def _cal_tf_idf(self, queried_results: List[List[Tuple]], indexer: BaseChunkIndexer):
+    def _cal_tf_idf(self, queried_results: List[List[Tuple]]):
         _, _, _, queried_relevance = zip(*(queried_results[0]))
         tf = len(list(filter(lambda x: x >= self.threshold, queried_relevance)))
 
-        total_chunks = indexer.num_chunks
+        total_chunks = self._context.num_chunks
         idf = np.log10(total_chunks / (tf + 1))
         return tf * (idf ** 2)
 
@@ -138,8 +132,6 @@ class BM25ChunkScoreFn(CombinedScoreFn):
     In elastic search, b = 0.75, k1 = 1.2
     """
 
-    from ..indexer.base import BaseChunkIndexer
-
     def __init__(self, threshold: float = 0.8, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.threshold = threshold
@@ -150,17 +142,17 @@ class BM25ChunkScoreFn(CombinedScoreFn):
                  q_chunk: 'gnes_pb2.Chunk',
                  d_chunk: 'gnes_pb2.Chunk',
                  queried_results: List[List[Tuple]],
-                 indexer: BaseChunkIndexer, *args, **kwargs):
-        bm25 = get_unary_score(value=self._cal_bm25(d_chunk, queried_results, indexer),
+                 *args, **kwargs):
+        bm25 = get_unary_score(value=self._cal_bm25(d_chunk, queried_results),
                                              name='query bm25')
         return super().__call__(last_score, bm25)
 
-    def _cal_bm25(self, d_chunk: 'gnes_pb2.Chunk', queried_results: List[List[Tuple]], indexer: BaseChunkIndexer):
+    def _cal_bm25(self, d_chunk: 'gnes_pb2.Chunk', queried_results: List[List[Tuple]]):
         doc_id = d_chunk.doc_id
         _, _, _, queried_relevance = zip(*(queried_results[0]))
         tf = len(list(filter(lambda x: x >= self.threshold, queried_relevance)))
 
-        total_chunks = indexer.num_chunks
+        total_chunks = self._context.num_chunks
         idf = np.log10(1 + (total_chunks - tf + 0.5) / (tf + 0.5))
         return idf * tf * (self.k1 + 1) / (tf + self.k1 * (1 - self.b + self.b *
-                                    (indexer.num_chunks_in_doc(doc_id) * indexer.num_docs / indexer.num_chunks)))
+                                (self._context.num_chunks_in_doc(doc_id) * self._context.num_docs / self._context.num_chunks)))
