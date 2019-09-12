@@ -52,8 +52,7 @@ base_dep = [
     'protobuf',
     'grpcio',
     'ruamel.yaml>=0.15.89',
-    'pyzmq>=17.1.0',
-    'aiohttp']
+    'pyzmq>=17.1.0']
 
 # using pip install gnes[xx] is depreciated
 # extras_dep is kept for legacy issue, will be removed soon
@@ -73,7 +72,9 @@ extras_dep = {
     'onnx': ['onnxruntime'],
     'audio': ['librosa>=0.7.0'],
     'scipy': ['scipy', 'sklearn'],
-    'flask': ['flask']
+    'flask': ['flask'],
+    'aiohttp': ['aiohttp'],
+    'http': ['flask', 'aiohttp']
 }
 
 

@@ -14,10 +14,7 @@ A copy of the Apache License, Version 2.0 is included in this file.
 
 Open Source Software Licensed Under the Apache License, Version 2.0:
 -------------------------------------------------------------------------
-1. aiohttp  3.5.4
-Copyright 2013-2019 Nikolay Kim and Andrew Svetlov.
-
-2. grpc  1.21.2
+1. grpc  1.21.2
 Copyright Copyright 2014 gRPC authors.
 
 

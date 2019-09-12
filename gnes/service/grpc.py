@@ -27,8 +27,8 @@ class GRPCService(BS):
     def post_init(self):
         self.channel = grpc.insecure_channel(
             '%s:%s' % (self.args.grpc_host, self.args.grpc_port),
-            options=[('grpc.max_send_message_length', self.args.max_message_size * 1024 * 1024),
-                     ('grpc.max_receive_message_length', self.args.max_message_size * 1024 * 1024)])
+            options=[('grpc.max_send_message_length', self.args.max_message_size),
+                     ('grpc.max_receive_message_length', self.args.max_message_size)])
 
         m = PathImporter.add_modules(self.args.pb2_path, self.args.pb2_grpc_path)
 

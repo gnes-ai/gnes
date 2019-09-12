@@ -89,7 +89,11 @@ message Envelope {
     // list of string represent the route of the message
     message route {
         string service = 1;
-        google.protobuf.Timestamp timestamp = 2;
+        google.protobuf.Timestamp start_time = 2;
+        google.protobuf.Timestamp end_time = 3;
+        google.protobuf.Timestamp first_start_time = 4;
+        google.protobuf.Timestamp last_end_time = 5;
+        uint32 num_replicas = 6;
     }
     repeated route routes = 6;
 
