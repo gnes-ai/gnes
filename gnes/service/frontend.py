@@ -142,6 +142,15 @@ class FrontendService:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
                     num_request += 1
 
+                    while True:
+                        try:
+                            # fetch response in real time to reduce network overload
+                            msg = zmq_client.recv_message(10)
+                            yield self.remove_envelope(msg)
+                            num_request -= 1
+                        except TimeoutError:
+                            break
+
                 for _ in range(num_request):
                     msg = zmq_client.recv_message(self.args.timeout)
                     yield self.remove_envelope(msg)
