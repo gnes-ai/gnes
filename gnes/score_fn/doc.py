@@ -28,7 +28,7 @@ class WeightedDocScoreFn(CombinedScoreFn):
 
 class CoordDocScoreFn(CombinedScoreFn):
     """
-    score = score * query_coordination 
+    score = score * query_coordination
     query_coordination: #chunks recalled / #chunks in this doc
     """
 
