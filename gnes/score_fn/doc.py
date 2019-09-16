@@ -14,6 +14,7 @@
 #  limitations under the License.
 
 from .base import get_unary_score, CombinedScoreFn
+import json
 
 
 class WeightedDocScoreFn(CombinedScoreFn):
@@ -41,8 +42,6 @@ class CoordDocScoreFn(CombinedScoreFn):
     @staticmethod
     def _cal_query_coord(last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                                            doc: 'gnes_pb2.Document'):
-        import json
-
         total_chunks = len(doc.chunks)
         recall_chunks = len(json.loads(last_score.explained)['operands'])
         return recall_chunks / total_chunks
