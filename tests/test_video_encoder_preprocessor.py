@@ -11,8 +11,8 @@ from gnes.preprocessor.base import BaseVideoPreprocessor
 class TestVideoEncoder(unittest.TestCase):
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
-        self.mp4_yaml_path = os.path.join(self.dirname, 'mp4-encoder.yml')
-        self.gif_yaml_path = os.path.join(self.dirname, 'gif-encoder.yml')
+        self.mp4_yaml_path = os.path.join(self.dirname, 'yaml', 'mp4-encoder.yml')
+        self.gif_yaml_path = os.path.join(self.dirname, 'yaml', 'gif-encoder.yml')
         self.dump_path = os.path.join(self.dirname, 'video_encoder.bin')
         self.frames_path = os.path.join(self.dirname, 'frames', 'frames.npy')
         self.mp4_encoder = BaseVideoPreprocessor.load_yaml(self.mp4_yaml_path)
