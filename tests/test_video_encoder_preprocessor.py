@@ -14,7 +14,7 @@ class TestVideoEncoder(unittest.TestCase):
         self.mp4_yaml_path = os.path.join(self.dirname, 'mp4-encoder.yml')
         self.gif_yaml_path = os.path.join(self.dirname, 'gif-encoder.yml')
         self.dump_path = os.path.join(self.dirname, 'video_encoder.bin')
-        self.frames_path = os.path.join(self.dirname, 'videos', 'frames.npy')
+        self.frames_path = os.path.join(self.dirname, 'frames', 'frames.npy')
         self.mp4_encoder = BaseVideoPreprocessor.load_yaml(self.mp4_yaml_path)
         self.gif_encoder = BaseVideoPreprocessor.load_yaml(self.gif_yaml_path)
         self.video_frames = np.load(self.frames_path)
