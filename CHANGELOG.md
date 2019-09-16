@@ -1,4 +1,51 @@
 
+# Release Note (`v0.0.40`)
+> Release time: 2019-09-12 19:54:34
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jem,  hanhxiao,  felix,  🙇
+
+
+### 🆕 New Features
+
+ - [[```b5e10bcd```](https://github.com/gnes-ai/gnes/commit/b5e10bcd89a4b802a52941f507b1fb806998116b)] __-__ __scorefn__: add offset tfidf bm25 qureycoord (*Jem*)
+ - [[```20e7db6b```](https://github.com/gnes-ai/gnes/commit/20e7db6baa25dc709d86643d3fcf146cbbbce996)] __-__ __cli__: show default value of each argument (*hanhxiao*)
+ - [[```c6960b52```](https://github.com/gnes-ai/gnes/commit/c6960b523a4d8ac8e261adc0d51ea3d842e1b637)] __-__ __progressbar__: add dynamic progress bar (*felix*)
+ - [[```6c8017c1```](https://github.com/gnes-ai/gnes/commit/6c8017c1a00ac098af427acc74956abf11b3ccff)] __-__ __frontend__: new route time table (*hanhxiao*)
+ - [[```81639268```](https://github.com/gnes-ai/gnes/commit/81639268a760a5966bcc43ddade42acdd4692a4a)] __-__ __frontend__: add route time table (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```8704331e```](https://github.com/gnes-ai/gnes/commit/8704331e14f1efe4c8a561768e11cdb24cd97426)] __-__ __proto__: fix version check in recv message (*hanhxiao*)
+ - [[```563a48c7```](https://github.com/gnes-ai/gnes/commit/563a48c7a2f3a98e1f0eef09267f50c96667704f)] __-__ __cli__: fix cli client required (*hanhxiao*)
+ - [[```3db34449```](https://github.com/gnes-ai/gnes/commit/3db344491017a78ec80ba6299674fff44de1f436)] __-__ __proto__: fix merge route logic (*hanhxiao*)
+ - [[```c31f21db```](https://github.com/gnes-ai/gnes/commit/c31f21dbba9964d6051203c90c7fb3f01635bfb0)] __-__ __parser__: fix default dump interval to 5 (*hanhxiao*)
+ - [[```00c25f39```](https://github.com/gnes-ai/gnes/commit/00c25f3981b214910d9a0c38fb6be3b64995960c)] __-__ __parser__: remove limite on message size (*hanhxiao*)
+ - [[```f89b4363```](https://github.com/gnes-ai/gnes/commit/f89b43633632ccfcf6f0c56cfd969bf7dcb4f315)] __-__ __parser__: set dump_interval to -1 (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```a7a0ec8b```](https://github.com/gnes-ai/gnes/commit/a7a0ec8b410a081c9de7744d0a108c39a9a21f46)] __-__ __grpc-client__: add response handler (*felix*)
+ - [[```ce43be80```](https://github.com/gnes-ai/gnes/commit/ce43be80f34e990066ff73503ced51ebf50d78b0)] __-__ __proto__: remove num_replicas from routes (*hanhxiao*)
+ - [[```d007fd9b```](https://github.com/gnes-ai/gnes/commit/d007fd9bca7979b429ed96c6af73f699c3a1634b)] __-__ __indexer__: remove unused code in leveldbindexer (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```787d0f14```](https://github.com/gnes-ai/gnes/commit/787d0f14117b8c2cbb668f2e29021132cc8f9119)] __-__ __readme__: add poem search demo (*hanhxiao*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```3af95227```](https://github.com/gnes-ai/gnes/commit/3af95227be9b2630b450f71706aa9534b5be7671)] __-__ __cli__: add unittest for cli (*Jem*)
+
+### 🍹 Other Improvements
+
+ - [[```0b22029a```](https://github.com/gnes-ai/gnes/commit/0b22029a4b3111723d9c533788c6b96d8ec7e508)] __-__ __indexer__: fix styles in indexer (*Han Xiao*)
+ - [[```edba197a```](https://github.com/gnes-ai/gnes/commit/edba197a22edb809d5336ff755b1db623e04bb28)] __-__ clean and format codes (*felix*)
+ - [[```2a781aee```](https://github.com/gnes-ai/gnes/commit/2a781aee5bf3b85e27a32027d27dfe9409336508)] __-__ __license__: remove aiohttp from barebone GNES license (*hanhxiao*)
+ - [[```cc72cf2b```](https://github.com/gnes-ai/gnes/commit/cc72cf2b59d973343a526c0009b3b1cf8389a186)] __-__ __docker__: revert alpine docker to reduce size (*hanhxiao*)
+ - [[```9f58fb35```](https://github.com/gnes-ai/gnes/commit/9f58fb3551ce3e00680a41996d757f7dcacb4f2c)] __-__ __changelog__: update change log to v0.0.39 (*hanhxiao*)
+
 # Release Note (`v0.0.39`)
 > Release time: 2019-09-11 17:22:11
 
