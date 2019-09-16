@@ -149,8 +149,8 @@ class FrontendService:
                             if self.args.timeout > 0:
                                 timeout = min(0.5 * self.args.timeout, 100)
 
-                            # only 1000 pending tasks are approved
-                            if num_request > 1000:
+                            # only 100 pending tasks are approved
+                            if num_request > 100:
                                 timeout = -1
 
                             msg = zmq_client.recv_message(timeout)
