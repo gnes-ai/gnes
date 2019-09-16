@@ -8,13 +8,10 @@ from gnes.score_fn.chunk import WeightedChunkScoreFn, WeightedChunkOffsetScoreFn
 from gnes.score_fn.doc import CoordDocScoreFn
 from gnes.score_fn.normalize import Normalizer1, Normalizer2, Normalizer3, Normalizer4
 
-from gnes.cli.parser import set_router_parser, _set_client_parser, set_indexer_parser
+from gnes.cli.parser import set_router_parser, _set_client_parser
 from gnes.service.base import SocketType
 from gnes.client.base import ZmqClient
 from gnes.service.router import RouterService
-from gnes.service.indexer import IndexerService
-from gnes.service.base import ServiceManager
-import os
 
 
 class TestScoreFn(unittest.TestCase):
