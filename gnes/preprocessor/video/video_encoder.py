@@ -19,21 +19,21 @@ from gnes.proto import gnes_pb2, blob2array
 
 
 class VideoEncoderPreprocessor(BaseVideoPreprocessor):
-    def __init__(self, frame_rate: int = 10, pix_fmt: str = 'rgb24', format: str = "mp4", *args, **kwargs):
+    def __init__(self, frame_rate: int = 10, pix_fmt: str = 'rgb24', video_format: str = "mp4", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pix_fmt = pix_fmt
         self.frame_rate = frame_rate
-        self.format = format
+        self.video_format = video_format
 
-        if self.format not in ['mp4', 'gif']:
-            raise ValueError("%s encoder has not been supported!" % (self.format))
+        if self.video_format not in ['mp4', 'gif']:
+            raise ValueError("%s encoder has not been supported!" % (self.video_format))
 
 
     def _encode(self, images: 'np.ndarray'):
         encoder = None
-        if self.format == 'mp4':
+        if self.video_format == 'mp4':
             encoder = video
-        elif self.format == 'gif':
+        elif self.video_format == 'gif':
             encoder = gif
 
         return encoder.encode_video(images, pix_fmt=self.pix_fmt, frame_rate=self.frame_rate)
