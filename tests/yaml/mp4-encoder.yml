@@ -1,0 +1,8 @@
+!VideoEncoderPreprocessor
+  parameters:
+    pix_fmt: 'rgb24'
+    frame_rate: 10
+    video_format: 'mp4'
+  gnes_config:
+    name: mp4_encoder
+    is_trained: true
