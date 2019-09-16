@@ -26,17 +26,17 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
     store_args_kwargs = True
 
     def __init__(self,
-                 scale: str = None,
                  descriptor: str = 'block_hsv_histogram',
                  distance_metric: str = 'bhattacharya',
                  detect_method: str = 'threshold',
+                 frame_size: str = None,
                  frame_rate: int = 10,
                  frame_num: int = -1,
                  drop_raw_data: bool = False,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self.scale = scale
+        self.frame_size = frame_size
         self.descriptor = descriptor
         self.distance_metric = distance_metric
         self.detect_method = detect_method
@@ -79,7 +79,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             if doc.raw_bytes:
                 video_frames = video.capture_frames(
                     input_data=doc.raw_bytes,
-                    scale=self.scale,
+                    scale=self.frame_size,
                     fps=self.frame_rate,
                     vframes=self.frame_num)
             elif raw_type == gnes_pb2.NdArray:
