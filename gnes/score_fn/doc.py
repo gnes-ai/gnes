@@ -38,6 +38,7 @@ class CoordDocScoreFn(CombinedScoreFn):
                                              name='query coordination')
         return super().__call__(last_score, d_weight)
 
+    @staticmethod
     def _cal_query_coord(self, last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                                            doc: 'gnes_pb2.Document'):
         import json
