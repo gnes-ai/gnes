@@ -28,7 +28,7 @@ class TestCLI(unittest.TestCase):
         os.unsetenv('https_proxy')
 
     def test_cli(self):
-        args = set_frontend_parser().parse_args()
+        args = set_frontend_parser().parse_args([])
 
         p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
