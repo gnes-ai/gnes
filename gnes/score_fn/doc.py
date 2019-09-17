@@ -35,13 +35,10 @@ class CoordDocScoreFn(CombinedScoreFn):
     def __call__(self, last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
                  doc: 'gnes_pb2.Document',
                  *args, **kwargs):
-        d_weight = get_unary_score(value=self._cal_query_coord(last_score, doc),
+        total_chunks = len(doc.chunks)
+        recall_chunks = len(json.loads(last_score.explained)['operands'])
+        query_coord = 1 if total_chunks == 0 else recall_chunks / total_chunks
+        d_weight = get_unary_score(value=query_coord,
                                    name='query coordination')
         return super().__call__(last_score, d_weight)
 
-    @staticmethod
-    def _cal_query_coord(last_score: 'gnes_pb2.Response.QueryResponse.ScoredResult.Score',
-                         doc: 'gnes_pb2.Document'):
-        total_chunks = len(doc.chunks)
-        recall_chunks = len(json.loads(last_score.explained)['operands'])
-        return recall_chunks / total_chunks
