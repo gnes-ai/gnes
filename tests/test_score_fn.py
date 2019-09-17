@@ -65,7 +65,7 @@ class TestScoreFn(unittest.TestCase):
                 c.weight = 1 / 3
             document_id_list.append(j)
             document_list.append(d)
-    
+
         self.chunk_router_yaml = 'Chunk2DocTopkReducer'
 
         args = set_router_parser().parse_args([
@@ -83,33 +83,33 @@ class TestScoreFn(unittest.TestCase):
             s.score.value = 0.1
             s.score.explained = '"1-c1"'
             s.chunk.doc_id = 1
-        
+
             s = msg.response.search.topk_results.add()
             s.score.value = 0.2
             s.score.explained = '"1-c2"'
             s.chunk.doc_id = 2
-            
+
             s = msg.response.search.topk_results.add()
-            
+
             s.score.value = 0.3
             s.score.explained = '"1-c3"'
             s.chunk.doc_id = 1
-            
+
             msg.envelope.num_part.extend([1, 2])
             c1.send_message(msg)
-            
+
             msg.response.search.ClearField('topk_results')
-            
+
             s = msg.response.search.topk_results.add()
             s.score.value = 0.2
             s.score.explained = '"2-c1"'
             s.chunk.doc_id = 1
-            
+
             s = msg.response.search.topk_results.add()
-            s.score.value = 0.2
+            s.score.value = 0.1
             s.score.explained = '"2-c2"'
             s.chunk.doc_id = 2
-            
+
             s = msg.response.search.topk_results.add()
             s.score.value = 0.3
             s.score.explained = '"2-c3"'
@@ -118,7 +118,7 @@ class TestScoreFn(unittest.TestCase):
             r = c1.recv_message()
             doc_indexer = DictIndexer(score_fn=CoordDocScoreFn())
             doc_indexer.add(keys=document_id_list, docs=document_list)
-            
+
             queried_result = doc_indexer.query_and_score(docs=r.response.search.topk_results, top_k=2)
 
     def test_normalizer(self):
