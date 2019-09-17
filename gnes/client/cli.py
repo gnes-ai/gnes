@@ -17,7 +17,7 @@
 import sys
 import time
 import zipfile
-from typing import List, Generator
+from typing import Generator
 
 from termcolor import colored
 
@@ -62,22 +62,8 @@ class CLIClient(GrpcClient):
         print(req)
         print(resp)
 
-    def read_all(self) -> List[bytes]:
-        if self.args.txt_file:
-            all_bytes = [v.encode() for v in self.args.txt_file]
-        elif self.args.image_zip_file:
-            zipfile_ = zipfile.ZipFile(self.args.image_zip_file)
-            all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
-        elif self.args.video_zip_file:
-            zipfile_ = zipfile.ZipFile(self.args.video_zip_file)
-            all_bytes = [zipfile_.open(v).read() for v in zipfile_.namelist()]
-        else:
-            raise AttributeError('--txt_file, --image_zip_file, --video_zip_file one must be given')
-
-        return all_bytes
-
     @property
-    def bytes_generator(self) -> Generator[bytes]:
+    def bytes_generator(self) -> Generator[bytes, None, None]:
         if self.args.txt_file:
             all_bytes = (v.encode() for v in self.args.txt_file)
         elif self.args.image_zip_file:
@@ -107,7 +93,7 @@ class ProgressBar:
             self.num_bars -= self.bar_len
             sys.stdout.write('\n')
         sys.stdout.write(
-            '{:>10} [{:<{}}] {:3.0f}%   {:>8}: {:3.1f}s   {:>8}: {:3.1f} batch/s'.format(
+            '{:>10} [{:<{}}]  {:>8}: {:3.1f}s   {:>8}: {:3.1f} batch/s'.format(
                 colored(self.task_name, 'cyan'),
                 colored('=' * self.num_bars, 'green'),
                 self.bar_len + 9,
