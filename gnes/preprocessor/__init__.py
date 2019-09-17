@@ -32,6 +32,7 @@ _cls2file_map = {
     'FFmpegPreprocessor': 'video.ffmpeg',
     'FFmpegVideoSegmentor': 'video.ffmpeg',
     'ShotDetectPreprocessor': 'video.shotdetect',
+    'VideoEncoderPreprocessor': 'video.video_encoder',
     'AudioVanilla': 'audio.audio_vanilla',
     'BaseAudioPreprocessor': 'base',
     'RawChunkPreprocessor': 'base',

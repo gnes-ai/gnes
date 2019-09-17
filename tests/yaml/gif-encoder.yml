@@ -1,0 +1,8 @@
+!VideoEncoderPreprocessor
+  parameters:
+    pix_fmt: 'rgb24'
+    frame_rate: 10
+    video_format: 'gif'
+  gnes_config:
+    name: gif_encoder
+    is_trained: true
