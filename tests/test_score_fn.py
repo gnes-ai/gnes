@@ -106,7 +106,7 @@ class TestScoreFn(unittest.TestCase):
             s.chunk.doc_id = 1
 
             s = msg.response.search.topk_results.add()
-            s.score.value = 0.1
+            s.score.value = 0.2
             s.score.explained = '"2-c2"'
             s.chunk.doc_id = 2
 
