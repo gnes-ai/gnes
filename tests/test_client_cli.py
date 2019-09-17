@@ -11,31 +11,34 @@ from gnes.service.router import RouterService
 class TestCLI(unittest.TestCase):
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
+        self.test_file = os.path.join(self.dirname, 'sonnets_small.txt')
+        self.train_args = set_client_cli_parser().parse_args([
+            '--mode', 'train',
+            '--txt_file', self.test_file
+        ])
+        self.index_args = set_client_cli_parser().parse_args([
+            '--mode', 'index',
+            '--txt_file', self.test_file
+        ])
+        self.query_args = set_client_cli_parser().parse_args([
+            '--mode', 'query',
+            '--txt_file', self.test_file
+        ])
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
 
     def test_cli(self):
-        cli_args = set_client_cli_parser().parse_args([
-            '--mode', 'train',
-            '--grpc_host', '127.0.0.1',
-            '--txt_file', os.path.join(self.dirname, 'sonnets.txt')
-        ])
-
-        args = set_frontend_parser().parse_args([
-
-        ])
+        args = set_frontend_parser().parse_args()
 
         p_args = set_router_parser().parse_args([
             '--port_in', str(args.port_out),
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
-            '--host_in', '127.0.0.1',
-            '--host_out', '127.0.0.1',
             '--yaml_path', 'BaseRouter'
         ])
 
-        with RouterService(p_args), FrontendService(args) as s:
-            CLIClient(cli_args)
-
-
+        with RouterService(p_args), FrontendService(args):
+            CLIClient(self.train_args)
+            CLIClient(self.index_args)
+            CLIClient(self.query_args)
