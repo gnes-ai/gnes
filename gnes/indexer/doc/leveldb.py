@@ -66,7 +66,7 @@ class LVDBIndexer(BDI):
                 res.append(self._NOT_FOUND)
         return res
 
-
+    @BDI.update_db_info
     def close(self):
         super().close()
         self._db.close()

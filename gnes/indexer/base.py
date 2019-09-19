@@ -17,6 +17,8 @@ from typing import List, Any, Union, Callable, Tuple
 from collections import defaultdict
 
 import numpy as np
+import datetime
+import json
 
 from ..base import TrainableBase, CompositionalTrainableBase
 from ..proto import gnes_pb2, blob2array
@@ -156,6 +158,10 @@ class BaseChunkIndexer(BaseIndexer):
 class BaseDocIndexer(BaseIndexer):
     """Storing documents and contents """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.db_info_path = None
+
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         """
         adding new docs and their protobuf representation
@@ -188,6 +194,17 @@ class BaseDocIndexer(BaseIndexer):
             self._num_docs += len(keys)
             self._num_chunks += sum(len(d.chunks) for d in docs)
             return func(self, keys, docs, *args, **kwargs)
+
+        return arg_wrapper
+
+    @staticmethod
+    def update_db_info(func):
+        @wraps(func)
+        def arg_wrapper(self, *args, **kwargs):
+            func(self, *args, **kwargs)
+            with open(self.db_info_path, 'a') as f:
+                info = {'date': str(datetime.datetime.now()), 'num_docs': self._num_docs}
+                f.write(json.dumps(info) + '\n')
 
         return arg_wrapper
 
