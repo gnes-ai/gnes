@@ -15,7 +15,7 @@
 
 import ctypes
 import random
-from typing import List
+from typing import List, Iterator
 from typing import Optional
 
 import numpy as np
@@ -30,7 +30,7 @@ __all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'ar
 
 class RequestGenerator:
     @staticmethod
-    def index(data: List[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
+    def index(data: Iterator[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
               doc_id_start: int = 0, request_id_start: int = 0,
               random_doc_id: bool = False,
               *args, **kwargs):
@@ -49,7 +49,7 @@ class RequestGenerator:
             request_id_start += 1
 
     @staticmethod
-    def train(data: List[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
+    def train(data: Iterator[bytes], batch_size: int = 0, doc_type: int = gnes_pb2.Document.TEXT,
               doc_id_start: int = 0, request_id_start: int = 0,
               random_doc_id: bool = False,
               *args, **kwargs):

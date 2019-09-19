@@ -32,6 +32,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                  frame_size: str = None,
                  frame_rate: int = 10,
                  frame_num: int = -1,
+                 sframes: int = -1,
                  drop_raw_data: bool = False,
                  *args,
                  **kwargs):
@@ -42,6 +43,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
         self.detect_method = detect_method
         self.frame_rate = frame_rate
         self.frame_num = frame_num
+        self.sframes = sframes
         self.drop_raw_data = drop_raw_data
         self._detector_kwargs = kwargs
 
@@ -85,8 +87,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             elif raw_type == gnes_pb2.NdArray:
                 video_frames = blob2array(doc.raw_video)
                 if self.frame_num > 0:
-                    stepwise = len(video_frames) / self.frame_num
-                    video_frames = video_frames[0::stepwise, :]
+                    video_frames = video_frames[0:self.frame_num, :]
 
             num_frames = len(video_frames)
             if num_frames > 0:
@@ -94,10 +95,15 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                 for ci, frames in enumerate(shots):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
+                    c.offset = ci
+                    shot_len = len(frames)
+                    c.weight = shot_len / num_frames
+                    if self.sframes > 0 and shot_len > self.sframes:
+                        start_id = int((shot_len - self.sframes) / 2)
+                        end_id = start_id + self.sframes
+                        frames = frames[start_id:end_id]
                     chunk_data = np.array(frames)
                     c.blob.CopyFrom(array2blob(chunk_data))
-                    c.offset = ci
-                    c.weight = len(frames) / num_frames
             else:
                 self.logger.error(
                     'bad document: "raw_bytes" or "raw_video" is empty!')
