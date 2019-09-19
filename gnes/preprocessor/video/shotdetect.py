@@ -99,7 +99,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                     shot_len = len(frames)
                     c.weight = shot_len / num_frames
                     if self.sframes > 0 and shot_len > self.sframes:
-                        start_id = (shot_len - self.sframes) / 2
+                        start_id = int((shot_len - self.sframes) / 2)
                         end_id = start_id + self.sframes
                         frames = frames[start_id:end_id]
                     chunk_data = np.array(frames)
