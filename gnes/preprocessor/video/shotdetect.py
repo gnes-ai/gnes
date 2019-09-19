@@ -31,7 +31,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                  detect_method: str = 'threshold',
                  frame_size: str = None,
                  frame_rate: int = 10,
-                 frame_num: int = -1,
+                 vframes: int = -1,
                  sframes: int = -1,
                  drop_raw_data: bool = False,
                  *args,
@@ -42,7 +42,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
         self.distance_metric = distance_metric
         self.detect_method = detect_method
         self.frame_rate = frame_rate
-        self.frame_num = frame_num
+        self.vframes = vframes
         self.sframes = sframes
         self.drop_raw_data = drop_raw_data
         self._detector_kwargs = kwargs
@@ -83,11 +83,11 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                     input_data=doc.raw_bytes,
                     scale=self.frame_size,
                     fps=self.frame_rate,
-                    vframes=self.frame_num)
+                    vframes=self.vframes)
             elif raw_type == gnes_pb2.NdArray:
                 video_frames = blob2array(doc.raw_video)
-                if self.frame_num > 0:
-                    video_frames = video_frames[0:self.frame_num, :]
+                if self.vframes > 0:
+                    video_frames = video_frames[0:self.vframes, :]
 
             num_frames = len(video_frames)
             if num_frames > 0:
@@ -99,9 +99,12 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                     shot_len = len(frames)
                     c.weight = shot_len / num_frames
                     if self.sframes > 0 and shot_len > self.sframes:
-                        start_id = int((shot_len - self.sframes) / 2)
-                        end_id = start_id + self.sframes
-                        frames = frames[start_id:end_id]
+                        begin = 0
+                        if self.sframes < 3:
+                            begin = (shot_len - self.sframes) // 2
+                        step = (shot_len) // self.sframes
+                        frames = [frames[_] for _ in range(begin, shot_len, step)]
+
                     chunk_data = np.array(frames)
                     c.blob.CopyFrom(array2blob(chunk_data))
             else:

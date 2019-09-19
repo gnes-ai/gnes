@@ -129,6 +129,12 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
         # sock.setsockopt(zmq.SUBSCRIBE, b'')
 
+    sock.setsockopt(zmq.RCVHWM, 100)
+    sock.setsockopt(zmq.RCVBUF, 512 * 1024 * 1024)  # network buffer 512M
+
+    sock.setsockopt(zmq.SNDHWM, 100)
+    sock.setsockopt(zmq.SNDBUF, 512 * 1024 * 1024)
+
     return sock, sock.getsockopt_string(zmq.LAST_ENDPOINT)
 
 
@@ -423,6 +429,8 @@ class BaseService(metaclass=ConcurrentService):
             self.logger.info('break from the event loop')
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
+        except Exception as e:
+            self.logger.error("exception occured: %s" % str(e), exc_info=True)
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
