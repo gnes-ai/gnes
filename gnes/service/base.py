@@ -430,7 +430,7 @@ class BaseService(metaclass=ConcurrentService):
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
         except Exception as e:
-            self.logger.error("exception occured", exc_info=True)
+            self.logger.error("exception occured: %s" % str(e), exc_info=True)
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
