@@ -1,4 +1,44 @@
 
+# Release Note (`v0.0.41`)
+> Release time: 2019-09-20 20:51:39
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix,  raccoonliukai,  hanhxiao,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```e255bd48```](https://github.com/gnes-ai/gnes/commit/e255bd48edaddc155affc4cc91b9263126edfb2a)] __-__ __shot-detector__: limit number of frames in shots (*felix*)
+ - [[```6e87afa4```](https://github.com/gnes-ai/gnes/commit/6e87afa4afa2d9d85842a6cac38b1bf6a69392e6)] __-__ __traffic-controller__: network traffic controller in frontend (*felix*)
+ - [[```6833a27c```](https://github.com/gnes-ai/gnes/commit/6833a27ca0a8dc75949c973ecfa0bee0942b25c4)] __-__ __preprocessor__: add sframes for shots frame number (*raccoonliukai*)
+ - [[```ea89d8cb```](https://github.com/gnes-ai/gnes/commit/ea89d8cb4718dddc03bea216093af4ec211650da)] __-__ __stream-call__: only 1000 pending tasks (*felix*)
+ - [[```ca53c65f```](https://github.com/gnes-ai/gnes/commit/ca53c65f622313e089ed8c72e5884585536b22b1)] __-__ __video-encoder__: encode video from list of images (*felix*)
+
+### 🐞 Bug fixes
+
+ - [[```6aa0c3ca```](https://github.com/gnes-ai/gnes/commit/6aa0c3ca124467b21057486d70c1a322e6e3469a)] __-__ __ffmpeg-video__: fig bug for scaling videos to stdout (*felix*)
+ - [[```780aad0d```](https://github.com/gnes-ai/gnes/commit/780aad0dca93578f76d7372db822fc4599f133b9)] __-__ __subprocess__: close stdout and stderr to avoid memory leak (*felix*)
+ - [[```205962fb```](https://github.com/gnes-ai/gnes/commit/205962fb9ee509b895b68a3a9d30c399bb6db42b)] __-__ __socket__: raise socket rec/send message exception (*felix*)
+ - [[```64acb4cd```](https://github.com/gnes-ai/gnes/commit/64acb4cd2b7a4b426169e1e46a871ff5cb526eff)] __-__ __preprocessor__: fix bug when num_frames &lt; 4 in shotdetect (*raccoonliukai*)
+ - [[```05db02f7```](https://github.com/gnes-ai/gnes/commit/05db02f71e8b6a38249ed6a08417e2cf3e73df14)] __-__ __stream-client__: request queue size is limited by 1000 (*felix*)
+ - [[```4f389449```](https://github.com/gnes-ai/gnes/commit/4f3894496a01f00147bac82385ef150779942304)] __-__ __socket-buffer__: set hwm and buffer limit for zmq socket (*felix*)
+ - [[```092379e1```](https://github.com/gnes-ai/gnes/commit/092379e18810956381a3347bd8730016526d7af9)] __-__ __preprocessor__: fix type of index in shotdetect (*raccoonliukai*)
+ - [[```9023afcd```](https://github.com/gnes-ai/gnes/commit/9023afcd668673347f6c98369f77b2279b7ef6cb)] __-__ __test__: add test to cover three runtimes (*hanhxiao*)
+ - [[```65fff1a9```](https://github.com/gnes-ai/gnes/commit/65fff1a9a98595070a10b8d090eb2e3897204463)] __-__ __cli__: fix progressbar (*hanhxiao*)
+ - [[```8828535c```](https://github.com/gnes-ai/gnes/commit/8828535ca10516101ff04c0ba29f3df2bb07e90f)] __-__ __proto__: fix version check in recv message (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```d7c65727```](https://github.com/gnes-ai/gnes/commit/d7c657274654a29ebc9c3216755958e566133cea)] __-__ __scorefn__: move query coord into doc indexer (*Jem*)
+ - [[```b4007ba6```](https://github.com/gnes-ai/gnes/commit/b4007ba6273be7abd15d2d649020a95f670d05f3)] __-__ __frontend__: realtime response to reduce network overload (*felix*)
+ - [[```de5b3368```](https://github.com/gnes-ai/gnes/commit/de5b336888fa1f6a90fe63c854f44987c3bbb977)] __-__ __shot-detector__: merge code from hub (*felix*)
+
+### 🍹 Other Improvements
+
+ - [[```6acff20b```](https://github.com/gnes-ai/gnes/commit/6acff20b505dc50fa9fd20c86e394e28a0afe0f3)] __-__ clean unused variable (*felix*)
+ - [[```373df7da```](https://github.com/gnes-ai/gnes/commit/373df7da2f992873f4e3efca3bc52f3d8ee73ac1)] __-__ __changelog__: update change log to v0.0.40 (*hanhxiao*)
+
 # Release Note (`v0.0.40`)
 > Release time: 2019-09-12 19:54:34
 
