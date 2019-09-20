@@ -134,6 +134,8 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
             'cannot send message to sock %s after timeout=%dms, please check the following:'
             'is the server still online? is the network broken? are "port" correct? ' % (
                 sock, timeout))
+    except Exception as ex:
+        raise ex
     finally:
         sock.setsockopt(zmq.SNDTIMEO, -1)
 
@@ -185,5 +187,7 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
             'no response from sock %s after timeout=%dms, please check the following:'
             'is the server still online? is the network broken? are "port" correct? ' % (
                 sock, timeout))
+    except Exception as ex:
+        raise ex
     finally:
         sock.setsockopt(zmq.RCVTIMEO, -1)

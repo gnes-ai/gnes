@@ -45,7 +45,8 @@ def run_command_async(cmd_args,
         cmd_args,
         stdin=stdin_stream,
         stdout=stdout_stream,
-        stderr=stderr_stream)
+        stderr=stderr_stream,
+        close_fds=True)
 
 
 def wait(process):
@@ -76,4 +77,10 @@ def run_command(cmd_args,
 
         if retcode:
             raise Exception('ffmpeg error: %s' % stderr)
+
+        if proc.stdout is not None:
+            proc.stdout.close()
+        if proc.stderr is not None:
+            proc.stderr.close()
+
         return stdout, stderr
