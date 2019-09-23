@@ -201,7 +201,12 @@ class MessageHandler:
 
         for fn, only_verbose in hooks:
             if (only_verbose and self.service_context.args.verbose) or (not only_verbose):
-                fn(self.service_context, msg, *args, **kwargs)
+                try:
+                    fn(self.service_context, msg, *args, **kwargs)
+                except Exception as ex:
+                    self.logger.warning('hook %s throws an exception, '
+                                        'this wont affect the server but you may want to pay attention' % fn)
+                    self.logger.error(ex, exc_info=True)
 
     def call_routes(self, msg: 'gnes_pb2.Message'):
         def get_default_fn(m_type):
