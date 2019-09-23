@@ -116,7 +116,7 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str, identity: str):
 
 def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):
     # take unique routes by service identity
-    routes = {r.service_identity: r for m in prev_msgs for r in m.envelope.routes}
+    routes = {(r.service + r.service_identity): r for m in prev_msgs for r in m.envelope.routes}
     msg.envelope.ClearField('routes')
     msg.envelope.routes.extend(sorted(routes.values(), key=lambda x: (x.start_time.seconds, x.start_time.nanos)))
 
