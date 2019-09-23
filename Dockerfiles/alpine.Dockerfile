@@ -11,7 +11,8 @@ LABEL maintainer="team@gnes.ai" \
 
 WORKDIR /gnes/
 
-ADD . ./
+ADD setup.py MANIFEST.in requirements.txt README.md ./
+ADD gnes ./gnes/
 
 RUN apk add --no-cache \
             --virtual=.build-dependencies \

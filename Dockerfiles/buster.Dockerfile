@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 WORKDIR /gnes/
 
-ADD . ./
+ADD setup.py MANIFEST.in requirements.txt README.md ./
+ADD gnes ./gnes/
 
 RUN ln -s locale.h /usr/include/xlocale.h && \
     pip install . --no-cache-dir --compile && \

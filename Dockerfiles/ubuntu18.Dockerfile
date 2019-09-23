@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ln -s /usr/bin/python3 python && \
     apt-get autoremove && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ADD . ./
+ADD setup.py MANIFEST.in requirements.txt README.md ./
+ADD gnes ./gnes/
 
 RUN pip3 install . --no-cache-dir --compile && \
     rm -rf /tmp/* && rm -rf /gnes

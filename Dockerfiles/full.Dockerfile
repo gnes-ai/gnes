@@ -19,11 +19,11 @@ RUN pip --no-cache-dir install -r requirements_tmp.txt
 
 FROM dependency as base
 
-ADD . ./
-
+ADD setup.py MANIFEST.in requirements.txt README.md ./
+ADD gnes ./gnes/
 
 RUN pip --no-cache-dir install .[all] \
-    && rm -rf /tmp/*
+    && rm -rf /tmp/* && rm -rf /gnes
 
 WORKDIR /
 

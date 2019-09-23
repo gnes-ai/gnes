@@ -47,16 +47,16 @@ class FaissIndexer(BCI):
     @BCI.update_helper_indexer
     def add(self, keys: List[Tuple[int, Any]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         if len(vectors) != len(keys):
-            raise ValueError("vectors length should be equal to doc_ids")
+            raise ValueError('vectors length should be equal to doc_ids')
 
         if vectors.dtype != np.float32:
-            raise ValueError("vectors should be ndarray of float32")
+            raise ValueError('vectors should be ndarray of float32')
 
         self._faiss_index.add(vectors)
 
     def query(self, keys: np.ndarray, top_k: int, *args, **kwargs) -> List[List[Tuple]]:
         if keys.dtype != np.float32:
-            raise ValueError("vectors should be ndarray of float32")
+            raise ValueError('vectors should be ndarray of float32')
 
         score, ids = self._faiss_index.search(keys, top_k)
         ret = []
