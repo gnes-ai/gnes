@@ -605,7 +605,8 @@ def make_route_table(routes, exclude_frontend: bool = False):
 
     summary = [('system', total_duration - sum_duration),
                ('total', total_duration),
-               ('job', sum_duration)]
+               ('job', sum_duration),
+               ('parallel', max(sum_duration - total_duration, 0))]
     route_table = ('\n%s\n' % ('-' * 80)).join(
         ['%40s\t%-6s\t%3s' % ('Breakdown', 'Time', 'Percent'), get_table_str(route_time),
          get_table_str(summary)])
