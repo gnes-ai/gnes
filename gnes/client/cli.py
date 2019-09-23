@@ -84,13 +84,13 @@ class ProgressBar:
         self.task_name = task_name
 
     def update(self):
-        sys.stdout.write('\r')
+        self.num_bars += 1
+        if (self.num_bars + 1) % self.bar_len == 0:
+            sys.stdout.write('\n')
         elapsed = time.perf_counter() - self.start_time
         elapsed_str = colored('elapsed', 'yellow')
         speed_str = colored('speed', 'yellow')
-        self.num_bars += 1
-        if self.num_bars % self.bar_len == 0:
-            sys.stdout.write('\n')
+
         sys.stdout.write(
             '{:>10} [{:<{}}]  {:>8}: {:3.1f}s   {:>8}: {:3.1f} batch/s'.format(
                 colored(self.task_name, 'cyan'),
@@ -101,12 +101,13 @@ class ProgressBar:
                 speed_str,
                 self.num_bars / elapsed,
             ))
+
         sys.stdout.flush()
+        sys.stdout.write('\r')
 
     def __enter__(self):
         self.start_time = time.perf_counter()
-        self.num_bars = -1
-        sys.stdout.write('\n')
+        self.num_bars = 0
         self.update()
         return self
 
