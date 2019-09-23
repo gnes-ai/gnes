@@ -457,41 +457,47 @@ class TestProto(unittest.TestCase):
             '--yaml_path', self.publish_router_yaml,
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUB_BIND),
-            '--port_in', str(p1.port_out)
+            '--port_in', str(p1.port_out),
+            '--identity', ''
         ])
         p22 = set_router_parser().parse_args([
             '--yaml_path', self.publish_router_yaml,
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUB_BIND),
-            '--port_in', str(p1.port_out)
+            '--port_in', str(p1.port_out),
+            '--identity', ''
         ])
         r311 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
             '--port_out', str(r41.port_in),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
+            '--identity', ''
         ])
         r312 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p21.port_out),
             '--port_out', str(r41.port_in),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
+            '--identity', ''
         ])
         r321 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),
             '--port_out', str(r42.port_in),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
+            '--identity', ''
         ])
         r322 = set_router_parser().parse_args([
             '--socket_in', str(SocketType.SUB_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--port_in', str(p22.port_out),
             '--port_out', str(r42.port_in),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
+            '--identity', ''
         ])
 
         c_args = _set_client_parser().parse_args([

@@ -29,7 +29,7 @@ from termcolor import colored
 
 from ..base import TrainableBase, T
 from ..cli.parser import resolve_yaml_path
-from ..helper import set_logger, PathImporter, TimeContext
+from ..helper import set_logger, PathImporter, TimeContext, make_route_table
 from ..proto import gnes_pb2, add_route, send_message, recv_message, router2str
 
 
@@ -128,7 +128,6 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
     if socket_type in {SocketType.SUB_CONNECT, SocketType.SUB_BIND}:
         sock.setsockopt(zmq.SUBSCRIBE, identity.encode('ascii') if identity else b'')
         # sock.setsockopt(zmq.SUBSCRIBE, b'')
-
 
     # Note: the following very dangerous for pub-sub socketc
     sock.setsockopt(zmq.RCVHWM, 10)
@@ -361,6 +360,9 @@ class BaseService(metaclass=ConcurrentService):
     @handler.register_hook(hook_type='post')
     def _hook_update_route_timestamp(self, msg: 'gnes_pb2.Message', *args, **kwargs):
         msg.envelope.routes[-1].end_time.GetCurrentTime()
+        if self.args.route_table:
+            self.logger.info('route: %s' % router2str(msg))
+            self.logger.info('route table: \n%s' % make_route_table(msg.envelope.routes))
 
     @zmqd.context()
     def _run(self, ctx):
@@ -368,9 +370,9 @@ class BaseService(metaclass=ConcurrentService):
         self.handler.service_context = self
         self.logger.info('bind sockets...')
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
-                                  getattr(self, 'identity', None))
+                                  self.args.identity)
         out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
-                                   getattr(self, 'identity', None))
+                                   self.args.identity)
         ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
 
         self.logger.info(
