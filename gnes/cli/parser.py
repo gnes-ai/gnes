@@ -179,8 +179,10 @@ def set_service_parser(parser=None):
     parser.add_argument('--check_version', action=ActionNoYes, default=True,
                         help='comparing the GNES and proto version of incoming message with local setup, '
                              'mismatch raise an exception')
-    parser.add_argument('--identity', type=str, default=str(uuid.uuid4()).split('-')[0],
-                        help='identity of the service, by default a random uuid string')
+    parser.add_argument('--identity', type=str, default='',
+                        help='identity of the service, empty by default')
+    parser.add_argument('--route_table', action=ActionNoYes, default=True,
+                        help='showing a route table with time cost after receiving the result')
     return parser
 
 
@@ -307,8 +309,7 @@ def set_frontend_parser(parser=None):
                         read_only=True)
     parser.add_argument('--max_concurrency', type=int, default=10,
                         help='maximum concurrent connections allowed')
-    parser.add_argument('--route_table', action=ActionNoYes, default=True,
-                        help='showing a route table with time cost after receiving the result')
+
     return parser
 
 

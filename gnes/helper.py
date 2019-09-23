@@ -72,8 +72,9 @@ def progressbar(i, prefix="", suffix="", count=100, size=60):
     x = int(size * i / count)
     sys.stdout.write(
         "%s[%s%s] %i/%i %s\r" % (prefix, "#" * x, "." * (size - x), _i,
-                                   (step + 1) * count, suffix))
+                                 (step + 1) * count, suffix))
     sys.stdout.flush()
+
 
 def get_first_available_gpu():
     try:
@@ -583,6 +584,47 @@ class PathImporter:
         spec.loader.exec_module(module)
         sys.modules[spec.name] = module
         return module, spec
+
+
+def make_route_table(routes, exclude_frontend: bool = False):
+    route_time = []
+    if exclude_frontend:
+        total_duration = get_duration(routes[0].start_time, routes[0].end_time)
+    else:
+        total_duration = get_duration(routes[0].start_time, routes[-1].end_time)
+    sum_duration = 0
+    for k in routes[(1 if exclude_frontend else 0):]:
+        d = get_duration(k.start_time, k.end_time)
+        route_time.append((k.service, d))
+        sum_duration += d
+
+    def get_table_str(time_table):
+        return '\n'.join(
+            ['%40s\t%3.3fs\t%3d%%' % (k[0], k[1], k[1] / total_duration * 100) for k in
+             sorted(time_table, key=lambda x: x[1], reverse=True)])
+
+    summary = [('system', total_duration - sum_duration),
+               ('total', total_duration),
+               ('job', sum_duration),
+               ('parallel', max(sum_duration - total_duration, 0))]
+    route_table = ('\n%s\n' % ('-' * 80)).join(
+        ['%40s\t%-6s\t%3s' % ('Breakdown', 'Time', 'Percent'), get_table_str(route_time),
+         get_table_str(summary)])
+    return route_table
+
+
+def get_duration(start_time, end_time):
+    if not start_time or not end_time:
+        return -1
+    d_s = end_time.seconds - start_time.seconds
+    d_n = end_time.nanos - start_time.nanos
+    if d_s < 0 and d_n > 0:
+        d_s = max(d_s + 1, 0)
+        d_n = max(d_n - 1e9, 0)
+    elif d_s > 0 and d_n < 0:
+        d_s = max(d_s - 1, 0)
+        d_n = max(d_n + 1e9, 0)
+    return max(d_s + d_n / 1e9, 0)
 
 
 profile_logger = set_logger('PROFILE')

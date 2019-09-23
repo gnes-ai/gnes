@@ -76,11 +76,11 @@ class ZmqClient:
         self.ctx.setsockopt(zmq.LINGER, 0)
         self.receiver, recv_addr = build_socket(
             self.ctx, self.args.host_in, self.args.port_in,
-            self.args.socket_in, getattr(self, 'identity', None))
+            self.args.socket_in, self.args.identity)
         self.sender, send_addr = build_socket(self.ctx, self.args.host_out,
                                               self.args.port_out,
                                               self.args.socket_out,
-                                              getattr(self, 'identity', None))
+                                              self.args.identity)
         self.logger.info(
             'input %s:%s\t output %s:%s' %
             (self.args.host_in, colored(self.args.port_in, 'yellow'),
