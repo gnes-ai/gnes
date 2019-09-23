@@ -438,8 +438,8 @@ class BaseService(metaclass=ConcurrentService):
             self.logger.info('break from the event loop')
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
-        except Exception as e:
-            self.logger.error("exception occured: %s" % str(e), exc_info=True)
+        except Exception as ex:
+            self.logger.error('unknown exception: %s' % str(ex), exc_info=True)
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
