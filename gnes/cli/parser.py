@@ -140,7 +140,6 @@ def set_composer_flask_parser(parser=None):
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
     import random
-    import uuid
     if not parser:
         parser = set_base_parser()
     min_port, max_port = 49152, 65536

@@ -20,7 +20,22 @@ from ..helper import batch_iterator
 from ..proto import gnes_pb2
 
 
+class BlockRouter(BaseMapRouter):
+    """Wait for 'sleep_sec' seconds and forward messages, useful for benchmark"""
+
+    def __init__(self, sleep_sec: int = 5, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sleep_sec = sleep_sec
+
+    def apply(self, msg: 'gnes_pb2.Message', *args, **kwargs):
+        import time
+        time.sleep(self.sleep_sec)
+
+
 class PublishRouter(BaseMapRouter):
+    """Copy a message 'num_part' time and forward it, useful for PUB-SUB sockets.
+    'num_part' is an indicator for downstream sync-barrier, e.g. a ReduceRouter
+    """
 
     def __init__(self, num_part: int, *args, **kwargs):
         super().__init__(*args, **kwargs)

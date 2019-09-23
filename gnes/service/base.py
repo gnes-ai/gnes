@@ -201,7 +201,12 @@ class MessageHandler:
 
         for fn, only_verbose in hooks:
             if (only_verbose and self.service_context.args.verbose) or (not only_verbose):
-                fn(self.service_context, msg, *args, **kwargs)
+                try:
+                    fn(self.service_context, msg, *args, **kwargs)
+                except Exception as ex:
+                    self.logger.warning('hook %s throws an exception, '
+                                        'this wont affect the server but you may want to pay attention' % fn)
+                    self.logger.error(ex, exc_info=True)
 
     def call_routes(self, msg: 'gnes_pb2.Message'):
         def get_default_fn(m_type):
@@ -433,8 +438,8 @@ class BaseService(metaclass=ConcurrentService):
             self.logger.info('break from the event loop')
         except ComponentNotLoad:
             self.logger.error('component can not be correctly loaded, terminated')
-        except Exception as e:
-            self.logger.error("exception occured: %s" % str(e), exc_info=True)
+        except Exception as ex:
+            self.logger.error('unknown exception: %s' % str(ex), exc_info=True)
         finally:
             self.is_ready.set()
             self.is_event_loop.clear()
