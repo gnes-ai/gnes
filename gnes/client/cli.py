@@ -89,13 +89,12 @@ class ProgressBar:
         elapsed_str = colored('elapsed', 'yellow')
         speed_str = colored('speed', 'yellow')
         self.num_bars += 1
-        if self.num_bars > self.bar_len:
-            self.num_bars -= self.bar_len
+        if self.num_bars % self.bar_len == 0:
             sys.stdout.write('\n')
         sys.stdout.write(
             '{:>10} [{:<{}}]  {:>8}: {:3.1f}s   {:>8}: {:3.1f} batch/s'.format(
                 colored(self.task_name, 'cyan'),
-                colored('=' * self.num_bars, 'green'),
+                colored('=' * int(self.num_bars % self.bar_len), 'green'),
                 self.bar_len + 9,
                 elapsed_str,
                 elapsed,
