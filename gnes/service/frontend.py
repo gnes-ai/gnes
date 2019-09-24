@@ -80,7 +80,7 @@ class FrontendService:
             m.envelope.routes[0].end_time.GetCurrentTime()
             if self.args.route_table:
                 self.logger.info('route: %s' % router2str(m))
-                self.logger.info('route table: \n%s' % make_route_table(m.envelope.routes, exclude_frontend=True))
+                self.logger.info('route table: \n%s' % make_route_table(m.envelope.routes, include_frontend=True))
             if self.args.dump_route:
                 self.args.dump_route.write(MessageToJson(m.envelope, indent=0).replace('\n', '') + '\n')
                 self.args.dump_route.flush()
