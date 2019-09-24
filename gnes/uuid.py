@@ -56,19 +56,20 @@ class SnowflakeIDGenerator(object):
 
         self.twepoch = int(time.mktime(time.strptime('2019-01-01 00:00:00', "%Y-%m-%d %H:%M:%S")))
         self.last_timestamp = -1
+        self.current_timestamp = lambda: int(datetime.now().timestamp() * 1000)
 
-    def _get_timestamp(self) -> int:
-        return int(datetime.now().timestamp() * 1000)
+    # def _get_timestamp(self) -> int:
+    #     return int(datetime.now().timestamp() * 1000)
 
     def _get_next_timestamp(self, last_timestamp) -> int:
-        timestamp = self._get_timestamp()
+        timestamp = self.current_timestamp()
         while timestamp <= last_timestamp:
-            timestamp = self._get_timestamp()
+            timestamp = self.current_timestamp()
         return timestamp
 
     def next(self) -> int:
         with self._lock:
-            timestamp = self._get_timestamp()
+            timestamp = self.current_timestamp()
             if self.last_timestamp == timestamp:
                 self._next_id = (self._next_id + 1) & self.max_counter_mask
                 if self._next_id == 0:
