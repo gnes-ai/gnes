@@ -33,7 +33,9 @@ class TestDictIndexer(unittest.TestCase):
     def test_pymode(self):
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
-        args = set_frontend_parser().parse_args([])
+        args = set_frontend_parser().parse_args([
+            '--dump_route', 'test.json'
+        ])
 
         p_args = set_preprocessor_parser().parse_args([
             '--port_in', str(args.port_out),

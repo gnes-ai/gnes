@@ -18,6 +18,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 import grpc
+from google.protobuf.json_format import MessageToJson
 
 from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
@@ -80,7 +81,8 @@ class FrontendService:
             if self.args.route_table:
                 self.logger.info('route: %s' % router2str(m))
                 self.logger.info('route table: \n%s' % make_route_table(m.envelope.routes, exclude_frontend=True))
-
+            if self.args.dump_route:
+                self.args.dump_route.write(MessageToJson(m.envelope, indent=0).replace('\n', '') + '\n')
             return resp
 
         def Call(self, request, context):
@@ -115,7 +117,8 @@ class FrontendService:
                             num_request -= 1
                         except TimeoutError:
                             if num_request > max_outstanding:
-                                self.logger.warning("the network traffic exceed max outstanding (%d > %d)" % (num_request, max_outstanding))
+                                self.logger.warning("the network traffic exceed max outstanding (%d > %d)" % (
+                                    num_request, max_outstanding))
                                 continue
                             break
                     zmq_client.send_message(self.add_envelope(request, zmq_client), -1)
