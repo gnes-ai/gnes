@@ -102,28 +102,16 @@ class FrontendService:
 
         def StreamCall(self, request_iterator, context):
             with self.zmq_context as zmq_client:
-                # network traffic control
                 num_request = 0
-                max_outstanding = 500
 
                 for request in request_iterator:
-                    timeout = 25
-                    if self.args.timeout > 0:
-                        timeout = min(0.5 * self.args.timeout, 50)
-
-                    while num_request > 10:
-                        try:
-                            msg = zmq_client.recv_message(timeout)
-                            yield self.remove_envelope(msg)
-                            num_request -= 1
-                        except TimeoutError:
-                            if num_request > max_outstanding:
-                                self.logger.warning("the network traffic exceed max outstanding (%d > %d)" % (
-                                    num_request, max_outstanding))
-                                continue
-                            break
                     zmq_client.send_message(self.add_envelope(request, zmq_client), -1)
                     num_request += 1
+
+                    if zmq_client.receiver.poll(1):
+                        msg = zmq_client.recv_message(self.args.timeout)
+                        num_request -= 1
+                        yield self.remove_envelope(msg)
 
                 for _ in range(num_request):
                     msg = zmq_client.recv_message(self.args.timeout)
