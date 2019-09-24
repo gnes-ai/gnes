@@ -67,7 +67,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
 
         shots = []
         for ci in range(0, len(shot_bounds) - 1):
-            shots.append(frames[shot_bounds[ci]:shot_bounds[ci + 1]])
+            shots.append(frames[shot_bounds[ci]:shot_bounds[ci + 1]].copy())
 
         return shots
 
@@ -87,7 +87,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
             elif raw_type == gnes_pb2.NdArray:
                 video_frames = blob2array(doc.raw_video)
                 if self.vframes > 0:
-                    video_frames = video_frames[0:self.vframes, :]
+                    video_frames = video_frames[0:self.vframes, :].copy()
 
             num_frames = len(video_frames)
             if num_frames > 0:

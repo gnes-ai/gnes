@@ -129,6 +129,11 @@ def encode_video(images: 'np.ndarray',
             err = '\n'.join([' '.join(cmd_args), err.decode('utf8')])
             raise IOError(err)
 
+        if proc.stdout is not None:
+            proc.stdout.close()
+        if proc.stderr is not None:
+            proc.stderr.close()
+
         return output
 
 
