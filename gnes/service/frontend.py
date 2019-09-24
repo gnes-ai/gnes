@@ -83,6 +83,7 @@ class FrontendService:
                 self.logger.info('route table: \n%s' % make_route_table(m.envelope.routes, exclude_frontend=True))
             if self.args.dump_route:
                 self.args.dump_route.write(MessageToJson(m.envelope, indent=0).replace('\n', '') + '\n')
+                self.args.dump_route.flush()
             return resp
 
         def Call(self, request, context):

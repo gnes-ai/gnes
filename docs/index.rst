@@ -62,6 +62,12 @@ Highlights
 
    api/gnes
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Miscs
+
+   chapter/troubleshooting.md
+   chapter/protobuf-dev.md
 
 .. toctree::
    :maxdepth: 2
@@ -82,13 +88,6 @@ Tutorials
 .. warning::
    🚧 Tutorial is still under construction. Stay tuned! Meanwhile, we sincerely welcome you to contribute your own learning experience / case study with GNES!
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Miscs
-
-   chapter/troubleshooting.md
-   chapter/protobuf-dev.md
 
 
 Indices and tables
