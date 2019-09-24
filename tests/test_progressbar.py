@@ -13,10 +13,11 @@ class TestProgessbar(unittest.TestCase):
         with ProgressBar(task_name='test', bar_len=self.bar_len) as pb:
             for j in range(5 * self.bar_len):
                 pb.update()
+                time.sleep(.05)
 
     def test_progressbar1(self):
         # should be single line
         with ProgressBar(task_name='test', bar_len=self.bar_len) as pb:
             for j in range(self.bar_len):
                 pb.update()
-                time.sleep(.1)
+                time.sleep(.05)

@@ -586,14 +586,14 @@ class PathImporter:
         return module, spec
 
 
-def make_route_table(routes, exclude_frontend: bool = False, jitter: float = 1e-8):
+def make_route_table(routes, include_frontend: bool = False, jitter: float = 1e-8):
     route_time = []
-    if exclude_frontend:
+    if include_frontend:
         total_duration = get_duration(routes[0].start_time, routes[0].end_time) + jitter
     else:
         total_duration = get_duration(routes[0].start_time, routes[-1].end_time) + jitter
     sum_duration = 0
-    for k in routes[(1 if exclude_frontend else 0):]:
+    for k in routes:
         d = get_duration(k.start_time, k.end_time)
         route_time.append((k.service, d))
         sum_duration += d
