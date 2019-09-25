@@ -152,12 +152,23 @@ docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so 
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest-alpine
 ```
 
+🆕 Since 2019.9.24, you can also pull GNES from [Github packages](https://github.com/gnes-ai/gnes/packages/). Note, older versions/tags before 2019.9.24 are not uploaded.
+
+```bash
+docker login --username=xxx docker.pkg.github.com/gnes-ai/gnes  # login to github package so that we can pull from it
+docker run docker.pkg.github.com/gnes-ai/gnes/gnes:latest-alpine
+```
+
 The table below shows the status of the build pipeline.
 
 <table>
 <tr><th>Registry</th><th>Build status</th></tr>
 <tr>
 <td><sub>Docker Hub</sub><br><code>gnes/gnes:[tag]</code></td>
+<td><a href="https://drone.gnes.ai/gnes-ai/gnes"><img src="https://drone.gnes.ai/api/badges/gnes-ai/gnes/status.svg" /></a></td>
+</tr>
+<tr>
+<td><sub>Github Package</sub><br><code>docker.pkg.github.com/gnes-ai/gnes/gnes:[tag]</code></td>
 <td><a href="https://drone.gnes.ai/gnes-ai/gnes"><img src="https://drone.gnes.ai/api/badges/gnes-ai/gnes/status.svg" /></a></td>
 </tr>
 <tr>
