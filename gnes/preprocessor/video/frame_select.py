@@ -35,7 +35,7 @@ class FrameSelectPreprocessor(BaseVideoPreprocessor):
             for chunk in doc.chunks:
                 images = blob2array(chunk.blob)
                 if len(images) == 0:
-                    self.logger.info("this chunk has no frame!")
+                    self.logger.warning("this chunk has no frame!")
                 elif self.sframes == 1:
                     idx = [int(len(images) / 2)]
                     chunk.blob.CopyFrom(array2blob(images[idx]))

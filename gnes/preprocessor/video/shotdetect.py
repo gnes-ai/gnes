@@ -106,7 +106,7 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                         else:
                             idx = np.sort(np.random.choice(shot_len, self.sframes, replace=False))
                             frames = [frames[idx_] for idx_ in idx]
-                            
+
                     chunk_data = np.array(frames)
                     c.blob.CopyFrom(array2blob(chunk_data))
             else:
