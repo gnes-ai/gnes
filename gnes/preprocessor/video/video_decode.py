@@ -13,9 +13,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import numpy as np
-from typing import List
-
 from gnes.preprocessor.base import BaseVideoPreprocessor
 from gnes.proto import gnes_pb2, array2blob
 from gnes.preprocessor.io_utils import video
@@ -38,17 +35,28 @@ class VideoDecodePreprocessor(BaseVideoPreprocessor):
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
 
-        if doc.raw_bytes:
-            all_frames = video.capture_frames(
-                input_data=doc.raw_bytes,
-                scale=self.scale,
-                fps=self.frame_rate,
-                vframes=self.vframes)
+        all_frames = []
+        if doc.WhichOneof('raw_data'):
+            raw_type = type(getattr(doc, doc.WhichOneof('raw_data')))
+            if doc.raw_bytes:
+                all_frames = video.capture_frames(
+                    input_data=doc.raw_bytes,
+                    scale=self.scale,
+                    fps=self.frame_rate,
+                    vframes=self.vframes)
+            elif raw_type == gnes_pb2.NdArray:
+                all_frames = blob2array(doc.raw_video)
+                if self.vframes > 0:
+                    all_frames = video_frames[0:self.vframes, :].copy()
 
-            c = doc.chunks.add()
-            c.doc_id = doc.doc_id
-            c.blob.CopyFrom(array2blob(all_frames))
-            c.offset = 0
-            c.weight = 1.0
+            num_frames = len(all_frames)
+            if num_frames > 0:
+                c = doc.chunks.add()
+                c.doc_id = doc.doc_id
+                c.blob.CopyFrom(array2blob(all_frames))
+                c.offset = 0
+                c.weight = 1.0
+            else:
+                self.logger.error('bad document: "raw_bytes" or "raw_video" is empty!')
         else:
             self.logger.error('bad document: "raw_bytes" is empty!')
