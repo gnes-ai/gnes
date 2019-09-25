@@ -37,7 +37,9 @@ _cls2file_map = {
     'BaseAudioPreprocessor': 'base',
     'RawChunkPreprocessor': 'base',
     'GifChunkPreprocessor': 'video.ffmpeg',
-    'VggishPreprocessor': 'audio.vggish_example'
+    'VggishPreprocessor': 'audio.vggish_example',
+    'VideoDecodePreprocessor': 'video.video_decode',
+    'FrameSelectPreprocessor': 'video.frame_select'
 }
 
 register_all_class(_cls2file_map, 'preprocessor')

@@ -1,0 +1,7 @@
+!VideoDecodePreprocessor
+parameters:
+  frame_rate: 5
+  vframes: 1
+  scale: '299:299'
+gnes_config:
+  is_trained: true
