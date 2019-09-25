@@ -182,8 +182,9 @@ def set_service_parser(parser=None):
                         help='identity of the service, empty by default')
     parser.add_argument('--route_table', action=ActionNoYes, default=False,
                         help='showing a route table with time cost after receiving the result')
-    parser.add_argument('--raw_bytes_in_separate', action=ActionNoYes, default=True,
-                        help='excluding raw_bytes from protobuf message, usually yields better network efficiency')
+    parser.add_argument('--squeeze_pb', action=ActionNoYes, default=True,
+                        help='sending bytes and ndarray separately apart from the protobuf message, '
+                             'usually yields better network efficiency')
     return parser
 
 

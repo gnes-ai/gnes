@@ -151,70 +151,126 @@ def check_msg_version(msg: 'gnes_pb2.Message'):
                              'the message is probably sent from a very outdated GNES version')
 
 
-def extract_raw_bytes_from_msg(msg: 'gnes_pb2.Message') -> Tuple[Optional[List[bytes]], Optional[List[bytes]]]:
-    doc_bytes = [msg.envelope.client_id.encode()]
-    chunk_bytes = [msg.envelope.client_id.encode()]
+def extract_bytes_from_msg(msg: 'gnes_pb2.Message') -> Tuple:
+    doc_bytes = []
+    chunk_bytes = []
+    doc_byte_type = b''
+    chunk_byte_type = b''
 
+    docs = msg.request.train.docs or msg.request.index.docs or [msg.request.search.query]
     # for train request
-    for d in msg.request.train.docs:
-        doc_bytes.append(d.raw_bytes)
-        d.ClearField('raw_bytes')
+    for d in docs:
+        # oneof raw_data {
+        #     string raw_text = 5;
+        #       NdArray raw_image = 6;
+        #       NdArray raw_video = 7;
+        #       bytes raw_bytes = 8; // for other types
+        # }
+        dtype = d.WhichOneof('raw_data') or ''
+        doc_byte_type = dtype.encode()
+        if dtype == 'raw_bytes':
+            doc_bytes.append(d.raw_bytes)
+            d.ClearField('raw_bytes')
+        elif dtype == 'raw_image':
+            doc_bytes.append(d.raw_image.data)
+            d.raw_image.ClearField('data')
+        elif dtype == 'raw_video':
+            doc_bytes.append(d.raw_video.data)
+            d.raw_video.ClearField('data')
+        elif dtype == 'raw_text':
+            doc_bytes.append(d.raw_text.encode())
+            d.ClearField('raw_text')
+
         for c in d.chunks:
-            chunk_bytes.append(c.raw)
-            c.ClearField('raw')
+            # oneof content {
+            # string text = 2;
+            # NdArray blob = 3;
+            # bytes raw = 7;
+            # }
+            chunk_bytes.append(c.embedding.data)
+            c.embedding.ClearField('data')
 
-    # for index request
-    for d in msg.request.index.docs:
-        doc_bytes.append(d.raw_bytes)
-        d.ClearField('raw_bytes')
-        for c in d.chunks:
-            chunk_bytes.append(c.raw)
-            c.ClearField('raw')
+            ctype = c.WhichOneof('content') or ''
+            chunk_byte_type = ctype.encode()
+            if ctype == 'raw':
+                chunk_bytes.append(c.raw)
+                c.ClearField('raw')
+            elif ctype == 'blob':
+                chunk_bytes.append(c.blob.data)
+                c.blob.ClearField('data')
+            elif ctype == 'text':
+                chunk_bytes.append(c.text.encode())
+                c.ClearField('text')
 
-    # for query
-    if msg.request.search.query.raw_bytes:
-        doc_bytes.append(msg.request.search.query.raw_bytes)
-        msg.request.search.query.ClearField('raw_bytes')
-
-    for c in msg.request.search.query.chunks:
-        chunk_bytes.append(c.raw)
-        c.ClearField('raw')
-
-    return doc_bytes, chunk_bytes
+    return doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type
 
 
-def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', doc_raw_bytes: Optional[List[bytes]],
-                          chunk_raw_bytes: Optional[List[bytes]]):
+def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
+    doc_byte_type = msg_data[3].decode()
+    chunk_byte_type = msg_data[4].decode()
+    doc_bytes_len = int(msg_data[5])
+    chunk_bytes_len = int(msg_data[6])
+
+    doc_bytes = msg_data[7:(7 + doc_bytes_len)]
+    chunk_bytes = msg_data[(7 + doc_bytes_len):]
+
+    if len(chunk_bytes) != chunk_bytes_len:
+        raise ValueError('"chunk_bytes_len"=%d in message, but the actual length is %d' % (
+            chunk_bytes_len, len(chunk_bytes)))
+
     c_idx = 0
     d_idx = 0
-    for d in msg.request.train.docs:
-        if doc_raw_bytes and doc_raw_bytes[d_idx]:
-            d.raw_bytes = doc_raw_bytes[d_idx]
-        d_idx += 1
+    docs = msg.request.train.docs or msg.request.index.docs or [msg.request.search.query]
+    for d in docs:
+        if doc_bytes and doc_bytes[d_idx]:
+            if doc_byte_type == 'raw':
+                d.raw_bytes = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_image':
+                d.raw_image.data = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_video':
+                d.raw_video.data = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_text':
+                d.raw_text = doc_bytes[d_idx].decode()
+                d_idx += 1
+
         for c in d.chunks:
-            if chunk_raw_bytes and chunk_raw_bytes[c_idx]:
-                c.raw = chunk_raw_bytes[c_idx]
+            if chunk_bytes and chunk_bytes[c_idx]:
+                c.embedding.data = chunk_bytes[c_idx]
             c_idx += 1
+
+            if chunk_byte_type == 'raw':
+                c.raw = chunk_bytes[c_idx]
+                c_idx += 1
+            elif chunk_byte_type == 'blob':
+                c.blob.data = chunk_bytes[c_idx]
+                c_idx += 1
+            elif chunk_byte_type == 'text':
+                c.text = chunk_bytes[c_idx].decode()
+                c_idx += 1
 
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
-                 raw_bytes_in_separate: bool = False, **kwargs) -> None:
+                 squeeze_pb: bool = False, **kwargs) -> None:
     try:
         if timeout > 0:
             sock.setsockopt(zmq.SNDTIMEO, timeout)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        if not raw_bytes_in_separate:
+        if not squeeze_pb:
             sock.send_multipart([msg.envelope.client_id.encode(), b'0', msg.SerializeToString()])
         else:
-            doc_bytes, chunk_bytes = extract_raw_bytes_from_msg(msg)
+            doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type = extract_bytes_from_msg(msg)
             # now raw_bytes are removed from message, hoping for faster de/serialization
             sock.send_multipart(
-                [msg.envelope.client_id.encode(),
-                 b'1', msg.SerializeToString(),
-                 b'%d' % len(doc_bytes), *doc_bytes,
-                 b'%d' % len(chunk_bytes), *chunk_bytes])
+                [msg.envelope.client_id.encode(),  # 0
+                 b'1', msg.SerializeToString(),  # 1, 2
+                 doc_byte_type, chunk_byte_type,  # 3, 4
+                 b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 5, 6
+                 *doc_bytes, *chunk_bytes])  # 7, 8
     except zmq.error.Again:
         raise TimeoutError(
             'cannot send message to sock %s after timeout=%dms, please check the following:'
@@ -237,24 +293,15 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
 
         msg = gnes_pb2.Message()
         msg_data = sock.recv_multipart()
-        raw_bytes_in_separate = (msg_data[1] == b'1')
+        squeeze_pb = (msg_data[1] == b'1')
         msg.ParseFromString(msg_data[2])
 
         if check_version:
             check_msg_version(msg)
 
         # now we have a barebone msg, we need to fill in data
-        if raw_bytes_in_separate:
-            doc_bytes_len_pos = 3
-            doc_bytes_len = int(msg_data[doc_bytes_len_pos])
-            doc_bytes = msg_data[(doc_bytes_len_pos + 1):(doc_bytes_len_pos + 1 + doc_bytes_len)]
-            chunk_bytes_len_pos = doc_bytes_len_pos + 1 + doc_bytes_len
-            chunk_bytes_len = int(msg_data[chunk_bytes_len_pos])
-            chunk_bytes = msg_data[(chunk_bytes_len_pos + 1):]
-            if len(chunk_bytes) != chunk_bytes_len:
-                raise ValueError('"chunk_bytes_len"=%d in message, but the actual length is %d' % (
-                    chunk_bytes_len, len(chunk_bytes)))
-            fill_raw_bytes_to_msg(msg, doc_bytes, chunk_bytes)
+        if squeeze_pb:
+            fill_raw_bytes_to_msg(msg, msg_data)
         return msg
 
     except ValueError:

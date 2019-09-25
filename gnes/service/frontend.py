@@ -58,7 +58,7 @@ class FrontendService:
             self.send_recv_kwargs = dict(
                 check_version=self.args.check_version,
                 timeout=self.args.timeout,
-                raw_bytes_in_separate=self.args.raw_bytes_in_separate)
+                squeeze_pb=self.args.squeeze_pb)
 
         def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
             msg = gnes_pb2.Message()
