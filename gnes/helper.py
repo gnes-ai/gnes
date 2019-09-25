@@ -612,6 +612,8 @@ def make_route_table(routes, include_frontend: bool = False, jitter: float = 1e-
         total_duration = get_duration(routes[0].start_time, routes[-1].end_time) + jitter
     sum_duration = 0
     for k in routes:
+        if k.service == 'FrontEndService':
+            continue
         d = get_duration(k.start_time, k.end_time)
         route_time.append((k.service, d))
         sum_duration += d
