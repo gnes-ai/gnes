@@ -42,10 +42,12 @@ class TestSqueezedSendRecv(unittest.TestCase):
             for j in range(random.randint(10, 20)):
                 d = msg.request.index.docs.add()
                 d.raw_bytes = b'a' * random.randint(100, 1000)
+            raw_bytes = [d.raw_bytes for d in msg.request.index.docs]
             c1.send_message(msg, squeeze_pb=True)
             r_msg = c2.recv_message()
             for d, r_d in zip(msg.request.index.docs, r_msg.request.index.docs):
-                self.assertEqual(d.raw_bytes, r_d.raw_bytes)
+                self.assertEqual(d.raw_bytes, b'')
+                self.assertEqual(raw_bytes, r_d.raw_bytes)
                 print('.', end='')
             print('checked %d docs' % len(msg.request.index.docs))
 
@@ -128,10 +130,12 @@ class TestSqueezedSendRecv(unittest.TestCase):
 
         with ZmqClient(self.c1_args) as c1, ZmqClient(self.c2_args) as c2:
             for m in all_msgs:
+                raw_bytes = [d.raw_bytes for d in m.request.index.docs]
                 c1.send_message(m, squeeze_pb=True)
                 r_m = c2.recv_message()
                 for d, r_d in zip(m.request.index.docs, r_m.request.index.docs):
-                    self.assertEqual(d.raw_bytes, r_d.raw_bytes)
+                    self.assertEqual(d.raw_bytes, b'')
+                    self.assertEqual(raw_bytes, r_d.raw_bytes)
 
     def test_benchmark4(self):
         all_msgs = self.build_msgs2()
