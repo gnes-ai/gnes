@@ -47,6 +47,15 @@ class TestProto(unittest.TestCase):
                 print('.', end='')
             print('checked %d docs' % len(msg.request.index.docs))
 
+    def test_send_recv_response(self):
+        with ZmqClient(self.c1_args) as c1, ZmqClient(self.c2_args) as c2:
+            msg = gnes_pb2.Message()
+            msg.envelope.client_id = c1.args.identity
+            msg.response.train.status = 2
+            c1.send_message(msg, raw_bytes_in_separate=True)
+            r_msg = c2.recv_message()
+            self.assertEqual(msg.response.train.status, r_msg.response.train.status)
+
     def test_benchmark(self):
         all_msgs = []
         num_msg = 20
