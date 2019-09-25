@@ -223,7 +223,7 @@ def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
     docs = msg.request.train.docs or msg.request.index.docs or [msg.request.search.query]
     for d in docs:
         if doc_bytes and doc_bytes[d_idx]:
-            if doc_byte_type == 'raw':
+            if doc_byte_type == 'raw_bytes':
                 d.raw_bytes = doc_bytes[d_idx]
                 d_idx += 1
             elif doc_byte_type == 'raw_image':

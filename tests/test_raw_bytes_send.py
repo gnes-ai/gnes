@@ -1,3 +1,4 @@
+import copy
 import random
 import unittest
 
@@ -42,10 +43,12 @@ class TestSqueezedSendRecv(unittest.TestCase):
             for j in range(random.randint(10, 20)):
                 d = msg.request.index.docs.add()
                 d.raw_bytes = b'a' * random.randint(100, 1000)
+            raw_bytes = copy.deepcopy([d.raw_bytes for d in msg.request.index.docs])
             c1.send_message(msg, squeeze_pb=True)
             r_msg = c2.recv_message()
-            for d, r_d in zip(msg.request.index.docs, r_msg.request.index.docs):
-                self.assertEqual(d.raw_bytes, r_d.raw_bytes)
+            for d, o_d, r_d in zip(msg.request.index.docs, raw_bytes, r_msg.request.index.docs):
+                self.assertEqual(d.raw_bytes, b'')
+                self.assertEqual(o_d, r_d.raw_bytes)
                 print('.', end='')
             print('checked %d docs' % len(msg.request.index.docs))
 
@@ -125,13 +128,15 @@ class TestSqueezedSendRecv(unittest.TestCase):
 
     def test_benchmark3(self):
         all_msgs = self.build_msgs()
+        all_msgs_bak = copy.deepcopy(all_msgs)
 
         with ZmqClient(self.c1_args) as c1, ZmqClient(self.c2_args) as c2:
-            for m in all_msgs:
+            for m, m1 in zip(all_msgs, all_msgs_bak):
                 c1.send_message(m, squeeze_pb=True)
                 r_m = c2.recv_message()
-                for d, r_d in zip(m.request.index.docs, r_m.request.index.docs):
-                    self.assertEqual(d.raw_bytes, r_d.raw_bytes)
+                for d, o_d, r_d in zip(m.request.index.docs, m1.request.index.docs, r_m.request.index.docs):
+                    self.assertEqual(d.raw_bytes, b'')
+                    self.assertEqual(o_d.raw_bytes, r_d.raw_bytes)
 
     def test_benchmark4(self):
         all_msgs = self.build_msgs2()
@@ -150,7 +155,7 @@ class TestSqueezedSendRecv(unittest.TestCase):
 
     def test_benchmark5(self):
         all_msgs = self.build_msgs2()
-        all_msgs_bak = self.build_msgs2()
+        all_msgs_bak = copy.deepcopy(all_msgs)
 
         with ZmqClient(self.c1_args) as c1, ZmqClient(self.c2_args) as c2:
             with TimeContext('send->recv, squeeze_pb=True'):
