@@ -198,7 +198,7 @@ def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', doc_raw_bytes: Optional[List[
 
 
 def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
-                 raw_bytes_in_separate: bool = False) -> None:
+                 raw_bytes_in_separate: bool = False, **kwargs) -> None:
     try:
         if timeout > 0:
             sock.setsockopt(zmq.SNDTIMEO, timeout)
@@ -224,7 +224,8 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
         sock.setsockopt(zmq.SNDTIMEO, -1)
 
 
-def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False) -> Optional['gnes_pb2.Message']:
+def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False, **kwargs) -> Optional[
+    'gnes_pb2.Message']:
     response = []
     try:
         if timeout > 0:

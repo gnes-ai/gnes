@@ -29,12 +29,12 @@ class ActionNoYes(argparse.Action):
             raise ValueError('yes/no arguments must be prefixed with --')
 
         opt = opt[2:]
-        opts = ['--' + opt, '--no-' + opt]
+        opts = ['--' + opt, '--no-' + opt, '--no_' + opt]
         super(ActionNoYes, self).__init__(opts, dest, nargs=0, const=None,
                                           default=default, required=required, help=help)
 
     def __call__(self, parser, namespace, values, option_strings=None):
-        if option_strings.startswith('--no-'):
+        if option_strings.startswith('--no-') or option_strings.startswith('--no_'):
             setattr(namespace, self.dest, False)
         else:
             setattr(namespace, self.dest, True)
@@ -180,8 +180,10 @@ def set_service_parser(parser=None):
                              'mismatch raise an exception')
     parser.add_argument('--identity', type=str, default='',
                         help='identity of the service, empty by default')
-    parser.add_argument('--route_table', action=ActionNoYes, default=True,
+    parser.add_argument('--route_table', action=ActionNoYes, default=False,
                         help='showing a route table with time cost after receiving the result')
+    parser.add_argument('--raw_bytes_in_separate', action=ActionNoYes, default=True,
+                        help='excluding raw_bytes from protobuf message, usually yields better network efficiency')
     return parser
 
 

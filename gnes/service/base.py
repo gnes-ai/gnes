@@ -238,18 +238,18 @@ class MessageHandler:
             if ret is None:
                 # assume 'msg' is modified inside fn()
                 self.call_hooks(msg, hook_type='post', verbose=self.service_context.args.verbose)
-                send_message(out_sock, msg, timeout=self.service_context.args.timeout)
+                send_message(out_sock, msg, **self.service_context.send_recv_kwargs)
             elif isinstance(ret, types.GeneratorType):
                 for r_msg in ret:
                     self.call_hooks(msg, hook_type='post', verbose=self.service_context.args.verbose)
-                    send_message(out_sock, r_msg, timeout=self.service_context.args.timeout)
+                    send_message(out_sock, r_msg, **self.service_context.send_recv_kwargs)
             else:
                 raise ServiceError('unknown return type from the handler')
 
         except BlockMessage:
             pass
         except EventLoopEnd:
-            send_message(out_sock, msg, timeout=self.service_context.args.timeout)
+            send_message(out_sock, msg, **self.service_context.send_recv_kwargs)
             raise EventLoopEnd
         except ServiceError as ex:
             self.logger.error(ex, exc_info=True)
@@ -308,6 +308,10 @@ class BaseService(metaclass=ConcurrentService):
         self._model = None
         self.use_event_loop = True
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
+        self.send_recv_kwargs = dict(
+            check_version=self.args.check_version,
+            timeout=self.args.timeout,
+            raw_bytes_in_separate=self.args.raw_bytes_in_separate)
 
     def run(self):
         try:
@@ -410,7 +414,7 @@ class BaseService(metaclass=ConcurrentService):
                         self.is_handler_done.clear()
 
                         # receive message
-                        msg = recv_message(pull_sock, check_version=self.args.check_version)
+                        msg = recv_message(pull_sock, **self.send_recv_kwargs)
 
                         # choose output sock
                         if msg.request and msg.request.WhichOneof('body') and \
