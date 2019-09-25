@@ -88,8 +88,8 @@ class FrontendService:
 
         def Call(self, request, context):
             with self.zmq_context as zmq_client:
-                zmq_client.send_message(self.add_envelope(request, zmq_client), self.args.timeout)
-                return self.remove_envelope(zmq_client.recv_message(self.args.timeout))
+                zmq_client.send_message(self.add_envelope(request, zmq_client), timeout=self.args.timeout)
+                return self.remove_envelope(zmq_client.recv_message(timeout=self.args.timeout))
 
         def Train(self, request, context):
             return self.Call(request, context)
@@ -105,16 +105,16 @@ class FrontendService:
                 num_request = 0
 
                 for request in request_iterator:
-                    zmq_client.send_message(self.add_envelope(request, zmq_client), -1)
+                    zmq_client.send_message(self.add_envelope(request, zmq_client), timeout=-1)
                     num_request += 1
 
                     if zmq_client.receiver.poll(1):
-                        msg = zmq_client.recv_message(self.args.timeout)
+                        msg = zmq_client.recv_message(timeout=self.args.timeout)
                         num_request -= 1
                         yield self.remove_envelope(msg)
 
                 for _ in range(num_request):
-                    msg = zmq_client.recv_message(self.args.timeout)
+                    msg = zmq_client.recv_message(timeout=self.args.timeout)
                     yield self.remove_envelope(msg)
 
         class ZmqContext:

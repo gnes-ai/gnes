@@ -15,7 +15,7 @@
 
 import ctypes
 import random
-from typing import List, Iterator
+from typing import List, Iterator, Tuple
 from typing import Optional
 
 import numpy as np
@@ -121,14 +121,98 @@ def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):
     msg.envelope.routes.extend(sorted(routes.values(), key=lambda x: (x.start_time.seconds, x.start_time.nanos)))
 
 
-def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
+def is_valid_version(msg: 'gnes_pb2.Message'):
+    from .. import __version__, __proto_version__
+    if hasattr(msg.envelope, 'gnes_version'):
+        if not msg.envelope.gnes_version:
+            # only happen in unittest
+            default_logger.warning('incoming message contains empty "gnes_version", '
+                                   'you may ignore it in debug/unittest mode. '
+                                   'otherwise please check if frontend service set correct version')
+        elif __version__ != msg.envelope.gnes_version:
+            raise AttributeError('mismatched GNES version! '
+                                 'incoming message has GNES version %s, whereas local GNES version %s' % (
+                                     msg.envelope.gnes_version, __version__))
+
+    if hasattr(msg.envelope, 'proto_version'):
+        if not msg.envelope.proto_version:
+            # only happen in unittest
+            default_logger.warning('incoming message contains empty "proto_version", '
+                                   'you may ignore it in debug/unittest mode. '
+                                   'otherwise please check if frontend service set correct version')
+        elif __proto_version__ != msg.envelope.proto_version:
+            raise AttributeError('mismatched protobuf version! '
+                                 'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                     msg.envelope.proto_version, __proto_version__))
+
+    if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
+        raise AttributeError('version_check=True locally, '
+                             'but incoming message contains no version info in its envelope. '
+                             'the message is probably sent from a very outdated GNES version')
+
+
+def extract_raw_bytes_from_msg(msg: 'gnes_pb2.Message') -> Tuple[Optional[List[bytes]], Optional[List[bytes]]]:
+    doc_bytes = [msg.envelope.client_id.encode()]
+    chunk_bytes = [msg.envelope.client_id.encode()]
+
+    # for train request
+    for d in msg.request.train.docs:
+        doc_bytes.append(d.raw_bytes)
+        d.ClearField('raw_bytes')
+        for c in d.chunks:
+            chunk_bytes.append(c.raw)
+            c.ClearField('raw')
+
+    # for index request
+    for d in msg.request.index.docs:
+        doc_bytes.append(d.raw_bytes)
+        d.ClearField('raw_bytes')
+        for c in d.chunks:
+            chunk_bytes.append(c.raw)
+            c.ClearField('raw')
+
+    # for query
+    if msg.request.search.query.raw_bytes:
+        doc_bytes.append(msg.request.search.query.raw_bytes)
+        msg.request.search.query.ClearField('raw_bytes')
+
+    for c in msg.request.search.query.chunks:
+        chunk_bytes.append(c.raw)
+        c.ClearField('raw')
+
+    return doc_bytes, chunk_bytes
+
+
+def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', doc_raw_bytes: Optional[List[bytes]],
+                          chunk_raw_bytes: Optional[List[bytes]]):
+    c_idx = 0
+    d_idx = 0
+    for d in msg.request.train.docs:
+        if doc_raw_bytes and doc_raw_bytes[d_idx]:
+            d.raw_bytes = doc_raw_bytes[d_idx]
+        d_idx += 1
+        for c in d.chunks:
+            if chunk_raw_bytes and chunk_raw_bytes[c_idx]:
+                c.raw = chunk_raw_bytes[c_idx]
+            c_idx += 1
+
+
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
+                 raw_bytes_in_separate: bool = False) -> None:
     try:
         if timeout > 0:
             sock.setsockopt(zmq.SNDTIMEO, timeout)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send_multipart([msg.envelope.client_id.encode(), msg.SerializeToString()])
+        if not raw_bytes_in_separate:
+            sock.send_multipart([msg.envelope.client_id.encode(), b'0', msg.SerializeToString()])
+        else:
+            doc_bytes, chunk_bytes = extract_raw_bytes_from_msg(msg)
+            # now raw_bytes are removed from message, hoping for faster de/serialization
+            sock.send_multipart([msg.envelope.client_id.encode(), b'1', msg.SerializeToString()])
+            sock.send_multipart(doc_bytes)
+            sock.send_multipart(chunk_bytes)
     except zmq.error.Again:
         raise TimeoutError(
             'cannot send message to sock %s after timeout=%dms, please check the following:'
@@ -148,36 +232,18 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
 
-        _, msg_data = sock.recv_multipart()
         msg = gnes_pb2.Message()
+        _, raw_bytes_in_separate, msg_data = sock.recv_multipart()
         msg.ParseFromString(msg_data)
 
-        if check_version and msg.envelope:
-            from .. import __version__, __proto_version__
-            if hasattr(msg.envelope, 'gnes_version'):
-                if not msg.envelope.gnes_version:
-                    # only happen in unittest
-                    default_logger.warning('incoming message contains empty "gnes_version", '
-                                           'you may ignore it in debug/unittest mode. '
-                                           'otherwise please check if frontend service set correct version')
-                elif __version__ != msg.envelope.gnes_version:
-                    raise AttributeError('mismatched GNES version! '
-                                         'incoming message has GNES version %s, whereas local GNES version %s' % (
-                                             msg.envelope.gnes_version, __version__))
-            if hasattr(msg.envelope, 'proto_version'):
-                if not msg.envelope.proto_version:
-                    # only happen in unittest
-                    default_logger.warning('incoming message contains empty "proto_version", '
-                                           'you may ignore it in debug/unittest mode. '
-                                           'otherwise please check if frontend service set correct version')
-                elif __proto_version__ != msg.envelope.proto_version:
-                    raise AttributeError('mismatched protobuf version! '
-                                         'incoming message has protobuf version %s, whereas local protobuf version %s' % (
-                                             msg.envelope.proto_version, __proto_version__))
-            if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
-                raise AttributeError('version_check=True locally, '
-                                     'but incoming message contains no version info in its envelope. '
-                                     'the message is probably sent from a very outdated GNES version')
+        if check_version:
+            is_valid_version(msg)
+
+        # now we have a barebone msg, we need to fill in data
+        if raw_bytes_in_separate == b'1':
+            doc_bytes = sock.recv_multipart()
+            chunk_bytes = sock.recv_multipart()
+            fill_raw_bytes_to_msg(msg, doc_bytes[1:], chunk_bytes[1:])
         return msg
 
     except ValueError:
