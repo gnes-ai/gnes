@@ -13,14 +13,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import Tuple, List, Union
+
 import grpc
 import zmq
 from termcolor import colored
-from typing import Tuple, List, Union, Type
 
 from ..helper import set_logger
 from ..proto import gnes_pb2_grpc
-from ..proto import send_message, gnes_pb2, recv_message
+from ..proto import send_message as _send_message, gnes_pb2, recv_message as _recv_message
 from ..service.base import build_socket
 
 
@@ -97,15 +98,12 @@ class ZmqClient:
         self.receiver.close()
         self.ctx.term()
 
-    def send_message(self, message: "gnes_pb2.Message", timeout: int = -1):
+    def send_message(self, message: "gnes_pb2.Message", **kwargs):
         self.logger.debug('send message: %s' % message.envelope)
-        send_message(self.sender, message, timeout=timeout)
+        _send_message(self.sender, message, **kwargs)
 
-    def recv_message(self, timeout: int = -1) -> gnes_pb2.Message:
-        r = recv_message(
-            self.receiver,
-            timeout=timeout,
-            check_version=self.args.check_version)
+    def recv_message(self, **kwargs) -> gnes_pb2.Message:
+        r = _recv_message(self.receiver, **kwargs)
         self.logger.debug('recv a message: %s' % r.envelope)
         return r
 

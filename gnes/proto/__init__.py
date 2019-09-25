@@ -15,7 +15,7 @@
 
 import ctypes
 import random
-from typing import List, Iterator
+from typing import List, Iterator, Tuple
 from typing import Optional
 
 import numpy as np
@@ -121,14 +121,156 @@ def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):
     msg.envelope.routes.extend(sorted(routes.values(), key=lambda x: (x.start_time.seconds, x.start_time.nanos)))
 
 
-def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1) -> None:
+def check_msg_version(msg: 'gnes_pb2.Message'):
+    from .. import __version__, __proto_version__
+    if hasattr(msg.envelope, 'gnes_version'):
+        if not msg.envelope.gnes_version:
+            # only happen in unittest
+            default_logger.warning('incoming message contains empty "gnes_version", '
+                                   'you may ignore it in debug/unittest mode. '
+                                   'otherwise please check if frontend service set correct version')
+        elif __version__ != msg.envelope.gnes_version:
+            raise AttributeError('mismatched GNES version! '
+                                 'incoming message has GNES version %s, whereas local GNES version %s' % (
+                                     msg.envelope.gnes_version, __version__))
+
+    if hasattr(msg.envelope, 'proto_version'):
+        if not msg.envelope.proto_version:
+            # only happen in unittest
+            default_logger.warning('incoming message contains empty "proto_version", '
+                                   'you may ignore it in debug/unittest mode. '
+                                   'otherwise please check if frontend service set correct version')
+        elif __proto_version__ != msg.envelope.proto_version:
+            raise AttributeError('mismatched protobuf version! '
+                                 'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                     msg.envelope.proto_version, __proto_version__))
+
+    if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
+        raise AttributeError('version_check=True locally, '
+                             'but incoming message contains no version info in its envelope. '
+                             'the message is probably sent from a very outdated GNES version')
+
+
+def extract_bytes_from_msg(msg: 'gnes_pb2.Message') -> Tuple:
+    doc_bytes = []
+    chunk_bytes = []
+    doc_byte_type = b''
+    chunk_byte_type = b''
+
+    docs = msg.request.train.docs or msg.request.index.docs or [msg.request.search.query]
+    # for train request
+    for d in docs:
+        # oneof raw_data {
+        #     string raw_text = 5;
+        #       NdArray raw_image = 6;
+        #       NdArray raw_video = 7;
+        #       bytes raw_bytes = 8; // for other types
+        # }
+        dtype = d.WhichOneof('raw_data') or ''
+        doc_byte_type = dtype.encode()
+        if dtype == 'raw_bytes':
+            doc_bytes.append(d.raw_bytes)
+            d.ClearField('raw_bytes')
+        elif dtype == 'raw_image':
+            doc_bytes.append(d.raw_image.data)
+            d.raw_image.ClearField('data')
+        elif dtype == 'raw_video':
+            doc_bytes.append(d.raw_video.data)
+            d.raw_video.ClearField('data')
+        elif dtype == 'raw_text':
+            doc_bytes.append(d.raw_text.encode())
+            d.ClearField('raw_text')
+
+        for c in d.chunks:
+            # oneof content {
+            # string text = 2;
+            # NdArray blob = 3;
+            # bytes raw = 7;
+            # }
+            chunk_bytes.append(c.embedding.data)
+            c.embedding.ClearField('data')
+
+            ctype = c.WhichOneof('content') or ''
+            chunk_byte_type = ctype.encode()
+            if ctype == 'raw':
+                chunk_bytes.append(c.raw)
+                c.ClearField('raw')
+            elif ctype == 'blob':
+                chunk_bytes.append(c.blob.data)
+                c.blob.ClearField('data')
+            elif ctype == 'text':
+                chunk_bytes.append(c.text.encode())
+                c.ClearField('text')
+
+    return doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type
+
+
+def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
+    doc_byte_type = msg_data[3].decode()
+    chunk_byte_type = msg_data[4].decode()
+    doc_bytes_len = int(msg_data[5])
+    chunk_bytes_len = int(msg_data[6])
+
+    doc_bytes = msg_data[7:(7 + doc_bytes_len)]
+    chunk_bytes = msg_data[(7 + doc_bytes_len):]
+
+    if len(chunk_bytes) != chunk_bytes_len:
+        raise ValueError('"chunk_bytes_len"=%d in message, but the actual length is %d' % (
+            chunk_bytes_len, len(chunk_bytes)))
+
+    c_idx = 0
+    d_idx = 0
+    docs = msg.request.train.docs or msg.request.index.docs or [msg.request.search.query]
+    for d in docs:
+        if doc_bytes and doc_bytes[d_idx]:
+            if doc_byte_type == 'raw':
+                d.raw_bytes = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_image':
+                d.raw_image.data = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_video':
+                d.raw_video.data = doc_bytes[d_idx]
+                d_idx += 1
+            elif doc_byte_type == 'raw_text':
+                d.raw_text = doc_bytes[d_idx].decode()
+                d_idx += 1
+
+        for c in d.chunks:
+            if chunk_bytes and chunk_bytes[c_idx]:
+                c.embedding.data = chunk_bytes[c_idx]
+            c_idx += 1
+
+            if chunk_byte_type == 'raw':
+                c.raw = chunk_bytes[c_idx]
+                c_idx += 1
+            elif chunk_byte_type == 'blob':
+                c.blob.data = chunk_bytes[c_idx]
+                c_idx += 1
+            elif chunk_byte_type == 'text':
+                c.text = chunk_bytes[c_idx].decode()
+                c_idx += 1
+
+
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
+                 squeeze_pb: bool = False, **kwargs) -> None:
     try:
         if timeout > 0:
             sock.setsockopt(zmq.SNDTIMEO, timeout)
         else:
             sock.setsockopt(zmq.SNDTIMEO, -1)
 
-        sock.send_multipart([msg.envelope.client_id.encode(), msg.SerializeToString()])
+        if not squeeze_pb:
+            sock.send_multipart([msg.envelope.client_id.encode(), b'0', msg.SerializeToString()])
+        else:
+            doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type = extract_bytes_from_msg(msg)
+            # now raw_bytes are removed from message, hoping for faster de/serialization
+            sock.send_multipart(
+                [msg.envelope.client_id.encode(),  # 0
+                 b'1', msg.SerializeToString(),  # 1, 2
+                 doc_byte_type, chunk_byte_type,  # 3, 4
+                 b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 5, 6
+                 *doc_bytes, *chunk_bytes])  # 7, 8
     except zmq.error.Again:
         raise TimeoutError(
             'cannot send message to sock %s after timeout=%dms, please check the following:'
@@ -140,7 +282,8 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1)
         sock.setsockopt(zmq.SNDTIMEO, -1)
 
 
-def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False) -> Optional['gnes_pb2.Message']:
+def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False, **kwargs) -> Optional[
+    'gnes_pb2.Message']:
     response = []
     try:
         if timeout > 0:
@@ -148,36 +291,17 @@ def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = Fa
         else:
             sock.setsockopt(zmq.RCVTIMEO, -1)
 
-        _, msg_data = sock.recv_multipart()
         msg = gnes_pb2.Message()
-        msg.ParseFromString(msg_data)
+        msg_data = sock.recv_multipart()
+        squeeze_pb = (msg_data[1] == b'1')
+        msg.ParseFromString(msg_data[2])
 
-        if check_version and msg.envelope:
-            from .. import __version__, __proto_version__
-            if hasattr(msg.envelope, 'gnes_version'):
-                if not msg.envelope.gnes_version:
-                    # only happen in unittest
-                    default_logger.warning('incoming message contains empty "gnes_version", '
-                                           'you may ignore it in debug/unittest mode. '
-                                           'otherwise please check if frontend service set correct version')
-                elif __version__ != msg.envelope.gnes_version:
-                    raise AttributeError('mismatched GNES version! '
-                                         'incoming message has GNES version %s, whereas local GNES version %s' % (
-                                             msg.envelope.gnes_version, __version__))
-            if hasattr(msg.envelope, 'proto_version'):
-                if not msg.envelope.proto_version:
-                    # only happen in unittest
-                    default_logger.warning('incoming message contains empty "proto_version", '
-                                           'you may ignore it in debug/unittest mode. '
-                                           'otherwise please check if frontend service set correct version')
-                elif __proto_version__ != msg.envelope.proto_version:
-                    raise AttributeError('mismatched protobuf version! '
-                                         'incoming message has protobuf version %s, whereas local protobuf version %s' % (
-                                             msg.envelope.proto_version, __proto_version__))
-            if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
-                raise AttributeError('version_check=True locally, '
-                                     'but incoming message contains no version info in its envelope. '
-                                     'the message is probably sent from a very outdated GNES version')
+        if check_version:
+            check_msg_version(msg)
+
+        # now we have a barebone msg, we need to fill in data
+        if squeeze_pb:
+            fill_raw_bytes_to_msg(msg, msg_data)
         return msg
 
     except ValueError:
