@@ -53,6 +53,12 @@ do
         login_push ${HUB_USER} ${HUB_PWD} " " gnes
     fi
 
+    if [[ -z "${GITHUB_USER}" ]]; then
+        printf "\$GITHUB_USER not set, pass\n"
+    else
+        login_push ${GITHUB_USER} ${GITHUB_PWD} docker.pkg.github.com docker.pkg.github.com/gnes-ai/gnes
+    fi
+
     if [[ -z "${TCLOUD_USER}" ]]; then
         printf "\$TCLOUD_USER not set, pass\n"
     else
@@ -74,6 +80,12 @@ if [[ -z "${TCLOUD_USER}" ]]; then
     printf "\$TCLOUD_USER not set, pass\n"
 else
     docker tag ${ALPINE_TAG} ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG} && docker push ccr.ccs.tencentyun.com/gnes/${DEFAULT_TAG}
+fi
+
+if [[ -z "${GITHUB_USER}" ]]; then
+    printf "\$GITHUB_USER not set, pass\n"
+else
+    docker tag ${ALPINE_TAG} docker.pkg.github.com/gnes-ai/gnes/${DEFAULT_TAG} && docker push docker.pkg.github.com/gnes-ai/gnes/${DEFAULT_TAG}
 fi
 
 if [[ -z "${BADGE_WEBHOOK}" ]]; then
