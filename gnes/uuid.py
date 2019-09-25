@@ -51,8 +51,8 @@ class SnowflakeIDGenerator(object):
         self.max_counter_mask = -1 ^ -1 << self.counter_bits
 
         self.machine_shift = self.counter_bits
-        self.datacenter_shift = self.counter_bits + self.machine_shift
-        self.timestamp_shift = self.counter_bits + self.machine_shift + self.datacenter_shift
+        self.datacenter_shift = self.counter_bits + self.machine_bits
+        self.timestamp_shift = self.counter_bits + self.machine_bits + self.datacenter_bits
 
         self.twepoch = int(time.mktime(time.strptime('2019-01-01 00:00:00', "%Y-%m-%d %H:%M:%S")))
         self.last_timestamp = -1
