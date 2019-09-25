@@ -35,6 +35,10 @@ steps:
       from_secret: BADGE_WEBHOOK
     BOT_URL:
       from_secret: BOT_URL
+    GITHUB_USER:
+      from_secret: GITHUB_USER
+    GITHUB_PWD:
+      from_secret: GITHUB_PWD
   commands:
   - ./docker-build.sh
   - docker system prune -a -f
@@ -114,6 +118,10 @@ steps:
       from_secret: BADGE_WEBHOOK
     BOT_URL:
       from_secret: BOT_URL
+    GITHUB_USER:
+      from_secret: GITHUB_USER
+    GITHUB_PWD:
+      from_secret: GITHUB_PWD
   commands:
   - ./docker-build.sh
 
