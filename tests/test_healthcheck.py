@@ -47,7 +47,7 @@ class TestHealthCheck(unittest.TestCase):
         self.assertEqual(cm.exception.code, 1)
 
     def test_hc_os_env(self):
-        os.environ.setdefault('GNES_CONTROL_PORT', str(56789))
+        os.environ['GNES_CONTROL_PORT'] = str(56789)
         a = set_router_parser().parse_args([
             '--yaml_path', 'BaseRouter',
         ])

@@ -68,6 +68,7 @@ Highlights
 
    chapter/troubleshooting.md
    chapter/protobuf-dev.md
+   chapter/enviromentvars.md
 
 .. toctree::
    :maxdepth: 2
