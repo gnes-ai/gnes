@@ -14,6 +14,7 @@
 #  limitations under the License.
 
 import ctypes
+import os
 import random
 from typing import List, Iterator, Tuple
 from typing import Optional
@@ -119,6 +120,7 @@ def add_version(evlp: 'gnes_pb2.Envelope'):
     from .. import __version__, __proto_version__
     evlp.gnes_version = __version__
     evlp.proto_version = __proto_version__
+    evlp.vcs_version = os.environ.get('GNES_VCS_VERSION', '')
 
 
 def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):
@@ -151,6 +153,17 @@ def check_msg_version(msg: 'gnes_pb2.Message'):
             raise AttributeError('mismatched protobuf version! '
                                  'incoming message has protobuf version %s, whereas local protobuf version %s' % (
                                      msg.envelope.proto_version, __proto_version__))
+
+    if hasattr(msg.envelope, 'vcs_version'):
+        if not msg.envelope.vcs_version or not os.environ.get('GNES_VCS_VERSION', ''):
+            default_logger.warning('incoming message contains empty "vcs_version", '
+                                   'you may ignore it in debug/unittest mode, '
+                                   'or if you run gnes OUTSIDE docker container where GNES_VCS_VERSION is unset'
+                                   'otherwise please check if frontend service set correct version')
+        elif os.environ.get('GNES_VCS_VERSION') != msg.envelope.vcs_version:
+            raise AttributeError('mismatched vcs version! '
+                                 'incoming message has protobuf version %s, whereas local protobuf version %s' % (
+                                     msg.envelope.vcs_version, os.environ.get('GNES_VCS_VERSION')))
 
     if not hasattr(msg.envelope, 'proto_version') and not hasattr(msg.envelope, 'gnes_version'):
         raise AttributeError('version_check=True locally, '
