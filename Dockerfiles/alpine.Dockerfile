@@ -31,4 +31,6 @@ RUN apk add --no-cache \
 
 WORKDIR /
 
+ENV GNES_VCS_VERSION=$VCS_REF
+
 ENTRYPOINT ["gnes"]

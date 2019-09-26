@@ -27,4 +27,6 @@ RUN pip --no-cache-dir install .[all] \
 
 WORKDIR /
 
+ENV GNES_VCS_VERSION=$VCS_REF
+
 ENTRYPOINT ["gnes"]

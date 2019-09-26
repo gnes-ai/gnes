@@ -43,7 +43,7 @@ do
     printf "i will build $IMAGE_TAG based on $DOCKER_FILE\n"
 
     docker build --network host --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-                 --build-arg VCS_REF=${DRONE_COMMIT_REF} \
+                 --build-arg VCS_REF=`git rev-parse --short HEAD` \
                  --rm --target $TARGET -t $IMAGE_TAG -f $DOCKER_FILE .
 
 
