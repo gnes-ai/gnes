@@ -162,6 +162,7 @@ message Response {
         SUCCESS = 0;
         ERROR = 1;
         PENDING = 2;
+        READY = 3;
     }
 
     message TrainResponse {
