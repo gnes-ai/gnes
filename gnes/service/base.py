@@ -515,7 +515,7 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
             pass
         finally:
             sock.close()
-            return r
+        return r
 
 
 class ServiceManager:
