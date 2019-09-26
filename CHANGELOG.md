@@ -1,4 +1,52 @@
 
+# Release Note (`v0.0.42`)
+> Release time: 2019-09-26 10:40:48
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  felix,  raccoonliukai,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```8bef90dd```](https://github.com/gnes-ai/gnes/commit/8bef90dda91a96670c69bcac16728335edfbe6dc)] __-__ __cd__: docker images now push to github during merge and tag (*hanhxiao*)
+ - [[```0ea566ff```](https://github.com/gnes-ai/gnes/commit/0ea566ffdfeb0cb9a6bdde656a2349042bbeffe3)] __-__ __service__: send ndarray separately (*hanhxiao*)
+ - [[```09199d82```](https://github.com/gnes-ai/gnes/commit/09199d825f0b4830bfe9eabd7350764644433c99)] __-__ __preprocessor__: add frame selector (*Jem*)
+ - [[```a2f10589```](https://github.com/gnes-ai/gnes/commit/a2f10589df67f59e1825af9dd77975236060e50d)] __-__ __parser__: add raw_bytes_in_sep to cli (*hanhxiao*)
+ - [[```10788951```](https://github.com/gnes-ai/gnes/commit/10788951261f102dd121b191db807f18336b69f6)] __-__ __proto__: speedup send/recv by separating raw_bytes from pb (*hanhxiao*)
+ - [[```2326fe97```](https://github.com/gnes-ai/gnes/commit/2326fe97d17a5a545d50fd8390f61b8a3c728a90)] __-__ __preprocessor__: add preprocessor for mp4 and gif decode (*raccoonliukai*)
+ - [[```803afb34```](https://github.com/gnes-ai/gnes/commit/803afb34ac49ee9649f74e5a80cb6f816c668f30)] __-__ __snoflake-uuid__: add snowflake uuid generator (*felix*)
+ - [[```fe7025f5```](https://github.com/gnes-ai/gnes/commit/fe7025f5a2041602b4e6df04faa33a03ad9ad4b3)] __-__ __frontend__: dump route in the frontend (*hanhxiao*)
+ - [[```8fbb0945```](https://github.com/gnes-ai/gnes/commit/8fbb094526eddc0ed1233061b2ca018832ecd060)] __-__ __router__: add a block router for benchmarking (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```43145019```](https://github.com/gnes-ai/gnes/commit/43145019989e9c009bc4fd944464789d8f33f6b9)] __-__ __unittest__: fix unit test for send recv (*hanhxiao*)
+ - [[```b6f2cdaf```](https://github.com/gnes-ai/gnes/commit/b6f2cdafe2d9e154069a404df00d0e2ae0bdcc1b)] __-__ __service__: fix send/recv for better compatability (*hanhxiao*)
+ - [[```8c6f2558```](https://github.com/gnes-ai/gnes/commit/8c6f2558c2da32a167c2ddccb6df953f0da87f30)] __-__ fix route table sum time (*raccoonliukai*)
+ - [[```8a0beec8```](https://github.com/gnes-ai/gnes/commit/8a0beec8d9437317bdb90fb3ccaade0208ca8850)] __-__ __service__: send single long message rather than multiple (*hanhxiao*)
+ - [[```3b1f963c```](https://github.com/gnes-ai/gnes/commit/3b1f963ccb617cf2870471cf97ec02481a81331c)] __-__ __preprocessor__: add solution for raw_video (*raccoonliukai*)
+ - [[```1b4a04fe```](https://github.com/gnes-ai/gnes/commit/1b4a04fe0fcea61d609292b7b906fa3293f98cda)] __-__ __preprocessor__: add videodecode in init (*raccoonliukai*)
+ - [[```7108460a```](https://github.com/gnes-ai/gnes/commit/7108460a994491665cca15abd28e92220a6ea66a)] __-__ __memory_leak__: try to fix memory leak (*felix*)
+ - [[```82951d95```](https://github.com/gnes-ai/gnes/commit/82951d9571331f963f6428a245568243d9b41fd9)] __-__ __frontend__: use poll for better efficiency (*hanhxiao*)
+ - [[```2f539b7a```](https://github.com/gnes-ai/gnes/commit/2f539b7ade255044d68b75a46b220f4888679005)] __-__ __snowflake__: fix error shift (*felix*)
+ - [[```84e67792```](https://github.com/gnes-ai/gnes/commit/84e67792b5b6e60b5833d49b8fe77c64dac479d4)] __-__ __frontend__: fix progressbar and route table (*hanhxiao*)
+ - [[```9a65e4fe```](https://github.com/gnes-ai/gnes/commit/9a65e4fe99eba1a89c8a9ce60d4b1422210637ef)] __-__ __frontend__: flush dump (*hanhxiao*)
+ - [[```2e326af5```](https://github.com/gnes-ai/gnes/commit/2e326af592dd91161c5cceb6d852b0ba2c5250f5)] __-__ catch exception in hook function (*hanhxiao*)
+ - [[```402867cc```](https://github.com/gnes-ai/gnes/commit/402867cc5b92d0a0b07de993524f6553b6952adb)] __-__ fix route table total time (*hanhxiao*)
+ - [[```30976179```](https://github.com/gnes-ai/gnes/commit/309761794248ec13a9c82c69490cbc03998bc5e0)] __-__ __docker__: decoupling prerequest and gnes install (*hanhxiao*)
+ - [[```c5347a5b```](https://github.com/gnes-ai/gnes/commit/c5347a5b668148f345d732acd1f459c6d025f201)] __-__ __service__: make route_table as option for all services (*hanhxiao*)
+ - [[```45a078d9```](https://github.com/gnes-ai/gnes/commit/45a078d9df976c4173e362d32f9f36d5d7fce472)] __-__ __docker__: reduce the size of built image (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```95493b47```](https://github.com/gnes-ai/gnes/commit/95493b47b44cebfb28d9b2dd3206494485e93afa)] __-__ __readme__: add github package to readme (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```31f53bc2```](https://github.com/gnes-ai/gnes/commit/31f53bc270b700eebb1be8a0006b1cc4c720c5ae)] __-__ fix unit test (*felix*)
+ - [[```89945ef8```](https://github.com/gnes-ai/gnes/commit/89945ef8bdae798358c80631f187b21e039b5ab7)] __-__ __changelog__: update change log to v0.0.41 (*hanhxiao*)
+
 # Release Note (`v0.0.41`)
 > Release time: 2019-09-20 20:51:39
 
