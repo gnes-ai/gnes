@@ -5,7 +5,7 @@ ARG BUILD_DATE
 
 LABEL maintainer="team@gnes.ai" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/gnes-ai/gnes" \
+      org.label-schema.vcs-url="https://github.com/gnes-ai/gnes/commit/$VCS_REF" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="GNES is Generic Nerual Elastic Search"
 
@@ -32,5 +32,6 @@ RUN apk add --no-cache \
 WORKDIR /
 
 ENV GNES_VCS_VERSION=$VCS_REF
+ENV GNES_BUILD_DATE=$BUILD_DATE
 
 ENTRYPOINT ["gnes"]
