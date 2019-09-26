@@ -69,7 +69,7 @@ def healthcheck(args):
     from ..service.base import send_ctrl_message
     from ..proto import gnes_pb2, add_version
     import time
-    ctrl_addr = 'tcp://%s:%d' % (args.host_out, args.port_out)
+    ctrl_addr = 'tcp://%s:%d' % (args.host, args.port)
     msg = gnes_pb2.Message()
     add_version(msg.envelope)
     msg.request.control.command = gnes_pb2.Request.ControlRequest.STATUS

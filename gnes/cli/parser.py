@@ -244,17 +244,17 @@ def set_preprocessor_parser(parser=None):
 
 
 def set_healthcheck_parser(parser=None):
-    import os
     if not parser:
         parser = set_base_parser()
-    set_service_parser(parser)
+
+    parser.add_argument('--host', type=str, default='127.0.0.1',
+                        help='host address of the checked service')
+    parser.add_argument('--port', type=int, required=True,
+                        help='control port of the checked service')
+    parser.add_argument('--timeout', type=int, default=1000,
+                        help='timeout (ms) of one check, -1 for waiting forever')
     parser.add_argument('--retries', type=int, default=3,
-                        help='number of health checks retried before exit')
-    # we cant wait for health check signal forever, thus set to 5 seconds
-    parser.set_defaults(timeout=5)
-    ctrl_port = os.environ.get('GNES_CONTROL_PORT')
-    if ctrl_port:
-        parser.set_defaults(port_out=int(ctrl_port))
+                        help='max number of tried health checks before exit 1')
     return parser
 
 
