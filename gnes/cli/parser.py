@@ -241,6 +241,15 @@ def set_preprocessor_parser(parser=None):
     return parser
 
 
+def set_healthcheck_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+    set_service_parser(parser)
+    parser.add_argument('--num_retry', type=int, default=3,
+                        help='number of health checks performed before exit')
+    return parser
+
+
 def set_router_parser(parser=None):
     if not parser:
         parser = set_base_parser()
@@ -411,4 +420,6 @@ def get_main_parser():
     # others
     set_composer_flask_parser(
         sp.add_parser('compose', help='start a GNES Board to visualize YAML configs', formatter_class=adf))
+    set_healthcheck_parser(
+        sp.add_parser('healthcheck', help='do health check on any GNES microservice', formatter_class=adf))
     return parser

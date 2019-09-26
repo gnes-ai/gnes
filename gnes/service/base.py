@@ -472,7 +472,7 @@ class BaseService(metaclass=ConcurrentService):
             msg.response.control.status = gnes_pb2.Response.SUCCESS
             raise EventLoopEnd
         elif msg.request.control.command == gnes_pb2.Request.ControlRequest.STATUS:
-            msg.response.control.status = gnes_pb2.Response.ERROR
+            msg.response.control.status = gnes_pb2.Response.READY
         else:
             raise ServiceError('dont know how to handle %s' % msg.request.control)
 
@@ -507,9 +507,14 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
         ctx.setsockopt(zmq.LINGER, 0)
         sock, _ = build_socket(ctx, address, None, SocketType.PAIR_CONNECT)
         send_message(sock, msg, timeout)
-        r = recv_message(sock, timeout)
-        sock.close()
-        return r
+        r = None
+        try:
+            r = recv_message(sock, timeout)
+        except TimeoutError:
+            pass
+        finally:
+            sock.close()
+            return r
 
 
 class ServiceManager:
