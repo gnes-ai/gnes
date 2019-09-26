@@ -17,8 +17,7 @@ class TestHealthCheck(unittest.TestCase):
         a1 = copy.deepcopy(a)
         b = set_healthcheck_parser().parse_args([
             '--host_out', a.host_in,
-            '--port_out', str(a.port_ctrl),
-            '--timeout', str(3)
+            '--port_out', str(a.port_ctrl)
         ])
 
         # before - fail

@@ -245,8 +245,10 @@ def set_healthcheck_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
-    parser.add_argument('--num_retry', type=int, default=3,
-                        help='number of health checks performed before exit')
+    parser.add_argument('--retries', type=int, default=3,
+                        help='number of health checks retried before exit')
+    # we cant wait for health check signal forever, thus set to 5 seconds
+    parser.set_defaults(timeout=5)
     return parser
 
 
