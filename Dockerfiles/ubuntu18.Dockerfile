@@ -32,4 +32,6 @@ RUN pip3 install . --no-cache-dir --compile && \
 
 WORKDIR /
 
+ENV GNES_VCS_VERSION=$VCS_REF
+
 ENTRYPOINT ["gnes"]

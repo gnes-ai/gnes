@@ -140,6 +140,7 @@ def set_composer_flask_parser(parser=None):
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
     import random
+    import os
     if not parser:
         parser = set_base_parser()
     min_port, max_port = 49152, 65536
@@ -157,7 +158,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int, default=random.randrange(min_port, max_port),
+    parser.add_argument('--port_ctrl', type=int,
+                        default=int(os.environ.get('GNES_CONTROL_PORT', random.randrange(min_port, max_port))),
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
@@ -238,6 +240,21 @@ def set_preprocessor_parser(parser=None):
         parser = set_base_parser()
     _set_loadable_service_parser(parser)
     parser.set_defaults(read_only=True)
+    return parser
+
+
+def set_healthcheck_parser(parser=None):
+    if not parser:
+        parser = set_base_parser()
+
+    parser.add_argument('--host', type=str, default='127.0.0.1',
+                        help='host address of the checked service')
+    parser.add_argument('--port', type=int, required=True,
+                        help='control port of the checked service')
+    parser.add_argument('--timeout', type=int, default=1000,
+                        help='timeout (ms) of one check, -1 for waiting forever')
+    parser.add_argument('--retries', type=int, default=3,
+                        help='max number of tried health checks before exit 1')
     return parser
 
 
@@ -411,4 +428,6 @@ def get_main_parser():
     # others
     set_composer_flask_parser(
         sp.add_parser('compose', help='start a GNES Board to visualize YAML configs', formatter_class=adf))
+    set_healthcheck_parser(
+        sp.add_parser('healthcheck', help='do health check on any GNES microservice', formatter_class=adf))
     return parser

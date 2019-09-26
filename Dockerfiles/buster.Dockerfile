@@ -26,4 +26,6 @@ RUN ln -s locale.h /usr/include/xlocale.h && \
 
 WORKDIR /
 
+ENV GNES_VCS_VERSION=$VCS_REF
+
 ENTRYPOINT ["gnes"]

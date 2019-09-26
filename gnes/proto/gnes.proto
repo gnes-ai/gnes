@@ -100,6 +100,8 @@ message Envelope {
     string gnes_version = 7;
 
     string proto_version = 8;
+
+    string vcs_version = 9;
 }
 
 message Message {
@@ -162,6 +164,7 @@ message Response {
         SUCCESS = 0;
         ERROR = 1;
         PENDING = 2;
+        READY = 3;
     }
 
     message TrainResponse {
