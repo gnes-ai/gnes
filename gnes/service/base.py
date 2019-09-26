@@ -308,6 +308,7 @@ class BaseService(metaclass=ConcurrentService):
         self._model = None
         self.use_event_loop = True
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
+        self.logger.info('control address: %s' % self.ctrl_addr)
         self.send_recv_kwargs = dict(
             check_version=self.args.check_version,
             timeout=self.args.timeout,

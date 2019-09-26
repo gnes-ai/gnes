@@ -1,4 +1,5 @@
 import copy
+import os
 import time
 import unittest
 
@@ -10,7 +11,7 @@ from gnes.service.router import RouterService
 
 class TestHealthCheck(unittest.TestCase):
 
-    def test_base_check(self):
+    def test_health_check(self):
         a = set_router_parser().parse_args([
             '--yaml_path', 'BaseRouter',
         ])
@@ -45,3 +46,39 @@ class TestHealthCheck(unittest.TestCase):
             healthcheck(b)
 
         self.assertEqual(cm.exception.code, 1)
+
+    def test_hc_os_env(self):
+        os.environ.setdefault('GNES_CONTROL_PORT', str(56789))
+        a = set_router_parser().parse_args([
+            '--yaml_path', 'BaseRouter',
+        ])
+        a1 = copy.deepcopy(a)
+        b = set_healthcheck_parser().parse_args([
+        ])
+
+        # before - fail
+        with self.assertRaises(SystemExit) as cm:
+            healthcheck(b)
+
+        self.assertEqual(cm.exception.code, 1)
+
+        # running - success
+        with self.assertRaises(SystemExit) as cm:
+            with RouterService(a):
+                time.sleep(2)
+                healthcheck(b)
+        self.assertEqual(cm.exception.code, 0)
+
+        # running - managerservice - success
+        with self.assertRaises(SystemExit) as cm:
+            with ServiceManager(RouterService, a1):
+                time.sleep(2)
+                healthcheck(b)
+        self.assertEqual(cm.exception.code, 0)
+
+        # after - fail
+        with self.assertRaises(SystemExit) as cm:
+            healthcheck(b)
+
+        self.assertEqual(cm.exception.code, 1)
+        os.unsetenv('GNES_CONTROL_PORT')

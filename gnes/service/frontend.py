@@ -23,7 +23,7 @@ from google.protobuf.json_format import MessageToJson
 from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger, make_route_table
-from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route
+from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route, add_version
 
 
 class FrontendService:
@@ -72,8 +72,7 @@ class FrontendService:
             msg.envelope.part_id = 1
             msg.envelope.num_part.append(1)
             msg.envelope.timeout = 5000
-            msg.envelope.gnes_version = __version__
-            msg.envelope.proto_version = __proto_version__
+            add_version(msg.envelope)
             add_route(msg.envelope, FrontendService.__name__, self.args.identity)
             msg.request.CopyFrom(body)
             return msg

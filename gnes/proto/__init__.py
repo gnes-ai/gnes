@@ -25,7 +25,8 @@ from termcolor import colored
 from . import gnes_pb2
 from ..helper import batch_iterator, default_logger
 
-__all__ = ['RequestGenerator', 'send_message', 'recv_message', 'blob2array', 'array2blob', 'gnes_pb2', 'add_route']
+__all__ = ['RequestGenerator', 'send_message', 'recv_message',
+           'blob2array', 'array2blob', 'gnes_pb2', 'add_route', 'add_version']
 
 
 class RequestGenerator:
@@ -112,6 +113,12 @@ def add_route(evlp: 'gnes_pb2.Envelope', name: str, identity: str):
     r.service = name
     r.start_time.GetCurrentTime()
     r.service_identity = identity
+
+
+def add_version(evlp: 'gnes_pb2.Envelope'):
+    from .. import __version__, __proto_version__
+    evlp.gnes_version = __version__
+    evlp.proto_version = __proto_version__
 
 
 def merge_routes(msg: 'gnes_pb2.Message', prev_msgs: List['gnes_pb2.Message']):

@@ -67,15 +67,16 @@ def client(args):
 
 def healthcheck(args):
     from ..service.base import send_ctrl_message
-    from ..proto import gnes_pb2
+    from ..proto import gnes_pb2, add_version
     import time
     ctrl_addr = 'tcp://%s:%d' % (args.host_out, args.port_out)
     msg = gnes_pb2.Message()
+    add_version(msg.envelope)
     msg.request.control.command = gnes_pb2.Request.ControlRequest.STATUS
-    for j in range(args.num_retry):
+    for j in range(args.retries):
         r = send_ctrl_message(ctrl_addr, msg, timeout=args.timeout)
         if not r:
-            print('%s is not responding, retry (%d/%d) in 1s' % (ctrl_addr, j + 1, args.num_retry))
+            print('%s is not responding, retry (%d/%d) in 1s' % (ctrl_addr, j + 1, args.retries))
         else:
             print('%s returns %s' % (ctrl_addr, r))
             exit(0)

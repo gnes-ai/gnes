@@ -140,6 +140,7 @@ def set_composer_flask_parser(parser=None):
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
     import random
+    import os
     if not parser:
         parser = set_base_parser()
     min_port, max_port = 49152, 65536
@@ -157,7 +158,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int, default=random.randrange(min_port, max_port),
+    parser.add_argument('--port_ctrl', type=int,
+                        default=int(os.environ.get('GNES_CONTROL_PORT', random.randrange(min_port, max_port))),
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
@@ -242,6 +244,7 @@ def set_preprocessor_parser(parser=None):
 
 
 def set_healthcheck_parser(parser=None):
+    import os
     if not parser:
         parser = set_base_parser()
     set_service_parser(parser)
@@ -249,6 +252,9 @@ def set_healthcheck_parser(parser=None):
                         help='number of health checks retried before exit')
     # we cant wait for health check signal forever, thus set to 5 seconds
     parser.set_defaults(timeout=5)
+    ctrl_port = int(os.environ.get('GNES_CONTROL_PORT'))
+    if ctrl_port:
+        parser.set_defaults(port_out=ctrl_port)
     return parser
 
 
