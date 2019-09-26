@@ -252,9 +252,9 @@ def set_healthcheck_parser(parser=None):
                         help='number of health checks retried before exit')
     # we cant wait for health check signal forever, thus set to 5 seconds
     parser.set_defaults(timeout=5)
-    ctrl_port = int(os.environ.get('GNES_CONTROL_PORT'))
+    ctrl_port = os.environ.get('GNES_CONTROL_PORT')
     if ctrl_port:
-        parser.set_defaults(port_out=ctrl_port)
+        parser.set_defaults(port_out=int(ctrl_port))
     return parser
 
 
