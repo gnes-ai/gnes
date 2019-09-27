@@ -204,6 +204,8 @@ steps:
       from_secret: GITHUB_USER
     GITHUB_PWD:
       from_secret: GITHUB_PWD
+    DO_BENCHMARK:
+      from_secret: DO_BENCHMARK
     BENCHMARK_DIR: /workspace/benchmark/
     SHARED_HOST_PATH: /tmp/
   commands:

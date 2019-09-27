@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# prevent duplicate evaluation over multiple CICD machines
+if [[ -z "${DO_BENCHMARK}" ]]; then
+    printf "\$DO_BENCHMARK not set, exit\n"
+    exit 1
+fi
+
 cd /workspace && rm -rf benchmark && git clone https://github.com/gnes-ai/benchmark.git && cd benchmark
 
 git remote rm origin && git remote add origin https://$GITHUB_USER:$GITHUB_PWD@github.com/gnes-ai/benchmark.git
@@ -7,6 +13,7 @@ git config --global user.email "artex.xh@gmail.com" && git config --global user.
 
 export GNES_IMG_TAG=latest-alpine
 
+docker swarm join
 
 for EXP_ID in 1 2 3 4 ;
 do
@@ -27,5 +34,5 @@ cat $BENCHMARK_DIR/.data/history*.json
 make run_summary
 cat $BENCHMARK_DIR/README.md
 
-git add -u && git status && git commit -m "auto eval the benchmark due to gnes update"
+git add -u && git status && git commit -m "auto eval the benchmark due to gnes update (${DRONE_TAG})"
 git push --set-upstream origin master
