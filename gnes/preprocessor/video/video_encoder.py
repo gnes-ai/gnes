@@ -13,9 +13,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from gnes.preprocessor.base import BaseVideoPreprocessor
-from gnes.preprocessor.io_utils import video, gif
-from gnes.proto import gnes_pb2, blob2array
+from ...proto import gnes_pb2, blob2array
+from ..base import BaseVideoPreprocessor
+from ..io_utils import video, gif
 
 
 class VideoEncoderPreprocessor(BaseVideoPreprocessor):

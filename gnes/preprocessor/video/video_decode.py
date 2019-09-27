@@ -13,9 +13,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from gnes.preprocessor.base import BaseVideoPreprocessor
-from gnes.proto import gnes_pb2, array2blob
-from gnes.preprocessor.io_utils import video
+from ...proto import array2blob
+
+from ..base import BaseVideoPreprocessor
+from ..io_utils import video as video_util
 
 
 class VideoDecodePreprocessor(BaseVideoPreprocessor):
@@ -23,40 +24,48 @@ class VideoDecodePreprocessor(BaseVideoPreprocessor):
 
     def __init__(self,
                  frame_rate: int = 10,
+                 frame_size: str = None,
                  vframes: int = -1,
-                 scale: str = None,
+                 drop_raw_data: bool = False,
+                 chunk_spliter: str = None,
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_rate = frame_rate
+        self.frame_size = frame_size
         self.vframes = vframes
-        self.scale = scale
+        self.drop_raw_data = drop_raw_data
+        self.chunk_spliter = chunk_spliter
 
     def apply(self, doc: 'gnes_pb2.Document') -> None:
         super().apply(doc)
-
-        all_frames = []
         if doc.WhichOneof('raw_data'):
-            raw_type = type(getattr(doc, doc.WhichOneof('raw_data')))
+            video_frames = []
+            # raw_type = type(getattr(doc, doc.WhichOneof('raw_data')))
             if doc.raw_bytes:
-                all_frames = video.capture_frames(
+                video_frames = video_util.capture_frames(
                     input_data=doc.raw_bytes,
-                    scale=self.scale,
+                    scale=self.frame_size,
                     fps=self.frame_rate,
                     vframes=self.vframes)
-            elif raw_type == gnes_pb2.NdArray:
-                all_frames = blob2array(doc.raw_video)
-                if self.vframes > 0:
-                    all_frames = video_frames[0:self.vframes, :].copy()
-
-            num_frames = len(all_frames)
-            if num_frames > 0:
-                c = doc.chunks.add()
-                c.doc_id = doc.doc_id
-                c.blob.CopyFrom(array2blob(all_frames))
-                c.offset = 0
-                c.weight = 1.0
+                if not self.drop_raw_data:
+                    doc.raw_video.CopyFrom(array2blob(video_frames))
             else:
-                self.logger.error('bad document: "raw_bytes" or "raw_video" is empty!')
+                self.logger.error('the document "raw_bytes" is empty!')
+
+            if self.chunk_spliter == 'frame_split':
+                for i, frame in enumerate(video_frames):
+                    c = doc.chunks.add()
+                    c.doc_id = doc.doc_id
+                    c.blob.CopyFrom(array2blob(frame))
+                    c.offset = i
+                    c.weight = 1.0
+            elif self.chunk_spliter == 'none':
+                chunk = doc.chunks.add()
+                chunk.doc_id = doc.doc_id
+                chunk.blob.CopyFrom(array2blob(video_frames))
+                chunk.offset = 0
+                chunk.weight = 1.0
+
         else:
-            self.logger.error('bad document: "raw_bytes" is empty!')
+            self.logger.error('bad document: "raw_data" is empty!')
