@@ -175,7 +175,7 @@ steps:
       from_secret: BOT_URL
   commands:
   - export MSG_LINK=${DRONE_BUILD_LINK}
-  - export MSG_TITLE="⌛🗳 Start to benchmark new master \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
+  - export MSG_TITLE="🏎️🐎 Start to benchmark the new master \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_BUILD_NUMBER}\`)"
   - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
@@ -185,6 +185,8 @@ steps:
   volumes:
   - name: docker
     path: /var/run/docker.sock
+  - name: cache
+    path: /workspace
   environment:
     TCLOUD_USER:
       from_secret: TCLOUD_USER
@@ -202,8 +204,10 @@ steps:
       from_secret: GITHUB_USER
     GITHUB_PWD:
       from_secret: GITHUB_PWD
+    BENCHMARK_DIR: /workspace/benchmark/
+    SHARED_HOST_PATH: /tmp/
   commands:
-  - ./docker-build.sh
+  - ./benchmark-eval.sh
   - docker system prune -a -f
 
 - name: notify the sucess on wechat work
@@ -213,7 +217,7 @@ steps:
       from_secret: BOT_URL
   commands:
   - export MSG_LINK=$DRONE_REPO_LINK
-  - export MSG_TITLE="✅🎁 All images are successfully delivered!"
+  - export MSG_TITLE="✅🏍️ New benchmark is updated!"
   - export MSG_CONTENT=""
   - ./shell/push-wechatwork.sh
 
@@ -223,8 +227,8 @@ steps:
     BOT_URL:
       from_secret: BOT_URL
   commands:
-  - export MSG_LINK=$DRONE_BUILD_LINK
-  - export MSG_TITLE="❌🎁 fail to build docker image!"
+  - export MSG_LINK="https://github.com/gnes-ai/benchmark"
+  - export MSG_TITLE="❌🏍 fail to benchmark GNES!"
   - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
   - ./shell/push-wechatwork.sh
   when:
@@ -235,9 +239,12 @@ trigger:
   branch:
   - master
   event:
-  - push
+  - pull_request
 
 volumes:
 - name: docker
   host:
     path: /var/run/docker.sock
+- name: cache
+  host:
+    path: /tmp/

@@ -648,6 +648,11 @@ The official documentation of GNES is hosted on [doc.gnes.ai](https://doc.gnes.a
 
 - Migrating from [`bert-as-service`](https://github.com/hanxiao/bert-as-service)
 
+<h2 align="center">Benchmark</h2>
+
+We have setup [this repository](https://github.com/gnes-ai/benchmark) to track the network latency over different GNES versions. As a part of CICD pipeline, this repo gets automatically updated when the [GNES master](https://github.com/gnes-ai/gnes) is updated or a new [GNES version is released](https://github.com/gnes-ai/gnes/releases).
+
+
 <h2 align="center">Contributing</h2>
 
 Thanks for your interest in contributing! GNES always welcome the contribution from the open-source community, individual committers and other partners. Without you, GNES can't be successful.
