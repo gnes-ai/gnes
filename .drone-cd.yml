@@ -5,7 +5,7 @@ clone:
   depth: 10
 
 steps:
-- name: notify the start on wechat work
+- name: notify the start on building work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -43,7 +43,7 @@ steps:
   - ./docker-build.sh
   - docker system prune -a -f
 
-- name: notify the sucess on wechat work
+- name: notify the sucess on building work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -65,7 +65,7 @@ steps:
   - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
-- name: build and push docker images
+- name: build and benchmarking
   image: gnes/dind
   privileged: true
   volumes:
@@ -98,7 +98,7 @@ steps:
   - ./benchmark-eval.sh
   - docker system prune -a -f
 
-- name: notify the sucess on wechat work
+- name: notify the sucess on benchmark work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -109,7 +109,7 @@ steps:
   - export MSG_CONTENT=""
   - ./shell/push-wechatwork.sh
 
-- name: notify the failure on wechat work
+- name: notify the failure on all work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -146,7 +146,7 @@ clone:
   depth: 50
 
 steps:
-- name: notify the start on wechat work
+- name: notify the start on build work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -205,7 +205,7 @@ steps:
   - export MSG_CONTENT="click the link below to see the status"
   - ./shell/push-wechatwork.sh
 
-- name: build and push docker images
+- name: build and benchmarking
   image: gnes/dind
   privileged: true
   volumes:
@@ -238,7 +238,7 @@ steps:
   - ./benchmark-eval.sh
   - docker system prune -a -f
 
-- name: notify the sucess on wechat work
+- name: notify the sucess on benchmark work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
@@ -249,7 +249,7 @@ steps:
   - export MSG_CONTENT=""
   - ./shell/push-wechatwork.sh
 
-- name: notify the failure on wechat work
+- name: notify the failure on all work
   image: byrnedo/alpine-curl
   environment:
     BOT_URL:
