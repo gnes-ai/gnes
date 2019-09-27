@@ -11,7 +11,13 @@ cd /workspace && rm -rf benchmark && git clone https://github.com/gnes-ai/benchm
 git remote rm origin && git remote add origin https://$GITHUB_USER:$GITHUB_PWD@github.com/gnes-ai/benchmark.git
 git config --global user.email "artex.xh@gmail.com" && git config --global user.name "Han Xiao"
 
-export GNES_IMG_TAG=latest-alpine
+if [[ -z "${DRONE_TAG}" ]]; then
+    VER_TAG="latest"
+else
+    VER_TAG=${DRONE_TAG}
+fi
+
+export GNES_IMG_TAG=${VER_TAG}-alpine
 
 docker swarm init
 make pull && make build

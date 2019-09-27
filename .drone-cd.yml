@@ -218,7 +218,7 @@ steps:
     BOT_URL:
       from_secret: BOT_URL
   commands:
-  - export MSG_LINK=$DRONE_REPO_LINK
+  - export MSG_LINK="https://github.com/gnes-ai/benchmark"
   - export MSG_TITLE="✅🏍️ New benchmark is updated!"
   - export MSG_CONTENT=""
   - ./shell/push-wechatwork.sh
