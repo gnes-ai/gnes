@@ -319,7 +319,7 @@ def kmeans_algo(distances: List[float], **kwargs) -> List[int]:
     shots.append(0)
     for i in range(0, len(clt.labels_)):
         if big_center == clt.labels_[i]:
-            shots.append((i + 2))
+            shots.append((i + 1))
     if shots[-1] < num_frames:
         shots.append(num_frames)
     else:
@@ -356,18 +356,18 @@ def motion_algo(distances: List[float], **kwargs) -> List[int]:
     arg_dict.update(kwargs)
 
     shots = []
-    num_frames = len(distances) + 1
+    num_frames = len(distances) + 2 * 2 + 1
     p = peakutils.indexes(np.array(distances).astype('float32'), thres=arg_dict['threshold'], min_dist=arg_dict['min_dist']) if len(distances) else []
     if len(p) == 0:
         return [0, num_frames]
 
     shots.append(0)
-    shots.append(p[0] + 2)
+    shots.append(p[0] + 2 + 1)
     for i in range(1, len(p)):
         # We check that the peak is not due to a motion in the image
         valid_dist = arg_dict['motion_step'] or not check_motion(distances[p[i]-arg_dict['motion_step']:p[i]], distances[p[i]])
         if valid_dist:
-            shots.append(p[i] + 2)
+            shots.append(p[i] + 2 + 1)
     if shots[-1] < num_frames - arg_dict['min_dist']:
         shots.append(num_frames)
     elif shots[-1] > num_frames:
