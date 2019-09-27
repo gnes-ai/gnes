@@ -241,7 +241,97 @@ trigger:
   branch:
   - master
   event:
-  - pull_request
+  - push
+
+volumes:
+- name: docker
+  host:
+    path: /var/run/docker.sock
+- name: cache
+  host:
+    path: /tmp/
+
+---
+
+kind: pipeline
+name: release-docker-benchmark
+
+clone:
+  depth: 10
+
+steps:
+- name: notify the start on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK=${DRONE_BUILD_LINK}
+  - export MSG_TITLE="🏎️🐎 Start to benchmark the new master \`$DRONE_SOURCE_BRANCH\`(\`${DRONE_TAG}\`)"
+  - export MSG_CONTENT="click the link below to see the status"
+  - ./shell/push-wechatwork.sh
+
+- name: build and push docker images
+  image: gnes/dind
+  privileged: true
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+  - name: cache
+    path: /workspace
+  environment:
+    TCLOUD_USER:
+      from_secret: TCLOUD_USER
+    TCLOUD_PWD:
+      from_secret: TCLOUD_PWD
+    HUB_USER:
+      from_secret: HUB_USER
+    HUB_PWD:
+      from_secret: HUB_PWD
+    BADGE_WEBHOOK:
+      from_secret: BADGE_WEBHOOK
+    BOT_URL:
+      from_secret: BOT_URL
+    GITHUB_USER:
+      from_secret: GITHUB_USER
+    GITHUB_PWD:
+      from_secret: GITHUB_PWD
+    DO_BENCHMARK:
+      from_secret: DO_BENCHMARK
+    BENCHMARK_DIR: /workspace/benchmark/
+    SHARED_HOST_PATH: /tmp/
+  commands:
+  - ./benchmark-eval.sh
+  - docker system prune -a -f
+
+- name: notify the sucess on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK="https://github.com/gnes-ai/benchmark"
+  - export MSG_TITLE="✅🏍️ New benchmark is updated!"
+  - export MSG_CONTENT=""
+  - ./shell/push-wechatwork.sh
+
+- name: notify the failure on wechat work
+  image: byrnedo/alpine-curl
+  environment:
+    BOT_URL:
+      from_secret: BOT_URL
+  commands:
+  - export MSG_LINK="https://github.com/gnes-ai/benchmark"
+  - export MSG_TITLE="❌🏍 fail to benchmark GNES!"
+  - export MSG_CONTENT="please inform [$DRONE_COMMIT_AUTHOR]($DRONE_COMMIT_AUTHOR_EMAIL) to modify and fix [\`$DRONE_SOURCE_BRANCH\`]($DRONE_COMMIT_LINK). click the link below to see the details."
+  - ./shell/push-wechatwork.sh
+  when:
+    status:
+    - failure
+
+trigger:
+  event:
+  - tag
 
 volumes:
 - name: docker
