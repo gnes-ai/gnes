@@ -13,7 +13,7 @@ git config --global user.email "artex.xh@gmail.com" && git config --global user.
 
 export GNES_IMG_TAG=latest-alpine
 
-docker swarm join
+docker swarm init
 
 for EXP_ID in 1 2 3 4 ;
 do
