@@ -57,14 +57,15 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
 
         # compute distances between frames
         if self.distance_metric == 'edge_change_ration':
-            dists = compare_ecr(descriptors)
+            dists = compare_ecr(descriptors, **self._detector_kwargs)
         else:
             dists = [
                 compare_descriptor(pair[0], pair[1], self.distance_metric)
                 for pair in zip(descriptors[:-1], descriptors[1:])
             ]
+            self._detector_kwargs['neigh_avg'] = 0
 
-        shot_bounds = detect_peak_boundary(dists, self.detect_method)
+        shot_bounds = detect_peak_boundary(dists, self.detect_method, **self._detector_kwargs)
 
         shots = []
         for ci in range(0, len(shot_bounds) - 1):
