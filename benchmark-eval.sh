@@ -14,12 +14,13 @@ git config --global user.email "artex.xh@gmail.com" && git config --global user.
 export GNES_IMG_TAG=latest-alpine
 
 docker swarm init
+make pull && make build
 
 for EXP_ID in 1 2 3 4 ;
 do
     export GNES_BENCHMARK_ID=$EXP_ID
-    make pull && make build && make test d=1000 b=10 s=1000000 && make clean
-    make wait t=20
+    make clean && make test d=1000 b=10 s=1000000 && make clean
+    make wait t=40
 done
 
 # faster for debugging CICD
