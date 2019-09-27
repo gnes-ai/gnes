@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from ...proto import gnes_pb2, array2blob
+from ...proto import array2blob
 
 from ..base import BaseVideoPreprocessor
 from ..io_utils import video as video_util
@@ -41,7 +41,7 @@ class VideoDecodePreprocessor(BaseVideoPreprocessor):
         super().apply(doc)
         if doc.WhichOneof('raw_data'):
             video_frames = []
-            raw_type = type(getattr(doc, doc.WhichOneof('raw_data')))
+            # raw_type = type(getattr(doc, doc.WhichOneof('raw_data')))
             if doc.raw_bytes:
                 video_frames = video_util.capture_frames(
                     input_data=doc.raw_bytes,
