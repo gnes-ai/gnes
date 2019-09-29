@@ -85,7 +85,7 @@ def compile_args(input_fn: str = 'pipe:',
     """Wrapper for various `FFmpeg <https://www.ffmpeg.org/>`_ related applications (ffmpeg,
     ffprobe).
     """
-    args = ['ffmpeg', '-threads', '1']
+    args = ['ffmpeg', '-threads', '0']
 
     input_args = []
     fmt = input_options.pop('format', None)
