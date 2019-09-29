@@ -61,7 +61,7 @@ class VideoDecodePreprocessor(BaseVideoPreprocessor):
                     c.offset = i
                     c.weight = 1.0
             elif self.chunk_spliter == 'shot':
-                raise NotImplemented
+                raise NotImplementedError
             else:
                 chunk = doc.chunks.add()
                 chunk.doc_id = doc.doc_id
