@@ -365,21 +365,6 @@ def set_client_cli_parser(parser=None):
     return parser
 
 
-def set_client_benchmark_parser(parser=None):
-    if not parser:
-        parser = set_base_parser()
-    _set_grpc_parser(parser)
-    parser.add_argument('--batch_size', type=int, default=64,
-                        help='the size of the request to split')
-    parser.add_argument('--request_length', type=int,
-                        default=1024,
-                        help='binary string length of each request')
-    parser.add_argument('--num_requests', type=int,
-                        default=128,
-                        help='number of total requests')
-    return parser
-
-
 def set_client_http_parser(parser=None):
     if not parser:
         parser = set_base_parser()
@@ -422,8 +407,6 @@ def get_main_parser():
     set_client_http_parser(
         spp.add_parser('http', help='start a client that allows HTTP requests as input', formatter_class=adf))
     set_client_cli_parser(spp.add_parser('cli', help='start a client that allows stdin as input', formatter_class=adf))
-    set_client_benchmark_parser(
-        spp.add_parser('benchmark', help='start a client for benchmark and unittest', formatter_class=adf))
 
     # others
     set_composer_flask_parser(

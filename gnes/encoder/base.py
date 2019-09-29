@@ -49,6 +49,7 @@ class BaseTextEncoder(BaseEncoder):
 
 
 class BaseNumericEncoder(BaseEncoder):
+    """Note that all NumericEncoder can not be used as the first encoder of the pipeline"""
 
     def encode(self, data: np.ndarray, *args, **kwargs) -> np.ndarray:
         pass
