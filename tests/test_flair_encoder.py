@@ -17,15 +17,14 @@ class TestFlairEncoder(unittest.TestCase):
                 if line:
                     self.test_str.append(line)
 
-        self.flair_encoder = FlairEncoder(
-            model_name=os.environ.get('FLAIR_CI_MODEL'),
-            pooling_strategy="REDUCE_MEAN")
+        self.flair_encoder = FlairEncoder(model_name=os.environ.get('FLAIR_CI_MODEL'))
 
     @unittest.SkipTest
     def test_encoding(self):
-        vec = self.flair_encoder.encode(self.test_str)
-        self.assertEqual(vec.shape[0], len(self.test_str))
-        self.assertEqual(vec.shape[1], 512)
+        vec = self.flair_encoder.encode(self.test_str[:2])
+        print(vec.shape)
+        self.assertEqual(vec.shape[0], 2)
+        self.assertEqual(vec.shape[1], 4196)
 
     @unittest.SkipTest
     def test_dump_load(self):
