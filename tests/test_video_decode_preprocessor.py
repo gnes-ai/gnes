@@ -50,4 +50,4 @@ class TestVideoDecode(unittest.TestCase):
                     self.assertGreater(len(d.chunks), 0)
                     for _ in range(len(d.chunks)):
                         shape = blob2array(d.chunks[_].blob).shape
-                        self.assertEqual(shape[1:], (299, 299, 3))
+                        self.assertEqual(shape, (299, 299, 3))
