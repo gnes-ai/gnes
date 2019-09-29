@@ -53,14 +53,16 @@ class VideoDecodePreprocessor(BaseVideoPreprocessor):
             else:
                 self.logger.error('the document "raw_bytes" is empty!')
 
-            if self.chunk_spliter == 'frame_split':
+            if self.chunk_spliter == 'base':
                 for i, frame in enumerate(video_frames):
                     c = doc.chunks.add()
                     c.doc_id = doc.doc_id
                     c.blob.CopyFrom(array2blob(frame))
                     c.offset = i
                     c.weight = 1.0
-            elif self.chunk_spliter == 'none':
+            elif self.chunk_spliter == 'shot':
+                raise NotImplemented
+            else:
                 chunk = doc.chunks.add()
                 chunk.doc_id = doc.doc_id
                 chunk.blob.CopyFrom(array2blob(video_frames))
