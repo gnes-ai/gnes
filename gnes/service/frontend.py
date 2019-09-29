@@ -20,7 +20,6 @@ from concurrent.futures import ThreadPoolExecutor
 import grpc
 from google.protobuf.json_format import MessageToJson
 
-from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger, make_route_table
 from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route, add_version
@@ -105,18 +104,21 @@ class FrontendService:
 
         def StreamCall(self, request_iterator, context):
             with self.zmq_context as zmq_client:
-                num_request = 0
+                pending_request = 0
 
                 for request in request_iterator:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
-                    num_request += 1
+                    pending_request += 1
 
-                    if zmq_client.receiver.poll(1):
-                        msg = zmq_client.recv_message(**self.send_recv_kwargs)
-                        num_request -= 1
-                        yield self.remove_envelope(msg)
+                    while pending_request > self.args.max_pending_request:
+                        # too many pending requests, the whole network is pretty busy
+                        # slow down the sending rate by waiting responses
+                        if zmq_client.receiver.poll(1):
+                            msg = zmq_client.recv_message(**self.send_recv_kwargs)
+                            pending_request -= 1
+                            yield self.remove_envelope(msg)
 
-                for _ in range(num_request):
+                for _ in range(pending_request):
                     msg = zmq_client.recv_message(**self.send_recv_kwargs)
                     yield self.remove_envelope(msg)
 
