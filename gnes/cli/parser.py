@@ -330,6 +330,8 @@ def set_frontend_parser(parser=None):
                         help='maximum concurrent connections allowed')
     parser.add_argument('--dump_route', type=argparse.FileType('w', encoding='utf8'),
                         help='dumping route information to a file')
+    parser.add_argument('--max_pending_request', type=int, default=100,
+                        help='maximum number of pending requests allowed, when exceed wait until we receive the response')
     return parser
 
 

@@ -20,7 +20,6 @@ from concurrent.futures import ThreadPoolExecutor
 import grpc
 from google.protobuf.json_format import MessageToJson
 
-from .. import __version__, __proto_version__
 from ..client.base import ZmqClient
 from ..helper import set_logger, make_route_table
 from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route, add_version
@@ -59,6 +58,7 @@ class FrontendService:
                 check_version=self.args.check_version,
                 timeout=self.args.timeout,
                 squeeze_pb=self.args.squeeze_pb)
+            self.pending_request = 0
 
         def add_envelope(self, body: 'gnes_pb2.Request', zmq_client: 'ZmqClient'):
             msg = gnes_pb2.Message()
@@ -104,21 +104,27 @@ class FrontendService:
             return self.Call(request, context)
 
         def StreamCall(self, request_iterator, context):
+            self.pending_request = 0
+
+            def get_response(num_recv, blocked=False):
+                for _ in range(num_recv):
+                    if blocked or zmq_client.receiver.poll(1):
+                        msg = zmq_client.recv_message(**self.send_recv_kwargs)
+                        self.pending_request -= 1
+                        yield self.remove_envelope(msg)
+
             with self.zmq_context as zmq_client:
-                num_request = 0
 
                 for request in request_iterator:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
-                    num_request += 1
+                    self.pending_request += 1
 
-                    if zmq_client.receiver.poll(1):
-                        msg = zmq_client.recv_message(**self.send_recv_kwargs)
-                        num_request -= 1
-                        yield self.remove_envelope(msg)
+                    num_recv = max(self.pending_request - self.args.max_pending_request, 1)
 
-                for _ in range(num_request):
-                    msg = zmq_client.recv_message(**self.send_recv_kwargs)
-                    yield self.remove_envelope(msg)
+                    # switch to blocked recv when too many pending requests
+                    yield from get_response(num_recv, num_recv > 1)
+
+                yield from get_response(self.pending_request, blocked=True)
 
         class ZmqContext:
             """The zmq context class."""
