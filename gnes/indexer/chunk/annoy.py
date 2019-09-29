@@ -24,7 +24,16 @@ from ..base import BaseChunkIndexer as BCI
 
 class AnnoyIndexer(BCI):
 
-    def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees=10, *args, **kwargs):
+    def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees: int = 10, *args, **kwargs):
+        """
+        Initialize an AnnoyIndexer
+        :param num_dim: when set to -1, then num_dim is auto decided on first .add()
+        :param data_path: index data file managed by the annoy indexer
+        :param metric:
+        :param n_trees:
+        :param args:
+        :param kwargs:
+        """
         super().__init__(*args, **kwargs)
         self.num_dim = num_dim
         self.data_path = data_path
@@ -34,7 +43,7 @@ class AnnoyIndexer(BCI):
 
     def post_init(self):
         from annoy import AnnoyIndex
-        self._index = AnnoyIndex(self.num_dim, self.metric)
+        self._index = AnnoyIndex(self.num_dim, self.metric) if self.num_dim >= 0 else None
         try:
             if not os.path.exists(self.data_path):
                 raise FileNotFoundError('"data_path" is not exist')
@@ -53,6 +62,12 @@ class AnnoyIndexer(BCI):
 
         if vectors.dtype != np.float32:
             raise ValueError("vectors should be ndarray of float32")
+
+        if self._index is None:
+            from annoy import AnnoyIndex
+            # means num_dim in unknown during init
+            self.num_dim = vectors.shape[1]
+            self._index = AnnoyIndex(self.num_dim, self.metric)
 
         for idx, vec in enumerate(vectors):
             self._index.add_item(last_idx + idx, vec)

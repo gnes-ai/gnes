@@ -4,8 +4,7 @@ import unittest.mock
 
 import grpc
 
-from gnes.cli.parser import set_frontend_parser, set_router_parser, set_client_benchmark_parser
-from gnes.client.benchmark import BenchmarkClient
+from gnes.cli.parser import set_frontend_parser, set_router_parser
 from gnes.helper import TimeContext
 from gnes.proto import RequestGenerator, gnes_pb2_grpc
 from gnes.service.base import SocketType, MessageHandler, BaseService as BS
@@ -54,13 +53,6 @@ class TestStreamgRPC(unittest.TestCase):
             '--socket_out', str(SocketType.PUSH_CONNECT),
             '--yaml_path', 'BaseRouter'
         ])
-
-        b_args = set_client_benchmark_parser().parse_args([
-            '--num_requests', '10',
-            '--request_length', '65536'
-        ])
-        with RouterService(p_args), FrontendService(args):
-            BenchmarkClient(b_args)
 
     def test_grpc_frontend(self):
         args = set_frontend_parser().parse_args([
