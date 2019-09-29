@@ -58,8 +58,6 @@ def client(args):
         return _client_http(args)
     elif args.client == 'cli':
         return _client_cli(args)
-    elif args.client == 'benchmark':
-        return _client_bm(args)
     else:
         raise ValueError('gnes client must follow with a client type from {http, cli, benchmark...}\n'
                          'see "gnes client --help" for details')
@@ -92,11 +90,6 @@ def _client_http(args):
 def _client_cli(args):
     from ..client.cli import CLIClient
     CLIClient(args)
-
-
-def _client_bm(args):
-    from ..client.benchmark import BenchmarkClient
-    BenchmarkClient(args)
 
 
 def compose(args):
