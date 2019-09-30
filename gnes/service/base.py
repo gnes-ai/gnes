@@ -81,6 +81,10 @@ class SocketType(BetterEnum):
     def is_bind(self):
         return self.value % 2 == 0
 
+    @property
+    def complement(self):
+        return SocketType(self.value + (1 if (self.value % 2 == 0) else -1))
+
 
 class BlockMessage(Exception):
     pass
