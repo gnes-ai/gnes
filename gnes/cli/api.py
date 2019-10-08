@@ -86,7 +86,7 @@ def _client_http(args):
 
 def _client_cli(args):
     from ..client.cli import CLIClient
-    CLIClient(args)
+    CLIClient(args).start()
 
 
 def compose(args):

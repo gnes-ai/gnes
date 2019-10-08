@@ -26,10 +26,18 @@ from ..proto import RequestGenerator, gnes_pb2
 
 
 class CLIClient(GrpcClient):
-    def __init__(self, args):
+    def __init__(self, args, start_at_init: bool = True):
         super().__init__(args)
-        getattr(self, self.args.mode)()
-        self.close()
+        if start_at_init:
+            self.start()
+
+    def start(self):
+        try:
+            getattr(self, self.args.mode)()
+        except Exception as ex:
+            self.logger.error(ex)
+        finally:
+            self.close()
 
     def train(self):
         with ProgressBar(task_name=self.args.mode) as p_bar:

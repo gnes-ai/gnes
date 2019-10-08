@@ -1,11 +1,12 @@
 from collections import OrderedDict, defaultdict
 from contextlib import ExitStack
 from functools import wraps
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, Optional
 
 from ..cli.parser import set_router_parser, set_indexer_parser, \
     set_frontend_parser, set_preprocessor_parser, \
-    set_encoder_parser
+    set_encoder_parser, set_client_cli_parser
+from ..client.cli import CLIClient
 from ..helper import set_logger
 from ..service.base import SocketType, BaseService, BetterEnum, ServiceManager
 from ..service.encoder import EncoderService
@@ -62,6 +63,7 @@ class Flow:
         EMPTY = 0
         GRAPH = 1
         RUNTIME = 2
+        RUNTIME_WITH_CLIENT = 3
 
     def __init__(self, with_frontend: bool = True, **kwargs):
         self.logger = set_logger(self.__class__.__name__)
@@ -125,14 +127,21 @@ class Flow:
             'copy-paste the output and visualize it with: https://mermaidjs.github.io/mermaid-live-editor/')
         return mermaid_str
 
-    def train(self):
-        pass
+    def train(self, **kwargs):
+        self._call_client(mode='train', **kwargs)
 
-    def index(self):
-        pass
+    def index(self, **kwargs):
+        self._call_client(mode='index', **kwargs)
 
-    def query(self):
-        pass
+    def query(self, **kwargs):
+        self._call_client(mode='query', **kwargs)
+
+    @_build_level(BuildLevel.RUNTIME)
+    def _call_client(self, **kwargs):
+        args, p_args = self._get_parsed_args(set_client_cli_parser(), kwargs)
+        p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
+        p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
+        CLIClient(p_args)
 
     def add_frontend(self, *args, **kwargs) -> 'Flow':
         """Add a frontend to the current flow, a shortcut of add(Service.Frontend)
@@ -193,7 +202,7 @@ class Flow:
         service_in = self._parse_service_endpoints(name, service_in, connect_to_last_service=True)
         service_out = self._parse_service_endpoints(name, service_out, connect_to_last_service=False)
 
-        args, p_args = self._get_parsed_args(service, kwargs)
+        args, p_args = self._get_parsed_args(Flow._service2parser[service], kwargs)
 
         self._service_nodes[name] = {
             'service': service,
@@ -233,7 +242,7 @@ class Flow:
             raise ValueError('service_in=%s is not parsable' % service_endpoint)
         return set(service_endpoint)
 
-    def _get_parsed_args(self, service, kwargs):
+    def _get_parsed_args(self, service_arg_parser, kwargs):
         kwargs.update(self._common_kwargs)
         args = []
         for k, v in kwargs.items():
@@ -251,12 +260,12 @@ class Flow:
             else:
                 args.extend(['--%s' % k, str(v)])
         try:
-            p_args, unknown_args = Flow._service2parser[service].parse_known_args(args)
+            p_args, unknown_args = service_arg_parser.parse_known_args(args)
             if unknown_args:
                 self.logger.warning('not sure what these arguments are: %s' % unknown_args)
         except SystemExit:
             raise ValueError('bad arguments for service "%s", '
-                             'you may want to double check your args "%s"' % (service, args))
+                             'you may want to double check your args "%s"' % (service_arg_parser, args))
         return args, p_args
 
     def _build_graph(self) -> 'Flow':
@@ -292,6 +301,7 @@ class Flow:
             #
             # when a socket is BIND, then host must NOT be set, aka default host 0.0.0.0
             # host_in and host_out is only set when corresponding socket is CONNECT
+            e_pargs.port_in = s_pargs.port_out
 
             if len(edges_with_same_start) > 1 and len(edges_with_same_end) == 1:
                 s_pargs.socket_out = SocketType.PUB_BIND
@@ -336,17 +346,25 @@ class Flow:
         self._build_level = Flow.BuildLevel.GRAPH
         return self
 
-    def build(self, backend='thread', *args, **kwargs) -> 'Flow':
+    def build(self, backend: Optional[str] = 'thread', *args, **kwargs) -> 'Flow':
         self._build_graph()
-        if backend in {'thread', 'process'}:
+        if not backend:
+            self.logger.warning('no specified backend, build_level stays at %s, '
+                                'and you can not run this flow.' % self._build_level)
+        elif backend in {'thread', 'process'}:
             self._service_contexts.clear()
             for v in self._service_nodes.values():
-                v['parsed_args'].parallel_backend = backend
-                s = self._service2builder[v['service']](v['parsed_args'])
+                p_args = v['parsed_args']
+                p_args.parallel_backend = backend
+                # for thread and process backend which runs locally, host_in and host_out should not be set
+                p_args.host_in = BaseService.default_host
+                p_args.host_out = BaseService.default_host
+                s = self._service2builder[v['service']](p_args)
                 self._service_contexts.append(s)
+            self._build_level = Flow.BuildLevel.RUNTIME
         else:
             raise NotImplementedError('backend=%s is not supported yet' % backend)
-        self._build_level = Flow.BuildLevel.RUNTIME
+
         return self
 
     def __call__(self, *args, **kwargs):

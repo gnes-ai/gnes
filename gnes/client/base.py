@@ -130,7 +130,6 @@ class GrpcClient:
         )
         self.logger.info('waiting channel to be ready...')
         grpc.channel_ready_future(self._channel).result()
-        self.logger.critical('gnes client ready!')
 
         # create new stub
         self.logger.info('create new stub...')
@@ -138,6 +137,7 @@ class GrpcClient:
 
         # attache response handler
         self.handler._context = self
+        self.logger.critical('gnes client ready at %s:%d!' % (self.args.grpc_host, self.args.grpc_port))
 
     def call(self, request):
         resp = self._stub.call(request)
@@ -158,13 +158,13 @@ class GrpcClient:
         pass
 
     def __enter__(self):
-        self.open()
+        self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def open(self):
+    def start(self):
         pass
 
     def close(self):

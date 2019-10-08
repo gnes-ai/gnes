@@ -38,7 +38,7 @@ class TestCLI(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
         ])
 
         with RouterService(p_args), FrontendService(args):
