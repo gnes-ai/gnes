@@ -19,6 +19,18 @@ class TestServiceManager(unittest.TestCase):
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
 
+    def test_frontend_alone(self):
+        args = set_frontend_parser().parse_args([
+            '--grpc_host', '127.0.0.1',
+
+        ])
+
+        with FrontendService(args):
+            pass
+
+        with ServiceManager(FrontendService, args):
+            pass
+
     def _test_multiple_router(self, backend='thread', num_parallel=5):
         a = set_router_parser().parse_args([
             '--yaml_path', 'BaseRouter',

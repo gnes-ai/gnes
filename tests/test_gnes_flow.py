@@ -11,6 +11,12 @@ class TestGNESFlow(unittest.TestCase):
         print(f._service_edges)
         print(f.to_mermaid())
 
+    def test_flow1_ctx(self):
+        f = (Flow(check_version=False, route_table=True)
+             .add(gfs.Router, yaml_path='BaseRouter'))
+        with f(backend='process'):
+            pass
+
     def test_flow2(self):
         f = (Flow(check_version=False, route_table=True)
              .add(gfs.Router, yaml_path='BaseRouter')
