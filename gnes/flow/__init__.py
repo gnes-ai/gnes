@@ -45,11 +45,11 @@ def _build_level(required_level: 'Flow.BuildLevel'):
 class Flow:
     _supported_orch = {'swarm', 'k8s'}
     _service2parser = {
-        Service.Encoder: set_encoder_parser(),
-        Service.Router: set_router_parser(),
-        Service.Indexer: set_indexer_parser(),
-        Service.Frontend: set_frontend_parser(),
-        Service.Preprocessor: set_preprocessor_parser(),
+        Service.Encoder: set_encoder_parser,
+        Service.Router: set_router_parser,
+        Service.Indexer: set_indexer_parser,
+        Service.Frontend: set_frontend_parser,
+        Service.Preprocessor: set_preprocessor_parser,
     }
     _service2builder = {
         Service.Encoder: lambda x: ServiceManager(EncoderService, x),
@@ -137,14 +137,13 @@ class Flow:
 
     @_build_level(BuildLevel.RUNTIME)
     def _call_client(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
-        args, p_args = self._get_parsed_args(set_client_cli_parser(), kwargs)
+        args, p_args = self._get_parsed_args(set_client_cli_parser, kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
         c = CLIClient(p_args, start_at_init=False)
         if bytes_gen:
             c.bytes_generator = bytes_gen
-        with c:
-            pass
+        c.start()
 
     def add_frontend(self, *args, **kwargs) -> 'Flow':
         """Add a frontend to the current flow, a shortcut of add(Service.Frontend)
@@ -222,6 +221,10 @@ class Flow:
 
         self._last_add_service = name
 
+        # graph is now changed so we need to
+        # reset the build level to the lowest
+        self._build_level = Flow.BuildLevel.EMPTY
+
         return self
 
     def _parse_service_endpoints(self, cur_service_name, service_endpoint, connect_to_last_service=False):
@@ -263,7 +266,7 @@ class Flow:
             else:
                 args.extend(['--%s' % k, str(v)])
         try:
-            p_args, unknown_args = service_arg_parser.parse_known_args(args)
+            p_args, unknown_args = service_arg_parser().parse_known_args(args)
             if unknown_args:
                 self.logger.warning('not sure what these arguments are: %s' % unknown_args)
         except SystemExit:
@@ -329,7 +332,7 @@ class Flow:
                     s_pargs.socket_out = SocketType.PUSH_CONNECT
                     e_pargs.socket_in = SocketType.PULL_BIND
                 else:
-                    e_pargs.socket_in = s_pargs.socket_out.complement
+                    e_pargs.socket_in = s_pargs.socket_out.paired
 
                 if s_pargs.socket_out.is_bind:
                     s_pargs.host_out = BaseService.default_host
@@ -387,3 +390,4 @@ class Flow:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if hasattr(self, '_service_stack'):
             self._service_stack.close()
+        self._build_level = Flow.BuildLevel.GRAPH

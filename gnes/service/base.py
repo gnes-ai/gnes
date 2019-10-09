@@ -82,8 +82,19 @@ class SocketType(BetterEnum):
         return self.value % 2 == 0
 
     @property
-    def complement(self):
-        return SocketType(self.value + (1 if (self.value % 2 == 0) else -1))
+    def paired(self):
+        return {
+            SocketType.PULL_BIND: SocketType.PUSH_CONNECT,
+            SocketType.PULL_CONNECT: SocketType.PUSH_BIND,
+            SocketType.SUB_BIND: SocketType.PUB_CONNECT,
+            SocketType.SUB_CONNECT: SocketType.PUB_BIND,
+            SocketType.PAIR_BIND: SocketType.PAIR_CONNECT,
+            SocketType.PUSH_CONNECT: SocketType.PULL_BIND,
+            SocketType.PUSH_BIND: SocketType.PULL_CONNECT,
+            SocketType.PUB_CONNECT: SocketType.SUB_BIND,
+            SocketType.PUB_BIND: SocketType.SUB_CONNECT,
+            SocketType.PAIR_CONNECT: SocketType.PAIR_BIND
+        }[self]
 
 
 class BlockMessage(Exception):

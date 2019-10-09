@@ -47,6 +47,15 @@ def resolve_py_path(path):
     return path
 
 
+def random_port(port):
+    if not port or int(port) <= 0:
+        import random
+        min_port, max_port = 49152, 65536
+        return random.randrange(min_port, max_port)
+    else:
+        return int(port)
+
+
 def resolve_yaml_path(path):
     # priority, filepath > classname > default
     import os
@@ -139,14 +148,14 @@ def set_composer_flask_parser(parser=None):
 
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
-    import random
+
     import os
     if not parser:
         parser = set_base_parser()
-    min_port, max_port = 49152, 65536
-    parser.add_argument('--port_in', type=int, default=random.randrange(min_port, max_port),
+
+    parser.add_argument('--port_in', type=int, default=random_port(-1),
                         help='port for input data, default a random port between [49152, 65536]')
-    parser.add_argument('--port_out', type=int, default=random.randrange(min_port, max_port),
+    parser.add_argument('--port_out', type=int, default=random_port(-1),
                         help='port for output data, default a random port between [49152, 65536]')
     parser.add_argument('--host_in', type=str, default=BaseService.default_host,
                         help='host address for input')
@@ -158,8 +167,7 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int,
-                        default=int(os.environ.get('GNES_CONTROL_PORT', random.randrange(min_port, max_port))),
+    parser.add_argument('--port_ctrl', type=int, default=os.environ.get('GNES_CONTROL_PORT', random_port(-1)),
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')

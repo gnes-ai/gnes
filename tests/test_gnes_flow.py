@@ -10,6 +10,7 @@ class TestGNESFlow(unittest.TestCase):
     def setUp(self):
         self.dirname = os.path.dirname(__file__)
         self.test_file = os.path.join(self.dirname, 'sonnets_small.txt')
+        self.yamldir = os.path.join(self.dirname, 'yaml')
         self.index_args = set_client_cli_parser().parse_args([
             '--mode', 'index',
             '--txt_file', self.test_file,
@@ -17,6 +18,20 @@ class TestGNESFlow(unittest.TestCase):
         ])
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
+        self.test_dir = os.path.join(self.dirname, 'test_flow')
+        self.indexer1_bin = os.path.join(self.test_dir, 'my_faiss_indexer.bin')
+        self.indexer2_bin = os.path.join(self.test_dir, 'my_fulltext_indexer.bin')
+        self.encoder_bin = os.path.join(self.test_dir, 'my_transformer.bin')
+
+        os.mkdir(self.test_dir)
+
+        os.environ['TEST_WORKDIR'] = self.test_dir
+
+    def tearDown(self):
+        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+            if os.path.exists(k):
+                os.remove(k)
+        os.rmdir(self.test_dir)
 
     def test_flow1(self):
         f = (Flow(check_version=False, route_table=True)
@@ -80,3 +95,38 @@ class TestGNESFlow(unittest.TestCase):
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
+
+    def _test_index_flow(self):
+        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+            self.assertFalse(os.path.exists(k))
+
+        flow = (Flow(check_version=False, route_table=True)
+                .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
+                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
+                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
+                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml',
+                     service_in='prep')
+                .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
+                     num_part=2, service_in=['vec_idx', 'doc_idx']))
+
+        with flow.build(backend='thread') as f:
+            f.index(txt_file=self.test_file, batch_size=4)
+
+        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+            self.assertTrue(os.path.exists(k))
+
+    def _test_query_flow(self):
+        flow = (Flow(check_version=False, route_table=True)
+                .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
+                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
+                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
+                .add(gfs.Router, name='scorer', yaml_path='yaml/flow-score.yml')
+                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml'))
+
+        with flow.build(backend='thread') as f:
+            f.query(txt_file=self.test_file)
+
+    def test_index_query_flow(self):
+        self._test_index_flow()
+        print('indexing finished')
+        self._test_query_flow()
