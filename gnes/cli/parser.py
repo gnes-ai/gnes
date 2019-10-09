@@ -47,7 +47,16 @@ def resolve_py_path(path):
     return path
 
 
-def resolve_yaml_path(path):
+def random_port(port):
+    if not port or int(port) <= 0:
+        import random
+        min_port, max_port = 49152, 65536
+        return random.randrange(min_port, max_port)
+    else:
+        return int(port)
+
+
+def resolve_yaml_path(path, to_stream=False):
     # priority, filepath > classname > default
     import os
     import io
@@ -55,7 +64,10 @@ def resolve_yaml_path(path):
         # already a readable stream
         return path
     elif os.path.exists(path):
-        return open(path, encoding='utf8')
+        if to_stream:
+            return open(path, encoding='utf8')
+        else:
+            return path
     elif path.isidentifier():
         # possible class name
         return io.StringIO('!%s {}' % path)
@@ -68,8 +80,9 @@ def resolve_yaml_path(path):
 
 
 def set_base_parser():
-    from .. import __version__
+    from .. import __version__, __proto_version__
     from termcolor import colored
+    import os
     # create the top-level parser
     parser = argparse.ArgumentParser(
         description='%s, a cloud-native semantic search system '
@@ -79,7 +92,9 @@ def set_base_parser():
                         colored('GNES v%s: Generic Neural Elastic Search' % __version__, 'green'),
                         colored('https://gnes.ai', 'cyan', attrs=['underline'])),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s' + ': %s\nprotobuf: %s\nvcs_version: %s' %
+                                (__version__, __proto_version__, os.environ.get('GNES_VCS_VERSION', 'unknown')))
     parser.add_argument('--verbose', action='store_true', default=False,
                         help='turn on detailed logging for debug')
     return parser
@@ -98,7 +113,7 @@ def set_composer_parser(parser=None):
                         type=str,
                         default='GNES app',
                         help='name of the instance')
-    parser.add_argument('--yaml_path', type=resolve_yaml_path,
+    parser.add_argument('--yaml_path', type=lambda x: resolve_yaml_path(x, True),
                         default=resource_stream(
                             'gnes', '/'.join(('resources', 'compose', 'gnes-example.yml'))),
                         help='yaml config of the service')
@@ -139,14 +154,14 @@ def set_composer_flask_parser(parser=None):
 
 def set_service_parser(parser=None):
     from ..service.base import SocketType, BaseService, ParallelType
-    import random
+
     import os
     if not parser:
         parser = set_base_parser()
-    min_port, max_port = 49152, 65536
-    parser.add_argument('--port_in', type=int, default=random.randrange(min_port, max_port),
+
+    parser.add_argument('--port_in', type=int, default=random_port(-1),
                         help='port for input data, default a random port between [49152, 65536]')
-    parser.add_argument('--port_out', type=int, default=random.randrange(min_port, max_port),
+    parser.add_argument('--port_out', type=int, default=random_port(-1),
                         help='port for output data, default a random port between [49152, 65536]')
     parser.add_argument('--host_in', type=str, default=BaseService.default_host,
                         help='host address for input')
@@ -158,8 +173,7 @@ def set_service_parser(parser=None):
     parser.add_argument('--socket_out', type=SocketType.from_string, choices=list(SocketType),
                         default=SocketType.PUSH_BIND,
                         help='socket type for output port')
-    parser.add_argument('--port_ctrl', type=int,
-                        default=int(os.environ.get('GNES_CONTROL_PORT', random.randrange(min_port, max_port))),
+    parser.add_argument('--port_ctrl', type=int, default=os.environ.get('GNES_CONTROL_PORT', random_port(-1)),
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')

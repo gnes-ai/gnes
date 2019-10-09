@@ -47,10 +47,7 @@ def route(args):
 
 def frontend(args):
     from ..service.frontend import FrontendService
-    import threading
-    with FrontendService(args):
-        forever = threading.Event()
-        forever.wait()
+    _start_service(FrontendService, args)
 
 
 def client(args):
