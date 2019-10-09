@@ -44,7 +44,7 @@ class StreamingClient(GrpcClient):
     def __init__(self, args):
         super().__init__(args)
 
-        self._request_queue = queue.Queue(maxsize=1000)
+        self._request_queue = queue.Queue(maxsize=10)
         self._is_streaming = threading.Event()
 
         self._dispatch_thread = threading.Thread(target=self._start)
