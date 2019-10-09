@@ -66,7 +66,7 @@ class ResponseHandler:
             self.logger.info('handling response with %s' % fn.__name__)
             return fn(self._context, resp)
         else:
-            self.logger.warning("the received message is not an response")
+            self.logger.warning("the received message is not a response")
             return None
 
 
