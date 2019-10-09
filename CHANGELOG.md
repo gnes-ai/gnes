@@ -1,4 +1,55 @@
 
+# Release Note (`v0.0.43`)
+> Release time: 2019-09-30 17:37:58
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix,  hanhxiao,  raccoonliukai,  🙇
+
+
+### 🆕 New Features
+
+ - [[```bbf1ed8e```](https://github.com/gnes-ai/gnes/commit/bbf1ed8e392be2a68f697ce8b8d558acf71d68ad)] __-__ __frontend__: add max pending request to frontend (*hanhxiao*)
+ - [[```946df39b```](https://github.com/gnes-ai/gnes/commit/946df39bd4c9abe8525bc22011bc06d2f7103cfc)] __-__ __indexer__: delay the num_dim spec on first add (*hanhxiao*)
+ - [[```fdc38d57```](https://github.com/gnes-ai/gnes/commit/fdc38d5706aaeab48a0181fc90ead1e07339e19d)] __-__ __cd__: trigger benchmark in push and tag (*hanhxiao*)
+ - [[```f8b9e00e```](https://github.com/gnes-ai/gnes/commit/f8b9e00ed04cc4061b915d169ed61f11e3b26e64)] __-__ __cd__: smaller num document for benchmarking (*hanhxiao*)
+ - [[```3974a1ba```](https://github.com/gnes-ai/gnes/commit/3974a1ba9d151238c33be577621452883e97d3a2)] __-__ __cd__: adding benchmark to cd pipeline (*hanhxiao*)
+ - [[```086a73cb```](https://github.com/gnes-ai/gnes/commit/086a73cb0adf1042d5e0de0058a3715ff26e305a)] __-__ __proto__: add vcs version to pb (*hanhxiao*)
+ - [[```285d9dde```](https://github.com/gnes-ai/gnes/commit/285d9ddebe713ba0fddd51abd70598bb2b88c16a)] __-__ __docker__: add vcs version as env var (*hanhxiao*)
+ - [[```a3e22db3```](https://github.com/gnes-ai/gnes/commit/a3e22db3caebf9ff1338f455ca8fb1391d2200ea)] __-__ __service__: add healthcheck for arbitary service (*hanhxiao*)
+ - [[```dedb8ba2```](https://github.com/gnes-ai/gnes/commit/dedb8ba216bf75bc0f7507c1e1bbc874659e8c48)] __-__ __proto__: add ready status for healthcheck (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```47add702```](https://github.com/gnes-ai/gnes/commit/47add702f554083b72bf9a723f05b9ccd3baf0bd)] __-__ __ffmpeg-threads__: threads=0 (*felix*)
+ - [[```9365ddb9```](https://github.com/gnes-ai/gnes/commit/9365ddb97e0ee1c600674e3051f6411691be4099)] __-__ __video-decoder__: minor revision video-decoder chunk spliter (*felix*)
+ - [[```be09bb09```](https://github.com/gnes-ai/gnes/commit/be09bb0964568c2276bbdf02cb0e896d7fc548d2)] __-__ __cd__: fix duplicate step name in cd (*hanhxiao*)
+ - [[```ccf4efc8```](https://github.com/gnes-ai/gnes/commit/ccf4efc8897e4ab8ce144601f5cf63b0ab8924b0)] __-__ __cd__: fix trigger in cd pipeline (*hanhxiao*)
+ - [[```ca73b702```](https://github.com/gnes-ai/gnes/commit/ca73b7020d0bbef1c109b1fe78c95759a3fa258c)] __-__ __shotdetect__: support get arguments from yaml (*raccoonliukai*)
+ - [[```17aa78da```](https://github.com/gnes-ai/gnes/commit/17aa78da2a395ca17099c23b03b796a3be9928f2)] __-__ __shotdetect__: fix bug with thre_algo after histcmp (*raccoonliukai*)
+ - [[```a6d1484e```](https://github.com/gnes-ai/gnes/commit/a6d1484ed2778f058186a5b4c4c648674382890f)] __-__ __shotdetect__: fix bug with thre_algo (*raccoonliukai*)
+ - [[```b69591de```](https://github.com/gnes-ai/gnes/commit/b69591deed975583d5659c9e96bc16edc990a683)] __-__ __shotdetect__: fix shot boundary (*raccoonliukai*)
+ - [[```f6c263a7```](https://github.com/gnes-ai/gnes/commit/f6c263a700f90a6124ef7304282cd9e816e896ff)] __-__ __ffmpeg__: use -threads = 1 for ffmpeg (*felix*)
+ - [[```beafdb3a```](https://github.com/gnes-ai/gnes/commit/beafdb3a3929a970f6c9616130501e7314dbc015)] __-__ __docker__: fix vcs ref url and add build date as env (*hanhxiao*)
+ - [[```0367334a```](https://github.com/gnes-ai/gnes/commit/0367334aab94aa888449c6b66f83bcc9746c81bf)] __-__ __service__: fix error message (*hanhxiao*)
+ - [[```434bc8db```](https://github.com/gnes-ai/gnes/commit/434bc8db3054b73d4f3068dd5e348c3a6add89eb)] __-__ __service__: styling (*hanhxiao*)
+
+### 🚧 Code Refactoring
+
+ - [[```e588c946```](https://github.com/gnes-ai/gnes/commit/e588c946afc1e82bf4baeadc8fd6cf5d4013eac6)] __-__ __encoder__: update the init func for flair (*hanhxiao*)
+ - [[```1b85375c```](https://github.com/gnes-ai/gnes/commit/1b85375cdc4af5c2287ddd359f8fcc96f5544348)] __-__ __client__: remove benchmark client (*hanhxiao*)
+ - [[```535085ef```](https://github.com/gnes-ai/gnes/commit/535085ef749345ed4db99c39f5c54134f6df541b)] __-__ __video-decoder__: update video decoder signature and add more options (*felix*)
+ - [[```aa0f994e```](https://github.com/gnes-ai/gnes/commit/aa0f994e7693d049480b5dc5a5e09fb0b5979cbe)] __-__ __cli__: refactor parser for healthcheck (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```9ad7448f```](https://github.com/gnes-ai/gnes/commit/9ad7448f135cb42149b905b91b42c1a22c31a65c)] __-__ add env vars explain (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```e180a9f0```](https://github.com/gnes-ai/gnes/commit/e180a9f0d3fe22637c924574c9e5db5d2355c0a6)] __-__ fix error (*felix*)
+ - [[```074eec0d```](https://github.com/gnes-ai/gnes/commit/074eec0d06905cbe3fdb47dcec79af8e85d4cd5b)] __-__ __changelog__: update change log to v0.0.42 (*hanhxiao*)
+
 # Release Note (`v0.0.42`)
 > Release time: 2019-09-26 10:40:48
 
