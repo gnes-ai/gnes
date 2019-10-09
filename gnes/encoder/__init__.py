@@ -45,7 +45,8 @@ _cls2file_map = {
     'VggishEncoder': 'audio.vggish',
     'YouTube8MFeatureExtractor': 'video.yt8m_feature_extractor',
     'YouTube8MEncoder': 'video.yt8m_model',
-    'QuantizerEncoder': 'numeric.quantizer'
+    'QuantizerEncoder': 'numeric.quantizer',
+    'CharEmbeddingEncoder': 'text.char'
 }
 
 register_all_class(_cls2file_map, 'encoder')

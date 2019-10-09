@@ -64,7 +64,7 @@ def resolve_yaml_path(path):
         # already a readable stream
         return path
     elif os.path.exists(path):
-        return open(path, encoding='utf8')
+        return path
     elif path.isidentifier():
         # possible class name
         return io.StringIO('!%s {}' % path)

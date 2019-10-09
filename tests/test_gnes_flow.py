@@ -2,7 +2,7 @@ import os
 import unittest
 
 from gnes.cli.parser import set_client_cli_parser
-from gnes.flow import Flow, Service as gfs
+from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch, FlowTopologyError
 
 
 class TestGNESFlow(unittest.TestCase):
@@ -36,9 +36,20 @@ class TestGNESFlow(unittest.TestCase):
 
     def test_flow1(self):
         f = (Flow(check_version=False, route_table=True)
-             .add(gfs.Router, yaml_path='BaseRouter').build())
-        print(f._service_edges)
+             .add(gfs.Router, yaml_path='BaseRouter'))
+        g = f.add(gfs.Router, yaml_path='BaseRouter')
+
+        print('f: %r g: %r' % (f, g))
+        g.build()
+        print(g.to_mermaid())
+
+        f = f.add(gfs.Router, yaml_path='BaseRouter')
+        g = g.add(gfs.Router, yaml_path='BaseRouter')
+
+        print('f: %r g: %r' % (f, g))
+        f.build()
         print(f.to_mermaid())
+        self.assertRaises(FlowTopologyError, g.build)
 
     def test_flow1_ctx_empty(self):
         f = (Flow(check_version=False, route_table=True)
@@ -49,10 +60,16 @@ class TestGNESFlow(unittest.TestCase):
     def test_flow1_ctx(self):
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Router, yaml_path='BaseRouter'))
-        with flow(backend='process') as f, open(self.test_file) as fp:
+        with flow(backend='process', copy_flow=True) as f, open(self.test_file) as fp:
             f.index(txt_file=self.test_file, batch_size=4)
-            f.index(bytes_gen=(v.encode() for v in fp), batch_size=4)
             f.train(txt_file=self.test_file, batch_size=4)
+
+        with flow(backend='process', copy_flow=True) as f:
+            # change the flow inside build shall fail
+            f = f.add(gfs.Router, yaml_path='BaseRouter')
+            self.assertRaises(FlowBuildLevelMismatch, f.index, txt_file=self.test_file, batch_size=4)
+
+        print(flow.build(backend=None).to_mermaid())
 
     def test_flow2(self):
         f = (Flow(check_version=False, route_table=True)
