@@ -26,10 +26,33 @@ from ..proto import RequestGenerator, gnes_pb2
 
 
 class CLIClient(GrpcClient):
-    def __init__(self, args):
+    def __init__(self, args, start_at_init: bool = True):
         super().__init__(args)
-        getattr(self, self.args.mode)()
-        self.close()
+        self._bytes_generator = self._get_bytes_generator_from_args(args)
+        if start_at_init:
+            self.start()
+
+    @staticmethod
+    def _get_bytes_generator_from_args(args):
+        if args.txt_file:
+            all_bytes = (v.encode() for v in args.txt_file)
+        elif args.image_zip_file:
+            zipfile_ = zipfile.ZipFile(args.image_zip_file)
+            all_bytes = (zipfile_.open(v).read() for v in zipfile_.namelist())
+        elif args.video_zip_file:
+            zipfile_ = zipfile.ZipFile(args.video_zip_file)
+            all_bytes = (zipfile_.open(v).read() for v in zipfile_.namelist())
+        else:
+            all_bytes = None
+        return all_bytes
+
+    def start(self):
+        try:
+            getattr(self, self.args.mode)()
+        except Exception as ex:
+            self.logger.error(ex)
+        finally:
+            self.close()
 
     def train(self):
         with ProgressBar(task_name=self.args.mode) as p_bar:
@@ -64,18 +87,16 @@ class CLIClient(GrpcClient):
 
     @property
     def bytes_generator(self) -> Generator[bytes, None, None]:
-        if self.args.txt_file:
-            all_bytes = (v.encode() for v in self.args.txt_file)
-        elif self.args.image_zip_file:
-            zipfile_ = zipfile.ZipFile(self.args.image_zip_file)
-            all_bytes = (zipfile_.open(v).read() for v in zipfile_.namelist())
-        elif self.args.video_zip_file:
-            zipfile_ = zipfile.ZipFile(self.args.video_zip_file)
-            all_bytes = (zipfile_.open(v).read() for v in zipfile_.namelist())
+        if self._bytes_generator:
+            return self._bytes_generator
         else:
-            raise AttributeError('--txt_file, --image_zip_file, --video_zip_file one must be given')
+            raise ValueError('bytes_generator is empty or not set')
 
-        return all_bytes
+    @bytes_generator.setter
+    def bytes_generator(self, bytes_gen: Generator[bytes, None, None]):
+        if self._bytes_generator:
+            self.logger.warning('bytes_generator is not empty, overrided')
+        self._bytes_generator = bytes_gen
 
 
 class ProgressBar:

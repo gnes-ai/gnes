@@ -46,6 +46,8 @@ class SentSplitPreprocessor(BaseTextPreprocessor):
 
         ret = [(m.group(0), m.start(), m.end()) for m in
                re.finditer(r'[^{0}]+[{0}]'.format(self.deliminator), doc.raw_text)]
+        if not ret:
+            ret = [(doc.raw_text, 0, len(doc.raw_text))]
         for ci, (r, s, e) in enumerate(ret):
             f = ''.join(filter(lambda x: x in string.printable, r))
             f = re.sub('\n+', ' ', f).strip()

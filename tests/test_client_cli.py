@@ -14,15 +14,18 @@ class TestCLI(unittest.TestCase):
         self.test_file = os.path.join(self.dirname, 'sonnets_small.txt')
         self.train_args = set_client_cli_parser().parse_args([
             '--mode', 'train',
-            '--txt_file', self.test_file
+            '--txt_file', self.test_file,
+            '--batch_size', '4'
         ])
         self.index_args = set_client_cli_parser().parse_args([
             '--mode', 'index',
-            '--txt_file', self.test_file
+            '--txt_file', self.test_file,
+            '--batch_size', '4'
         ])
         self.query_args = set_client_cli_parser().parse_args([
             '--mode', 'query',
-            '--txt_file', self.test_file
+            '--txt_file', self.test_file,
+            '--batch_size', '4'
         ])
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
@@ -35,7 +38,7 @@ class TestCLI(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
-            '--yaml_path', 'BaseRouter'
+            '--yaml_path', 'BaseRouter',
         ])
 
         with RouterService(p_args), FrontendService(args):

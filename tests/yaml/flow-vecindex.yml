@@ -1,0 +1,13 @@
+!NumpyIndexer  # just for testing
+gnes_config:
+  name: my_faiss_indexer  # a customized name
+  work_dir: $TEST_WORKDIR
+
+#!FaissIndexer
+#parameters:
+#  num_dim: -1  # delay the spec on num_dim on first add
+#  index_key: HNSW32
+#  data_path: /workspace/idx.faiss
+#gnes_config:
+#  name: my_faiss_indexer  # a customized name
+#  work_dir: /workspace
