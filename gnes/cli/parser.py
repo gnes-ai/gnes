@@ -77,8 +77,9 @@ def resolve_yaml_path(path):
 
 
 def set_base_parser():
-    from .. import __version__
+    from .. import __version__, __proto_version__
     from termcolor import colored
+    import os
     # create the top-level parser
     parser = argparse.ArgumentParser(
         description='%s, a cloud-native semantic search system '
@@ -88,7 +89,9 @@ def set_base_parser():
                         colored('GNES v%s: Generic Neural Elastic Search' % __version__, 'green'),
                         colored('https://gnes.ai', 'cyan', attrs=['underline'])),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s' + ': %s\nprotobuf: %s\nvcs_version: %s' %
+                                (__version__, __proto_version__, os.environ.get('GNES_VCS_VERSION', 'unknown')))
     parser.add_argument('--verbose', action='store_true', default=False,
                         help='turn on detailed logging for debug')
     return parser

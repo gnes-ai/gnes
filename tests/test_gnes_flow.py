@@ -22,7 +22,8 @@ class TestGNESFlow(unittest.TestCase):
         self.indexer1_bin = os.path.join(self.test_dir, 'my_faiss_indexer.bin')
         self.indexer2_bin = os.path.join(self.test_dir, 'my_fulltext_indexer.bin')
         self.encoder_bin = os.path.join(self.test_dir, 'my_transformer.bin')
-
+        if os.path.exists(self.test_dir):
+            self.tearDown()
         os.mkdir(self.test_dir)
 
         os.environ['TEST_WORKDIR'] = self.test_dir
@@ -100,7 +101,7 @@ class TestGNESFlow(unittest.TestCase):
         for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
             self.assertFalse(os.path.exists(k))
 
-        flow = (Flow(check_version=False, route_table=True)
+        flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
                 .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
                 .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
@@ -110,13 +111,13 @@ class TestGNESFlow(unittest.TestCase):
                      num_part=2, service_in=['vec_idx', 'doc_idx']))
 
         with flow.build(backend='thread') as f:
-            f.index(txt_file=self.test_file, batch_size=4)
+            f.index(txt_file=self.test_file, batch_size=20)
 
         for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
             self.assertTrue(os.path.exists(k))
 
     def _test_query_flow(self):
-        flow = (Flow(check_version=False, route_table=True)
+        flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
                 .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
                 .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')

@@ -87,7 +87,7 @@ class CLIClient(GrpcClient):
 
     @property
     def bytes_generator(self) -> Generator[bytes, None, None]:
-        if self.bytes_generator:
+        if self._bytes_generator:
             return self._bytes_generator
         else:
             raise ValueError('bytes_generator is empty or not set')
