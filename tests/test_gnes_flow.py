@@ -31,11 +31,12 @@ class TestGNESFlow(unittest.TestCase):
             pass
 
     def test_flow1_ctx(self):
-        flow = (Flow(check_version=False, route_table=True)
+        flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Router, yaml_path='BaseRouter'))
-        with flow(backend='process') as f:
-            # CLIClient(self.index_args)
+        with flow(backend='process') as f, open(self.test_file) as fp:
             f.index(txt_file=self.test_file, batch_size=4)
+            f.index(bytes_gen=(v.encode() for v in fp), batch_size=4)
+            f.train(txt_file=self.test_file, batch_size=4)
 
     def test_flow2(self):
         f = (Flow(check_version=False, route_table=True)

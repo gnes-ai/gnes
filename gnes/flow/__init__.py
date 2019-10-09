@@ -1,7 +1,7 @@
 from collections import OrderedDict, defaultdict
 from contextlib import ExitStack
 from functools import wraps
-from typing import Union, Tuple, List, Optional
+from typing import Union, Tuple, List, Optional, Generator
 
 from ..cli.parser import set_router_parser, set_indexer_parser, \
     set_frontend_parser, set_preprocessor_parser, \
@@ -63,7 +63,6 @@ class Flow:
         EMPTY = 0
         GRAPH = 1
         RUNTIME = 2
-        RUNTIME_WITH_CLIENT = 3
 
     def __init__(self, with_frontend: bool = True, **kwargs):
         self.logger = set_logger(self.__class__.__name__)
@@ -127,21 +126,25 @@ class Flow:
             'copy-paste the output and visualize it with: https://mermaidjs.github.io/mermaid-live-editor/')
         return mermaid_str
 
-    def train(self, **kwargs):
-        self._call_client(mode='train', **kwargs)
+    def train(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+        self._call_client(bytes_gen, mode='train', **kwargs)
 
-    def index(self, **kwargs):
-        self._call_client(mode='index', **kwargs)
+    def index(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+        self._call_client(bytes_gen, mode='index', **kwargs)
 
-    def query(self, **kwargs):
-        self._call_client(mode='query', **kwargs)
+    def query(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+        self._call_client(bytes_gen, mode='query', **kwargs)
 
     @_build_level(BuildLevel.RUNTIME)
-    def _call_client(self, **kwargs):
+    def _call_client(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
         args, p_args = self._get_parsed_args(set_client_cli_parser(), kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
-        CLIClient(p_args)
+        c = CLIClient(p_args, start_at_init=False)
+        if bytes_gen:
+            c.bytes_generator = bytes_gen
+        with c:
+            pass
 
     def add_frontend(self, *args, **kwargs) -> 'Flow':
         """Add a frontend to the current flow, a shortcut of add(Service.Frontend)
