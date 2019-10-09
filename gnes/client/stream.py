@@ -63,16 +63,16 @@ class StreamingClient(GrpcClient):
         self._is_streaming.clear()
 
     def _request_generator(self):
-        while self._is_streaming.is_set():
+        while True:
             try:
                 request = self._request_queue.get(block=True, timeout=5.0)
                 if request is None:
                     break
                 yield request
             except queue.Empty:
-                continue
+                break
             except Exception as e:
-                print('exception: %s' % str(e))
+                self.logger.error('exception: %s' % str(e))
                 break
 
     @handler.register(NotImplementedError)

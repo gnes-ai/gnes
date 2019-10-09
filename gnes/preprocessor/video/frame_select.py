@@ -46,6 +46,7 @@ class FrameSelectPreprocessor(BaseVideoPreprocessor):
                     else:
                         idx = np.sort(np.random.choice(len(images), self.sframes, replace=False))
                         chunk.blob.CopyFrom(array2blob(images[idx]))
+                del images
         else:
             self.logger.error(
                 'bad document: "doc.chunks" is empty!')
