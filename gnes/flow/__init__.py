@@ -57,6 +57,27 @@ def _build_level(required_level: 'Flow.BuildLevel'):
 
 
 class Flow:
+    """
+    GNES Flow: an intuitive way to build workflow for GNES.
+
+    You can use `.add()` then `.build()` to customize your own workflow.
+    For example:
+    .. highlight:: python
+    .. code-block:: python
+
+        f = (Flow(check_version=False, route_table=True)
+             .add(gfs.Router, yaml_path='BaseRouter')
+             .add(gfs.Router, yaml_path='BaseRouter')
+             .add(gfs.Router, yaml_path='BaseRouter'))
+        with f.build(backend='thread') as flow:
+            flow.index()
+            ...
+
+    It is recommend to use flow in the context manner as showed above.
+    Note the different default copy behaviors in `.add()` and `.build()`:
+    `.add()` always copy the flow by default, whereas `.build()` modify the flow in place.
+    You can change this behavior by giving an argument `copy_flow=False`.
+    """
     _supported_orch = {'swarm', 'k8s'}
     _service2parser = {
         Service.Encoder: set_encoder_parser,

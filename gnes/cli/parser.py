@@ -56,7 +56,7 @@ def random_port(port):
         return int(port)
 
 
-def resolve_yaml_path(path):
+def resolve_yaml_path(path, to_stream=False):
     # priority, filepath > classname > default
     import os
     import io
@@ -64,7 +64,10 @@ def resolve_yaml_path(path):
         # already a readable stream
         return path
     elif os.path.exists(path):
-        return path
+        if to_stream:
+            return open(path, encoding='utf8')
+        else:
+            return path
     elif path.isidentifier():
         # possible class name
         return io.StringIO('!%s {}' % path)
@@ -110,7 +113,7 @@ def set_composer_parser(parser=None):
                         type=str,
                         default='GNES app',
                         help='name of the instance')
-    parser.add_argument('--yaml_path', type=resolve_yaml_path,
+    parser.add_argument('--yaml_path', type=lambda x: resolve_yaml_path(x, True),
                         default=resource_stream(
                             'gnes', '/'.join(('resources', 'compose', 'gnes-example.yml'))),
                         help='yaml config of the service')

@@ -144,6 +144,7 @@ class TestGNESFlow(unittest.TestCase):
         with flow.build(backend='thread') as f:
             f.query(txt_file=self.test_file)
 
+    @unittest.SkipTest
     def test_index_query_flow(self):
         self._test_index_flow()
         print('indexing finished')
