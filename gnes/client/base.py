@@ -63,9 +63,11 @@ class ResponseHandler:
                 fn = self.routes.get(resp_type)
             else:
                 fn = get_default_fn(type(resp))
-
-        self.logger.info('handling response with %s' % fn.__name__)
-        return fn(self._context, resp)
+            self.logger.info('handling response with %s' % fn.__name__)
+            return fn(self._context, resp)
+        else:
+            self.logger.warning('the received message is not a response')
+            return None
 
 
 class ZmqClient:
