@@ -320,6 +320,7 @@ class BaseService(metaclass=ConcurrentService):
         self.is_event_loop = self._get_event()
         self.is_model_changed = self._get_event()
         self.is_handler_done = self._get_event()
+        self.last_dump_time = time.perf_counter()
         self._model = None
         self.use_event_loop = True
         self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
@@ -335,29 +336,17 @@ class BaseService(metaclass=ConcurrentService):
         except Exception as ex:
             self.logger.error(ex, exc_info=True)
 
-    def _start_auto_dump(self):
-        if self.args.dump_interval > 0 and not self.args.read_only:
-            self._auto_dump_thread = threading.Thread(target=self._auto_dump)
-            self._auto_dump_thread.setDaemon(1)
-            self._auto_dump_thread.start()
-
-    def _auto_dump(self):
-        while self.is_event_loop.is_set():
-            if self.is_model_changed.is_set():
-                self.is_model_changed.clear()
-                self.logger.info(
-                    'auto-dumping the new change of the model every %ds...' % self.args.dump_interval)
-                self.dump()
-            time.sleep(self.args.dump_interval)
-
     def dump(self):
-        if not self.args.read_only:
-            if self._model:
-                self.logger.info('dumping changes to the model...')
-                self._model.dump()
-                self.logger.info('dumping finished!')
-        else:
-            self.logger.info('no dumping as "read_only" set to true.')
+        if (not self.args.read_only
+                and self._model
+                and self.is_model_changed.is_set()
+                and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval):
+            self.is_model_changed.clear()
+            self.logger.info('dumping changes to the model, %3.0fs since last the dump'
+                             % (time.perf_counter() - self.last_dump_time))
+            self._model.dump()
+            self.last_dump_time = time.perf_counter()
+            self.logger.info('dumping finished! next dump will start in at least %3.0fs' % self.args.dump_interval)
 
     @handler.register_hook(hook_type='post')
     def _hook_warn_body_type_change(self, msg: 'gnes_pb2.Message', *args, **kwargs):
@@ -414,11 +403,10 @@ class BaseService(metaclass=ConcurrentService):
             self.post_init()
             self.is_ready.set()
             self.is_event_loop.set()
-            self._start_auto_dump()
             self.logger.critical('ready and listening')
             while self.is_event_loop.is_set():
                 pull_sock = None
-                socks = dict(poller.poll())
+                socks = dict(poller.poll(1))
                 if socks.get(in_sock) == zmq.POLLIN:
                     pull_sock = in_sock
                 elif socks.get(ctrl_sock) == zmq.POLLIN:
@@ -450,10 +438,11 @@ class BaseService(metaclass=ConcurrentService):
                     self.logger.warning(
                         'received a new message but since "use_event_loop=False" I will not handle it. '
                         'I will just block the thread until "is_handler_done" is set!')
+                    # wait until some one else call is_handler_done.set()
                     self.is_handler_done.wait()
+                    # clear the handler status
                     self.is_handler_done.clear()
-                if self.args.dump_interval == 0:
-                    self.dump()
+                self.dump()
         except EventLoopEnd:
             self.logger.info('break from the event loop')
         except ComponentNotLoad:

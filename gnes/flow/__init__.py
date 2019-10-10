@@ -62,13 +62,15 @@ class Flow:
 
     You can use `.add()` then `.build()` to customize your own workflow.
     For example:
+
     .. highlight:: python
     .. code-block:: python
 
         f = (Flow(check_version=False, route_table=True)
-             .add(gfs.Router, yaml_path='BaseRouter')
-             .add(gfs.Router, yaml_path='BaseRouter')
+             .add(gfs.Preprocessor, yaml_path='BasePreprocessor')
+             .add(gfs.Encoder, yaml_path='BaseEncoder')
              .add(gfs.Router, yaml_path='BaseRouter'))
+
         with f.build(backend='thread') as flow:
             flow.index()
             ...
@@ -77,6 +79,7 @@ class Flow:
     Note the different default copy behaviors in `.add()` and `.build()`:
     `.add()` always copy the flow by default, whereas `.build()` modify the flow in place.
     You can change this behavior by giving an argument `copy_flow=False`.
+
     """
     _supported_orch = {'swarm', 'k8s'}
     _service2parser = {
@@ -211,14 +214,14 @@ class Flow:
             **kwargs) -> 'Flow':
         """
         Add a service to the current flow object and return the new modified flow object
-        :param copy_flow: when set to true, then always copy the current flow
-                          and do the modification on top of it then return, otherwise, do in-line modification
+
         :param service: a 'Service' enum, possible choices: Encoder, Router, Preprocessor, Indexer, Frontend
         :param name: the name indentifier of the service, useful in 'service_in' and 'service_out'
         :param service_in: the name of the service(s) that this service receives data from.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
         :param service_out:  the name of the service(s) that this service sends data to.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
+        :param copy_flow: when set to true, then always copy the current flow and do the modification on top of it then return, otherwise, do in-line modification
         :param kwargs: other keyword-value arguments that the service CLI supports
         :return: a (new) flow object with modification
         """
