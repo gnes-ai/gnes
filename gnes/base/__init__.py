@@ -336,6 +336,12 @@ class TrainableBase(metaclass=TrainableType):
         data = ruamel.yaml.constructor.SafeConstructor.construct_mapping(
             constructor, node, deep=True)
 
+        _gnes_config = data.get('gnes_config', {})
+        for k, v in _gnes_config.items():
+            _gnes_config[k] = _expand_env_var(v)
+        if _gnes_config:
+            data['gnes_config'] = _gnes_config
+
         dump_path = cls._get_dump_path_from_config(data.get('gnes_config', {}))
         load_from_dump = False
         if dump_path:

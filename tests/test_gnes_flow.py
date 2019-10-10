@@ -120,29 +120,29 @@ class TestGNESFlow(unittest.TestCase):
 
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
-                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
-                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml',
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
+                .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml'),
                      service_in='prep')
                 .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
                      num_part=2, service_in=['vec_idx', 'doc_idx']))
 
-        with flow.build(backend='thread') as f:
+        with flow.build(backend='process') as f:
             f.index(txt_file=self.test_file, batch_size=20)
 
-        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+        for k in [self.indexer1_bin, self.indexer2_bin]:
             self.assertTrue(os.path.exists(k))
 
     def _test_query_flow(self):
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
-                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
-                .add(gfs.Router, name='scorer', yaml_path='yaml/flow-score.yml')
-                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml'))
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
+                .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
+                .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))
 
-        with flow.build(backend='thread') as f:
-            f.query(txt_file=self.test_file)
+        with flow.build(backend='process') as f, open(self.test_file, encoding='utf8') as fp:
+            f.query(bytes_gen=[v.encode() for v in fp][:10])
 
     @unittest.SkipTest
     def test_index_query_flow(self):
