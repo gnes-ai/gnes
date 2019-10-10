@@ -127,7 +127,7 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
                      num_part=2, service_in=['vec_idx', 'doc_idx']))
 
-        with flow.build(backend='thread') as f:
+        with flow.build(backend='process') as f:
             f.index(txt_file=self.test_file, batch_size=20)
 
         for k in [self.indexer1_bin, self.indexer2_bin]:
@@ -141,10 +141,10 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Router, name='scorer', yaml_path='yaml/flow-score.yml')
                 .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml'))
 
-        with flow.build(backend='thread') as f:
-            f.query(txt_file=self.test_file)
+        with flow.build(backend='process') as f, open(self.test_file, encoding='utf8') as fp:
+            f.query(bytes_gen=[v.encode() for v in fp][:10])
 
-    @unittest.SkipTest
+    # @unittest.SkipTest
     def test_index_query_flow(self):
         self._test_index_flow()
         print('indexing finished')

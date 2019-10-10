@@ -430,7 +430,7 @@ class Flow:
                 # for thread and process backend which runs locally, host_in and host_out should not be set
                 p_args.host_in = BaseService.default_host
                 p_args.host_out = BaseService.default_host
-                op_flow._service_contexts.append(Flow._service2builder[v['service']](p_args))
+                op_flow._service_contexts.append((Flow._service2builder[v['service']], p_args))
             op_flow._build_level = Flow.BuildLevel.RUNTIME
         else:
             raise NotImplementedError('backend=%s is not supported yet' % backend)
@@ -447,9 +447,9 @@ class Flow:
                 'build the flow now via build() with default parameters' % self._build_level)
             self.build(copy_flow=False)
         self._service_stack = ExitStack()
+        for k, v in self._service_contexts:
+            self._service_stack.enter_context(k(v))
 
-        for k in self._service_contexts:
-            self._service_stack.enter_context(k)
         self.logger.critical('flow is built and ready, current build level is %s' % self._build_level)
         return self
 
