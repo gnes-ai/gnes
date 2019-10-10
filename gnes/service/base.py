@@ -412,7 +412,7 @@ class BaseService(metaclass=ConcurrentService):
                 elif socks.get(ctrl_sock) == zmq.POLLIN:
                     pull_sock = ctrl_sock
                 else:
-                    self.logger.error('received message from unknown socket: %s' % socks)
+                    # no message received, pass
                     continue
 
                 if self.use_event_loop or pull_sock == ctrl_sock:
