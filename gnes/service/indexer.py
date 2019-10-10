@@ -12,7 +12,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import threading
 
 import numpy as np
 
@@ -27,7 +26,7 @@ class IndexerService(BS):
         from ..indexer.base import BaseIndexer
         # print('id: %s, before: %r' % (threading.get_ident(), self._model))
         self._model = self.load_model(BaseIndexer)
-        self._tmp_a = threading.get_ident()
+        # self._tmp_a = threading.get_ident()
         # print('id: %s, after: %r, self._tmp_a: %r' % (threading.get_ident(), self._model, self._tmp_a))
 
     @handler.register(gnes_pb2.Request.IndexRequest)
