@@ -58,8 +58,8 @@ def capture_frames(input_fn: str = 'pipe:',
         if pix_fmt == 'rgba':
             depth = 4
 
-        frames = np.frombuffer(out,
-                               np.uint8).reshape([-1, height, width, depth])
+        frames = np.frombuffer(out, np.uint8).copy()
+        frames = frames.reshape([-1, height, width, depth])
         return frames
 
 

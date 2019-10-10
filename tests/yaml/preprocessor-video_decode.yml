@@ -1,4 +1,4 @@
-!VideoDecodePreprocessor
+!VideoDecoderPreprocessor
 parameters:
   frame_rate: 5
   vframes: 1
