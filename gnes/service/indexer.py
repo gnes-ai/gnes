@@ -12,7 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import threading
 
 import numpy as np
 
@@ -25,10 +25,16 @@ class IndexerService(BS):
 
     def post_init(self):
         from ..indexer.base import BaseIndexer
+        # print('id: %s, before: %r' % (threading.get_ident(), self._model))
         self._model = self.load_model(BaseIndexer)
+        self._tmp_a = threading.get_ident()
+        # print('id: %s, after: %r, self._tmp_a: %r' % (threading.get_ident(), self._model, self._tmp_a))
 
     @handler.register(gnes_pb2.Request.IndexRequest)
     def _handler_index(self, msg: 'gnes_pb2.Message'):
+        # print('tid: %s, model: %r, self._tmp_a: %r' % (threading.get_ident(), self._model, self._tmp_a))
+        # if self._tmp_a != threading.get_ident():
+        #     print('tid: %s, tmp_a: %r !!! %r' % (threading.get_ident(), self._tmp_a, self._handler_index))
         from ..indexer.base import BaseChunkIndexer, BaseDocIndexer
         if isinstance(self._model, BaseChunkIndexer):
             self._handler_chunk_index(msg)
@@ -41,22 +47,21 @@ class IndexerService(BS):
         self.is_model_changed.set()
 
     def _handler_chunk_index(self, msg: 'gnes_pb2.Message'):
-        vecs, doc_ids, offsets, weights = [], [], [], []
+        embed_info = []
 
         for d in msg.request.index.docs:
             if not d.chunks:
                 self.logger.warning('document (doc_id=%s) contains no chunks!' % d.doc_id)
                 continue
 
-            vecs += [blob2array(c.embedding) for c in d.chunks]
-            doc_ids += [d.doc_id] * len(d.chunks)
-            offsets += [c.offset for c in d.chunks]
-            weights += [c.weight for c in d.chunks]
+            embed_info += [(blob2array(c.embedding), d.doc_id, c.offset, c.weight) for c in d.chunks if
+                           c.embedding.data]
 
-        if vecs:
+        if embed_info:
+            vecs, doc_ids, offsets, weights = zip(*embed_info)
             self._model.add(list(zip(doc_ids, offsets)), np.stack(vecs), weights)
         else:
-            self.logger.warning('chunks contain no embedded vectors, %the indexer will do nothing')
+            self.logger.warning('chunks contain no embedded vectors, the indexer will do nothing')
 
     def _handler_doc_index(self, msg: 'gnes_pb2.Message'):
         self._model.add([d.doc_id for d in msg.request.index.docs],
