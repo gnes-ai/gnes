@@ -178,7 +178,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
     parser.add_argument('--dump_interval', type=int, default=5,
-                        help='serialize the service to a file every n seconds, -1 means --read_only')
+                        help='serialize the model in the service every n seconds if model changes. '
+                             '-1 means --read_only. ')
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
                              'dump_interval will be ignored')

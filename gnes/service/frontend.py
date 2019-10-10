@@ -131,11 +131,6 @@ class FrontendService:
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
                     self.pending_request += 1
 
-                    num_recv = max(self.pending_request - self.args.max_pending_request, 1)
-
-                    # switch to blocked recv when too many pending requests
-                    yield from get_response(num_recv, num_recv > 1)
-
                 yield from get_response(self.pending_request, blocked=True)
 
         class ZmqContext:
