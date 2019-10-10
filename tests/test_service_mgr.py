@@ -97,8 +97,6 @@ class TestServiceManager(unittest.TestCase):
 
         with ServiceManager(RouterService, args):
             pass
-        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
-        os.remove('foo_contrib_encoder.bin')
 
     def test_override_module(self):
         args = set_indexer_parser().parse_args([
@@ -108,8 +106,6 @@ class TestServiceManager(unittest.TestCase):
 
         with ServiceManager(IndexerService, args):
             pass
-        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
-        os.remove('foo_contrib_encoder.bin')
 
     def test_override_twice_module(self):
         args = set_indexer_parser().parse_args([
@@ -120,8 +116,6 @@ class TestServiceManager(unittest.TestCase):
 
         with ServiceManager(IndexerService, args):
             pass
-        self.assertTrue(os.path.exists('foo_contrib_encoder.bin'))
-        os.remove('foo_contrib_encoder.bin')
 
     def test_grpc_with_pub(self):
         self._test_grpc_multiple_pub('thread', 1)

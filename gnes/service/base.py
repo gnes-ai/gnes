@@ -336,12 +336,14 @@ class BaseService(metaclass=ConcurrentService):
         except Exception as ex:
             self.logger.error(ex, exc_info=True)
 
-    def dump(self):
+    def dump(self, respect_dump_interval: bool = True):
         if (not self.args.read_only
                 and self.args.dump_interval > 0
                 and self._model
                 and self.is_model_changed.is_set()
-                and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval):
+                and (respect_dump_interval
+                     and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval)
+                or not respect_dump_interval):
             self.is_model_changed.clear()
             self.logger.info('dumping changes to the model, %3.0fs since last the dump'
                              % (time.perf_counter() - self.last_dump_time))
@@ -459,6 +461,8 @@ class BaseService(metaclass=ConcurrentService):
             in_sock.close()
             out_sock.close()
             ctrl_sock.close()
+            # do not check dump_interval constraint as the last dump before close
+            self.dump(respect_dump_interval=False)
         self.logger.critical('terminated')
 
     def post_init(self):
