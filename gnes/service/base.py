@@ -360,8 +360,7 @@ class BaseService(metaclass=ConcurrentService):
             self.is_model_changed.clear()
             self.logger.info('dumping changes to the model, %3.0fs since last the dump'
                              % (time.perf_counter() - self.last_dump_time))
-            if self._model is not None:
-                self._model.dump()
+            self._model.dump()
             self.last_dump_time = time.perf_counter()
             self.logger.info('dumping finished! next dump will start in at least %3.0fs' % self.args.dump_interval)
 
