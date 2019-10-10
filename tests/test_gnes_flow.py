@@ -120,9 +120,9 @@ class TestGNESFlow(unittest.TestCase):
 
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
-                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
-                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml',
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
+                .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml'),
                      service_in='prep')
                 .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
                      num_part=2, service_in=['vec_idx', 'doc_idx']))
@@ -136,10 +136,10 @@ class TestGNESFlow(unittest.TestCase):
     def _test_query_flow(self):
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path='yaml/flow-transformer.yml')
-                .add(gfs.Indexer, name='vec_idx', yaml_path='yaml/flow-vecindex.yml')
-                .add(gfs.Router, name='scorer', yaml_path='yaml/flow-score.yml')
-                .add(gfs.Indexer, name='doc_idx', yaml_path='yaml/flow-dictindex.yml'))
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
+                .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
+                .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))
 
         with flow.build(backend='process') as f, open(self.test_file, encoding='utf8') as fp:
             f.query(bytes_gen=[v.encode() for v in fp][:10])
