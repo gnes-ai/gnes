@@ -144,7 +144,7 @@ class TestGNESFlow(unittest.TestCase):
         with flow.build(backend='process') as f, open(self.test_file, encoding='utf8') as fp:
             f.query(bytes_gen=[v.encode() for v in fp][:10])
 
-    # @unittest.SkipTest
+    @unittest.SkipTest
     def test_index_query_flow(self):
         self._test_index_flow()
         print('indexing finished')
