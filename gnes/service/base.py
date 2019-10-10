@@ -338,6 +338,7 @@ class BaseService(metaclass=ConcurrentService):
 
     def dump(self):
         if (not self.args.read_only
+                and self.args.dump_interval > 0
                 and self._model
                 and self.is_model_changed.is_set()
                 and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval):
@@ -405,7 +406,6 @@ class BaseService(metaclass=ConcurrentService):
             self.is_event_loop.set()
             self.logger.critical('ready and listening')
             while self.is_event_loop.is_set():
-                pull_sock = None
                 socks = dict(poller.poll(1))
                 if socks.get(in_sock) == zmq.POLLIN:
                     pull_sock = in_sock
@@ -413,6 +413,8 @@ class BaseService(metaclass=ConcurrentService):
                     pull_sock = ctrl_sock
                 else:
                     self.logger.error('received message from unknown socket: %s' % socks)
+                    continue
+
                 if self.use_event_loop or pull_sock == ctrl_sock:
                     with TimeContext('handling message', self.logger):
                         self.is_handler_done.clear()
@@ -442,6 +444,8 @@ class BaseService(metaclass=ConcurrentService):
                     self.is_handler_done.wait()
                     # clear the handler status
                     self.is_handler_done.clear()
+
+                # block the event loop if a dump is needed
                 self.dump()
         except EventLoopEnd:
             self.logger.info('break from the event loop')
