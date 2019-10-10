@@ -19,7 +19,7 @@ from ..base import BaseVideoPreprocessor
 from ..io_utils import video as video_util
 
 
-class VideoDecodePreprocessor(BaseVideoPreprocessor):
+class VideoDecoderPreprocessor(BaseVideoPreprocessor):
     store_args_kwargs = True
 
     def __init__(self,
