@@ -1,4 +1,5 @@
 import copy
+import os
 from collections import OrderedDict, defaultdict
 from contextlib import ExitStack
 from functools import wraps
@@ -175,6 +176,9 @@ class Flow:
 
     @_build_level(BuildLevel.RUNTIME)
     def _call_client(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+
+        os.unsetenv('http_proxy')
+        os.unsetenv('https_proxy')
         args, p_args = self._get_parsed_args(self, set_client_cli_parser, kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
@@ -356,19 +360,20 @@ class Flow:
             #
             # when a socket is BIND, then host must NOT be set, aka default host 0.0.0.0
             # host_in and host_out is only set when corresponding socket is CONNECT
-            e_pargs.port_in = s_pargs.port_out
 
             if len(edges_with_same_start) > 1 and len(edges_with_same_end) == 1:
                 s_pargs.socket_out = SocketType.PUB_BIND
                 s_pargs.host_out = BaseService.default_host
                 e_pargs.socket_in = SocketType.SUB_CONNECT
                 e_pargs.host_in = start_node
+                e_pargs.port_in = s_pargs.port_out
                 op_flow._service_edges[k] = 'PUB-sub'
             elif len(edges_with_same_end) > 1 and len(edges_with_same_start) == 1:
                 s_pargs.socket_out = SocketType.PUSH_CONNECT
                 s_pargs.host_out = end_node
                 e_pargs.socket_in = SocketType.PULL_BIND
                 e_pargs.host_in = BaseService.default_host
+                s_pargs.port_out = e_pargs.port_in
                 op_flow._service_edges[k] = 'push-PULL'
             elif len(edges_with_same_start) == 1 and len(edges_with_same_end) == 1:
                 # in this case, either side can be BIND
@@ -386,10 +391,12 @@ class Flow:
                 if s_pargs.socket_out.is_bind:
                     s_pargs.host_out = BaseService.default_host
                     e_pargs.host_in = start_node
+                    e_pargs.port_in = s_pargs.port_out
                     op_flow._service_edges[k] = 'PUSH-pull'
                 elif e_pargs.socket_in.is_bind:
                     s_pargs.host_out = end_node
                     e_pargs.host_in = BaseService.default_host
+                    s_pargs.port_out = e_pargs.port_in
                     op_flow._service_edges[k] = 'push-PULL'
                 else:
                     raise FlowTopologyError('edge %s -> %s is ambiguous, at least one socket should be BIND')
@@ -423,7 +430,7 @@ class Flow:
                 # for thread and process backend which runs locally, host_in and host_out should not be set
                 p_args.host_in = BaseService.default_host
                 p_args.host_out = BaseService.default_host
-                op_flow._service_contexts.append((Flow._service2builder[v['service']], p_args))
+                op_flow._service_contexts.append(Flow._service2builder[v['service']](p_args))
             op_flow._build_level = Flow.BuildLevel.RUNTIME
         else:
             raise NotImplementedError('backend=%s is not supported yet' % backend)
@@ -440,9 +447,9 @@ class Flow:
                 'build the flow now via build() with default parameters' % self._build_level)
             self.build(copy_flow=False)
         self._service_stack = ExitStack()
-        for k, v in self._service_contexts:
-            self._service_stack.enter_context(k(v))
 
+        for k in self._service_contexts:
+            self._service_stack.enter_context(k)
         self.logger.critical('flow is built and ready, current build level is %s' % self._build_level)
         return self
 

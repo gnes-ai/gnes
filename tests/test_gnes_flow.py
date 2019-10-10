@@ -130,7 +130,7 @@ class TestGNESFlow(unittest.TestCase):
         with flow.build(backend='thread') as f:
             f.index(txt_file=self.test_file, batch_size=20)
 
-        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+        for k in [self.indexer1_bin, self.indexer2_bin]:
             self.assertTrue(os.path.exists(k))
 
     def _test_query_flow(self):

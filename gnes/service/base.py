@@ -156,8 +156,13 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
 
 class MessageHandler:
     def __init__(self, mh: 'MessageHandler' = None):
-        self.routes = {k: v for k, v in mh.routes.items()} if mh else {}
-        self.hooks = {k: v for k, v in mh.hooks.items()} if mh else {'pre': [], 'post': []}
+        self.routes = {}
+        self.hooks = {'pre': [], 'post': []}
+
+        if mh:
+            self.routes = copy.deepcopy(mh.routes)
+            self.hooks = copy.deepcopy(mh.hooks)
+
         self.logger = set_logger(self.__class__.__name__)
         self.service_context = None
 
@@ -329,6 +334,14 @@ class BaseService(metaclass=ConcurrentService):
             check_version=self.args.check_version,
             timeout=self.args.timeout,
             squeeze_pb=self.args.squeeze_pb)
+        # self._override_handler()
+
+    def _override_handler(self):
+        # replace the function name by the function itself
+        mh = MessageHandler()
+        mh.routes = {k: getattr(self, v) for k, v in self.handler.routes.items()}
+        mh.hooks = {k: [(getattr(self, vv[0]), vv[1]) for vv in v] for k, v in self.handler.hooks.items()}
+        self.handler = mh
 
     def run(self):
         try:
@@ -341,9 +354,9 @@ class BaseService(metaclass=ConcurrentService):
                 and self.args.dump_interval > 0
                 and self._model
                 and self.is_model_changed.is_set()
-                and (respect_dump_interval
-                     and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval)
-                or not respect_dump_interval):
+                and ((respect_dump_interval
+                      and (time.perf_counter() - self.last_dump_time) > self.args.dump_interval)
+                     or not respect_dump_interval)):
             self.is_model_changed.clear()
             self.logger.info('dumping changes to the model, %3.0fs since last the dump'
                              % (time.perf_counter() - self.last_dump_time))
@@ -386,6 +399,7 @@ class BaseService(metaclass=ConcurrentService):
     def _run(self, ctx):
         ctx.setsockopt(zmq.LINGER, 0)
         self.handler.service_context = self
+        # print('!!!! t_id: %d service_context: %r' % (threading.get_ident(), self.handler.service_context))
         self.logger.info('bind sockets...')
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
                                   self.args.identity)
