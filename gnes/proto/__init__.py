@@ -91,7 +91,8 @@ def blob2array(blob: 'gnes_pb2.NdArray') -> np.ndarray:
     """
     Convert a blob proto to an array.
     """
-    return np.frombuffer(blob.data, dtype=blob.dtype).reshape(blob.shape)
+    x = np.frombuffer(blob.data, dtype=blob.dtype).copy()
+    return x.reshape(blob.shape)
 
 
 def array2blob(x: np.ndarray) -> 'gnes_pb2.NdArray':
