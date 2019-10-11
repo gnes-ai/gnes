@@ -101,6 +101,7 @@ class BaseEmbedReduceRouter(BaseReduceRouter):
     def apply(self, msg: 'gnes_pb2.Message', accum_msgs: List['gnes_pb2.Message'], *args, **kwargs) -> None:
         """
         reduce embeddings from encoders (means, concat ....)
+
         :param msg: the current message
         :param accum_msgs: accumulated messages
         """

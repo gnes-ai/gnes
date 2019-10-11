@@ -75,6 +75,7 @@ class BaseChunkIndexer(BaseIndexer):
     def add(self, keys: List[Tuple[int, int]], vectors: np.ndarray, weights: List[float], *args, **kwargs):
         """
         adding new chunks and their vector representations
+
         :param keys: list of (doc_id, offset) tuple
         :param vectors: vector representations
         :param weights: weight of the chunks
@@ -160,6 +161,7 @@ class BaseDocIndexer(BaseIndexer):
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
         """
         adding new docs and their protobuf representation
+
         :param keys: list of doc_id
         :param docs: list of protobuf Document objects
         """
