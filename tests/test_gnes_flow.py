@@ -113,8 +113,9 @@ class TestGNESFlow(unittest.TestCase):
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
+        f.to_jpg()
 
-    def _test_index_flow(self):
+    def _test_index_flow(self, backend):
         for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
             self.assertFalse(os.path.exists(k))
 
@@ -127,13 +128,13 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
                      num_part=2, service_in=['vec_idx', 'doc_idx']))
 
-        with flow.build(backend='process') as f:
+        with flow.build(backend=backend) as f:
             f.index(txt_file=self.test_file, batch_size=20)
 
         for k in [self.indexer1_bin, self.indexer2_bin]:
             self.assertTrue(os.path.exists(k))
 
-    def _test_query_flow(self):
+    def _test_query_flow(self, backend):
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
                 .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
@@ -141,11 +142,14 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
                 .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))
 
-        with flow.build(backend='process') as f, open(self.test_file, encoding='utf8') as fp:
-            f.query(bytes_gen=[v.encode() for v in fp][:10])
+        with flow.build(backend=backend) as f, open(self.test_file, encoding='utf8') as fp:
+            f.query(bytes_gen=[v.encode() for v in fp][:3])
 
-    @unittest.SkipTest
+    # @unittest.SkipTest
     def test_index_query_flow(self):
-        self._test_index_flow()
-        print('indexing finished')
-        self._test_query_flow()
+        self._test_index_flow('thread')
+        self._test_query_flow('thread')
+
+    def test_indexe_query_flow_proc(self):
+        self._test_index_flow('process')
+        self._test_query_flow('process')

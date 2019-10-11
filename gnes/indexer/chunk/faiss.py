@@ -28,6 +28,7 @@ class FaissIndexer(BCI):
     def __init__(self, num_dim: int, index_key: str, data_path: str, *args, **kwargs):
         """
         Initialize an FaissIndexer
+
         :param num_dim: when set to -1, then num_dim is auto decided on first .add()
         :param data_path: index data file managed by the faiss indexer
         """

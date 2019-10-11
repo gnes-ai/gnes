@@ -170,9 +170,9 @@ class MessageHandler:
         def decorator(f):
             if isinstance(msg_type, list) or isinstance(msg_type, tuple):
                 for m in msg_type:
-                    self.routes[m] = f
+                    self.routes[m] = f.__name__
             else:
-                self.routes[msg_type] = f
+                self.routes[msg_type] = f.__name__
             return f
 
         return decorator
@@ -187,11 +187,12 @@ class MessageHandler:
 
         def decorator(f):
             if isinstance(hook_type, str) and hook_type in self.hooks:
-                self.hooks[hook_type].append((f, only_when_verbose))
+                self.hooks[hook_type].append((f.__name__, only_when_verbose))
+                return f
             elif isinstance(hook_type, list) or isinstance(hook_type, tuple):
                 for h in set(hook_type):
                     if h in self.hooks:
-                        self.hooks[h].append((f, only_when_verbose))
+                        self.hooks[h].append((f.__name__, only_when_verbose))
                     else:
                         raise AttributeError('hook type: %s is not supported' % h)
                 return f
@@ -222,7 +223,7 @@ class MessageHandler:
         for fn, only_verbose in hooks:
             if (only_verbose and self.service_context.args.verbose) or (not only_verbose):
                 try:
-                    fn(self.service_context, msg, *args, **kwargs)
+                    fn(msg, *args, **kwargs)
                 except Exception as ex:
                     self.logger.warning('hook %s throws an exception, '
                                         'this wont affect the server but you may want to pay attention' % fn)
@@ -249,7 +250,7 @@ class MessageHandler:
             fn = get_default_fn(type(msg))
 
         self.logger.info('handling message with %s' % fn.__name__)
-        return fn(self.service_context, msg)
+        return fn(msg)
 
     def call_routes_send_back(self, msg: 'gnes_pb2.Message', out_sock):
         try:
@@ -334,7 +335,7 @@ class BaseService(metaclass=ConcurrentService):
             check_version=self.args.check_version,
             timeout=self.args.timeout,
             squeeze_pb=self.args.squeeze_pb)
-        # self._override_handler()
+        self._override_handler()
 
     def _override_handler(self):
         # replace the function name by the function itself

@@ -3,7 +3,7 @@ import os
 from collections import OrderedDict, defaultdict
 from contextlib import ExitStack
 from functools import wraps
-from typing import Union, Tuple, List, Optional, Generator
+from typing import Union, Tuple, List, Optional, Iterator
 
 from ..cli.parser import set_router_parser, set_indexer_parser, \
     set_frontend_parser, set_preprocessor_parser, \
@@ -61,11 +61,13 @@ class Flow:
     """
     GNES Flow: an intuitive way to build workflow for GNES.
 
-    You can use `.add()` then `.build()` to customize your own workflow.
+    You can use :py:meth:`.add()` then :py:meth:`.build()` to customize your own workflow.
     For example:
 
     .. highlight:: python
     .. code-block:: python
+
+        from gnes.flow import Flow, Service as gfs
 
         f = (Flow(check_version=False, route_table=True)
              .add(gfs.Preprocessor, yaml_path='BasePreprocessor')
@@ -76,9 +78,12 @@ class Flow:
             flow.index()
             ...
 
+    You can also use the shortcuts, e.g. :py:meth:`add_encoder`, :py:meth:`add_preprocessor`.
+
     It is recommend to use flow in the context manner as showed above.
-    Note the different default copy behaviors in `.add()` and `.build()`:
-    `.add()` always copy the flow by default, whereas `.build()` modify the flow in place.
+
+    Note the different default copy behaviors in :py:meth:`.add()` and :py:meth:`.build()`:
+    :py:meth:`.add()` always copy the flow by default, whereas :py:meth:`.build()` modify the flow in place.
     You can change this behavior by giving an argument `copy_flow=False`.
 
     """
@@ -134,6 +139,12 @@ class Flow:
 
     @_build_level(BuildLevel.GRAPH)
     def to_mermaid(self, left_right: bool = True):
+        """
+        Output the mermaid graph for visualization
+
+        :param left_right: render the flow in left-to-right manner, otherwise top-down manner.
+        :return:
+        """
         mermaid_graph = OrderedDict()
         for k in self._service_nodes.keys():
             mermaid_graph[k] = []
@@ -161,22 +172,60 @@ class Flow:
             ['graph %s' % ('LR' if left_right else 'TD')] + [ss for s in mermaid_graph.values() for ss in
                                                              s] + style + class_def)
 
-        self.logger.info(
-            'copy-paste the output and visualize it with: https://mermaidjs.github.io/mermaid-live-editor/')
         return mermaid_str
 
-    def train(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+    @_build_level(BuildLevel.GRAPH)
+    def to_jpg(self, path: str = 'flow.jpg', left_right: bool = True):
+        """
+        Rendering the current flow as a jpg image, this will call :py:meth:`to_mermaid` and it needs internet connection
+
+        :param path: the file path of the image
+        :param left_right: render the flow in left-to-right manner, otherwise top-down manner.
+        :return:
+        """
+        import base64
+        from urllib.request import Request, urlopen
+        mermaid_str = self.to_mermaid(left_right)
+        encoded_str = base64.b64encode(bytes(mermaid_str, 'utf-8')).decode('utf-8')
+        print('https://mermaidjs.github.io/mermaid-live-editor/#/view/%s' % encoded_str)
+        self.logger.info('saving jpg...')
+        req = Request('https://mermaid.ink/img/%s' % encoded_str, headers={'User-Agent': 'Mozilla/5.0'})
+        with open(path, 'wb') as fp:
+            fp.write(urlopen(req).read())
+        self.logger.info('done')
+
+    def train(self, bytes_gen: Iterator[bytes] = None, **kwargs):
+        """Do training on the current flow
+
+        It will start a :py:class:`CLIClient` and call :py:func:`train`.
+
+        :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
+        :param kwargs: accepts all keyword arguments of `gnes client` CLI
+        """
         self._call_client(bytes_gen, mode='train', **kwargs)
 
-    def index(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+    def index(self, bytes_gen: Iterator[bytes] = None, **kwargs):
+        """Do indexing on the current flow
+
+        It will start a :py:class:`CLIClient` and call :py:func:`index`.
+
+        :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
+        :param kwargs: accepts all keyword arguments of `gnes client` CLI
+        """
         self._call_client(bytes_gen, mode='index', **kwargs)
 
-    def query(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
+    def query(self, bytes_gen: Iterator[bytes] = None, **kwargs):
+        """Do indexing on the current flow
+
+        It will start a :py:class:`CLIClient` and call :py:func:`query`.
+
+        :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
+        :param kwargs: accepts all keyword arguments of `gnes client` CLI
+        """
         self._call_client(bytes_gen, mode='query', **kwargs)
 
     @_build_level(BuildLevel.RUNTIME)
-    def _call_client(self, bytes_gen: Generator[bytes, None, None] = None, **kwargs):
-
+    def _call_client(self, bytes_gen: Iterator[bytes] = None, **kwargs):
         os.unsetenv('http_proxy')
         os.unsetenv('https_proxy')
         args, p_args = self._get_parsed_args(self, set_client_cli_parser, kwargs)
@@ -188,26 +237,26 @@ class Flow:
         c.start()
 
     def add_frontend(self, *args, **kwargs) -> 'Flow':
-        """Add a frontend to the current flow, a shortcut of add(Service.Frontend)
+        """Add a frontend to the current flow, a shortcut of :py:meth:`add(Service.Frontend)`.
         Usually you dont need to call this function explicitly, a flow object contains a frontend service by default.
         This function is useful when you build a flow without the frontend and want to customize the frontend later.
         """
         return self.add(Service.Frontend, *args, **kwargs)
 
     def add_encoder(self, *args, **kwargs) -> 'Flow':
-        """Add an encoder to the current flow, a shortcut of add(Service.Encoder)"""
+        """Add an encoder to the current flow, a shortcut of :py:meth:`add(Service.Encoder)`"""
         return self.add(Service.Encoder, *args, **kwargs)
 
     def add_indexer(self, *args, **kwargs) -> 'Flow':
-        """Add an indexer to the current flow, a shortcut of add(Service.Indexer)"""
+        """Add an indexer to the current flow, a shortcut of :py:meth:`add(Service.Indexer)`"""
         return self.add(Service.Indexer, *args, **kwargs)
 
     def add_preprocessor(self, *args, **kwargs) -> 'Flow':
-        """Add a router to the current flow, a shortcut of add(Service.Preprocessor)"""
+        """Add a preprocessor to the current flow, a shortcut of :py:meth:`add(Service.Preprocessor)`"""
         return self.add(Service.Preprocessor, *args, **kwargs)
 
     def add_router(self, *args, **kwargs) -> 'Flow':
-        """Add a preprocessor to the current flow, a shortcut of add(Service.Router)"""
+        """Add a router to the current flow, a shortcut of :py:meth:`add(Service.Router)`"""
         return self.add(Service.Router, *args, **kwargs)
 
     def add(self, service: 'Service',
@@ -412,7 +461,8 @@ class Flow:
     def build(self, backend: Optional[str] = 'thread', copy_flow: bool = False, *args, **kwargs) -> 'Flow':
         """
         Build the current flow and make it ready to use
-        :param backend: supported 'thread', 'process', 'swarm', 'k8s', 'shell'
+
+        :param backend: supported 'thread', 'process', 'swarm', 'k8s', 'shell', if None then only build graph only
         :param copy_flow: return the copy of the current flow
         :return: the current flow (by default)
         """

@@ -17,7 +17,7 @@
 import sys
 import time
 import zipfile
-from typing import Generator
+from typing import Iterator
 
 from termcolor import colored
 
@@ -78,6 +78,7 @@ class CLIClient(GrpcClient):
         """
         callback after get the query result
         override this method to customize query behavior
+
         :param resp: response
         :param req: query
         :return:
@@ -86,14 +87,14 @@ class CLIClient(GrpcClient):
         print(resp)
 
     @property
-    def bytes_generator(self) -> Generator[bytes, None, None]:
+    def bytes_generator(self) -> Iterator[bytes]:
         if self._bytes_generator:
             return self._bytes_generator
         else:
             raise ValueError('bytes_generator is empty or not set')
 
     @bytes_generator.setter
-    def bytes_generator(self, bytes_gen: Generator[bytes, None, None]):
+    def bytes_generator(self, bytes_gen: Iterator[bytes]):
         if self._bytes_generator:
             self.logger.warning('bytes_generator is not empty, overrided')
         self._bytes_generator = bytes_gen

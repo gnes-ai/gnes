@@ -38,6 +38,7 @@ class DirectoryIndexer(BDI):
         """
         write GIFs of each document into disk
         folder structure: /data_path/doc_id/0.gif, 1.gif...
+
         :param keys: list of doc id
         :param docs: list of docs
         """
@@ -55,6 +56,8 @@ class DirectoryIndexer(BDI):
 
     def query(self, keys: List[int], *args, **kwargs) -> List['gnes_pb2.Document']:
         """
+        Find the doc according to the keys
+
         :param keys: list of doc id
         :return: list of documents whose chunks field contain all the GIFs of this doc(one GIF per chunk)
         """
