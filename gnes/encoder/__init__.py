@@ -45,6 +45,7 @@ _cls2file_map = {
     'VggishEncoder': 'audio.vggish',
     'YouTube8MFeatureExtractor': 'video.yt8m_feature_extractor',
     'YouTube8MEncoder': 'video.yt8m_model',
+    'InceptionVideoEncoder': 'video.inception',
     'QuantizerEncoder': 'numeric.quantizer',
     'CharEmbeddingEncoder': 'text.char'
 }
