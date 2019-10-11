@@ -113,6 +113,7 @@ class TestGNESFlow(unittest.TestCase):
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
+        f.to_jpg()
 
     def _test_index_flow(self, backend):
         for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:

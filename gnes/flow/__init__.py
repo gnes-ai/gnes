@@ -139,6 +139,12 @@ class Flow:
 
     @_build_level(BuildLevel.GRAPH)
     def to_mermaid(self, left_right: bool = True):
+        """
+        Output the mermaid graph for visualization
+
+        :param left_right: render the flow in left-to-right manner, otherwise top-down manner.
+        :return:
+        """
         mermaid_graph = OrderedDict()
         for k in self._service_nodes.keys():
             mermaid_graph[k] = []
@@ -166,9 +172,27 @@ class Flow:
             ['graph %s' % ('LR' if left_right else 'TD')] + [ss for s in mermaid_graph.values() for ss in
                                                              s] + style + class_def)
 
-        self.logger.info(
-            'copy-paste the output and visualize it with: https://mermaidjs.github.io/mermaid-live-editor/')
         return mermaid_str
+
+    @_build_level(BuildLevel.GRAPH)
+    def to_jpg(self, path: str = 'flow.jpg', left_right: bool = True):
+        """
+        Rendering the current flow as a jpg image, this will call :py:meth:`to_mermaid` and it needs internet connection
+
+        :param path: the file path of the image
+        :param left_right: render the flow in left-to-right manner, otherwise top-down manner.
+        :return:
+        """
+        import base64
+        from urllib.request import Request, urlopen
+        mermaid_str = self.to_mermaid(left_right)
+        encoded_str = base64.b64encode(bytes(mermaid_str, 'utf-8')).decode('utf-8')
+        print('https://mermaidjs.github.io/mermaid-live-editor/#/view/%s' % encoded_str)
+        self.logger.info('saving jpg...')
+        req = Request('https://mermaid.ink/img/%s' % encoded_str, headers={'User-Agent': 'Mozilla/5.0'})
+        with open(path, 'wb') as fp:
+            fp.write(urlopen(req).read())
+        self.logger.info('done')
 
     def train(self, bytes_gen: Iterator[bytes] = None, **kwargs):
         """Do training on the current flow
