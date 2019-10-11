@@ -40,7 +40,6 @@ class InceptionVideoEncoder(BaseVideoEncoder):
         import tensorflow as tf
         from ..image.inception_cores.inception_v4 import inception_v4
         from ..image.inception_cores.inception_utils import inception_arg_scope
-        from .mixture_core.model import NetFV
         import os
         os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
 
