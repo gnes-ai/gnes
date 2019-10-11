@@ -27,6 +27,7 @@ class AnnoyIndexer(BCI):
     def __init__(self, num_dim: int, data_path: str, metric: str = 'angular', n_trees: int = 10, *args, **kwargs):
         """
         Initialize an AnnoyIndexer
+
         :param num_dim: when set to -1, then num_dim is auto decided on first .add()
         :param data_path: index data file managed by the annoy indexer
         :param metric:
