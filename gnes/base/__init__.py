@@ -247,7 +247,7 @@ class TrainableBase(metaclass=TrainableType):
     def dump(self, filename: str = None) -> None:
         """
         Serialize the object to a binary file
-        :param filename: file path of the serialized file, if not given then `self.dump_full_path` is used
+        :param filename: file path of the serialized file, if not given then :py:attr:`dump_full_path` is used
         """
         f = filename or self.dump_full_path
         if not f:
@@ -260,7 +260,7 @@ class TrainableBase(metaclass=TrainableType):
     def dump_yaml(self, filename: str = None) -> None:
         """
         Serialize the object to a yaml file
-        :param filename: file path of the yaml file, if not given then `self.dump_yaml_path` is used
+        :param filename: file path of the yaml file, if not given then :py:attr:`dump_yaml_path` is used
         """
         f = filename or self.yaml_full_path
         if not f:

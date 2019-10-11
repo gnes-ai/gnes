@@ -61,11 +61,13 @@ class Flow:
     """
     GNES Flow: an intuitive way to build workflow for GNES.
 
-    You can use `.add()` then `.build()` to customize your own workflow.
+    You can use :py:meth:`.add()` then :py:meth:`.build()` to customize your own workflow.
     For example:
 
     .. highlight:: python
     .. code-block:: python
+
+        from gnes.flow import Flow, Service as gfs
 
         f = (Flow(check_version=False, route_table=True)
              .add(gfs.Preprocessor, yaml_path='BasePreprocessor')
@@ -76,9 +78,11 @@ class Flow:
             flow.index()
             ...
 
+    You can also use the shortcuts, e.g. :py:meth:add_encoder , :py:meth:add_preprocessor
+
     It is recommend to use flow in the context manner as showed above.
-    Note the different default copy behaviors in `.add()` and `.build()`:
-    `.add()` always copy the flow by default, whereas `.build()` modify the flow in place.
+    Note the different default copy behaviors in :py:meth:`.add()` and :py:meth:`.build()`:
+    :py:meth:`.add()` always copy the flow by default, whereas :py:meth:`.build()` modify the flow in place.
     You can change this behavior by giving an argument `copy_flow=False`.
 
     """

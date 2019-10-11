@@ -12,9 +12,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from collections import defaultdict
 from functools import wraps
 from typing import List, Any, Union, Callable, Tuple
-from collections import defaultdict
 
 import numpy as np
 
@@ -30,7 +30,8 @@ class BaseIndexer(TrainableBase):
                  is_big_score_similar: bool = False,
                  *args, **kwargs):
         """
-        Base indexer, a valid indexer must implement `add` and `query` methods
+        Base indexer, a valid indexer must implement :py:meth:`add` and :py:meth:`query` methods
+
         :type score_fn: advanced score function
         :type normalize_fn: normalizing score function
         :type is_big_score_similar: when set to true, then larger score means more similar
