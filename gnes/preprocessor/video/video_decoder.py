@@ -60,6 +60,8 @@ class VideoDecoderPreprocessor(BaseVideoPreprocessor):
                     c.blob.CopyFrom(array2blob(frame))
                     c.offset = i
                     c.weight = 1.0
+            elif self.chunk_spliter == 'none':
+                pass
             elif self.chunk_spliter == 'shot':
                 raise NotImplementedError
             else:
