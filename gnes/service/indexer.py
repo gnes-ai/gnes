@@ -33,7 +33,7 @@ class IndexerService(BS):
     def _handler_index(self, msg: 'gnes_pb2.Message'):
         # print('tid: %s, model: %r, self._tmp_a: %r' % (threading.get_ident(), self._model, self._tmp_a))
         # if self._tmp_a != threading.get_ident():
-        #     print('tid: %s, tmp_a: %r !!! %r' % (threading.get_ident(), self._tmp_a, self._handler_index))
+        #     print('!!! tid: %s, tmp_a: %r %r' % (threading.get_ident(), self._tmp_a, self._handler_index))
         from ..indexer.base import BaseChunkIndexer, BaseDocIndexer
         if isinstance(self._model, BaseChunkIndexer):
             self._handler_chunk_index(msg)
