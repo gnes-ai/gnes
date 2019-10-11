@@ -69,7 +69,9 @@ class InceptionVideoEncoder(BaseVideoEncoder):
         pos_start = [0] + [sum(v_len[:i + 1]) for i in range(len(v_len) - 1)]
         pos_end = [sum(v_len[:i + 1]) for i in range(len(v_len))]
 
-        _resize = lambda x: (np.array(Image.fromarray(x).resize((self.inception_size_x, self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.)
+        def _resize(x):
+            self.logger.info('image shape: %s' % str(x.shape))
+            return np.array(Image.fromarray(x).resize((self.inception_size_x, self.inception_size_y)), dtype=np.float32) * 2 / 255. - 1.)
 
         images = [_resize(im) for v in data for im in v]
 
