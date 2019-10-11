@@ -1,4 +1,46 @@
 
+# Release Note (`v0.0.44`)
+> Release time: 2019-10-11 15:27:37
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  felix,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```2fb0f4f9```](https://github.com/gnes-ai/gnes/commit/2fb0f4f9b7a241af258e2313f732aac7cc6b1d8f)] __-__ __flow__: add dump to jpg (*hanhxiao*)
+ - [[```552fcdfe```](https://github.com/gnes-ai/gnes/commit/552fcdfe9ffe627d134221000f6f59c6196e14a9)] __-__ __indexer-cli__: add as_response switcher to indexer cli (*hanhxiao*)
+ - [[```c8cedd04```](https://github.com/gnes-ai/gnes/commit/c8cedd04461f17870f226a71ce0c2fd71d14ed16)] __-__ __service__: remove async dump for better stability (*hanhxiao*)
+ - [[```1739c7b6```](https://github.com/gnes-ai/gnes/commit/1739c7b6c248e5961d67311331f723af7d9aa479)] __-__ __flow__: add client to flow (*hanhxiao*)
+ - [[```43b9d014```](https://github.com/gnes-ai/gnes/commit/43b9d014fd4e31d34f540687338c3bc48b908f80)] __-__ __flow__: add context manager to flow (*hanhxiao*)
+ - [[```ae0d4056```](https://github.com/gnes-ai/gnes/commit/ae0d40561705980fb3e7a367bfa3d1e92b916de2)] __-__ __flow__: first version of gnes flow (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```c23ea61f```](https://github.com/gnes-ai/gnes/commit/c23ea61f8319e1c40aa91324abd05ea34ba1d6c9)] __-__ __frontend__: fix frontend blocking behavior (*hanhxiao*)
+ - [[```c880c9b0```](https://github.com/gnes-ai/gnes/commit/c880c9b0bfe7173b61ae6489669fea202f7200d0)] __-__ __service__: make service handler thread-safe (*hanhxiao*)
+ - [[```a3da0582```](https://github.com/gnes-ai/gnes/commit/a3da05829c2756c42f45a41572a9a0f2217d9d6a)] __-__ __flow__: fix flow unit test (*hanhxiao*)
+ - [[```6d118404```](https://github.com/gnes-ai/gnes/commit/6d118404283db1e2a5169c39e719690c55490780)] __-__ __ffmpeg__: threads=1 (*felix*)
+ - [[```bca5b5b7```](https://github.com/gnes-ai/gnes/commit/bca5b5b7fdc99f0ca666a3b0bf4bc77ae732c19c)] __-__ __base__: fix env expansion in gnes_config (*hanhxiao*)
+ - [[```72f4a044```](https://github.com/gnes-ai/gnes/commit/72f4a044f5c5fd547d72b9b38f0ecac9a75427a8)] __-__ __indexer__: fix empty chunk and dump_interval (*hanhxiao*)
+ - [[```9b79cdf5```](https://github.com/gnes-ai/gnes/commit/9b79cdf52aeca1ef4999b6ef306a816b9ad9dfbe)] __-__ __memory-leak__: try to fix memory leak danger (*felix*)
+ - [[```16097f3f```](https://github.com/gnes-ai/gnes/commit/16097f3f7051e43b1f21526dd0bef7e37c316904)] __-__ __video-decoder__: fix name (*felix*)
+ - [[```199a71a6```](https://github.com/gnes-ai/gnes/commit/199a71a6fb1a053d970dd910ce1f39c82541ad27)] __-__ __frontend__: remove duplicate receive (*hanhxiao*)
+ - [[```73dae6bd```](https://github.com/gnes-ai/gnes/commit/73dae6bdea612d375a103627e725c5ade5865011)] __-__ __service__: minor fix on the dump_interval (*hanhxiao*)
+ - [[```6f401905```](https://github.com/gnes-ai/gnes/commit/6f401905943728cdf0b9f206775ef5ee8347e59a)] __-__ __client__: fix bugs for client (*Jem*)
+ - [[```c5af9308```](https://github.com/gnes-ai/gnes/commit/c5af9308dafe179357b6b39e34f5705d64cef8b8)] __-__ __parser__: use str instead of textio stream to prevent serializer err (*hanhxiao*)
+ - [[```6a368335```](https://github.com/gnes-ai/gnes/commit/6a368335c802d2d0f1c5916d395c66ac46993814)] __-__ __cli__: show more detailed version info in cli (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```d60a24a9```](https://github.com/gnes-ai/gnes/commit/d60a24a90f2c0e2246a3da00fc860d94b1bfe669)] __-__ fix docs format (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```3cc4b041```](https://github.com/gnes-ai/gnes/commit/3cc4b04178ab4bdc78402a50508ef80708d1227f)] __-__ fix unit test (*felix*)
+ - [[```57519198```](https://github.com/gnes-ai/gnes/commit/575191987c610e8c31300f936df377ebad970e7f)] __-__ __changelog__: update change log to v0.0.43 (*hanhxiao*)
+
 # Release Note (`v0.0.43`)
 > Release time: 2019-09-30 17:37:58
 
