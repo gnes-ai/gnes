@@ -288,6 +288,9 @@ def set_indexer_parser(parser=None):
     if not parser:
         parser = set_base_parser()
     _set_sortable_service_parser(parser)
+    parser.add_argument('--as_response', type=ActionNoYes, default=True,
+                        help='convert the message type from request to response after indexing. '
+                             'turn it off if you want to chain other services after this index service.')
 
     return parser
 
