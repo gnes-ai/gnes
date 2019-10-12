@@ -121,7 +121,7 @@ class TestGNESFlow(unittest.TestCase):
 
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'), replicas=3)
                 .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
                 .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml'),
                      service_in='prep')
@@ -137,7 +137,7 @@ class TestGNESFlow(unittest.TestCase):
     def _test_query_flow(self, backend):
         flow = (Flow(check_version=False, route_table=False)
                 .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
-                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'))
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'), replicas=3)
                 .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
                 .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
                 .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))

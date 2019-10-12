@@ -185,11 +185,11 @@ def set_service_parser(parser=None):
                              'dump_interval will be ignored')
     parser.add_argument('--parallel_backend', type=str, choices=['thread', 'process'], default='thread',
                         help='parallel backend of the service')
-    parser.add_argument('--num_parallel', type=int, default=1,
-                        help='number of parallel services running at the same time, '
+    parser.add_argument('--num_parallel', '--replicas', type=int, default=1,
+                        help='number of parallel services running at the same time (i.e. replicas), '
                              '`port_in` and `port_out` will be set to random, '
                              'and routers will be added automatically when necessary')
-    parser.add_argument('--parallel_type', type=ParallelType.from_string, choices=list(ParallelType),
+    parser.add_argument('--parallel_type', '--replica_type', type=ParallelType.from_string, choices=list(ParallelType),
                         default=ParallelType.PUSH_NONBLOCK,
                         help='parallel type of the concurrent services')
     parser.add_argument('--check_version', action=ActionNoYes, default=True,
