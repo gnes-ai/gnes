@@ -553,11 +553,13 @@ class ServiceManager:
         if args.num_parallel > 1:
             from .router import RouterService
             _head_router = copy.deepcopy(args)
+            _head_router.yaml_path = resolve_yaml_path('BaseRouter')
             _head_router.port_ctrl = self._get_random_port()
             port_out = self._get_random_port()
             _head_router.port_out = port_out
 
             _tail_router = copy.deepcopy(args)
+            _tail_router.yaml_path = resolve_yaml_path('BaseRouter')
             port_in = self._get_random_port()
             _tail_router.port_in = port_in
             _tail_router.port_ctrl = self._get_random_port()

@@ -14,6 +14,7 @@
 #  limitations under the License.
 
 
+import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
@@ -28,6 +29,9 @@ from ..proto import gnes_pb2_grpc, gnes_pb2, router2str, add_route, add_version
 class FrontendService:
 
     def __init__(self, args):
+        if not args.proxy:
+            os.unsetenv('http_proxy')
+            os.unsetenv('https_proxy')
         self.logger = set_logger(self.__class__.__name__, args.verbose)
         self.server = grpc.server(
             ThreadPoolExecutor(max_workers=args.max_concurrency),

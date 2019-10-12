@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import os
 from typing import Tuple, List, Union
 
 import grpc
@@ -120,6 +121,9 @@ class GrpcClient:
 
     def __init__(self, args):
         self.args = args
+        if not args.proxy:
+            os.unsetenv('http_proxy')
+            os.unsetenv('https_proxy')
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.logger.info('setting up grpc insecure channel...')
         # A gRPC channel provides a connection to a remote gRPC server.
