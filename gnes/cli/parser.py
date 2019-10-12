@@ -308,6 +308,10 @@ def _set_grpc_parser(parser=None):
                         help='host port of the grpc service')
     parser.add_argument('--max_message_size', type=int, default=-1,
                         help='maximum send and receive size for grpc server in bytes, -1 means unlimited')
+    parser.add_argument('--proxy', action=ActionNoYes, default=False,
+                        help='respect the http_proxy and https_proxy environment variables. '
+                             'otherwise, it will unset these proxy variables before start. '
+                             'gRPC seems perfer --no_proxy')
     return parser
 
 

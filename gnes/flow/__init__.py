@@ -1,5 +1,4 @@
 import copy
-import os
 from collections import OrderedDict, defaultdict
 from contextlib import ExitStack
 from functools import wraps
@@ -226,8 +225,6 @@ class Flow:
 
     @_build_level(BuildLevel.RUNTIME)
     def _call_client(self, bytes_gen: Iterator[bytes] = None, **kwargs):
-        os.unsetenv('http_proxy')
-        os.unsetenv('https_proxy')
         args, p_args = self._get_parsed_args(self, set_client_cli_parser, kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
