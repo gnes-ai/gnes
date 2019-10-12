@@ -115,6 +115,19 @@ class TestGNESFlow(unittest.TestCase):
         print(f.to_mermaid())
         f.to_jpg()
 
+    def test_flow_replica_pot(self):
+        f = (Flow(check_version=False, route_table=True)
+             .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor', replicas=4)
+             .add(gfs.Encoder, yaml_path='PyTorchTransformers', replicas=3)
+             .add(gfs.Indexer, name='vec_idx', yaml_path='NumpyIndexer', replicas=2)
+             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', service_in='prep', replicas=2)
+             .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
+                  num_part=2, service_in=['vec_idx', 'doc_idx'])
+             .build(backend=None))
+        print(f.to_mermaid())
+        print(f.to_url(left_right=False))
+        print(f.to_url(left_right=True))
+
     def _test_index_flow(self, backend):
         for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
             self.assertFalse(os.path.exists(k))
@@ -153,3 +166,13 @@ class TestGNESFlow(unittest.TestCase):
     def test_indexe_query_flow_proc(self):
         self._test_index_flow('process')
         self._test_query_flow('process')
+
+    def test_query_flow_plot(self):
+        flow = (Flow(check_version=False, route_table=False)
+                .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor', replicas=2)
+                .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'), replicas=3)
+                .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'),
+                     replicas=4)
+                .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
+                .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))
+        print(flow.build(backend=None).to_url())
