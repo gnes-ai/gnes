@@ -238,7 +238,7 @@ class Flow:
         return 'https://mermaidjs.github.io/mermaid-live-editor/#/view/%s' % encoded_str
 
     @_build_level(BuildLevel.GRAPH)
-    def to_jpg(self, path: str = 'flow.jpg', **kwargs):
+    def to_jpg(self, path: str = 'flow.jpg', **kwargs) -> None:
         """
         Rendering the current flow as a jpg image, this will call :py:meth:`to_mermaid` and it needs internet connection
 
@@ -249,7 +249,9 @@ class Flow:
 
         from urllib.request import Request, urlopen
         encoded_str = self.to_url().replace('https://mermaidjs.github.io/mermaid-live-editor/#/view/', '')
-        self.logger.info('saving jpg...')
+        self.logger.warning('jpg exporting relies on https://mermaid.ink/, but it is not very stable. '
+                            'some syntax are not supported, please use with caution.')
+        self.logger.info('downloading as jpg...')
         req = Request('https://mermaid.ink/img/%s' % encoded_str, headers={'User-Agent': 'Mozilla/5.0'})
         with open(path, 'wb') as fp:
             fp.write(urlopen(req).read())
