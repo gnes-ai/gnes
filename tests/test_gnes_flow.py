@@ -2,7 +2,7 @@ import os
 import unittest
 
 from gnes.cli.parser import set_client_cli_parser
-from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch, FlowTopologyError
+from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch
 
 
 class TestGNESFlow(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestGNESFlow(unittest.TestCase):
         print('f: %r g: %r' % (f, g))
         f.build()
         print(f.to_mermaid())
-        self.assertRaises(FlowTopologyError, g.build)
+        g.build()
 
     def test_flow1_ctx_empty(self):
         f = (Flow(check_version=False, route_table=True)
@@ -176,3 +176,46 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Router, name='scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
                 .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml')))
         print(flow.build(backend=None).to_url())
+
+    def test_flow_add_set(self):
+        f = (Flow(check_version=False, route_table=True)
+             .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor', replicas=4)
+             .add(gfs.Encoder, yaml_path='PyTorchTransformers', replicas=3)
+             .add(gfs.Indexer, name='vec_idx', yaml_path='NumpyIndexer', replicas=2)
+             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', service_in='prep', replicas=2)
+             .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
+                  num_part=2, service_in=['vec_idx', 'doc_idx'])
+             .build(backend=None))
+
+        print(f.to_url())
+        print(f.set('prep', replicas=1).build(backend=None).to_url())
+        # make it as query flow
+
+        f1 = (f
+              .remove('sync_barrier')
+              .remove('doc_idx')
+              .set_last_service('vec_idx')
+              .add_router('scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
+              .add_indexer('doc_idx', yaml_path='DictIndexer', replicas=2)
+              .build(backend=None))
+
+        print(f1.to_url())
+
+        # another way to convert f to an index flow
+
+        f2 = (f
+              .set_last_service('vec_idx')
+              .add_router('scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
+              .set('doc_idx', service_in='scorer', yaml_path='DictIndexer', replicas=2, clear_old_attr=True)
+              .remove('sync_barrier')
+              .set_last_service('doc_idx')
+              .build(backend=None))
+
+        print(f2.to_url())
+
+        self.assertEqual(f1, f2)
+
+        self.assertNotEqual(f1, f2.add_router('dummy', yaml_path='BaseRouter'))
+
+        print(f1.to_python_code())
+        print(f.to_python_code())
