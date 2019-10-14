@@ -212,3 +212,7 @@ class TestGNESFlow(unittest.TestCase):
               .build(backend=None))
 
         print(f2.to_url())
+
+        self.assertEqual(f1, f2)
+
+        self.assertNotEqual(f1, f2.add_router('dummy', yaml_path='BaseRouter'))

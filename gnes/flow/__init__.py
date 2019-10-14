@@ -589,7 +589,7 @@ class Flow:
             raise FlowTopologyError('flow is empty?')
 
         # close the loop
-        op_flow._service_nodes[op_flow._frontend]['incomes'].add(op_flow._last_changed_service[-1])
+        op_flow._service_nodes[op_flow._frontend]['incomes'] = {op_flow._last_changed_service[-1]}
 
         # build all edges
         for k, v in op_flow._service_nodes.items():
@@ -726,3 +726,24 @@ class Flow:
     def __setstate__(self, d):
         self.__dict__.update(d)
         self.logger = set_logger(self.__class__.__name__)
+
+    def __eq__(self, other):
+        """
+        Comparing the topology of a flow with another flow.
+        Identification is defined by whether two flows share the same set of edges.
+
+        :param other: the second flow object
+        :return:
+        """
+
+        if self._build_level.value < Flow.BuildLevel.GRAPH.value:
+            a = self.build(backend=None, copy_flow=True)
+        else:
+            a = self
+
+        if other._build_level.value < Flow.BuildLevel.GRAPH.value:
+            b = other.build(backend=None, copy_flow=True)
+        else:
+            b = other
+
+        return a._service_edges == b._service_edges
