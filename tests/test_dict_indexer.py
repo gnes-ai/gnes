@@ -50,7 +50,7 @@ class TestDictIndexer(unittest.TestCase):
             '--port_out', str(args.port_in),
             '--socket_in', str(SocketType.PULL_CONNECT),
             '--socket_out', str(SocketType.PUSH_CONNECT),
-            '--yaml_path', '!DictIndexer {gnes_config: {name: dummy_dict_indexer.bin}}',
+            '--yaml_path', '!DictIndexer {gnes_config: {name: dummy_dict_indexer}}',
         ])
 
         with ServiceManager(IndexerService, e_args), \
