@@ -14,10 +14,11 @@
 #  limitations under the License.
 
 from typing import List
-import webp
-from PIL import Image
 
 def encode_video(images: List['np.ndarray'], frame_rate: int, pix_fmt: str = 'rgb24'):
+    import webp
+    from PIL import Image
+
     height, width, _ = images[0].shape
     if pix_fmt == 'rgb24':
         pix_fmt = 'RGB'
