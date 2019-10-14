@@ -90,7 +90,7 @@ class Flow:
     You can change this behavior by giving an argument `copy_flow=False`.
 
     """
-    _supported_orch = {'swarm', 'k8s'}
+
     _service2parser = {
         Service.Encoder: set_encoder_parser,
         Service.Router: set_router_parser,
@@ -129,19 +129,12 @@ class Flow:
             self.logger.warning('with_frontend is set to False, you need to add_frontend() by yourself')
 
     @_build_level(BuildLevel.GRAPH)
-    def to_yaml(self, orchestration: str) -> str:
-        if orchestration not in Flow._supported_orch:
-            raise TypeError(
-                '%s is not valid type of orchestration, should be one of %s' % (orchestration, Flow._supported_orch))
-
-    @staticmethod
-    def from_yaml(orchestration: str) -> 'Flow':
-        if orchestration not in Flow._supported_orch:
-            raise TypeError(
-                '%s is not valid type of orchestration, should be one of %s' % (orchestration, Flow._supported_orch))
+    def to_swarm_yaml(self) -> str:
+        swarm_yml = ''
+        return swarm_yml
 
     @_build_level(BuildLevel.GRAPH)
-    def to_mermaid(self, left_right: bool = True):
+    def to_mermaid(self, left_right: bool = True) -> str:
         """
         Output the mermaid graph for visualization
 

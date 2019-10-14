@@ -2,7 +2,7 @@ import os
 import unittest
 
 from gnes.cli.parser import set_client_cli_parser
-from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch, FlowTopologyError
+from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch
 
 
 class TestGNESFlow(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestGNESFlow(unittest.TestCase):
         print('f: %r g: %r' % (f, g))
         f.build()
         print(f.to_mermaid())
-        self.assertRaises(FlowTopologyError, g.build)
+        g.build()
 
     def test_flow1_ctx_empty(self):
         f = (Flow(check_version=False, route_table=True)
