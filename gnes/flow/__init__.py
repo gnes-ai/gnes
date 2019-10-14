@@ -320,7 +320,7 @@ class Flow:
         """Add a router to the current flow, a shortcut of :py:meth:`add(Service.Router)`"""
         return self.add(Service.Router, *args, **kwargs)
 
-    def add(self, service: 'Service',
+    def add(self, service: Union['Service', str],
             name: str = None,
             service_in: Union[str, Tuple[str], List[str], 'Service'] = None,
             service_out: Union[str, Tuple[str], List[str], 'Service'] = None,
@@ -329,7 +329,7 @@ class Flow:
         """
         Add a service to the current flow object and return the new modified flow object
 
-        :param service: a 'Service' enum, possible choices: Encoder, Router, Preprocessor, Indexer, Frontend
+        :param service: a 'Service' enum or string, possible choices: Encoder, Router, Preprocessor, Indexer, Frontend
         :param name: the name indentifier of the service, useful in 'service_in' and 'service_out'
         :param service_in: the name of the service(s) that this service receives data from.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
@@ -341,6 +341,9 @@ class Flow:
         """
 
         op_flow = copy.deepcopy(self) if copy_flow else self
+
+        if isinstance(service, str):
+            service = Service.from_string(service)
 
         if service not in Flow._service2parser:
             raise ValueError('service: %s is not supported, should be one of %s' % (service, Flow._service2parser))

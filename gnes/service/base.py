@@ -42,7 +42,7 @@ class BetterEnum(Enum):
         try:
             return cls[s]
         except KeyError:
-            raise ValueError()
+            raise ValueError('%s is not a valid enum for %s' % (s, cls))
 
 
 class ReduceOp(BetterEnum):
