@@ -129,16 +129,14 @@ class FrontendService:
             with self.zmq_context as zmq_client:
 
                 for request in request_iterator:
-                    self.logger.info("get request: %d" % request.request_id)
+                    self.logger.info('send request: %s' % request.request_id)
                     num_recv = max(self.pending_request - self.args.max_pending_request, 1)
                     yield from get_response(num_recv, num_recv > 1)
 
-                    # self.logger.info("start to send request: %d (%d) ..." % (request.request_id, self.pending_request))
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
-                    # self.logger.info("request has been send out!")
                     self.pending_request += 1
 
-                self.logger.info("all requests are appended, waiting for responses ...")
+                self.logger.info('all requests are sent, waiting for the responses...')
                 yield from get_response(self.pending_request, blocked=True)
 
         class ZmqContext:
