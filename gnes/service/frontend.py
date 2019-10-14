@@ -121,7 +121,7 @@ class FrontendService:
 
             def get_response(num_recv, blocked=False):
                 if blocked:
-                    self.logger.info("waiting for %d responses ..." % (num_recv))
+                    self.logger.info('waiting for %d responses ...' % (num_recv))
                 for _ in range(num_recv):
                     if blocked or zmq_client.receiver.poll(1):
                         msg = zmq_client.recv_message(**self.send_recv_kwargs)
@@ -134,7 +134,7 @@ class FrontendService:
                     self.logger.info('receive request: %s' % request.request_id)
                     num_recv = max(self.pending_request - self.args.max_pending_request, 1)
                     yield from get_response(num_recv, num_recv > 1)
-                    self.logger.info("send new request into %d appending tasks" % (self.pending_request))
+                    self.logger.info('send new request into %d appending tasks' % (self.pending_request))
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
                     self.pending_request += 1
 
