@@ -15,7 +15,7 @@
 
 from ...proto import gnes_pb2, blob2array
 from ..base import BaseVideoPreprocessor
-from ..io_utils import video, gif
+from ..io_utils import video, gif, webp
 
 
 class VideoEncoderPreprocessor(BaseVideoPreprocessor):
@@ -25,9 +25,8 @@ class VideoEncoderPreprocessor(BaseVideoPreprocessor):
         self.frame_rate = frame_rate
         self.video_format = video_format
 
-        if self.video_format not in ['mp4', 'gif']:
+        if self.video_format not in ['mp4', 'gif', 'webp']:
             raise ValueError("%s encoder has not been supported!" % (self.video_format))
-
 
     def _encode(self, images: 'np.ndarray'):
         encoder = None
@@ -35,6 +34,8 @@ class VideoEncoderPreprocessor(BaseVideoPreprocessor):
             encoder = video
         elif self.video_format == 'gif':
             encoder = gif
+        elif self.video_format == 'webp':
+            encoder = webp
 
         return encoder.encode_video(images, pix_fmt=self.pix_fmt, frame_rate=self.frame_rate)
 
