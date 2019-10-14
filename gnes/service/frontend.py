@@ -117,34 +117,29 @@ class FrontendService:
             return self.Call(request, context)
 
         def StreamCall(self, request_iterator, context):
-            pending_request = 0
+            self.pending_request = 0
 
             def get_response(num_recv, blocked=False):
                 for _ in range(num_recv):
                     if blocked or zmq_client.receiver.poll(1):
-                        if blocked:
-                            self.logger.info("waiting to receive response ...")
                         msg = zmq_client.recv_message(**self.send_recv_kwargs)
-                        if blocked:
-                            self.logger.info('response is received!')
-                        pending_request -= 1
+                        self.pending_request -= 1
                         yield self.remove_envelope(msg)
 
             with self.zmq_context as zmq_client:
 
                 for request in request_iterator:
                     self.logger.info("get request: %d" % request.request_id)
-                    num_recv = max(pending_request - self.args.max_pending_request, 1)
-                    # yield from get_response(num_recv, num_recv > 1)
-                    yield from get_response(max(int(pending_request / 2), 1), blocked=False)
+                    num_recv = max(self.pending_request - self.args.max_pending_request, 1)
+                    yield from get_response(num_recv, num_recv > 1)
 
-                    self.logger.info("start to send request: %d (%d) ..." % (request.request_id, pending_request))
+                    # self.logger.info("start to send request: %d (%d) ..." % (request.request_id, self.pending_request))
                     zmq_client.send_message(self.add_envelope(request, zmq_client), **self.send_recv_kwargs)
-                    self.logger.info("request has been send out!")
-                    pending_request += 1
+                    # self.logger.info("request has been send out!")
+                    self.pending_request += 1
 
                 self.logger.info("all requests are appended, waiting for responses ...")
-                yield from get_response(pending_request, blocked=True)
+                yield from get_response(self.pending_request, blocked=True)
 
         class ZmqContext:
             """The zmq context class."""
