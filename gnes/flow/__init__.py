@@ -112,6 +112,12 @@ class Flow:
         RUNTIME = 2
 
     def __init__(self, with_frontend: bool = True, **kwargs):
+        """
+        Create a new Flow object.
+
+        :param with_frontend: adding frontend service to the flow
+        :param kwargs: keyword-value arguments that will be shared by all services
+        """
         self.logger = set_logger(self.__class__.__name__)
         self._service_nodes = OrderedDict()
         self._service_edges = {}
@@ -123,8 +129,10 @@ class Flow:
         self._client = None
         self._build_level = Flow.BuildLevel.EMPTY
         self._backend = None
+        self._init_with_frontend = False
         if with_frontend:
             self.add_frontend(copy_flow=False)
+            self._init_with_frontend = True
         else:
             self.logger.warning('with_frontend is set to False, you need to add_frontend() by yourself')
 
@@ -132,6 +140,61 @@ class Flow:
     def to_swarm_yaml(self) -> str:
         swarm_yml = ''
         return swarm_yml
+
+    def to_python_code(self, indent: int = 4) -> str:
+        """
+        Generate the python code of this flow
+
+        :return: the generated python code
+        """
+        py_code = ['from gnes.flow import Flow', '']
+        kwargs = []
+        if not self._init_with_frontend:
+            kwargs.append('with_frontend=False')
+        if self._common_kwargs:
+            kwargs.extend('%s=%s' % (k, v) for k, v in self._common_kwargs.items())
+        py_code.append('f = (Flow(%s)' % (', '.join(kwargs)))
+
+        known_service = set()
+        last_add_name = ''
+
+        for k, v in self._service_nodes.items():
+            kwargs = OrderedDict()
+            kwargs['service'] = str(v['service'])
+            kwargs['name'] = k
+            kwargs['service_in'] = '[%s]' % (
+                ','.join({'\'%s\'' % k for k in v['incomes'] if k in known_service}))
+            if kwargs['service_in'] == '[\'%s\']' % last_add_name:
+                kwargs.pop('service_in')
+            kwargs['service_out'] = '[%s]' % (','.join({'\'%s\'' % k for k in v['outgoings'] if k in known_service}))
+
+            known_service.add(k)
+            last_add_name = k
+
+            py_code.append('%s.add(%s)' % (
+                ' ' * indent,
+                ', '.join(
+                    '%s=%s' % (kk, '\'%s\'' % vv if isinstance(vv, str)
+                                                    and not vv.startswith('\'') and not vv.startswith('[')
+                    else vv) for kk, vv
+                    in
+                    (list(kwargs.items()) + list(v['kwargs'].items())) if
+                    vv and vv != '[]' and kk not in self._common_kwargs)))
+
+        py_code[-1] += ')'
+
+        py_code.extend(['',
+                        '# build the flow and visualize it',
+                        'f.build(backend=None).to_url()'
+                        ])
+        py_code.extend(['',
+                        '# use this flow in multi-thread mode for indexing',
+                        'with f.build(backend=\'thread\') as fl:',
+                        '%sfl.index(txt_file=\'test.txt\')' % (' ' * indent)
+                        ])
+        py_code.append('')
+
+        return '\n'.join(py_code)
 
     @_build_level(BuildLevel.GRAPH)
     def to_mermaid(self, left_right: bool = True) -> str:
@@ -407,6 +470,7 @@ class Flow:
             args, p_args = op_flow._get_parsed_args(op_flow, Flow._service2parser[service], kwargs)
             node['args'] = args
             node['parsed_args'] = p_args
+            node['kwargs'] = kwargs
 
         if as_last_service:
             op_flow.set_last_service(name, False)

@@ -216,3 +216,6 @@ class TestGNESFlow(unittest.TestCase):
         self.assertEqual(f1, f2)
 
         self.assertNotEqual(f1, f2.add_router('dummy', yaml_path='BaseRouter'))
+
+        print(f1.to_python_code())
+        print(f.to_python_code())
