@@ -18,7 +18,7 @@ import webp
 from PIL import Image
 
 def encode_video(images: List['np.ndarray'], frame_rate: int, pix_fmt: str = 'rgb24'):
-    height, width, channels = images[0].shape
+    height, width, _ = images[0].shape
     if pix_fmt == 'rgb24':
         pix_fmt = 'RGB'
     # Save an animation
