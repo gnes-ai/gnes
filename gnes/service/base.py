@@ -401,11 +401,17 @@ class BaseService(metaclass=ConcurrentService):
         self.handler.service_context = self
         # print('!!!! t_id: %d service_context: %r' % (threading.get_ident(), self.handler.service_context))
         self.logger.info('bind sockets...')
+        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
+        self.logger.info('control over %s' % (colored(ctrl_addr, 'yellow')))
+
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
                                   self.args.identity)
+        self.logger.info('input %s:%s' % (self.args.host_in, colored(self.args.port_in, 'yellow')))
+
         out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                    self.args.identity)
-        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
+        self.logger.info('output %s:%s' % (self.args.host_out, colored(self.args.port_out, 'yellow')))
+
 
         self.logger.info(
             'input %s:%s\t output %s:%s\t control over %s' % (
