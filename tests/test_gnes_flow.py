@@ -3,6 +3,7 @@ import unittest
 
 from gnes.cli.parser import set_client_cli_parser
 from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch
+from gnes.flow.common import BaseIndexFlow, BaseQueryFlow
 
 
 class TestGNESFlow(unittest.TestCase):
@@ -226,3 +227,7 @@ class TestGNESFlow(unittest.TestCase):
         self.assertEqual(f1, f3)
 
         print(f1.to_swarm_yaml())
+
+    def test_common_flow(self):
+        print(BaseIndexFlow.build(backend=None).to_url())
+        print(BaseQueryFlow.build(backend=None).to_url())
