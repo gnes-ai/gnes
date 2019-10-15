@@ -3,6 +3,7 @@ import unittest
 
 from gnes.cli.parser import set_client_cli_parser
 from gnes.flow import Flow, Service as gfs, FlowBuildLevelMismatch
+from gnes.flow.common import BaseIndexFlow, BaseQueryFlow
 
 
 class TestGNESFlow(unittest.TestCase):
@@ -11,6 +12,7 @@ class TestGNESFlow(unittest.TestCase):
         self.dirname = os.path.dirname(__file__)
         self.test_file = os.path.join(self.dirname, 'sonnets_small.txt')
         self.yamldir = os.path.join(self.dirname, 'yaml')
+        self.dump_flow_path = os.path.join(self.dirname, 'test-flow.bin')
         self.index_args = set_client_cli_parser().parse_args([
             '--mode', 'index',
             '--txt_file', self.test_file,
@@ -29,7 +31,7 @@ class TestGNESFlow(unittest.TestCase):
         os.environ['TEST_WORKDIR'] = self.test_dir
 
     def tearDown(self):
-        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin, self.dump_flow_path]:
             if os.path.exists(k):
                 os.remove(k)
         os.rmdir(self.test_dir)
@@ -87,8 +89,8 @@ class TestGNESFlow(unittest.TestCase):
 
     def test_flow3(self):
         f = (Flow(check_version=False, route_table=True)
-             .add(gfs.Router, name='r0', service_out=gfs.Frontend, yaml_path='BaseRouter')
-             .add(gfs.Router, name='r1', service_in=gfs.Frontend, yaml_path='BaseRouter')
+             .add(gfs.Router, name='r0', send_to=gfs.Frontend, yaml_path='BaseRouter')
+             .add(gfs.Router, name='r1', recv_from=gfs.Frontend, yaml_path='BaseRouter')
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
@@ -96,8 +98,8 @@ class TestGNESFlow(unittest.TestCase):
     def test_flow4(self):
         f = (Flow(check_version=False, route_table=True)
              .add(gfs.Router, name='r0', yaml_path='BaseRouter')
-             .add(gfs.Router, name='r1', service_in=gfs.Frontend, yaml_path='BaseRouter')
-             .add(gfs.Router, name='reduce', service_in=['r0', 'r1'], yaml_path='BaseRouter')
+             .add(gfs.Router, name='r1', recv_from=gfs.Frontend, yaml_path='BaseRouter')
+             .add(gfs.Router, name='reduce', recv_from=['r0', 'r1'], yaml_path='BaseRouter')
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
@@ -107,22 +109,22 @@ class TestGNESFlow(unittest.TestCase):
              .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor')
              .add(gfs.Encoder, yaml_path='PyTorchTransformers')
              .add(gfs.Indexer, name='vec_idx', yaml_path='NumpyIndexer')
-             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', service_in='prep')
+             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', recv_from='prep')
              .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
-                  num_part=2, service_in=['vec_idx', 'doc_idx'])
+                  num_part=2, recv_from=['vec_idx', 'doc_idx'])
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
-        f.to_jpg()
+        # f.to_jpg()
 
     def test_flow_replica_pot(self):
         f = (Flow(check_version=False, route_table=True)
              .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor', replicas=4)
              .add(gfs.Encoder, yaml_path='PyTorchTransformers', replicas=3)
              .add(gfs.Indexer, name='vec_idx', yaml_path='NumpyIndexer', replicas=2)
-             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', service_in='prep', replicas=2)
+             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', recv_from='prep', replicas=2)
              .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
-                  num_part=2, service_in=['vec_idx', 'doc_idx'])
+                  num_part=2, recv_from=['vec_idx', 'doc_idx'])
              .build(backend=None))
         print(f.to_mermaid())
         print(f.to_url(left_right=False))
@@ -137,9 +139,9 @@ class TestGNESFlow(unittest.TestCase):
                 .add(gfs.Encoder, yaml_path=os.path.join(self.dirname, 'yaml/flow-transformer.yml'), replicas=3)
                 .add(gfs.Indexer, name='vec_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-vecindex.yml'))
                 .add(gfs.Indexer, name='doc_idx', yaml_path=os.path.join(self.dirname, 'yaml/flow-dictindex.yml'),
-                     service_in='prep')
+                     recv_from='prep')
                 .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
-                     num_part=2, service_in=['vec_idx', 'doc_idx']))
+                     num_part=2, recv_from=['vec_idx', 'doc_idx']))
 
         with flow.build(backend=backend) as f:
             f.index(txt_file=self.test_file, batch_size=20)
@@ -182,9 +184,9 @@ class TestGNESFlow(unittest.TestCase):
              .add(gfs.Preprocessor, name='prep', yaml_path='SentSplitPreprocessor', replicas=4)
              .add(gfs.Encoder, yaml_path='PyTorchTransformers', replicas=3)
              .add(gfs.Indexer, name='vec_idx', yaml_path='NumpyIndexer', replicas=2)
-             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', service_in='prep', replicas=2)
+             .add(gfs.Indexer, name='doc_idx', yaml_path='DictIndexer', recv_from='prep', replicas=2)
              .add(gfs.Router, name='sync_barrier', yaml_path='BaseReduceRouter',
-                  num_part=2, service_in=['vec_idx', 'doc_idx'])
+                  num_part=2, recv_from=['vec_idx', 'doc_idx'])
              .build(backend=None))
 
         print(f.to_url())
@@ -206,7 +208,7 @@ class TestGNESFlow(unittest.TestCase):
         f2 = (f
               .set_last_service('vec_idx')
               .add_router('scorer', yaml_path=os.path.join(self.dirname, 'yaml/flow-score.yml'))
-              .set('doc_idx', service_in='scorer', yaml_path='DictIndexer', replicas=2, clear_old_attr=True)
+              .set('doc_idx', recv_from='scorer', yaml_path='DictIndexer', replicas=2, clear_old_attr=True)
               .remove('sync_barrier')
               .set_last_service('doc_idx')
               .build(backend=None))
@@ -219,3 +221,13 @@ class TestGNESFlow(unittest.TestCase):
 
         print(f1.to_python_code())
         print(f.to_python_code())
+
+        f1.dump(self.dump_flow_path)
+        f3 = Flow.load(self.dump_flow_path)
+        self.assertEqual(f1, f3)
+
+        print(f1.to_swarm_yaml())
+
+    def test_common_flow(self):
+        print(BaseIndexFlow.build(backend=None).to_url())
+        print(BaseQueryFlow.build(backend=None).to_url())
