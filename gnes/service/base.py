@@ -541,10 +541,10 @@ def send_ctrl_message(address: str, msg: 'gnes_pb2.Message', timeout: int):
     with zmq.Context() as ctx:
         ctx.setsockopt(zmq.LINGER, 0)
         sock, _ = build_socket(ctx, address, None, SocketType.PAIR_CONNECT)
-        send_message(sock, msg, timeout)
+        send_message(sock, msg, timeout=timeout)
         r = None
         try:
-            r = recv_message(sock, timeout)
+            r = recv_message(sock, timeout=timeout)
         except TimeoutError:
             pass
         finally:

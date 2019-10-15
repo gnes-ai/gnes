@@ -273,8 +273,9 @@ def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
                 c_idx += 1
 
 
-def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries=1, timeout: int = -1,
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, timeout: int = -1,
                  squeeze_pb: bool = False, **kwargs) -> None:
+    assert retries > 0
     if timeout > 0:
         sock.setsockopt(zmq.SNDTIMEO, timeout)
     else:
@@ -286,6 +287,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries=1, timeout
     msg_part_data = msg.SerializeToString()
 
     for t in range(1, retries + 1):
+        # default_logger.warning("the %d-th retry to send message" % t)
         try:
             if not squeeze_pb:
                 sock.send_multipart([client_ident, msg_part_data])
