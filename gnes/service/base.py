@@ -413,11 +413,11 @@ class BaseService(metaclass=ConcurrentService):
         self.logger.info('output %s:%s' % (self.args.host_out, colored(self.args.port_out, 'yellow')))
 
 
-        # self.logger.info(
-        #     'input %s:%s\t output %s:%s\t control over %s' % (
-        #         self.args.host_in, colored(self.args.port_in, 'yellow'),
-        #         self.args.host_out, colored(self.args.port_out, 'yellow'),
-        #         colored(ctrl_addr, 'yellow')))
+        self.logger.info(
+            'input %s:%s\t output %s:%s\t control over %s' % (
+                self.args.host_in, colored(self.args.port_in, 'yellow'),
+                self.args.host_out, colored(self.args.port_out, 'yellow'),
+                colored(ctrl_addr, 'yellow')))
 
         poller = zmq.Poller()
         poller.register(in_sock, zmq.POLLIN)
