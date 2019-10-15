@@ -20,6 +20,7 @@ RUN apk add --no-cache \
             musl-dev python3-dev py-pgen cython openblas-dev && \
     apk add --no-cache libstdc++ openblas libzmq && \
     ln -s locale.h /usr/include/xlocale.h && \
+    pip install cffi==1.12.3  --no-cache-dir --compile && \
     pip install . --no-cache-dir --compile && \
     find /usr/lib/python3.7/ -name 'tests' -exec rm -r '{}' + && \
     find /usr/lib/python3.7/site-packages/ -name '*.so' -print -exec sh -c 'file "{}" | grep -q "not stripped" && strip -s "{}"' \; && \

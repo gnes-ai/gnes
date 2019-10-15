@@ -119,6 +119,7 @@ steps:
     CODECOV_TOKEN:
       from_secret: CODECOV_TOKEN
   commands:
+  - pip install cffi==1.12.3
   - pip install -e .[all]
   - pip install coverage codecov
   - coverage run -m unittest discover -s tests/
