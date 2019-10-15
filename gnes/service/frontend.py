@@ -128,7 +128,7 @@ class FrontendService:
                         self.pending_request -= 1
                         yield self.remove_envelope(msg)
 
-                while zmq_client.receiver.poll(5):
+                while zmq_client.receiver.poll(1):
                     msg = zmq_client.recv_message(**self.send_recv_kwargs)
                     self.pending_request -= 1
                     yield self.remove_envelope(msg)
