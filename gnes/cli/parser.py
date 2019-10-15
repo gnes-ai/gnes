@@ -177,6 +177,8 @@ def set_service_parser(parser=None):
                         help='port for controlling the service, default a random port between [49152, 65536]')
     parser.add_argument('--timeout', type=int, default=-1,
                         help='timeout (ms) of all communication, -1 for waiting forever')
+    parser.add_argument('--retries', type=int, default=1,
+                        help='max number of tried sending message for timeout exception')
     parser.add_argument('--dump_interval', type=int, default=5,
                         help='serialize the model in the service every n seconds if model changes. '
                              '-1 means --read_only. ')
@@ -281,6 +283,8 @@ def set_router_parser(parser=None):
     parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
+    parser.set_defaults(timeout=500)
+    parser.set_defaults(retries=5)
     return parser
 
 

@@ -273,43 +273,54 @@ def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
                 c_idx += 1
 
 
-def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries=1, timeout: int = -1,
                  squeeze_pb: bool = False, **kwargs) -> None:
-    try:
-        if timeout > 0:
-            sock.setsockopt(zmq.SNDTIMEO, timeout)
-        else:
-            sock.setsockopt(zmq.SNDTIMEO, -1)
-
-        if not squeeze_pb:
-            sock.send_multipart([msg.envelope.client_id.encode(), msg.SerializeToString()])
-        else:
-            doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type = extract_bytes_from_msg(msg)
-            # now raw_bytes are removed from message, hoping for faster de/serialization
-            sock.send_multipart(
-                [msg.envelope.client_id.encode(),  # 0
-                 msg.SerializeToString(),  # 1
-                 doc_byte_type, chunk_byte_type,  # 2, 3
-                 b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 4, 5
-                 *doc_bytes, *chunk_bytes])  # 6, 7
-    except zmq.error.Again:
-        raise TimeoutError(
-            'cannot send message to sock %s after timeout=%dms, please check the following:'
-            'is the server still online? is the network broken? are "port" correct? ' % (
-                sock, timeout))
-    except Exception as ex:
-        raise ex
-    finally:
+    if timeout > 0:
+        sock.setsockopt(zmq.SNDTIMEO, timeout)
+    else:
         sock.setsockopt(zmq.SNDTIMEO, -1)
+
+    client_ident = msg.envelope.client_id.encode()
+    if squeeze_pb:
+        doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type = extract_bytes_from_msg(msg)
+    msg_part_data = msg.SerializeToString()
+
+    for t in range(1, retries + 1):
+        try:
+            if not squeeze_pb:
+                sock.send_multipart([client_ident, msg_part_data])
+            else:
+                sock.send_multipart(
+                    [client_ident,  # 0
+                     msg_part_data,  # 1
+                     doc_byte_type, chunk_byte_type,  # 2, 3
+                     b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 4, 5
+                     *doc_bytes, *chunk_bytes])
+            break
+        except zmq.error.Again:
+            if t < retries:
+                default_logger.warning("%d-th retry to send message to sock %s failed" % (t, sock))
+                continue
+            else:
+                sock.setsockopt(zmq.SNDTIMEO, -1)
+                raise TimeoutError(
+                    'cannot send message to sock %s after timeout=%dms with %d retries, please check the following:'
+                    'is the server still online? is the network broken? are "port" correct? ' % (
+                        sock, timeout, retries))
+        except Exception as ex:
+            sock.setsockopt(zmq.SNDTIMEO, -1)
+            raise ex
+        # finally:
+    sock.setsockopt(zmq.SNDTIMEO, -1)
 
 
 def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False, **kwargs) -> Optional[
     'gnes_pb2.Message']:
     try:
-        if timeout > 0:
-            sock.setsockopt(zmq.RCVTIMEO, timeout)
-        else:
-            sock.setsockopt(zmq.RCVTIMEO, -1)
+        # if timeout > 0:
+        #     sock.setsockopt(zmq.RCVTIMEO, timeout)
+        # else:
+        sock.setsockopt(zmq.RCVTIMEO, -1)
 
         msg = gnes_pb2.Message()
         msg_data = sock.recv_multipart()
