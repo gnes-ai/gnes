@@ -17,12 +17,12 @@
 import sys
 import time
 import zipfile
-from typing import Iterator
+from typing import Iterator, Tuple
 
 from termcolor import colored
 
 from .base import GrpcClient
-from ..proto import RequestGenerator, gnes_pb2
+from ..proto import RequestGenerator
 
 
 class CLIClient(GrpcClient):
@@ -54,37 +54,25 @@ class CLIClient(GrpcClient):
         finally:
             self.close()
 
-    def train(self):
+    def train(self) -> None:
         with ProgressBar(task_name=self.args.mode) as p_bar:
             for _ in self._stub.StreamCall(RequestGenerator.train(self.bytes_generator,
                                                                   doc_id_start=self.args.start_doc_id,
                                                                   batch_size=self.args.batch_size)):
                 p_bar.update()
 
-    def index(self):
+    def index(self) -> None:
         with ProgressBar(task_name=self.args.mode) as p_bar:
             for _ in self._stub.StreamCall(RequestGenerator.index(self.bytes_generator,
                                                                   doc_id_start=self.args.start_doc_id,
                                                                   batch_size=self.args.batch_size)):
                 p_bar.update()
 
-    def query(self):
+    def query(self) -> Iterator[Tuple]:
         for idx, q in enumerate(self.bytes_generator):
             for req in RequestGenerator.query(q, request_id_start=idx, top_k=self.args.top_k):
                 resp = self._stub.Call(req)
-                self.query_callback(req, resp)
-
-    def query_callback(self, req: 'gnes_pb2.Request', resp: 'gnes_pb2.Response'):
-        """
-        callback after get the query result
-        override this method to customize query behavior
-
-        :param resp: response
-        :param req: query
-        :return:
-        """
-        print(req)
-        print(resp)
+                yield (req, resp)
 
     @property
     def bytes_generator(self) -> Iterator[bytes]:
