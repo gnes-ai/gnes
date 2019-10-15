@@ -74,7 +74,7 @@ class RequestGenerator:
         request_id_start += 1
 
     @staticmethod
-    def query(query: bytes, top_k: int, request_id_start: int = 0, doc_type: int = gnes_pb2.Document.TEXT, *args,
+    def query(query: bytes, top_k: int, doc_type: int = gnes_pb2.Document.TEXT, request_id_start: int = 0, *args,
               **kwargs):
         if top_k <= 0:
             raise ValueError('"top_k: %d" is not a valid number' % top_k)

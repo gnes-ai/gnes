@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 ADD setup.py MANIFEST.in requirements.txt README.md ./
 ADD gnes ./gnes/
 
-RUN pip3 install . --no-cache-dir --compile && \
+RUN pip3 install cffi==1.12.3 --no-cache-dir --compile && pip3 install . --no-cache-dir --compile && \
     rm -rf /tmp/* && rm -rf /gnes
 
 WORKDIR /

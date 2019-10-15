@@ -299,7 +299,8 @@ class Flow(TrainableBase):
         :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
         :param kwargs: accepts all keyword arguments of `gnes client` CLI
         """
-        self._call_client(bytes_gen, mode='train', **kwargs)
+        self._get_client(bytes_gen, mode='train', **kwargs).start()
+
 
     def index(self, bytes_gen: Iterator[bytes] = None, **kwargs):
         """Do indexing on the current flow
@@ -309,7 +310,7 @@ class Flow(TrainableBase):
         :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
         :param kwargs: accepts all keyword arguments of `gnes client` CLI
         """
-        self._call_client(bytes_gen, mode='index', **kwargs)
+        self._get_client(bytes_gen, mode='index', **kwargs).start()
 
     def query(self, bytes_gen: Iterator[bytes] = None, **kwargs):
         """Do indexing on the current flow
@@ -319,10 +320,10 @@ class Flow(TrainableBase):
         :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
         :param kwargs: accepts all keyword arguments of `gnes client` CLI
         """
-        self._call_client(bytes_gen, mode='query', **kwargs)
+        yield from self._get_client(bytes_gen, mode='query', **kwargs).query()
 
     @build_required(BuildLevel.RUNTIME)
-    def _call_client(self, bytes_gen: Iterator[bytes] = None, **kwargs):
+    def _get_client(self, bytes_gen: Iterator[bytes] = None, **kwargs):
         from ..cli.parser import set_client_cli_parser
         from ..client.cli import CLIClient
 
@@ -332,7 +333,7 @@ class Flow(TrainableBase):
         c = CLIClient(p_args, start_at_init=False)
         if bytes_gen:
             c.bytes_generator = bytes_gen
-        c.start()
+        return c
 
     def add_frontend(self, *args, **kwargs) -> 'Flow':
         """Add a frontend to the current flow, a shortcut of :py:meth:`add(Service.Frontend)`.

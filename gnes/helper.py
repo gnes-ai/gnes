@@ -18,8 +18,8 @@ import importlib.util
 import logging
 import os
 import sys
-import time
 import threading
+import time
 from copy import copy
 from functools import wraps
 from itertools import islice
@@ -104,9 +104,7 @@ def get_first_available_gpu():
         if r:
             return r[0]
         raise ValueError
-    except ImportError:
-        return -1
-    except ValueError:
+    except Exception:
         return -1
 
 
