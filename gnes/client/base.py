@@ -78,6 +78,8 @@ class ZmqClient:
         self.logger = set_logger(self.__class__.__name__, self.args.verbose)
         self.ctx = zmq.Context()
         self.ctx.setsockopt(zmq.LINGER, 0)
+        self.logger.info('current libzmq version is %s,  pyzmq version is %s' % (zmq.zmq_version(), zmq.__version__))
+
         self.receiver, recv_addr = build_socket(
             self.ctx, self.args.host_in, self.args.port_in,
             self.args.socket_in, self.args.identity)
