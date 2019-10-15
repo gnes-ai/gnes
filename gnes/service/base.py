@@ -346,7 +346,7 @@ class BaseService(metaclass=ConcurrentService):
         self.last_dump_time = time.perf_counter()
         self._model = None
         self.use_event_loop = True
-        self.ctrl_with_ipc = (os.name != 'nt')
+        self.ctrl_with_ipc = (os.name != 'nt') and self.args.ctrl_with_ipc
         if self.ctrl_with_ipc:
             self.ctrl_addr = get_random_ipc()
         else:
