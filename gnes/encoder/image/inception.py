@@ -35,11 +35,12 @@ class TFInceptionEncoder(BaseImageEncoder):
         self.inception_size_y = 299
 
     def post_init(self):
+        import os
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
+
         import tensorflow as tf
         from .inception_cores.inception_v4 import inception_v4
         from .inception_cores.inception_utils import inception_arg_scope
-        import os
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(get_first_available_gpu())
         g = tf.Graph()
         with g.as_default():
             arg_scope = inception_arg_scope()
