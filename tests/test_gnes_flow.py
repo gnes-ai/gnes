@@ -224,3 +224,5 @@ class TestGNESFlow(unittest.TestCase):
         f1.dump(self.dump_flow_path)
         f3 = Flow.load(self.dump_flow_path)
         self.assertEqual(f1, f3)
+
+        print(f1.to_swarm_yaml())
