@@ -150,6 +150,7 @@ class Flow(TrainableBase):
         """
         Generate the python code of this flow
 
+        :param indent: the number of whitespaces of indent
         :return: the generated python code
         """
         py_code = ['from gnes.flow import Flow', '']
