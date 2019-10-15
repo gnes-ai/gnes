@@ -167,11 +167,11 @@ class Flow(TrainableBase):
             kwargs = OrderedDict()
             kwargs['service'] = str(v['service'])
             kwargs['name'] = k
-            kwargs['service_in'] = '[%s]' % (
+            kwargs['recv_from'] = '[%s]' % (
                 ','.join({'\'%s\'' % k for k in v['incomes'] if k in known_service}))
-            if kwargs['service_in'] == '[\'%s\']' % last_add_name:
-                kwargs.pop('service_in')
-            kwargs['service_out'] = '[%s]' % (','.join({'\'%s\'' % k for k in v['outgoings'] if k in known_service}))
+            if kwargs['recv_from'] == '[\'%s\']' % last_add_name:
+                kwargs.pop('recv_from')
+            kwargs['send_to'] = '[%s]' % (','.join({'\'%s\'' % k for k in v['outgoings'] if k in known_service}))
 
             known_service.add(k)
             last_add_name = k
@@ -396,7 +396,7 @@ class Flow(TrainableBase):
         op_flow = copy.deepcopy(self) if copy_flow else self
 
         if name not in op_flow._service_nodes:
-            raise FlowMissingNode('service_in: %s can not be found in this Flow' % name)
+            raise FlowMissingNode('recv_from: %s can not be found in this Flow' % name)
 
         if op_flow._last_changed_service and name == op_flow._last_changed_service[-1]:
             pass
@@ -409,8 +409,8 @@ class Flow(TrainableBase):
 
         return op_flow
 
-    def set(self, name: str, service_in: Union[str, Tuple[str], List[str], 'Service'] = None,
-            service_out: Union[str, Tuple[str], List[str], 'Service'] = None,
+    def set(self, name: str, recv_from: Union[str, Tuple[str], List[str], 'Service'] = None,
+            send_to: Union[str, Tuple[str], List[str], 'Service'] = None,
             copy_flow: bool = True,
             clear_old_attr: bool = False,
             as_last_service: bool = False,
@@ -420,9 +420,9 @@ class Flow(TrainableBase):
         For the attributes or kwargs that aren't given, they will remain unchanged as before.
 
         :param name: the name of the existing service
-        :param service_in: the name of the service(s) that this service receives data from.
+        :param recv_from: the name of the service(s) that this service receives data from.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
-        :param service_out:  the name of the service(s) that this service sends data to.
+        :param send_to:  the name of the service(s) that this service sends data to.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
         :param copy_flow: when set to true, then always copy the current flow and do the modification on top of it then return, otherwise, do in-line modification
         :param clear_old_attr: remove old attribute value before setting the new one
@@ -433,39 +433,39 @@ class Flow(TrainableBase):
         op_flow = copy.deepcopy(self) if copy_flow else self
 
         if name not in op_flow._service_nodes:
-            raise FlowMissingNode('service_in: %s can not be found in this Flow' % name)
+            raise FlowMissingNode('recv_from: %s can not be found in this Flow' % name)
 
         node = op_flow._service_nodes[name]
         service = node['service']
 
-        if service_in:
-            service_in = op_flow._parse_service_endpoints(op_flow, name, service_in, connect_to_last_service=True)
+        if recv_from:
+            recv_from = op_flow._parse_service_endpoints(op_flow, name, recv_from, connect_to_last_service=True)
 
             if clear_old_attr:
-                node['incomes'] = service_in
+                node['incomes'] = recv_from
                 # remove all edges point to this service
                 for n in op_flow._service_nodes.values():
                     if name in n['outgoings']:
                         n['outgoings'].remove(name)
             else:
-                node['incomes'] = node['incomes'].union(service_in)
+                node['incomes'] = node['incomes'].union(recv_from)
 
             # add it the new edge back
-            for s in service_in:
+            for s in recv_from:
                 op_flow._service_nodes[s]['outgoings'].add(name)
 
-        if service_out:
-            service_out = op_flow._parse_service_endpoints(op_flow, name, service_out, connect_to_last_service=False)
-            node['outgoings'] = service_out
+        if send_to:
+            send_to = op_flow._parse_service_endpoints(op_flow, name, send_to, connect_to_last_service=False)
+            node['outgoings'] = send_to
             if clear_old_attr:
                 # remove all edges this service point to
                 for n in op_flow._service_nodes.values():
                     if name in n['incomes']:
                         n['incomes'].remove(name)
             else:
-                node['outgoings'] = node['outgoings'].union(service_out)
+                node['outgoings'] = node['outgoings'].union(send_to)
 
-            for s in service_out:
+            for s in send_to:
                 op_flow._service_nodes[s]['incomes'].add(name)
 
         if kwargs:
@@ -498,7 +498,7 @@ class Flow(TrainableBase):
         op_flow = copy.deepcopy(self) if copy_flow else self
 
         if name not in op_flow._service_nodes:
-            raise FlowMissingNode('service_in: %s can not be found in this Flow' % name)
+            raise FlowMissingNode('recv_from: %s can not be found in this Flow' % name)
 
         op_flow._service_nodes.pop(name)
 
@@ -522,8 +522,8 @@ class Flow(TrainableBase):
 
     def add(self, service: Union['Service', str],
             name: str = None,
-            service_in: Union[str, Tuple[str], List[str], 'Service'] = None,
-            service_out: Union[str, Tuple[str], List[str], 'Service'] = None,
+            recv_from: Union[str, Tuple[str], List[str], 'Service'] = None,
+            send_to: Union[str, Tuple[str], List[str], 'Service'] = None,
             copy_flow: bool = True,
             **kwargs) -> 'Flow':
         """
@@ -531,11 +531,11 @@ class Flow(TrainableBase):
         The attribute of the service can be later changed with :py:meth:`set` or deleted with :py:meth:`remove`
 
         :param service: a 'Service' enum or string, possible choices: Encoder, Router, Preprocessor, Indexer, Frontend
-        :param name: the name identifier of the service, can be used in 'service_in',
-                    'service_out', :py:meth:`set` and :py:meth:`remove`.
-        :param service_in: the name of the service(s) that this service receives data from.
+        :param name: the name identifier of the service, can be used in 'recv_from',
+                    'send_to', :py:meth:`set` and :py:meth:`remove`.
+        :param recv_from: the name of the service(s) that this service receives data from.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
-        :param service_out:  the name of the service(s) that this service sends data to.
+        :param send_to:  the name of the service(s) that this service sends data to.
                            One can also use 'Service.Frontend' to indicate the connection with the frontend.
         :param copy_flow: when set to true, then always copy the current flow and do the modification on top of it then return, otherwise, do in-line modification
         :param kwargs: other keyword-value arguments that the service CLI supports
@@ -563,8 +563,8 @@ class Flow(TrainableBase):
                 raise FlowTopologyError('frontend is already in this Flow')
             op_flow._frontend = name
 
-        service_in = op_flow._parse_service_endpoints(op_flow, name, service_in, connect_to_last_service=True)
-        service_out = op_flow._parse_service_endpoints(op_flow, name, service_out, connect_to_last_service=False)
+        recv_from = op_flow._parse_service_endpoints(op_flow, name, recv_from, connect_to_last_service=True)
+        send_to = op_flow._parse_service_endpoints(op_flow, name, send_to, connect_to_last_service=False)
 
         args, p_args = op_flow._get_parsed_args(op_flow, Flow._service2parser[service], kwargs)
 
@@ -572,14 +572,14 @@ class Flow(TrainableBase):
             'service': service,
             'parsed_args': p_args,
             'args': args,
-            'incomes': service_in,
-            'outgoings': service_out,
+            'incomes': recv_from,
+            'outgoings': send_to,
             'kwargs': kwargs}
 
         # direct all income services' output to the current service
-        for s in service_in:
+        for s in recv_from:
             op_flow._service_nodes[s]['outgoings'].add(name)
-        for s in service_out:
+        for s in send_to:
             op_flow._service_nodes[s]['incomes'].add(name)
 
         op_flow.set_last_service(name, False)
@@ -592,7 +592,7 @@ class Flow(TrainableBase):
 
     @staticmethod
     def _parse_service_endpoints(op_flow, cur_service_name, service_endpoint, connect_to_last_service=False):
-        # parsing service_in
+        # parsing recv_from
         if isinstance(service_endpoint, str):
             service_endpoint = [service_endpoint]
         elif service_endpoint == Service.Frontend:
@@ -607,9 +607,9 @@ class Flow(TrainableBase):
                 if s == cur_service_name:
                     raise FlowTopologyError('the income of a service can not be itself')
                 if s not in op_flow._service_nodes:
-                    raise FlowMissingNode('service_in: %s can not be found in this Flow' % s)
+                    raise FlowMissingNode('recv_from: %s can not be found in this Flow' % s)
         else:
-            raise ValueError('service_in=%s is not parsable' % service_endpoint)
+            raise ValueError('recv_from=%s is not parsable' % service_endpoint)
         return set(service_endpoint)
 
     @staticmethod
