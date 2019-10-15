@@ -15,10 +15,13 @@
 
 import copy
 import multiprocessing
+import os
 import random
+import tempfile
 import threading
 import time
 import types
+import uuid
 from contextlib import ExitStack
 from enum import Enum
 from typing import Tuple, List, Union, Type
@@ -113,8 +116,19 @@ class EventLoopEnd(Exception):
     pass
 
 
-def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketType', identity: 'str' = None) -> Tuple[
-    'zmq.Socket', str]:
+def get_random_ipc() -> str:
+    try:
+        tmp = os.environ['GNES_IPC_SOCK_TMP']
+        if not os.path.exists(tmp):
+            raise ValueError('This directory for sockets ({}) does not seems to exist.'.format(tmp))
+        tmp = os.path.join(tmp, str(uuid.uuid1())[:8])
+    except KeyError:
+        tmp = tempfile.NamedTemporaryFile().name
+    return 'ipc://%s' % tmp
+
+
+def build_socket(ctx: 'zmq.Context', host: str, port: int,
+                 socket_type: 'SocketType', identity: 'str' = None, use_ipc: bool = False) -> Tuple['zmq.Socket', str]:
     sock = {
         SocketType.PULL_BIND: lambda: ctx.socket(zmq.PULL),
         SocketType.PULL_CONNECT: lambda: ctx.socket(zmq.PULL),
@@ -129,11 +143,14 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
     }[socket_type]()
 
     if socket_type.is_bind:
-        host = BaseService.default_host
-        if port is None:
-            sock.bind_to_random_port('tcp://%s' % host)
+        if use_ipc:
+            sock.bind(host)
         else:
-            sock.bind('tcp://%s:%d' % (host, port))
+            host = BaseService.default_host
+            if port is None:
+                sock.bind_to_random_port('tcp://%s' % host)
+            else:
+                sock.bind('tcp://%s:%d' % (host, port))
     else:
         if port is None:
             sock.connect(host)
@@ -329,8 +346,12 @@ class BaseService(metaclass=ConcurrentService):
         self.last_dump_time = time.perf_counter()
         self._model = None
         self.use_event_loop = True
-        self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
-        self.logger.info('control address: %s' % self.ctrl_addr)
+        self.ctrl_with_ipc = (os.name != 'nt')
+        if self.ctrl_with_ipc:
+            self.ctrl_addr = get_random_ipc()
+        else:
+            self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
+
         self.send_recv_kwargs = dict(
             check_version=self.args.check_version,
             timeout=self.args.timeout,
@@ -401,7 +422,12 @@ class BaseService(metaclass=ConcurrentService):
         self.handler.service_context = self
         # print('!!!! t_id: %d service_context: %r' % (threading.get_ident(), self.handler.service_context))
         self.logger.info('bind sockets...')
-        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
+        if self.ctrl_with_ipc:
+            ctrl_sock, ctrl_addr = build_socket(ctx, self.ctrl_addr, None, SocketType.PAIR_BIND,
+                                                use_ipc=self.ctrl_with_ipc)
+        else:
+            ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
+
         self.logger.info('control over %s' % (colored(ctrl_addr, 'yellow')))
 
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
@@ -411,7 +437,6 @@ class BaseService(metaclass=ConcurrentService):
         out_sock, _ = build_socket(ctx, self.args.host_out, self.args.port_out, self.args.socket_out,
                                    self.args.identity)
         self.logger.info('output %s:%s' % (self.args.host_out, colored(self.args.port_out, 'yellow')))
-
 
         self.logger.info(
             'input %s:%s\t output %s:%s\t control over %s' % (

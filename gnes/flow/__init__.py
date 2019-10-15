@@ -703,7 +703,7 @@ class Flow(TrainableBase):
         op_flow._build_level = BuildLevel.GRAPH
         return op_flow
 
-    def build(self, backend: Optional[str] = 'thread', copy_flow: bool = False, *args, **kwargs) -> 'Flow':
+    def build(self, backend: Optional[str] = 'process', copy_flow: bool = False, *args, **kwargs) -> 'Flow':
         """
         Build the current flow and make it ready to use
 
