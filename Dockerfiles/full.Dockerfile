@@ -22,7 +22,7 @@ FROM dependency as base
 ADD setup.py MANIFEST.in requirements.txt README.md ./
 ADD gnes ./gnes/
 
-RUN pip --no-cache-dir install .[all] \
+RUN pip install cffi==1.12.3 && pip --no-cache-dir install .[all] \
     && rm -rf /tmp/* && rm -rf /gnes
 
 WORKDIR /
