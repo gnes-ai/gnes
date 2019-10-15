@@ -129,11 +129,14 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int, socket_type: 'SocketT
     }[socket_type]()
 
     if socket_type.is_bind:
-        host = BaseService.default_host
-        if port is None:
-            sock.bind_to_random_port('tcp://%s' % host)
+        if host.startswith('ipc'):
+            sock.bind(host)
         else:
-            sock.bind('tcp://%s:%d' % (host, port))
+            host = BaseService.default_host
+            if port is None:
+                sock.bind_to_random_port('tcp://%s' % host)
+            else:
+                sock.bind('tcp://%s:%d' % (host, port))
     else:
         if port is None:
             sock.connect(host)
@@ -329,7 +332,8 @@ class BaseService(metaclass=ConcurrentService):
         self.last_dump_time = time.perf_counter()
         self._model = None
         self.use_event_loop = True
-        self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
+        # self.ctrl_addr = 'tcp://%s:%d' % (self.default_host, self.args.port_ctrl)
+        self.ctrl_addr = 'ipc:///tmp/gnes-control'
         self.logger.info('control address: %s' % self.ctrl_addr)
         self.send_recv_kwargs = dict(
             check_version=self.args.check_version,
@@ -401,7 +405,7 @@ class BaseService(metaclass=ConcurrentService):
         self.handler.service_context = self
         # print('!!!! t_id: %d service_context: %r' % (threading.get_ident(), self.handler.service_context))
         self.logger.info('bind sockets...')
-        ctrl_sock, ctrl_addr = build_socket(ctx, self.default_host, self.args.port_ctrl, SocketType.PAIR_BIND)
+        ctrl_sock, ctrl_addr = build_socket(ctx, self.ctrl_addr, None, SocketType.PAIR_BIND)
         self.logger.info('control over %s' % (colored(ctrl_addr, 'yellow')))
 
         in_sock, _ = build_socket(ctx, self.args.host_in, self.args.port_in, self.args.socket_in,
