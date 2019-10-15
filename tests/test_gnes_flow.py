@@ -11,6 +11,7 @@ class TestGNESFlow(unittest.TestCase):
         self.dirname = os.path.dirname(__file__)
         self.test_file = os.path.join(self.dirname, 'sonnets_small.txt')
         self.yamldir = os.path.join(self.dirname, 'yaml')
+        self.dump_flow_path = os.path.join(self.dirname, 'test-flow.bin')
         self.index_args = set_client_cli_parser().parse_args([
             '--mode', 'index',
             '--txt_file', self.test_file,
@@ -29,7 +30,7 @@ class TestGNESFlow(unittest.TestCase):
         os.environ['TEST_WORKDIR'] = self.test_dir
 
     def tearDown(self):
-        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin]:
+        for k in [self.indexer1_bin, self.indexer2_bin, self.encoder_bin, self.dump_flow_path]:
             if os.path.exists(k):
                 os.remove(k)
         os.rmdir(self.test_dir)
@@ -113,7 +114,7 @@ class TestGNESFlow(unittest.TestCase):
              .build(backend=None))
         print(f._service_edges)
         print(f.to_mermaid())
-        f.to_jpg()
+        # f.to_jpg()
 
     def test_flow_replica_pot(self):
         f = (Flow(check_version=False, route_table=True)
@@ -219,3 +220,7 @@ class TestGNESFlow(unittest.TestCase):
 
         print(f1.to_python_code())
         print(f.to_python_code())
+
+        f1.dump(self.dump_flow_path)
+        f3 = Flow.load(self.dump_flow_path)
+        self.assertEqual(f1, f3)

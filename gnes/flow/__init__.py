@@ -4,6 +4,7 @@ from contextlib import ExitStack
 from functools import wraps
 from typing import Union, Tuple, List, Optional, Iterator
 
+from ..base import TrainableBase
 from ..cli.parser import set_router_parser, set_indexer_parser, \
     set_frontend_parser, set_preprocessor_parser, \
     set_encoder_parser, set_client_cli_parser
@@ -60,7 +61,7 @@ def _build_level(required_level: 'Flow.BuildLevel'):
     return __build_level
 
 
-class Flow:
+class Flow(TrainableBase):
     """
     GNES Flow: an intuitive way to build workflow for GNES.
 
@@ -111,13 +112,16 @@ class Flow:
         GRAPH = 1
         RUNTIME = 2
 
-    def __init__(self, with_frontend: bool = True, **kwargs):
+    def __init__(self, with_frontend: bool = True, is_trained: bool = True, *args, **kwargs):
         """
         Create a new Flow object.
 
         :param with_frontend: adding frontend service to the flow
+        :param is_trained: indicating whether this flow is trained or not. if set to False then :py:meth:`index`
+                            and :py:meth:`query` can not be called before :py:meth:`train`
         :param kwargs: keyword-value arguments that will be shared by all services
         """
+        super().__init__(*args, **kwargs)
         self.logger = set_logger(self.__class__.__name__)
         self._service_nodes = OrderedDict()
         self._service_edges = {}
@@ -130,6 +134,7 @@ class Flow:
         self._build_level = Flow.BuildLevel.EMPTY
         self._backend = None
         self._init_with_frontend = False
+        self.is_trained = is_trained
         if with_frontend:
             self.add_frontend(copy_flow=False)
             self._init_with_frontend = True
@@ -765,24 +770,12 @@ class Flow:
         self.logger.critical('flow is built and ready, current build level is %s' % self._build_level)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
     def close(self):
         if hasattr(self, '_service_stack'):
             self._service_stack.close()
         self._build_level = Flow.BuildLevel.EMPTY
         self.logger.critical(
             'flow is closed and all resources should be released already, current build level is %s' % self._build_level)
-
-    def __getstate__(self):
-        d = dict(self.__dict__)
-        del d['logger']
-        return d
-
-    def __setstate__(self, d):
-        self.__dict__.update(d)
-        self.logger = set_logger(self.__class__.__name__)
 
     def __eq__(self, other):
         """

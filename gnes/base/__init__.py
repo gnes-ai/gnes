@@ -107,7 +107,7 @@ class TrainableType(type):
             # print('reg class: %s' % cls.__name__)
             cls.__init__ = TrainableType._store_init_kwargs(cls.__init__)
             if os.environ.get('GNES_PROFILING', False):
-                for f_name in ['train', 'encode', 'add', 'query']:
+                for f_name in ['train', 'encode', 'add', 'query', 'index']:
                     if getattr(cls, f_name, None):
                         setattr(cls, f_name, profiling(getattr(cls, f_name)))
 
