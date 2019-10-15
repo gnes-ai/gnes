@@ -38,3 +38,6 @@ Default is not set. A random port will be used.
 
 (*depreciated*) Paths of the third party components. See examples in GNES hub for latest usage.
 
+## `GNES_IPC_SOCK_TMP`
+
+Temp directory for ipc sockets, not used on Windows.
