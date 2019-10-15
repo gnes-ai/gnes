@@ -1,4 +1,43 @@
 
+# Release Note (`v0.0.45`)
+> Release time: 2019-10-15 14:01:07
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ hanhxiao,  felix,  Han Xiao,  🙇
+
+
+### 🆕 New Features
+
+ - [[```166698ce```](https://github.com/gnes-ai/gnes/commit/166698ce254bf0ad5f28612707def93428e7da83)] __-__ __flow__: add index and query flow as common flow (*hanhxiao*)
+ - [[```8a60c261```](https://github.com/gnes-ai/gnes/commit/8a60c261876b10d8e30c18cfe3baeaf5c83b0706)] __-__ __flow__: flow can not export docker swarm config (*hanhxiao*)
+ - [[```80cb530e```](https://github.com/gnes-ai/gnes/commit/80cb530e6527d70e2d175ce85138dc931c93e375)] __-__ __flow__: add flow to python generator (*hanhxiao*)
+ - [[```f6536c87```](https://github.com/gnes-ai/gnes/commit/f6536c87642430526686e1a0f7bf308997dac3a0)] __-__ __flow__: add eq operator to the flow to enable comparison (*hanhxiao*)
+ - [[```9ca757b4```](https://github.com/gnes-ai/gnes/commit/9ca757b406cd1ac0477b26e52168732baba46eb7)] __-__ __flow__: add set remove and set_last (*hanhxiao*)
+ - [[```3c3c54b5```](https://github.com/gnes-ai/gnes/commit/3c3c54b5eb57213c20b50c6679c74750dc5d2306)] __-__ __webp-encoder__: support webp encoder (*felix*)
+ - [[```b94490f1```](https://github.com/gnes-ai/gnes/commit/b94490f17baf78c871478b2f7f68bffc28bf9393)] __-__ __flow__: allow add service to be str (*hanhxiao*)
+ - [[```4055ad8e```](https://github.com/gnes-ai/gnes/commit/4055ad8eb30d5eb49a036d6e206868c746f9a8ea)] __-__ __flow__: add support to replicas plot (*hanhxiao*)
+ - [[```7265f76c```](https://github.com/gnes-ai/gnes/commit/7265f76c084b0f599b5522be9e9da6684fe3c03a)] __-__ __grpc__: add proxy argument to cli (*hanhxiao*)
+ - [[```3901078c```](https://github.com/gnes-ai/gnes/commit/3901078ced9c0fcf451111e9376bd3dca50cb6d5)] __-__ __incep_v4_encoder__: add inception v4 encoder for video (*felix*)
+
+### 🐞 Bug fixes
+
+ - [[```8911314b```](https://github.com/gnes-ai/gnes/commit/8911314b6ac90dba88ec9efe805182fb575e1e03)] __-__ __style__: double quote to single quote (*Han Xiao*)
+ - [[```228a2b19```](https://github.com/gnes-ai/gnes/commit/228a2b196e82bb270e659b869a37210c14c09358)] __-__ __flow__: fix unit test assert in flow (*hanhxiao*)
+ - [[```7d2c681e```](https://github.com/gnes-ai/gnes/commit/7d2c681ec42d1026b8a37c0a26e744e5ae8a7863)] __-__ __flow__: add warning to jpg downloader (*hanhxiao*)
+ - [[```fce94d94```](https://github.com/gnes-ai/gnes/commit/fce94d94e0ab237e556696944f124a275f0330fc)] __-__ __service__: fix ServiceManager replicas router (*hanhxiao*)
+ - [[```2705c287```](https://github.com/gnes-ai/gnes/commit/2705c287ec0bab49c8da06732851d22fcb21bac9)] __-__ __video-decoder__: none chunk spliter (*felix*)
+
+### 🚧 Code Refactoring
+
+ - [[```48d1828c```](https://github.com/gnes-ai/gnes/commit/48d1828c9f79b4c93639a33c093b13b965465c3c)] __-__ __flow__: reorganize file structure for flow (*hanhxiao*)
+ - [[```c8f1df5b```](https://github.com/gnes-ai/gnes/commit/c8f1df5b93f160bc38e96f8f72077a9752db7453)] __-__ __flow__: flow is now a trainable base (*hanhxiao*)
+
+### 🍹 Other Improvements
+
+ - [[```5121d65a```](https://github.com/gnes-ai/gnes/commit/5121d65a57dcc9a0c77b77716be8a262dbc31bd0)] __-__ revert unittest (*felix*)
+ - [[```8ada2538```](https://github.com/gnes-ai/gnes/commit/8ada2538712d402685e9a2af257f922102f8123c)] __-__ __changelog__: update change log to v0.0.44 (*hanhxiao*)
+
 # Release Note (`v0.0.44`)
 > Release time: 2019-10-11 15:27:37
 
