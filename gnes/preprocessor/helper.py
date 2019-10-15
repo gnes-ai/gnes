@@ -388,9 +388,12 @@ def detect_peak_boundary(distances: List[float],
 
 
 def torch_transform(img):
-    import torchvision.transforms as transforms
-    return transforms.Compose([transforms.ToTensor(),
-                               transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(img)
+    try:
+        import torchvision.transforms as transforms
+        return transforms.Compose([transforms.ToTensor(),
+                                   transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])(img)
+    except (ImportError, ModuleNotFoundError):
+        return np.asarray(img) * 2 / 255. - 1.
 
 
 def get_all_subarea(img):
