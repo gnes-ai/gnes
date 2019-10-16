@@ -351,13 +351,17 @@ def motion_algo(distances: List[float], **kwargs) -> List[int]:
     min_dist = kwargs.get('min_dist', 10)
     motion_step = kwargs.get('motion_step', 15)
     neigh_avg = kwargs.get('neigh_avg', 2)
+    max_shot_num = kwargs.get('max_shot_num', 30) - 1
 
     shots = []
     num_frames = len(distances) + 2 * neigh_avg + 1
     p = peakutils.indexes(np.array(distances).astype('float32'), thres=threshold, min_dist=min_dist) if len(distances) else []
     if len(p) == 0:
         return [0, num_frames]
-
+    if len(p) > max_shot_num:
+        max_distances = np.array(distances)[p]
+        top = np.argsort(-max_distances)[:max_shot_num]
+        p = p[np.sort(top)]
     shots.append(0)
     shots.append(p[0] + neigh_avg + 1)
     for i in range(1, len(p)):

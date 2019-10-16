@@ -25,6 +25,8 @@ ADD gnes ./gnes/
 RUN pip install cffi==1.12.3 && pip --no-cache-dir install .[all] \
     && rm -rf /tmp/* && rm -rf /gnes
 
+ADD tests ./tests/
+
 WORKDIR /
 
 ENV GNES_VCS_VERSION=$VCS_REF
