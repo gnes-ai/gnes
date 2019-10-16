@@ -295,24 +295,28 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
                 sock.send_multipart(
                     [client_ident,  # 0
                      msg_part_data,  # 1
-                     doc_byte_type, chunk_byte_type,  # 2, 3
-                     b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 4, 5
-                     *doc_bytes, *chunk_bytes])
+                     doc_byte_type,  # 2
+                     chunk_byte_type,  # 3
+                     b'%d' % len(doc_bytes),  # 4
+                     b'%d' % len(chunk_bytes),  # 5
+                     *doc_bytes,
+                     *chunk_bytes])
             sock.setsockopt(zmq.SNDTIMEO, -1)
             break
         except zmq.error.Again:
             if t < retries:
-                default_logger.warning("%d-th retry to send message to sock %s failed" % (t, sock))
+                default_logger.warning(
+                    "%d-th retry to send message to sock %s failed" % (t, sock))
                 continue
             else:
                 sock.setsockopt(zmq.SNDTIMEO, -1)
                 raise TimeoutError(
                     'cannot send message to sock %s after timeout=%dms with %d retries, please check the following:'
-                    'is the server still online? is the network broken? are "port" correct? ' % (
-                        sock, timeout, retries))
+                    'is the server still online? is the network broken? are "port" correct? '
+                    % (sock, timeout, retries))
         except Exception as ex:
             sock.setsockopt(zmq.SNDTIMEO, -1)
-            raise ex    
+            raise ex
 
 
 def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False, **kwargs) -> Optional[

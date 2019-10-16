@@ -185,7 +185,7 @@ def set_service_parser(parser=None):
     parser.add_argument('--read_only', action='store_true', default=False,
                         help='do not allow the service to modify the model, '
                              'dump_interval will be ignored')
-    parser.add_argument('--parallel_backend', type=str, choices=['thread', 'process'], default='thread',
+    parser.add_argument('--parallel_backend', type=str, choices=['thread', 'process'], default='process',
                         help='parallel backend of the service')
     parser.add_argument('--num_parallel', '--replicas', type=int, default=1,
                         help='number of parallel services running at the same time (i.e. replicas), '
@@ -285,8 +285,8 @@ def set_router_parser(parser=None):
     parser.add_argument('--num_part', type=int, default=None,
                         help='explicitly set the number of parts of message')
     parser.set_defaults(read_only=True)
-    parser.set_defaults(timeout=500)
-    parser.set_defaults(retries=5)
+    parser.set_defaults(timeout=300)
+    parser.set_defaults(retries=3)
     return parser
 
 
