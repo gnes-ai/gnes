@@ -287,7 +287,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
     msg_part_data = msg.SerializeToString()
 
     for t in range(1, retries + 1):
-        # default_logger.warning("the %d-th retry to send message" % t)
+        default_logger.warning("the %d-th retry to send message" % t)
         try:
             if not squeeze_pb:
                 sock.send_multipart([client_ident, msg_part_data])
@@ -298,6 +298,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
                      doc_byte_type, chunk_byte_type,  # 2, 3
                      b'%d' % len(doc_bytes), b'%d' % len(chunk_bytes),  # 4, 5
                      *doc_bytes, *chunk_bytes])
+            sock.setsockopt(zmq.SNDTIMEO, -1)
             break
         except zmq.error.Again:
             if t < retries:
@@ -311,9 +312,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
                         sock, timeout, retries))
         except Exception as ex:
             sock.setsockopt(zmq.SNDTIMEO, -1)
-            raise ex
-        # finally:
-    sock.setsockopt(zmq.SNDTIMEO, -1)
+            raise ex    
 
 
 def recv_message(sock: 'zmq.Socket', timeout: int = -1, check_version: bool = False, **kwargs) -> Optional[
