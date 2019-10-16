@@ -19,12 +19,12 @@ class Flow(TrainableBase):
     .. highlight:: python
     .. code-block:: python
 
-        from gnes.flow import Flow, Service as gfs
+        from gnes.flow import Flow
 
         f = (Flow(check_version=False, route_table=True)
-             .add(gfs.Preprocessor, yaml_path='BasePreprocessor')
-             .add(gfs.Encoder, yaml_path='BaseEncoder')
-             .add(gfs.Router, yaml_path='BaseRouter'))
+             .add_preprocessor(yaml_path='BasePreprocessor')
+             .add_encoder(yaml_path='BaseEncoder')
+             .add_router(yaml_path='BaseRouter'))
 
         with f.build(backend='thread') as flow:
             flow.index()
@@ -39,6 +39,9 @@ class Flow(TrainableBase):
     You can change this behavior by giving an argument `copy_flow=False`.
 
     """
+
+    # a shortcut to the service frontend, removing one extra import
+    Frontend = Service.Frontend
 
     def __init__(self, with_frontend: bool = True, is_trained: bool = True, *args, **kwargs):
         """
@@ -505,6 +508,10 @@ class Flow(TrainableBase):
         """
         Add a service to the current flow object and return the new modified flow object.
         The attribute of the service can be later changed with :py:meth:`set` or deleted with :py:meth:`remove`
+
+        Note there are shortcut versions of this method.
+        Recommend to use :py:meth:`add_encoder`, :py:meth:`add_preprocessor`,
+        :py:meth:`add_router`, :py:meth:`add_indexer` whenever possible.
 
         :param service: a 'Service' enum or string, possible choices: Encoder, Router, Preprocessor, Indexer, Frontend
         :param name: the name identifier of the service, can be used in 'recv_from',
