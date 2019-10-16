@@ -204,6 +204,8 @@ def set_service_parser(parser=None):
     parser.add_argument('--squeeze_pb', action=ActionNoYes, default=True,
                         help='sending bytes and ndarray separately apart from the protobuf message, '
                              'usually yields better network efficiency')
+    parser.add_argument('--ctrl_with_ipc', action='store_true', default=False,
+                        help='use ipc protocol for control socket')
     return parser
 
 
