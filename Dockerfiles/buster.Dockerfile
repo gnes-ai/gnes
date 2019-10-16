@@ -20,7 +20,6 @@ ADD setup.py MANIFEST.in requirements.txt README.md ./
 ADD gnes ./gnes/
 
 RUN ln -s locale.h /usr/include/xlocale.h && \
-    pip install cffi==1.12.3 --no-cache-dir --compile && \
     pip install . --no-cache-dir --compile && \
     rm -rf /tmp/* && rm -rf /gnes && \
     rm /usr/include/xlocale.h
