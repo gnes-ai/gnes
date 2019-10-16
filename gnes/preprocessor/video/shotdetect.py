@@ -101,12 +101,8 @@ class ShotDetectPreprocessor(BaseVideoPreprocessor):
                     shot_len = len(frames)
                     c.weight = shot_len / num_frames
                     if self.sframes > 0 and shot_len > self.sframes:
-                        if shot_len >= 2 * self.sframes:
-                            step = math.ceil(shot_len / self.sframes)
-                            frames = frames[::step]
-                        else:
-                            idx = np.sort(np.random.choice(shot_len, self.sframes, replace=False))
-                            frames = [frames[idx_] for idx_ in idx]
+                        idx = np.sort(np.random.choice(shot_len, self.sframes, replace=False))
+                        frames = [frames[idx_] for idx_ in idx]
 
                     chunk_data = np.array(frames)
                     c.blob.CopyFrom(array2blob(chunk_data))

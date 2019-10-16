@@ -40,12 +40,8 @@ class FrameSelectPreprocessor(BaseVideoPreprocessor):
                     idx = [int(len(images) / 2)]
                     chunk.blob.CopyFrom(array2blob(images[idx]))
                 elif self.sframes > 0 and len(images) > self.sframes:
-                    if len(images) >= 2 * self.sframes:
-                        step = math.ceil(len(images) / self.sframes)
-                        chunk.blob.CopyFrom(array2blob(images[::step]))
-                    else:
-                        idx = np.sort(np.random.choice(len(images), self.sframes, replace=False))
-                        chunk.blob.CopyFrom(array2blob(images[idx]))
+                    idx = np.sort(np.random.choice(len(images), self.sframes, replace=False))
+                    chunk.blob.CopyFrom(array2blob(images[idx]))
                 del images
         else:
             self.logger.error(
