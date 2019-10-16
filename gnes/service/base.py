@@ -355,7 +355,6 @@ class BaseService(metaclass=ConcurrentService):
         self.send_recv_kwargs = dict(
             check_version=self.args.check_version,
             timeout=self.args.timeout,
-            retries=self.args.retries,
             squeeze_pb=self.args.squeeze_pb)
         self._override_handler()
 

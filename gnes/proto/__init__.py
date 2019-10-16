@@ -273,9 +273,8 @@ def fill_raw_bytes_to_msg(msg: 'gnes_pb2.Message', msg_data: List[bytes]):
                 c_idx += 1
 
 
-def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, timeout: int = -1,
+def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
                  squeeze_pb: bool = False, **kwargs) -> None:
-    assert retries > 0
     if timeout > 0:
         sock.setsockopt(zmq.SNDTIMEO, timeout)
     else:
@@ -286,8 +285,10 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
         doc_bytes, doc_byte_type, chunk_bytes, chunk_byte_type = extract_bytes_from_msg(msg)
     msg_part_data = msg.SerializeToString()
 
-    for t in range(1, retries + 1):
-        default_logger.warning("the %d-th retry to send message" % t)
+    retry_step = 0
+    while True:
+        retry_step += 1
+        default_logger.warning("the %d-th retry to send message" % retry_step)
         try:
             if not squeeze_pb:
                 sock.send_multipart([client_ident, msg_part_data])
@@ -304,16 +305,22 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', retries: int = 1, 
             sock.setsockopt(zmq.SNDTIMEO, -1)
             break
         except zmq.error.Again:
-            if t < retries:
-                default_logger.warning(
-                    "%d-th retry to send message to sock %s failed" % (t, sock))
-                continue
-            else:
-                sock.setsockopt(zmq.SNDTIMEO, -1)
-                raise TimeoutError(
-                    'cannot send message to sock %s after timeout=%dms with %d retries, please check the following:'
-                    'is the server still online? is the network broken? are "port" correct? '
-                    % (sock, timeout, retries))
+            default_logger.warning(
+                'cannot send message to sock %s after timeout=%d ms with %d retries, please check the following:'
+                'is the server still online? is the network broken? are "port" correct? '
+                % (sock, timeout, retry_step))
+            continue
+            
+            # if t < retries:
+            #     default_logger.warning(
+            #         "%d-th retry to send message to sock %s failed" % (retry_step, sock))
+            #     continue
+            # else:
+            #     sock.setsockopt(zmq.SNDTIMEO, -1)
+            #     raise TimeoutError(
+            #         'cannot send message to sock %s after timeout=%dms with %d retries, please check the following:'
+            #         'is the server still online? is the network broken? are "port" correct? '
+            #         % (sock, timeout, retry_step))
         except Exception as ex:
             sock.setsockopt(zmq.SNDTIMEO, -1)
             raise ex
