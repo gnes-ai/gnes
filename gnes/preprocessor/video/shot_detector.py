@@ -23,7 +23,7 @@ from gnes.preprocessor.io_utils import video
 from gnes.preprocessor.helper import compute_descriptor, compare_descriptor, detect_peak_boundary, compare_ecr
 
 
-class ShotDetectPreprocessor(BaseVideoPreprocessor):
+class ShotDetectorPreprocessor(BaseVideoPreprocessor):
     store_args_kwargs = True
 
     def __init__(self,
