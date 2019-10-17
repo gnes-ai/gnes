@@ -260,7 +260,7 @@ These three tasks correspond to three different **workflows** in GNES.
 > 📣 Since `v0.0.46` [GNES Flow](http://doc.gnes.ai/en/latest/api/gnes.flow.html) has become the main interface of GNES. GNES Flow provides a **pythonic** and **intuitive** way to implement a **workflow**, enabling users to run or debug GNES on a local machine. By default, GNES Flow orchestrates all microservices using multi-thread or multi-process backend, it can be also exported to a Docker Swarm/Kubernetes YAML config, allowing one to deliver GNES to the cloud.
 
 
-The complete example and the corresponding Jupyter Notebook [can be found at here](https://github.com/gnes-ai/demo-gnes-flow).
+🔰 The complete example and the corresponding Jupyter Notebook [can be found at here](https://github.com/gnes-ai/demo-gnes-flow).
 
 
 In this example, we will use the new `gnes.flow` API (`gnes >= 0.0.46` is required) to build a toy image search system for indexing and retrieving [flowers](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/) based on their similarities.
@@ -410,9 +410,9 @@ docker stack deploy --compose-file my-gnes.yml gnes-531
 
 ### Building a semantic poem search engine in 3 minutes
 
-In this example, we will build a semantic poem search engine using GNES. Unlike our flower search example, here we run each service as an isolated Docker container and then orchestrate them via Docker Swarm. It represents a common scenario in the cloud settings.
+In this example, we will build a semantic poem search engine using GNES. Unlike the previous flower search example, here we run each service as an isolated Docker container and then orchestrate them via Docker Swarm. It represents a common scenario in the cloud settings. You will learn how to use powerful and customized GNES images from [GNES hub](https://github.com/gnes-ai/hub).
 
-Please checkout [this repository for details](https://github.com/gnes-ai/demo-poems-ir) and follow the instructions to reproduce.
+🔰 Please checkout [this repository for details](https://github.com/gnes-ai/demo-poems-ir) and follow the instructions to reproduce.
 
 <p align="center">
 <a href="https://github.com/gnes-ai/demo-poems-ir">
@@ -423,10 +423,11 @@ Please checkout [this repository for details](https://github.com/gnes-ai/demo-po
 
 ### Take-home messages
 
-Now that you know how to compose and run a GNES app, let's make a short recap of what we have learned. 
+Let's make a short recap of what we have learned. 
 
 - GNES is *all-in-microservice*, there are four fundamental components: preprocessor, encoder, indexer and router.
-- GNES has three runtimes: training, indexing, and querying. One can leverage [GNES Flow API](http://doc.gnes.ai/en/latest/api/gnes.flow.html) to clarify *which runtime requires what microservices (defined in the YAML config), and each microservice does what (defined in the component-wise YAML config)*. 
+- GNES has three typical workflows: train, index, and query.
+- One can leverage [GNES Flow API](http://doc.gnes.ai/en/latest/api/gnes.flow.html) to define, modify, export or even visualize a workflow.
 - GNES requires an orchestration engine to coordinate all microservices. It supports Kubernetes, Docker Swarm,  or built-in multi-process/thread solution. 
 
 
