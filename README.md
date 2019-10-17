@@ -145,16 +145,12 @@ Besides the `alpine` image optimized for the space, we also provide Buster (Debi
   </tr>
 </table>
 
-We also provide a public mirror hosted on Tencent Cloud, from which Chinese mainland users can pull the image faster.
+We also provide a public mirror hosted on Tencent Cloud and [Github packages](https://github.com/gnes-ai/gnes/packages/). Select the mirror that serves you well.
 
 ```bash
 docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest-alpine
-```
 
-🆕 Since 2019.9.24, you can also pull GNES from [Github packages](https://github.com/gnes-ai/gnes/packages/). Note, older versions/tags before 2019.9.24 are not uploaded.
-
-```bash
 docker login --username=xxx docker.pkg.github.com/gnes-ai/gnes  # login to github package so that we can pull from it
 docker run docker.pkg.github.com/gnes-ai/gnes/gnes:latest-alpine
 ```
