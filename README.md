@@ -236,7 +236,7 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
 
 ### 🐣 Preliminaries
 
-Before we start, let me first introduce two important concepts serving as the backbone of GNES: **microservice** and **runtime**. 
+Before we start, let me first introduce two important concepts serving as the backbone of GNES: **microservice** and **workflow**. 
 
 #### Microservice
 
@@ -249,13 +249,15 @@ For machine learning engineers and data scientists who are not familiar with the
 
 In GNES, we have implemented dozens of preprocessor, encoder, indexer to process different content forms, such as image, text, video. It is also super easy to plug in your own implementation, which we shall see an example in the sequel.
 
-#### Runtime
+#### Workflow
 
-Now that we have a bunch of apps, what are we expecting them to do? In a typical search system, there are two fundamental tasks: **indexing** and **querying**. Indexing is storing the documents, querying is searching the documents, pretty straightforward. In a neural search system, one may also face another task: **training**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. These three runtimes: indexing, querying and training correspond to three different workflows in GNES.
+Now that we have a bunch of apps, what are we expecting them to do? A typical search system has two fundamental tasks: **index** and **query**. Index is storing the documents, query is searching the documents. In a neural search system, one may face another task: **train**, where one fine-tunes an encoder/preprocessor according to the data distribution in order to achieve better search relevance. 
+
+These three tasks correspond to three different **workflows** in GNES.
 
 ### Building a flower search engine in 3 minutes
 
-> 📣 Since `v0.0.46` [GNES Flow](http://doc.gnes.ai/en/latest/api/gnes.flow.html) has become the main interface of GNES. GNES Flow provides a **pythonic** and **intuitive** way to implement a pipeline, enabling users to run or debug GNES on a local machine. By default, GNES Flow orchestrates all microservices using multi-thread or multi-process backend, it can be also exported to a Docker Swarm/Kubernetes YAML config, allowing one to deliver GNES to the cloud.
+> 📣 Since `v0.0.46` [GNES Flow](http://doc.gnes.ai/en/latest/api/gnes.flow.html) has become the main interface of GNES. GNES Flow provides a **pythonic** and **intuitive** way to implement a **workflow**, enabling users to run or debug GNES on a local machine. By default, GNES Flow orchestrates all microservices using multi-thread or multi-process backend, it can be also exported to a Docker Swarm/Kubernetes YAML config, allowing one to deliver GNES to the cloud.
 
 
 The complete example and the corresponding Jupyter Notebook [can be found at here](https://github.com/gnes-ai/demo-gnes-flow).
@@ -277,7 +279,7 @@ flow = (Flow(check_version=False)
         .add_router(name='sync', yaml_path='BaseReduceRouter', num_part=2, recv_from=['vec_idx', 'doc_idx']))
 ```
 
-Here, we use [the inceptionV4 pretrained model](https://github.com/tensorflow/models/tree/master/research/slim) as the encoder and built-in indexers for storing vectors and documents. The flow should be quite self-explanatory, if not, you can always convert it to a SVG image:
+Here, we use [the inceptionV4 pretrained model](https://github.com/tensorflow/models/tree/master/research/slim) as the encoder and the built-in indexers for storing vectors and documents. The flow should be quite self-explanatory, if not, you can always convert it to a SVG image and see its visualization:
 
 ```python
 flow.build(backend=None).to_url()
@@ -332,6 +334,8 @@ with flow.build(backend='process') as fl:
 ```
 
 Here is the result, where queries are on the first row.
+
+![](.github/0a3f26d8.png)
 
 ### Elastic made easy
 
