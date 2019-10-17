@@ -1,4 +1,47 @@
 
+# Release Note (`v0.0.46`)
+> Release time: 2019-10-17 18:14:45
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  felix,  raccoonliukai,  hanhxiao,  Jem,  🙇
+
+
+### 🆕 New Features
+
+ - [[```02941b6c```](https://github.com/gnes-ai/gnes/commit/02941b6c6e28ba3b5f392937cb6c03ac6f6774b7)] __-__ __parser__: add ctrl_with_ipc to cli (*hanhxiao*)
+
+### 🐞 Bug fixes
+
+ - [[```dbf1a5e7```](https://github.com/gnes-ai/gnes/commit/dbf1a5e7528ad227a2952e341726fe40f289160a)] __-__ __release__: add some hints to the release script (*Han Xiao*)
+ - [[```a641d5c7```](https://github.com/gnes-ai/gnes/commit/a641d5c7dcde55ab2113aaaf17c7aaaaf5ca37c0)] __-__ __shot-detector__: rename shot detector (*felix*)
+ - [[```d48eb53a```](https://github.com/gnes-ai/gnes/commit/d48eb53a70076799cba9dec62d450255ca3ef11c)] __-__ __preprocessor__: add max_shot_num for shotdetect (*raccoonliukai*)
+ - [[```9331ef58```](https://github.com/gnes-ai/gnes/commit/9331ef5837faf491bad3801084f50472eeeb1c98)] __-__ __flow__: use recommend flow api to reduce confusion (*hanhxiao*)
+ - [[```660f8f99```](https://github.com/gnes-ai/gnes/commit/660f8f99ad7f12add1d9a600298a024ae5887d6c)] __-__ __flow__: make base flow as class not object (*hanhxiao*)
+ - [[```3062c43c```](https://github.com/gnes-ai/gnes/commit/3062c43cbc3926c2b74fad053b68a6c89efe62a2)] __-__ __ci__: remove cffi from gnes docker image (*hanhxiao*)
+ - [[```38147fe8```](https://github.com/gnes-ai/gnes/commit/38147fe8dd8d163e5d0a444b4de0809c489d0f29)] __-__ __helper__: fix gpuutil exception (*hanhxiao*)
+ - [[```15d9b4fe```](https://github.com/gnes-ai/gnes/commit/15d9b4feb0caa46c0794bd8eb99cb5908d4bef4d)] __-__ __ci__: fix cffi version to 1.12.3 (*hanhxiao*)
+ - [[```cbac2de4```](https://github.com/gnes-ai/gnes/commit/cbac2de42d15e641ea3eeff23541d260fe74ad49)] __-__ __ci__: fix cffi to 1.12.3 (*hanhxiao*)
+ - [[```24e41bec```](https://github.com/gnes-ai/gnes/commit/24e41bec439b81a14bc602f548c385cbe9b508c9)] __-__ __preprocessor__: add numpy transform (*Jem*)
+ - [[```6008f7d1```](https://github.com/gnes-ai/gnes/commit/6008f7d15ae90644c9af228fdb6e2003c08e6e81)] __-__ __service__: revert socket log (*Han Xiao*)
+ - [[```474deddf```](https://github.com/gnes-ai/gnes/commit/474deddfc4358a82bd0e85ce10595dc1d3dbcee8)] __-__ __control-sock__: build control socket at the begining (*felix*)
+ - [[```707d9e96```](https://github.com/gnes-ai/gnes/commit/707d9e96fdc3ffdfdbaa920af1dd8e9d47be4b27)] __-__ __service-logging__: show socket creating (*felix*)
+ - [[```01531f74```](https://github.com/gnes-ai/gnes/commit/01531f74ed5e7fcbd2c5d4302ff27c8627af9284)] __-__ __stream-call__: hungry mode to receive responses (*felix*)
+
+### 🚧 Code Refactoring
+
+ - [[```f16c672e```](https://github.com/gnes-ai/gnes/commit/f16c672e5eb7b3a88e7e4795d135af8d22de9c44)] __-__ __client__: make query method as generator (*hanhxiao*)
+
+### 📗 Documentation
+
+ - [[```ec03351d```](https://github.com/gnes-ai/gnes/commit/ec03351df857c7a762de6157f2095288c3b35775)] __-__ __flow__: add flow to readme as main api (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```31c05416```](https://github.com/gnes-ai/gnes/commit/31c0541632a0074994846429d233590cb4b7e224)] __-__ __flow__: mark flow as a breaking change (*Han Xiao*)
+ - [[```4efd414e```](https://github.com/gnes-ai/gnes/commit/4efd414e9508c1cb71a852f06dd21f204c7042d5)] __-__ __changelog__: update change log to v0.0.45 (*hanhxiao*)
+ - [[```14fa5a18```](https://github.com/gnes-ai/gnes/commit/14fa5a1803aed28b0c9125f199fcd062fef9bd8a)] __-__ ... (*felix*)
+
 # 💥 Breaking Changes (`v0.0.45 -> v0.0.46`)
 
 The new GNES Flow API introduced since `v0.0.46` has become the main API of GNES. It provides a pythonic and intuitive way of building pipelines in GNES, enabling run/debug on a local machine. It also supports graph visualization, swarm/k8s config export, etc. More information about [GNES Flow can be found at here](http://doc.gnes.ai/en/latest/api/gnes.flow.html).
