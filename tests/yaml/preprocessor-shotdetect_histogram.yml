@@ -1,4 +1,4 @@
-!ShotDetectPreprocessor
+!ShotDetectorPreprocessor
 parameters:
   descriptor: "block_hsv_histogram"
   distance_metric: "bhattacharya"
