@@ -288,7 +288,7 @@ def send_message(sock: 'zmq.Socket', msg: 'gnes_pb2.Message', timeout: int = -1,
     retry_step = 0
     while True:
         retry_step += 1
-        default_logger.warning("the %d-th retry to send message" % retry_step)
+        # default_logger.warning("the %d-th retry to send message" % retry_step)
         try:
             if not squeeze_pb:
                 sock.send_multipart([client_ident, msg_part_data])
