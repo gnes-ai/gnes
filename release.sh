@@ -121,8 +121,6 @@ then
     change_line "$VER_TAG" "$VER_VAL" $INIT_FILE
     pub_pypi
     pub_gittag
-    # change the version line back
-#    mv ${TMP_INIT_FILE} $INIT_FILE
     make_chore_pr $VER
 fi
 

@@ -1,0 +1,1328 @@
+<svg id="mermaid-1571304582697" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width: 1624.5px;"
+     viewBox="0 0 1624.5 700.203125">
+    <style>
+
+
+        #mermaid-1571304582697 .label {
+        font-family: 'trebuchet ms', verdana, arial;
+        color: #333; }
+
+        #mermaid-1571304582697 .label text {
+        fill: #333; }
+
+        #mermaid-1571304582697 .node rect,
+        #mermaid-1571304582697 .node circle,
+        #mermaid-1571304582697 .node ellipse,
+        #mermaid-1571304582697 .node polygon {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1px; }
+
+        #mermaid-1571304582697 .node.clickable {
+        cursor: pointer; }
+
+        #mermaid-1571304582697 .arrowheadPath {
+        fill: #333333; }
+
+        #mermaid-1571304582697 .edgePath .path {
+        stroke: #333333;
+        stroke-width: 1.5px; }
+
+        #mermaid-1571304582697 .edgeLabel {
+        background-color: #e8e8e8; }
+
+        #mermaid-1571304582697 .cluster rect {
+        fill: #ffffde;
+        stroke: #aaaa33;
+        stroke-width: 1px; }
+
+        #mermaid-1571304582697 .cluster text {
+        fill: #333; }
+
+        #mermaid-1571304582697 div.mermaidTooltip {
+        position: absolute;
+        text-align: center;
+        max-width: 200px;
+        padding: 2px;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 12px;
+        background: #ffffde;
+        border: 1px solid #aaaa33;
+        border-radius: 2px;
+        pointer-events: none;
+        z-index: 100; }
+
+        #mermaid-1571304582697 .actor {
+        stroke: #CCCCFF;
+        fill: #ECECFF; }
+
+        #mermaid-1571304582697 text.actor {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304582697 .actor-line {
+        stroke: grey; }
+
+        #mermaid-1571304582697 .messageLine0 {
+        stroke-width: 1.5;
+        stroke-dasharray: '2 2';
+        stroke: #333; }
+
+        #mermaid-1571304582697 .messageLine1 {
+        stroke-width: 1.5;
+        stroke-dasharray: '2 2';
+        stroke: #333; }
+
+        #mermaid-1571304582697 #arrowhead {
+        fill: #333; }
+
+        #mermaid-1571304582697 .sequenceNumber {
+        fill: white; }
+
+        #mermaid-1571304582697 #sequencenumber {
+        fill: #333; }
+
+        #mermaid-1571304582697 #crosshead path {
+        fill: #333 !important;
+        stroke: #333 !important; }
+
+        #mermaid-1571304582697 .messageText {
+        fill: #333;
+        stroke: none; }
+
+        #mermaid-1571304582697 .labelBox {
+        stroke: #CCCCFF;
+        fill: #ECECFF; }
+
+        #mermaid-1571304582697 .labelText {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304582697 .loopText {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304582697 .loopLine {
+        stroke-width: 2;
+        stroke-dasharray: '2 2';
+        stroke: #CCCCFF; }
+
+        #mermaid-1571304582697 .note {
+        stroke: #aaaa33;
+        fill: #fff5ad; }
+
+        #mermaid-1571304582697 .noteText {
+        fill: black;
+        stroke: none;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 14px; }
+
+        #mermaid-1571304582697 .activation0 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+        #mermaid-1571304582697 .activation1 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+        #mermaid-1571304582697 .activation2 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+
+        #mermaid-1571304582697 .section {
+        stroke: none;
+        opacity: 0.2; }
+
+        #mermaid-1571304582697 .section0 {
+        fill: rgba(102, 102, 255, 0.49); }
+
+        #mermaid-1571304582697 .section2 {
+        fill: #fff400; }
+
+        #mermaid-1571304582697 .section1,
+        #mermaid-1571304582697 .section3 {
+        fill: white;
+        opacity: 0.2; }
+
+        #mermaid-1571304582697 .sectionTitle0 {
+        fill: #333; }
+
+        #mermaid-1571304582697 .sectionTitle1 {
+        fill: #333; }
+
+        #mermaid-1571304582697 .sectionTitle2 {
+        fill: #333; }
+
+        #mermaid-1571304582697 .sectionTitle3 {
+        fill: #333; }
+
+        #mermaid-1571304582697 .sectionTitle {
+        text-anchor: start;
+        font-size: 11px;
+        text-height: 14px; }
+
+
+        #mermaid-1571304582697 .grid .tick {
+        stroke: lightgrey;
+        opacity: 0.3;
+        shape-rendering: crispEdges; }
+
+        #mermaid-1571304582697 .grid path {
+        stroke-width: 0; }
+
+
+        #mermaid-1571304582697 .today {
+        fill: none;
+        stroke: red;
+        stroke-width: 2px; }
+
+
+        #mermaid-1571304582697 .task {
+        stroke-width: 2; }
+
+        #mermaid-1571304582697 .taskText {
+        text-anchor: middle;
+        font-size: 11px; }
+
+        #mermaid-1571304582697 .taskTextOutsideRight {
+        fill: black;
+        text-anchor: start;
+        font-size: 11px; }
+
+        #mermaid-1571304582697 .taskTextOutsideLeft {
+        fill: black;
+        text-anchor: end;
+        font-size: 11px; }
+
+
+        #mermaid-1571304582697 .task.clickable {
+        cursor: pointer; }
+
+        #mermaid-1571304582697 .taskText.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+        #mermaid-1571304582697 .taskTextOutsideLeft.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+        #mermaid-1571304582697 .taskTextOutsideRight.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+
+        #mermaid-1571304582697 .taskText0,
+        #mermaid-1571304582697 .taskText1,
+        #mermaid-1571304582697 .taskText2,
+        #mermaid-1571304582697 .taskText3 {
+        fill: white; }
+
+        #mermaid-1571304582697 .task0,
+        #mermaid-1571304582697 .task1,
+        #mermaid-1571304582697 .task2,
+        #mermaid-1571304582697 .task3 {
+        fill: #8a90dd;
+        stroke: #534fbc; }
+
+        #mermaid-1571304582697 .taskTextOutside0,
+        #mermaid-1571304582697 .taskTextOutside2 {
+        fill: black; }
+
+        #mermaid-1571304582697 .taskTextOutside1,
+        #mermaid-1571304582697 .taskTextOutside3 {
+        fill: black; }
+
+
+        #mermaid-1571304582697 .active0,
+        #mermaid-1571304582697 .active1,
+        #mermaid-1571304582697 .active2,
+        #mermaid-1571304582697 .active3 {
+        fill: #bfc7ff;
+        stroke: #534fbc; }
+
+        #mermaid-1571304582697 .activeText0,
+        #mermaid-1571304582697 .activeText1,
+        #mermaid-1571304582697 .activeText2,
+        #mermaid-1571304582697 .activeText3 {
+        fill: black !important; }
+
+
+        #mermaid-1571304582697 .done0,
+        #mermaid-1571304582697 .done1,
+        #mermaid-1571304582697 .done2,
+        #mermaid-1571304582697 .done3 {
+        stroke: grey;
+        fill: lightgrey;
+        stroke-width: 2; }
+
+        #mermaid-1571304582697 .doneText0,
+        #mermaid-1571304582697 .doneText1,
+        #mermaid-1571304582697 .doneText2,
+        #mermaid-1571304582697 .doneText3 {
+        fill: black !important; }
+
+
+        #mermaid-1571304582697 .crit0,
+        #mermaid-1571304582697 .crit1,
+        #mermaid-1571304582697 .crit2,
+        #mermaid-1571304582697 .crit3 {
+        stroke: #ff8888;
+        fill: red;
+        stroke-width: 2; }
+
+        #mermaid-1571304582697 .activeCrit0,
+        #mermaid-1571304582697 .activeCrit1,
+        #mermaid-1571304582697 .activeCrit2,
+        #mermaid-1571304582697 .activeCrit3 {
+        stroke: #ff8888;
+        fill: #bfc7ff;
+        stroke-width: 2; }
+
+        #mermaid-1571304582697 .doneCrit0,
+        #mermaid-1571304582697 .doneCrit1,
+        #mermaid-1571304582697 .doneCrit2,
+        #mermaid-1571304582697 .doneCrit3 {
+        stroke: #ff8888;
+        fill: lightgrey;
+        stroke-width: 2;
+        cursor: pointer;
+        shape-rendering: crispEdges; }
+
+        #mermaid-1571304582697 .milestone {
+        transform: rotate(45deg) scale(0.8, 0.8); }
+
+        #mermaid-1571304582697 .milestoneText {
+        font-style: italic; }
+
+        #mermaid-1571304582697 .doneCritText0,
+        #mermaid-1571304582697 .doneCritText1,
+        #mermaid-1571304582697 .doneCritText2,
+        #mermaid-1571304582697 .doneCritText3 {
+        fill: black !important; }
+
+        #mermaid-1571304582697 .activeCritText0,
+        #mermaid-1571304582697 .activeCritText1,
+        #mermaid-1571304582697 .activeCritText2,
+        #mermaid-1571304582697 .activeCritText3 {
+        fill: black !important; }
+
+        #mermaid-1571304582697 .titleText {
+        text-anchor: middle;
+        font-size: 18px;
+        fill: black; }
+
+        #mermaid-1571304582697 g.classGroup text {
+        fill: #9370DB;
+        stroke: none;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 10px; }
+
+        #mermaid-1571304582697 g.classGroup rect {
+        fill: #ECECFF;
+        stroke: #9370DB; }
+
+        #mermaid-1571304582697 g.classGroup line {
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 .classLabel .box {
+        stroke: none;
+        stroke-width: 0;
+        fill: #ECECFF;
+        opacity: 0.5; }
+
+        #mermaid-1571304582697 .classLabel .label {
+        fill: #9370DB;
+        font-size: 10px; }
+
+        #mermaid-1571304582697 .relation {
+        stroke: #9370DB;
+        stroke-width: 1;
+        fill: none; }
+
+        #mermaid-1571304582697 #compositionStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #compositionEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #aggregationStart {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #aggregationEnd {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #dependencyStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #dependencyEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #extensionStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 #extensionEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304582697 .commit-id,
+        #mermaid-1571304582697 .commit-msg,
+        #mermaid-1571304582697 .branch-label {
+        fill: lightgrey;
+        color: lightgrey; }
+
+        #mermaid-1571304582697 .pieTitleText {
+        text-anchor: middle;
+        font-size: 25px;
+        fill: black; }
+
+        #mermaid-1571304582697 .FrontendCLS &gt; * { fill:#FFE0E0 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304582697 .RouterCLS &gt; * { fill:#C9E8D2 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304582697 .EncoderCLS &gt; * { fill:#FFDAAF !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304582697 .PreprocessorCLS &gt; * { fill:#CED7EF !important; stroke:#000 !important;
+        stroke-width:1px !important; }
+        #mermaid-1571304582697 .IndexerCLS &gt; * { fill:#FFFBC1 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+    </style>
+    <style>#mermaid-1571304582697 {
+        color: rgba(0, 0, 0, 0.65);
+        font: ;
+        }
+    </style>
+    <g transform="translate(-12, -12)">
+        <g class="output">
+            <g class="clusters">
+                <g class="cluster" id="Encoder0" transform="translate(866.34375,314.296875)" style="opacity: 1;">
+                    <rect style="fill:#FFDAAF;stroke:#000;stroke-width:2px;stroke-dasharray:5;stroke-opacity:0.3;fill-opacity:0.5;"
+                          width="376.0625" height="588.59375" x="-188.03125" y="-294.296875"></rect>
+                    <g class="label" transform="translate(0, -280.296875)" id="mermaid-1571304582697Text">
+                        <g transform="translate(-70.953125,-11.546875)">
+                            <foreignObject width="141.91717529296875" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0 (replias=6)
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="cluster" id="prep" transform="translate(400.1328125,456.453125)" style="opacity: 1;">
+                    <rect style="fill:#CED7EF;stroke:#000;stroke-width:2px;stroke-dasharray:5;stroke-opacity:0.3;fill-opacity:0.5;"
+                          width="344.015625" height="495.5" x="-172.0078125" y="-247.75"></rect>
+                    <g class="label" transform="translate(0, -233.75)" id="mermaid-1571304582697Text">
+                        <g transform="translate(-54.9375,-11.546875)">
+                            <foreignObject width="109.87969970703125" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep (replias=5)
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <g class="edgePaths">
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M110.328125,456.453125L169.2265625,456.453125L228.125,456.453125L253.125,456.453125"
+                          marker-end="url(#arrowhead127)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead127" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M293.663232823461,426.1728600357105L341.28125,265.25L366.28125,265.25"
+                          marker-end="url(#arrowhead128)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead128" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M433.984375,265.25L458.984375,265.25L499.7871051856033,336.0040300567255"
+                          marker-end="url(#arrowhead129)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead129" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M300.4785198143967,429.0977800567255L341.28125,358.34375L366.28125,358.34375"
+                          marker-end="url(#arrowhead130)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead130" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M433.984375,358.34375L458.984375,358.34375L484.10773057361035,360.5709240235098"
+                          marker-end="url(#arrowhead131)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead131" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M316.15789442638965,453.6646740235098L341.28125,451.4375L366.28125,451.4375"
+                          marker-end="url(#arrowhead132)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead132" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M433.984375,451.4375L458.984375,451.4375L498.4956806852903,389.9281848528082"
+                          marker-end="url(#arrowhead133)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead133" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M301.10353524532485,483.4383899107002L341.28125,549.546875L366.28125,549.546875"
+                          marker-end="url(#arrowhead134)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead134" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M433.984375,549.546875L458.984375,549.546875L506.38117862026854,393.57330086602593"
+                          marker-end="url(#arrowhead135)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead135" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M293.88444637973146,486.66705086602593L341.28125,642.640625L366.28125,642.640625"
+                          marker-end="url(#arrowhead136)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead136" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M433.984375,642.640625L458.984375,642.640625L509.29261925726627,394.3087946066343"
+                          marker-end="url(#arrowhead137)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead137" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M521.4611932932517,394.38167981359777L572.140625,660.9140625L625.2265625,660.9140625L678.3125,660.9140625L734.890625,660.9140625L791.46875,660.9140625L866.34375,660.9140625L941.21875,660.9140625L997.796875,660.9140625L1054.375,660.9140625L1113.2734375,660.9140625L1172.171875,660.9140625"
+                          marker-end="url(#arrowhead138)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead138" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M539.4198738037379,342.6711248636462L572.140625,314.296875L625.2265625,314.296875L678.3125,314.296875L703.3125,314.296875"
+                          marker-end="url(#arrowhead139)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead139" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M742.3500644346555,283.61243689472695L791.46875,81.5625L816.46875,81.5625"
+                          marker-end="url(#arrowhead140)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead140" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,81.5625L941.21875,81.5625L990.3374355653445,283.61243689472695"
+                          marker-end="url(#arrowhead141)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead141" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M746.7487584472458,285.0297834181066L791.46875,174.65625L816.46875,174.65625"
+                          marker-end="url(#arrowhead142)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead142" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,174.65625L941.21875,174.65625L985.9387415527542,285.0297834181066"
+                          marker-end="url(#arrowhead143)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead143" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M759.2766459546904,294.23447333636494L791.46875,267.75L816.46875,267.75"
+                          marker-end="url(#arrowhead144)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead144" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,267.75L941.21875,267.75L973.4108540453096,294.23447333636494"
+                          marker-end="url(#arrowhead145)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead145" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M759.2766459546904,334.35927666363506L791.46875,360.84375L816.46875,360.84375"
+                          marker-end="url(#arrowhead146)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead146" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,360.84375L941.21875,360.84375L973.4108540453096,334.35927666363506"
+                          marker-end="url(#arrowhead147)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead147" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M746.7487584472458,343.5639665818934L791.46875,453.9375L816.46875,453.9375"
+                          marker-end="url(#arrowhead148)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead148" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,453.9375L941.21875,453.9375L985.9387415527542,343.5639665818934"
+                          marker-end="url(#arrowhead149)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead149" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M742.3500644346555,344.98131310527305L791.46875,547.03125L816.46875,547.03125"
+                          marker-end="url(#arrowhead150)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead150" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M916.21875,547.03125L941.21875,547.03125L990.3374355653445,344.98131310527305"
+                          marker-end="url(#arrowhead151)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead151" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M1029.375,314.296875L1054.375,314.296875L1113.2734375,314.296875L1172.625,314.296875"
+                          marker-end="url(#arrowhead152)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead152" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M1244.953125,314.296875L1306.1328125,314.296875L1378.9228295995274,435.1001540170559"
+                          marker-end="url(#arrowhead153)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead153" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M1245.40625,660.9140625L1306.1328125,660.9140625L1382.1562587606898,479.44656778196696"
+                          marker-end="url(#arrowhead154)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead154" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M1416.71875,456.453125L1477.4453125,456.453125L1538.171875,456.453125"
+                          marker-end="url(#arrowhead155)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead155" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+            </g>
+            <g class="edgeLabels">
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(169.2265625,456.453125)">
+                    <g transform="translate(-33.8984375,-11.546875)" class="label">
+                        <foreignObject width="67.8046875" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUSH-pull</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(866.34375,660.9140625)">
+                    <g transform="translate(-28.0859375,-11.546875)" class="label">
+                        <foreignObject width="56.1859130859375" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUB-sub</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(625.2265625,314.296875)">
+                    <g transform="translate(-28.0859375,-11.546875)" class="label">
+                        <foreignObject width="56.1859130859375" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUB-sub</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="">
+                    <g transform="translate(0,0)" class="label">
+                        <foreignObject width="0" height="0">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel"></span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(1113.2734375,314.296875)">
+                    <g transform="translate(-33.8984375,-11.546875)" class="label">
+                        <foreignObject width="67.8046875" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUSH-pull</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(1306.1328125,314.296875)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(1306.1328125,660.9140625)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(1477.4453125,456.453125)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </g>
+            <g class="nodes">
+                <g class="node EncoderCLS" id="Encoder0_0" transform="translate(866.34375,81.5625)" style="opacity: 1;">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="Encoder0_HEAD"
+                   transform="translate(734.890625,314.296875)">
+                    <circle x="-31.578125" y="-21.546875" r="31.578125"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-21.578125,-11.546875)">
+                            <foreignObject width="43.1578369140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">router
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="Encoder0_TAIL"
+                   transform="translate(997.796875,314.296875)">
+                    <circle x="-31.578125" y="-21.546875" r="31.578125"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-21.578125,-11.546875)">
+                            <foreignObject width="43.1578369140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">router
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0_1"
+                   transform="translate(866.34375,174.65625)">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_1
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0_2" transform="translate(866.34375,267.75)">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_2
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0_3"
+                   transform="translate(866.34375,360.84375)">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_3
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0_4"
+                   transform="translate(866.34375,453.9375)">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_4
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0_5"
+                   transform="translate(866.34375,547.03125)">
+                    <rect rx="5" ry="5" x="-49.875" y="-21.546875" width="99.75" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-39.875,-11.546875)">
+                            <foreignObject width="79.75" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0_5
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep_0"
+                   transform="translate(400.1328125,265.25)">
+                    <rect rx="5" ry="5" x="-33.8515625" y="-21.546875" width="67.703125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-23.8515625,-11.546875)">
+                            <foreignObject width="47.7125244140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep_0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="prep_HEAD"
+                   transform="translate(284.703125,456.453125)">
+                    <circle x="-31.578125" y="-21.546875" r="31.578125"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-21.578125,-11.546875)">
+                            <foreignObject width="43.1578369140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">router
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="prep_TAIL" transform="translate(515.5625,363.359375)">
+                    <circle x="-31.578125" y="-21.546875" r="31.578125"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-21.578125,-11.546875)">
+                            <foreignObject width="43.1578369140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">router
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep_1"
+                   transform="translate(400.1328125,358.34375)">
+                    <rect rx="5" ry="5" x="-33.8515625" y="-21.546875" width="67.703125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-23.8515625,-11.546875)">
+                            <foreignObject width="47.7125244140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep_1
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep_2"
+                   transform="translate(400.1328125,451.4375)">
+                    <rect rx="5" ry="5" x="-33.8515625" y="-21.546875" width="67.703125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-23.8515625,-11.546875)">
+                            <foreignObject width="47.7125244140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep_2
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep_3"
+                   transform="translate(400.1328125,549.546875)">
+                    <rect rx="5" ry="5" x="-33.8515625" y="-21.546875" width="67.703125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-23.8515625,-11.546875)">
+                            <foreignObject width="47.7125244140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep_3
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep_4"
+                   transform="translate(400.1328125,642.640625)">
+                    <rect rx="5" ry="5" x="-33.8515625" y="-21.546875" width="67.703125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-23.8515625,-11.546875)">
+                            <foreignObject width="47.7125244140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep_4
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node FrontendCLS" style="opacity: 1;" id="Frontend0"
+                   transform="translate(65.1640625,456.453125)">
+                    <rect rx="5" ry="5" x="-45.1640625" y="-21.546875" width="90.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-35.1640625,-11.546875)">
+                            <foreignObject width="70.33123779296875" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Frontend0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node IndexerCLS" style="opacity: 1;" id="doc_idx"
+                   transform="translate(1208.7890625,660.9140625)">
+                    <rect rx="5" ry="5" x="-36.6171875" y="-21.546875" width="73.234375" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-26.6171875,-11.546875)">
+                            <foreignObject width="53.24688720703125" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">doc_idx
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node IndexerCLS" style="opacity: 1;" id="vec_idx"
+                   transform="translate(1208.7890625,314.296875)">
+                    <rect rx="5" ry="5" x="-36.1640625" y="-21.546875" width="72.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-26.1640625,-11.546875)">
+                            <foreignObject width="52.3359375" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">vec_idx
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="sync" transform="translate(1391.7890625,456.453125)">
+                    <circle x="-24.9296875" y="-21.546875" r="24.9296875"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-14.9296875,-11.546875)">
+                            <foreignObject width="29.87188720703125" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">sync
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node FrontendCLS" style="opacity: 1;" id="Frontend0_END"
+                   transform="translate(1583.3359375,456.453125)">
+                    <rect rx="5" ry="5" x="-45.1640625" y="-21.546875" width="90.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-35.1640625,-11.546875)">
+                            <foreignObject width="70.33123779296875" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Frontend0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

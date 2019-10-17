@@ -1,0 +1,665 @@
+<svg id="mermaid-1571304663111" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width: 1039.5625px;"
+     viewBox="0 0 1039.5625 152.1875">
+    <style>
+
+
+        #mermaid-1571304663111 .label {
+        font-family: 'trebuchet ms', verdana, arial;
+        color: #333; }
+
+        #mermaid-1571304663111 .label text {
+        fill: #333; }
+
+        #mermaid-1571304663111 .node rect,
+        #mermaid-1571304663111 .node circle,
+        #mermaid-1571304663111 .node ellipse,
+        #mermaid-1571304663111 .node polygon {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1px; }
+
+        #mermaid-1571304663111 .node.clickable {
+        cursor: pointer; }
+
+        #mermaid-1571304663111 .arrowheadPath {
+        fill: #333333; }
+
+        #mermaid-1571304663111 .edgePath .path {
+        stroke: #333333;
+        stroke-width: 1.5px; }
+
+        #mermaid-1571304663111 .edgeLabel {
+        background-color: #e8e8e8; }
+
+        #mermaid-1571304663111 .cluster rect {
+        fill: #ffffde;
+        stroke: #aaaa33;
+        stroke-width: 1px; }
+
+        #mermaid-1571304663111 .cluster text {
+        fill: #333; }
+
+        #mermaid-1571304663111 div.mermaidTooltip {
+        position: absolute;
+        text-align: center;
+        max-width: 200px;
+        padding: 2px;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 12px;
+        background: #ffffde;
+        border: 1px solid #aaaa33;
+        border-radius: 2px;
+        pointer-events: none;
+        z-index: 100; }
+
+        #mermaid-1571304663111 .actor {
+        stroke: #CCCCFF;
+        fill: #ECECFF; }
+
+        #mermaid-1571304663111 text.actor {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304663111 .actor-line {
+        stroke: grey; }
+
+        #mermaid-1571304663111 .messageLine0 {
+        stroke-width: 1.5;
+        stroke-dasharray: '2 2';
+        stroke: #333; }
+
+        #mermaid-1571304663111 .messageLine1 {
+        stroke-width: 1.5;
+        stroke-dasharray: '2 2';
+        stroke: #333; }
+
+        #mermaid-1571304663111 #arrowhead {
+        fill: #333; }
+
+        #mermaid-1571304663111 .sequenceNumber {
+        fill: white; }
+
+        #mermaid-1571304663111 #sequencenumber {
+        fill: #333; }
+
+        #mermaid-1571304663111 #crosshead path {
+        fill: #333 !important;
+        stroke: #333 !important; }
+
+        #mermaid-1571304663111 .messageText {
+        fill: #333;
+        stroke: none; }
+
+        #mermaid-1571304663111 .labelBox {
+        stroke: #CCCCFF;
+        fill: #ECECFF; }
+
+        #mermaid-1571304663111 .labelText {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304663111 .loopText {
+        fill: black;
+        stroke: none; }
+
+        #mermaid-1571304663111 .loopLine {
+        stroke-width: 2;
+        stroke-dasharray: '2 2';
+        stroke: #CCCCFF; }
+
+        #mermaid-1571304663111 .note {
+        stroke: #aaaa33;
+        fill: #fff5ad; }
+
+        #mermaid-1571304663111 .noteText {
+        fill: black;
+        stroke: none;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 14px; }
+
+        #mermaid-1571304663111 .activation0 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+        #mermaid-1571304663111 .activation1 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+        #mermaid-1571304663111 .activation2 {
+        fill: #f4f4f4;
+        stroke: #666; }
+
+
+        #mermaid-1571304663111 .section {
+        stroke: none;
+        opacity: 0.2; }
+
+        #mermaid-1571304663111 .section0 {
+        fill: rgba(102, 102, 255, 0.49); }
+
+        #mermaid-1571304663111 .section2 {
+        fill: #fff400; }
+
+        #mermaid-1571304663111 .section1,
+        #mermaid-1571304663111 .section3 {
+        fill: white;
+        opacity: 0.2; }
+
+        #mermaid-1571304663111 .sectionTitle0 {
+        fill: #333; }
+
+        #mermaid-1571304663111 .sectionTitle1 {
+        fill: #333; }
+
+        #mermaid-1571304663111 .sectionTitle2 {
+        fill: #333; }
+
+        #mermaid-1571304663111 .sectionTitle3 {
+        fill: #333; }
+
+        #mermaid-1571304663111 .sectionTitle {
+        text-anchor: start;
+        font-size: 11px;
+        text-height: 14px; }
+
+
+        #mermaid-1571304663111 .grid .tick {
+        stroke: lightgrey;
+        opacity: 0.3;
+        shape-rendering: crispEdges; }
+
+        #mermaid-1571304663111 .grid path {
+        stroke-width: 0; }
+
+
+        #mermaid-1571304663111 .today {
+        fill: none;
+        stroke: red;
+        stroke-width: 2px; }
+
+
+        #mermaid-1571304663111 .task {
+        stroke-width: 2; }
+
+        #mermaid-1571304663111 .taskText {
+        text-anchor: middle;
+        font-size: 11px; }
+
+        #mermaid-1571304663111 .taskTextOutsideRight {
+        fill: black;
+        text-anchor: start;
+        font-size: 11px; }
+
+        #mermaid-1571304663111 .taskTextOutsideLeft {
+        fill: black;
+        text-anchor: end;
+        font-size: 11px; }
+
+
+        #mermaid-1571304663111 .task.clickable {
+        cursor: pointer; }
+
+        #mermaid-1571304663111 .taskText.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+        #mermaid-1571304663111 .taskTextOutsideLeft.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+        #mermaid-1571304663111 .taskTextOutsideRight.clickable {
+        cursor: pointer;
+        fill: #003163 !important;
+        font-weight: bold; }
+
+
+        #mermaid-1571304663111 .taskText0,
+        #mermaid-1571304663111 .taskText1,
+        #mermaid-1571304663111 .taskText2,
+        #mermaid-1571304663111 .taskText3 {
+        fill: white; }
+
+        #mermaid-1571304663111 .task0,
+        #mermaid-1571304663111 .task1,
+        #mermaid-1571304663111 .task2,
+        #mermaid-1571304663111 .task3 {
+        fill: #8a90dd;
+        stroke: #534fbc; }
+
+        #mermaid-1571304663111 .taskTextOutside0,
+        #mermaid-1571304663111 .taskTextOutside2 {
+        fill: black; }
+
+        #mermaid-1571304663111 .taskTextOutside1,
+        #mermaid-1571304663111 .taskTextOutside3 {
+        fill: black; }
+
+
+        #mermaid-1571304663111 .active0,
+        #mermaid-1571304663111 .active1,
+        #mermaid-1571304663111 .active2,
+        #mermaid-1571304663111 .active3 {
+        fill: #bfc7ff;
+        stroke: #534fbc; }
+
+        #mermaid-1571304663111 .activeText0,
+        #mermaid-1571304663111 .activeText1,
+        #mermaid-1571304663111 .activeText2,
+        #mermaid-1571304663111 .activeText3 {
+        fill: black !important; }
+
+
+        #mermaid-1571304663111 .done0,
+        #mermaid-1571304663111 .done1,
+        #mermaid-1571304663111 .done2,
+        #mermaid-1571304663111 .done3 {
+        stroke: grey;
+        fill: lightgrey;
+        stroke-width: 2; }
+
+        #mermaid-1571304663111 .doneText0,
+        #mermaid-1571304663111 .doneText1,
+        #mermaid-1571304663111 .doneText2,
+        #mermaid-1571304663111 .doneText3 {
+        fill: black !important; }
+
+
+        #mermaid-1571304663111 .crit0,
+        #mermaid-1571304663111 .crit1,
+        #mermaid-1571304663111 .crit2,
+        #mermaid-1571304663111 .crit3 {
+        stroke: #ff8888;
+        fill: red;
+        stroke-width: 2; }
+
+        #mermaid-1571304663111 .activeCrit0,
+        #mermaid-1571304663111 .activeCrit1,
+        #mermaid-1571304663111 .activeCrit2,
+        #mermaid-1571304663111 .activeCrit3 {
+        stroke: #ff8888;
+        fill: #bfc7ff;
+        stroke-width: 2; }
+
+        #mermaid-1571304663111 .doneCrit0,
+        #mermaid-1571304663111 .doneCrit1,
+        #mermaid-1571304663111 .doneCrit2,
+        #mermaid-1571304663111 .doneCrit3 {
+        stroke: #ff8888;
+        fill: lightgrey;
+        stroke-width: 2;
+        cursor: pointer;
+        shape-rendering: crispEdges; }
+
+        #mermaid-1571304663111 .milestone {
+        transform: rotate(45deg) scale(0.8, 0.8); }
+
+        #mermaid-1571304663111 .milestoneText {
+        font-style: italic; }
+
+        #mermaid-1571304663111 .doneCritText0,
+        #mermaid-1571304663111 .doneCritText1,
+        #mermaid-1571304663111 .doneCritText2,
+        #mermaid-1571304663111 .doneCritText3 {
+        fill: black !important; }
+
+        #mermaid-1571304663111 .activeCritText0,
+        #mermaid-1571304663111 .activeCritText1,
+        #mermaid-1571304663111 .activeCritText2,
+        #mermaid-1571304663111 .activeCritText3 {
+        fill: black !important; }
+
+        #mermaid-1571304663111 .titleText {
+        text-anchor: middle;
+        font-size: 18px;
+        fill: black; }
+
+        #mermaid-1571304663111 g.classGroup text {
+        fill: #9370DB;
+        stroke: none;
+        font-family: 'trebuchet ms', verdana, arial;
+        font-size: 10px; }
+
+        #mermaid-1571304663111 g.classGroup rect {
+        fill: #ECECFF;
+        stroke: #9370DB; }
+
+        #mermaid-1571304663111 g.classGroup line {
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 .classLabel .box {
+        stroke: none;
+        stroke-width: 0;
+        fill: #ECECFF;
+        opacity: 0.5; }
+
+        #mermaid-1571304663111 .classLabel .label {
+        fill: #9370DB;
+        font-size: 10px; }
+
+        #mermaid-1571304663111 .relation {
+        stroke: #9370DB;
+        stroke-width: 1;
+        fill: none; }
+
+        #mermaid-1571304663111 #compositionStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #compositionEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #aggregationStart {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #aggregationEnd {
+        fill: #ECECFF;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #dependencyStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #dependencyEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #extensionStart {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 #extensionEnd {
+        fill: #9370DB;
+        stroke: #9370DB;
+        stroke-width: 1; }
+
+        #mermaid-1571304663111 .commit-id,
+        #mermaid-1571304663111 .commit-msg,
+        #mermaid-1571304663111 .branch-label {
+        fill: lightgrey;
+        color: lightgrey; }
+
+        #mermaid-1571304663111 .pieTitleText {
+        text-anchor: middle;
+        font-size: 25px;
+        fill: black; }
+
+        #mermaid-1571304663111 .FrontendCLS &gt; * { fill:#FFE0E0 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304663111 .RouterCLS &gt; * { fill:#C9E8D2 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304663111 .EncoderCLS &gt; * { fill:#FFDAAF !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+        #mermaid-1571304663111 .PreprocessorCLS &gt; * { fill:#CED7EF !important; stroke:#000 !important;
+        stroke-width:1px !important; }
+        #mermaid-1571304663111 .IndexerCLS &gt; * { fill:#FFFBC1 !important; stroke:#000 !important; stroke-width:1px
+        !important; }
+    </style>
+    <style>#mermaid-1571304663111 {
+        color: rgba(0, 0, 0, 0.65);
+        font: ;
+        }
+    </style>
+    <g transform="translate(-12, -12)">
+        <g class="output">
+            <g class="clusters"></g>
+            <g class="edgePaths">
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M110.328125,88.09375L169.2265625,88.09375L228.125,88.09375"
+                          marker-end="url(#arrowhead193)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead193" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M279.671875,103.30656361452348L332.7578125,134.640625L427.640625,134.640625L528.3359375,134.640625L587.234375,134.640625"
+                          marker-end="url(#arrowhead194)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead194" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M279.671875,72.88093638547652L332.7578125,41.546875L385.84375,41.546875"
+                          marker-end="url(#arrowhead195)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead195" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M469.4375,41.546875L528.3359375,41.546875L587.6875,41.546875"
+                          marker-end="url(#arrowhead196)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead196" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M660.015625,41.546875L721.1953125,41.546875L784.9471449719972,76.19056506458953"
+                          marker-end="url(#arrowhead197)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead197" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path"
+                          d="M660.46875,134.640625L721.1953125,134.640625L784.9471449719972,99.99693493541047"
+                          marker-end="url(#arrowhead198)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead198" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+                <g class="edgePath" style="opacity: 1;">
+                    <path class="path" d="M831.78125,88.09375L892.5078125,88.09375L953.234375,88.09375"
+                          marker-end="url(#arrowhead199)" style="fill:none"></path>
+                    <defs>
+                        <marker id="arrowhead199" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth"
+                                markerWidth="8" markerHeight="6" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" class="arrowheadPath"
+                                  style="stroke-width: 1; stroke-dasharray: 1, 0;"></path>
+                        </marker>
+                    </defs>
+                </g>
+            </g>
+            <g class="edgeLabels">
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(169.2265625,88.09375)">
+                    <g transform="translate(-33.8984375,-11.546875)" class="label">
+                        <foreignObject width="67.8046875" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUSH-pull</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(427.640625,134.640625)">
+                    <g transform="translate(-28.0859375,-11.546875)" class="label">
+                        <foreignObject width="56.1859130859375" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUB-sub</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(332.7578125,41.546875)">
+                    <g transform="translate(-28.0859375,-11.546875)" class="label">
+                        <foreignObject width="56.1859130859375" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUB-sub</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(528.3359375,41.546875)">
+                    <g transform="translate(-33.8984375,-11.546875)" class="label">
+                        <foreignObject width="67.8046875" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">PUSH-pull</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(721.1953125,41.546875)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(721.1953125,134.640625)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+                <g class="edgeLabel" style="opacity: 1;" transform="translate(892.5078125,88.09375)">
+                    <g transform="translate(-35.7265625,-11.546875)" class="label">
+                        <foreignObject width="71.46563720703125" height="23.100006103515625">
+                            <div xmlns="http://www.w3.org/1999/xhtml"
+                                 style="display: inline-block; white-space: nowrap;">
+                                <span class="edgeLabel">push-PULL</span>
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </g>
+            <g class="nodes">
+                <g class="node FrontendCLS" id="Frontend0" transform="translate(65.1640625,88.09375)"
+                   style="opacity: 1;">
+                    <rect rx="5" ry="5" x="-45.1640625" y="-21.546875" width="90.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-35.1640625,-11.546875)">
+                            <foreignObject width="70.33123779296875" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Frontend0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node PreprocessorCLS" style="opacity: 1;" id="prep"
+                   transform="translate(253.8984375,88.09375)">
+                    <rect rx="5" ry="5" x="-25.7734375" y="-21.546875" width="51.546875" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-15.7734375,-11.546875)">
+                            <foreignObject width="31.5562744140625" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">prep
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node IndexerCLS" style="opacity: 1;" id="doc_idx"
+                   transform="translate(623.8515625,134.640625)">
+                    <rect rx="5" ry="5" x="-36.6171875" y="-21.546875" width="73.234375" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-26.6171875,-11.546875)">
+                            <foreignObject width="53.24688720703125" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">doc_idx
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node EncoderCLS" style="opacity: 1;" id="Encoder0"
+                   transform="translate(427.640625,41.546875)">
+                    <rect rx="5" ry="5" x="-41.796875" y="-21.546875" width="83.59375" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-31.796875,-11.546875)">
+                            <foreignObject width="63.59375" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Encoder0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node IndexerCLS" style="opacity: 1;" id="vec_idx"
+                   transform="translate(623.8515625,41.546875)">
+                    <rect rx="5" ry="5" x="-36.1640625" y="-21.546875" width="72.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-26.1640625,-11.546875)">
+                            <foreignObject width="52.3359375" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">vec_idx
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node RouterCLS" style="opacity: 1;" id="sync" transform="translate(806.8515625,88.09375)">
+                    <circle x="-24.9296875" y="-21.546875" r="24.9296875"></circle>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-14.9296875,-11.546875)">
+                            <foreignObject width="29.87188720703125" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">sync
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+                <g class="node FrontendCLS" style="opacity: 1;" id="Frontend0_END"
+                   transform="translate(998.3984375,88.09375)">
+                    <rect rx="5" ry="5" x="-45.1640625" y="-21.546875" width="90.328125" height="43.09375"></rect>
+                    <g class="label" transform="translate(0,0)">
+                        <g transform="translate(-35.1640625,-11.546875)">
+                            <foreignObject width="70.33123779296875" height="23.100006103515625">
+                                <div xmlns="http://www.w3.org/1999/xhtml"
+                                     style="display: inline-block; white-space: nowrap;">Frontend0
+                                </div>
+                            </foreignObject>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,11 +1,11 @@
 
 # 💥 Breaking Changes (`v0.0.45 -> v0.0.46`)
 
-The new GNES Flow API introduced since `v0.0.44` has now became the main API of GNES. It provides a pythonic and intuitive way of building pipelines in GNES, enabling run/debug on a local machine. It also supports graph visualization, swarm/k8s config export, etc. More information about [GNES Flow can be found at here](http://doc.gnes.ai/en/latest/api/gnes.flow.html).
+The new GNES Flow API introduced since `v0.0.46` has become the main API of GNES. It provides a pythonic and intuitive way of building pipelines in GNES, enabling run/debug on a local machine. It also supports graph visualization, swarm/k8s config export, etc. More information about [GNES Flow can be found at here](http://doc.gnes.ai/en/latest/api/gnes.flow.html).
 
-The [`composer` module](/gnes/composer) will be removed in the next releases as well as `gnes compose` CLI and GNES board web UI.
+As a consequence, the [`composer` module](/gnes/composer) as well as `gnes compose` CLI and GNES board web UI will be removed in the next releases.
 
-GNES board will be redesigned using the new GNES Flow API. 
+GNES board will be redesigned using the GNES Flow API. We highly [welcome your contribution on this thread](CONTRIBUTING.md)!
 
 # Release Note (`v0.0.45`)
 > Release time: 2019-10-15 14:01:07
