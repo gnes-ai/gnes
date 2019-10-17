@@ -236,10 +236,10 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
   * [Indexing flower image data](#indexing-flower-image-data)
   * [Querying similar flowers](#querying-similar-flowers)
 - [Elastic made easy](#elastic-made-easy)
-- [Deploying a flow via Docker Swarm/Kubernetes](#deploying-a-flow-via-docker-swarm-kubernetes)
+- [Deploying a flow via Docker Swarm/Kubernetes](#deploying-a-flow-via-docker-swarmkubernetes)
 - [Building a cloud-native semantic poem search engine](#building-a-cloud-native-semantic-poem-search-engine)
-- [Take-home messages](#take-home-messages)
-  * [👨‍💻️What's next?](#-whats-next)
+- [👨‍💻️Take-home messages](#-take-home-messages)
+
 
 ### 🐣 Preliminaries
 
@@ -428,7 +428,7 @@ In this example, we will build a semantic poem search engine using GNES. Unlike 
 </p>
 
 
-### Take-home messages
+### 👨‍💻️ Take-home messages
 
 Let's make a short recap of what we have learned. 
 
@@ -437,10 +437,6 @@ Let's make a short recap of what we have learned.
 - One can leverage [GNES Flow API](http://doc.gnes.ai/en/latest/api/gnes.flow.html) to define, modify, export or even visualize a workflow.
 - GNES requires an orchestration engine to coordinate all microservices. It supports Kubernetes, Docker Swarm,  or built-in multi-process/thread solution. 
 
-
-#### 👨‍💻️ What's next?
-
-The next step is feeding data to GNES for training, indexing and querying. Checkout the [tutorials](#tutorial) and [documentations](#documentation) for more details. 
 
 <h2 align="center">Documentation</h2>
 
