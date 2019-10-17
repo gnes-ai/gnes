@@ -150,7 +150,7 @@ We also provide a public mirror hosted on Tencent Cloud and [Github packages](ht
 ```bash
 docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
 docker run ccr.ccs.tencentyun.com/gnes/gnes:latest-alpine
-
+# OR via Github package
 docker login --username=xxx docker.pkg.github.com/gnes-ai/gnes  # login to github package so that we can pull from it
 docker run docker.pkg.github.com/gnes-ai/gnes/gnes:latest-alpine
 ```
