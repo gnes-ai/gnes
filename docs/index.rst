@@ -69,6 +69,7 @@ Highlights
    chapter/troubleshooting.md
    chapter/protobuf-dev.md
    chapter/enviromentvars.md
+   chapter/swarm-tutorial.md
 
 .. toctree::
    :maxdepth: 2
