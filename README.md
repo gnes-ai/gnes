@@ -236,8 +236,8 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
   * [Indexing flower image data](#indexing-flower-image-data)
   * [Querying similar flowers](#querying-similar-flowers)
 - [Elastic made easy](#elastic-made-easy)
-- [Deploying a flow to the cloud via Docker Swarm/Kubernetes](#deploying-a-flow-to-the-cloud-via-docker-swarm-kubernetes)
-- [Building a semantic poem search engine in 3 minutes](#building-a-semantic-poem-search-engine-in-3-minutes)
+- [Deploying a flow via Docker Swarm/Kubernetes](#deploying-a-flow-via-docker-swarm-kubernetes)
+- [Building a cloud-native semantic poem search engine](#building-a-cloud-native-semantic-poem-search-engine)
 - [Take-home messages](#take-home-messages)
   * [👨‍💻️What's next?](#-whats-next)
 
@@ -367,7 +367,7 @@ flow.build(backend=None).to_url()
 </a>
 </p>
 
-### Deploying a flow to the cloud via Docker Swarm/Kubernetes
+### Deploying a flow via Docker Swarm/Kubernetes
 
 One can convert a `Flow` object to Docker Swarm/Kubernetes YAML compose file very easily via:
 ```python
@@ -415,7 +415,7 @@ docker stack deploy --compose-file my-gnes.yml gnes-531
 ```
 
 
-### Building a semantic poem search engine in 3 minutes
+### Building a cloud-native semantic poem search engine
 
 In this example, we will build a semantic poem search engine using GNES. Unlike the previous flower search example, here we run each service as an isolated Docker container and then orchestrate them via Docker Swarm. It represents a common scenario in the cloud settings. You will learn how to use powerful and customized GNES images from [GNES hub](https://github.com/gnes-ai/hub).
 
