@@ -231,6 +231,13 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
 - [🐣 Preliminaries](#-preliminaries)
   * [Microservice](#microservice)
   * [Runtime](#runtime)
+- [Building a flower search engine in 3 minutes](#building-a-flower-search-engine-in-3-minutes)
+  * [Define the indexing workflow:](#define-the-indexing-workflow-)
+  * [Indexing flower image data](#indexing-flower-image-data)
+  * [Querying similar flowers](#querying-similar-flowers)
+- [Elastic made easy](#elastic-made-easy)
+- [Deploying a flow to the cloud via Docker Swarm/Kubernetes](#deploying-a-flow-to-the-cloud-via-docker-swarm-kubernetes)
+- [Building a semantic poem search engine in 3 minutes](#building-a-semantic-poem-search-engine-in-3-minutes)
 - [Take-home messages](#take-home-messages)
   * [👨‍💻️What's next?](#-whats-next)
 
