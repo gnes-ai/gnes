@@ -87,8 +87,16 @@ class BaseChunkIndexer(BaseIndexer):
 
     def query_and_score(self, q_chunks: List['gnes_pb2.Chunk'], top_k: int, *args, **kwargs) -> List[
         'gnes_pb2.Response.QueryResponse.ScoredResult']:
+        import time
+
+        self.logger.info("number of chunks is: %d" % len(q_chunks))
+
+        start_time = time.time()
         vecs = [blob2array(c.embedding) for c in q_chunks]
         queried_results = self.query(np.stack(vecs), top_k=top_k)
+        self.logger.info("faiss query costs: %s" % str(time.time() - start_time))
+
+        start_time = time.time()
         results = []
         for q_chunk, topk_chunks in zip(q_chunks, queried_results):
             for _doc_id, _offset, _weight, _relevance in topk_chunks:
@@ -108,6 +116,7 @@ class BaseChunkIndexer(BaseIndexer):
                 _score = self.score_fn(_score, q_chunk, r.chunk, queried_results)
                 r.score.CopyFrom(_score)
                 results.append(r)
+        self.logger.info("write into results costs: %s" % str(time.time() - start_time))
         return results
 
     @staticmethod
