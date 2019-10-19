@@ -47,12 +47,12 @@ class CLIClient(GrpcClient):
         return all_bytes
 
     def start(self):
-        try:
-            getattr(self, self.args.mode)()
-        except Exception as ex:
-            self.logger.error(ex)
-        finally:
-            self.close()
+        # try:
+        getattr(self, self.args.mode)()
+        # except Exception as ex:
+        #     self.logger.error(ex)
+        # finally:
+        self.close()
 
     def train(self) -> None:
         with ProgressBar(task_name=self.args.mode) as p_bar:
