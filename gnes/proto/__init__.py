@@ -173,7 +173,6 @@ def check_msg_version(msg: 'gnes_pb2.Message'):
 
 
 def extract_bytes_from_msg(msg: 'gnes_pb2.Message') -> Tuple:
-    print(msg)
     doc_bytes = []
     chunk_bytes = []
     doc_byte_type = b''

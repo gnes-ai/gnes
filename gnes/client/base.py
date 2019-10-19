@@ -105,6 +105,7 @@ class ZmqClient:
 
     def send_message(self, message: "gnes_pb2.Message", **kwargs):
         self.logger.debug('send message: %s' % message.envelope)
+        self.logger.error(message)
         _send_message(self.sender, message, **kwargs)
 
     def recv_message(self, **kwargs) -> gnes_pb2.Message:
