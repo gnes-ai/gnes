@@ -416,7 +416,7 @@ class Flow(TrainableBase):
         from ..cli.parser import set_client_cli_parser
         from ..client.cli import CLIClient
 
-        args, p_args, _ = self._get_parsed_args(self, 'CLIClient', set_client_cli_parser, kwargs)
+        _, p_args, _ = self._get_parsed_args(self, 'CLIClient', set_client_cli_parser, kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
         c = CLIClient(p_args, start_at_init=False)
