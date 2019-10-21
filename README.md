@@ -466,20 +466,25 @@ We have setup [this repository](https://github.com/gnes-ai/benchmark) to track t
 
 <h2 align="center">Contributing</h2>
 
-Thanks for your interest in contributing! GNES always welcome the contribution from the open-source community, individual committers and other partners. Without you, GNES can't be successful.
+❤️ The beginning is always the hardest. But fear not, even if you find a typo, a missing docstring or unit test, you can simply correct them by making a commit to GNES. Here are the steps:
 
-Currently there are three major directions of contribution:
-- **Porting state-of-the-art models to GNES**. This includes new preprocessing algorithms, new DNN networks for encoding, and new high-performance index. Believe me, it is super easy to wrap an algorithm and use it in GNES. Checkout this example.
-- **Adding tutorial and learning experience**. What is good and what can be improved? If you apply GNES in your domain, whether it's about NLP or CV, whether it's a blog post or a Reddit/Twitter thread, we are always eager to hear your thoughts.
-- **Completing the user experience of other programming languages**. GNES offers a generic interface with gRPC and protobuf, therefore it is easy to add an interface for other languages, e.g. Java, C, Go. 
+1. Create a new branch, say `fix-gnes-typo-1`
+2. Fix/improve the codebase
+3. Commit the changes. Note the **commit message must follow [the naming style]((#commit-message-naming))**, say `fix(readme): improve the readability and move sections`
+4. Make a pull request. Note the **commit message must follow [the naming style]((#commit-message-naming))**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
+5. Submit your pull request and wait for all checks passed (usually 10 minutes)
+    - Coding style
+    - Commit and PR styles check
+    - All unit tests
+6. Request reviews from one of the developers from our core team.
+7. Get a LGTM 👍 and PR gets merged.
 
-Make sure to read the contributor guidelines before your first commit. 
+Well done! Once a PR gets merged, here are the things happened next:
+- all Docker images tagged with `-latest` will be automatically updated in an hour. You may check the [its building status at here](https://github.com/gnes-ai/gnes/#install-gnes-via-pip)
+- on every Friday when a new release is published, PyPi packages and all Docker images tagged with `-stable` will be updated accordindly. 
+- your contribution and commits will be included in [our weekly release note](https://github.com/gnes-ai/gnes/blob/master/CHANGELOG.md). 🍻
 
-- [Contributor guidelines](./CONTRIBUTING.md)
-- [Open issues](/issues)
-- [Release notes](./CHANGELOG.md)
-
-For contributors looking to get deeper into the API we suggest cloning the repository and checking out the unit tests for examples of how to call methods.
+More details can be found in the [contributor guidelines](./CONTRIBUTING.md).
 
 <h2 align="center">Citing GNES</h2>
 
