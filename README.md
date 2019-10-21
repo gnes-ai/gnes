@@ -145,12 +145,11 @@ Besides the `alpine` image optimized for the space, we also provide Buster (Debi
   </tr>
 </table>
 
-We also provide a public mirror hosted on Tencent Cloud and [Github packages](https://github.com/gnes-ai/gnes/packages/). Select the mirror that serves you well.
+> ⚠️ Since 2019/10/21, we have stopped hosting the public mirror Tencent Cloud. The old Docker images still exist, but there won't be new images available on Tencent Cloud anymore.
+
+We also provide a public mirror [Github packages](https://github.com/gnes-ai/gnes/packages/). Select the mirror that serves you well.
 
 ```bash
-docker login --username=xxx ccr.ccs.tencentyun.com  # login to Tencent Cloud so that we can pull from it
-docker run ccr.ccs.tencentyun.com/gnes/gnes:latest-alpine
-# OR via Github package
 docker login --username=xxx docker.pkg.github.com/gnes-ai/gnes  # login to github package so that we can pull from it
 docker run docker.pkg.github.com/gnes-ai/gnes/gnes:latest-alpine
 ```
@@ -166,10 +165,6 @@ The table below shows the status of the build pipeline.
 <tr>
 <td><sub>Github Package</sub><br><code>docker.pkg.github.com/gnes-ai/gnes/gnes:[tag]</code></td>
 <td><a href="https://drone.gnes.ai/gnes-ai/gnes"><img src="https://drone.gnes.ai/api/badges/gnes-ai/gnes/status.svg" /></a></td>
-</tr>
-<tr>
-<td><sub>Tencent Cloud</sub><br><code>ccr.ccs.tencentyun.com/gnes/gnes:[tag]</code></td>
-<td><a href="http://193.112.63.208/gnes-ai/gnes"><img src="http://193.112.63.208/api/badges/gnes-ai/gnes/status.svg" /></a></td>
 </tr>
 </table>
 
@@ -226,9 +221,9 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
 
 - [🐣 Preliminaries](#-preliminaries)
   * [Microservice](#microservice)
-  * [Runtime](#runtime)
+  * [Workflow](#workflow)
 - [Building a flower search engine in 3 minutes](#building-a-flower-search-engine-in-3-minutes)
-  * [Define the indexing workflow:](#define-the-indexing-workflow-)
+  * [Define the indexing workflow](#define-the-indexing-workflow)
   * [Indexing flower image data](#indexing-flower-image-data)
   * [Querying similar flowers](#querying-similar-flowers)
 - [Elastic made easy](#elastic-made-easy)
@@ -239,7 +234,7 @@ Either way, if you end up reading the following message after `$ gnes` or `$ doc
 
 ### 🐣 Preliminaries
 
-Before we start, let me first introduce two important concepts serving as the backbone of GNES: **microservice** and **workflow**. 
+Before we start, let me first introduce two important concepts in GNES: **microservice** and **workflow**. 
 
 #### Microservice
 
@@ -268,7 +263,7 @@ These three tasks correspond to three different **workflows** in GNES.
 
 In this example, we will use the new `gnes.flow` API (`gnes >= 0.0.46` is required) to build a toy image search system for indexing and retrieving [flowers](http://www.robots.ox.ac.uk/~vgg/data/flowers/17/) based on their similarities.
 
-#### Define the indexing workflow:
+#### Define the indexing workflow
 
 Let's first define the indexing workflow by:
 
@@ -471,7 +466,7 @@ We have setup [this repository](https://github.com/gnes-ai/benchmark) to track t
 1. Create a new branch, say `fix-gnes-typo-1`
 2. Fix/improve the codebase
 3. Commit the changes. Note the **commit message must follow [the naming style]((#commit-message-naming))**, say `fix(readme): improve the readability and move sections`
-4. Make a pull request. Note the **commit message must follow [the naming style]((#commit-message-naming))**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
+4. Make a pull request. Note the **pull request must follow [the naming style]((#commit-message-naming))**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
 5. Submit your pull request and wait for all checks passed (usually 10 minutes)
     - Coding style
     - Commit and PR styles check
