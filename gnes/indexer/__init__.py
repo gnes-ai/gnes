@@ -20,6 +20,7 @@ from ..base import register_all_class
 _cls2file_map = {
     'FaissIndexer': 'chunk.faiss',
     'LVDBIndexer': 'doc.leveldb',
+    'RocksDBIndexer': 'doc.rocksdb',
     'AsyncLVDBIndexer': 'doc.leveldb',
     'NumpyIndexer': 'chunk.numpy',
     'BIndexer': 'chunk.bindexer',
