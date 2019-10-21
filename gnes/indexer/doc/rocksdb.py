@@ -14,6 +14,7 @@
 #  limitations under the License.
 
 
+import gc
 import pickle
 from typing import List, Any
 
@@ -30,7 +31,6 @@ class RocksDBIndexer(BDI):
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data_path = data_path
-        self.keep_na_doc = keep_na_doc
         self.drop_raw_data = drop_raw_data
         self.drop_chunk_blob = drop_chunk_blob
         self.read_only = read_only
@@ -59,6 +59,8 @@ class RocksDBIndexer(BDI):
 
     @BDI.update_counter
     def add(self, keys: List[int], docs: List['gnes_pb2.Document'], *args, **kwargs):
+        import rocksdb
+
         write_batch = rocksdb.WriteBatch()
         for k, d in zip(keys, docs):
             key_bytes = pickle.dumps(k)
@@ -81,7 +83,7 @@ class RocksDBIndexer(BDI):
         values = self._db.multi_get(query_keys)
         
         docs = []
-        for k in keys:
+        for k in query_keys:
             v = values[k]
             if v is not None:
                 _doc = gnes_pb2.Document()
@@ -99,6 +101,9 @@ class RocksDBIndexer(BDI):
             iterator.seek_to_last()
         else:
             iterator.seek_to_first()
+
+        if reversed_scan:
+            iterator = reversed(iterator)
     
         for key_bytes in iterator:
             doc_id = pickle.loads(key_bytes)
@@ -109,7 +114,10 @@ class RocksDBIndexer(BDI):
             yield doc_id, pb_doc
 
 
-
     def close(self):
         super().close()
-        self._db.close()
+        try:
+            del self._db
+        except AttributeError:
+            pass
+        gc.collect()
