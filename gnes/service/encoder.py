@@ -55,7 +55,7 @@ class EncoderService(BS):
         if do_encoding and contents:
             try:
                 embeds = self._model.encode(contents)
-                if len(chunks) != embeds.shape[0]:
+                if len(chunks) != len(embeds):
                     self.logger.error(
                         'mismatched %d chunks and a %s shape embedding, '
                         'the first dimension must be the same' % (len(chunks), embeds.shape))
