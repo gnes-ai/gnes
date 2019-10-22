@@ -23,11 +23,13 @@ from ...helper import get_perm, batching, get_optimal_sample_size, train_require
 class PCAEncoder(BaseNumericEncoder):
     batch_size = 2048
 
-    def __init__(self, output_dim: int, *args, **kwargs):
+    def __init__(self, output_dim: int, whiten: bool=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.output_dim = output_dim
+        self.whiten = whiten
         self.pca_components = None
         self.mean = None
+        
 
     def post_init(self):
         from sklearn.decomposition import IncrementalPCA
@@ -49,11 +51,16 @@ class PCAEncoder(BaseNumericEncoder):
 
         self.pca_components = np.transpose(self.pca.components_)
         self.mean = self.pca.mean_.astype('float32')
+        self.explained_variance = self.pca.explained_variance_.astype('float32')
+        
 
     @train_required
     @batching
     def encode(self, vecs: np.ndarray, *args, **kwargs) -> np.ndarray:
-        return np.matmul(vecs - self.mean, self.pca_components)
+        X_transformed = np.matmul(vecs - self.mean, self.pca_components)
+        if self.whiten:
+            X_transformed /= np.sqrt(self.explained_variance)
+        return X_transformed
 
 
 class PCALocalEncoder(BaseNumericEncoder):
