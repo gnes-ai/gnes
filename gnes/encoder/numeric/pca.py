@@ -29,7 +29,7 @@ class PCAEncoder(BaseNumericEncoder):
         self.whiten = whiten
         self.pca_components = None
         self.mean = None
-        
+
 
     def post_init(self):
         from sklearn.decomposition import IncrementalPCA
