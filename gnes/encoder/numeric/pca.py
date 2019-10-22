@@ -35,6 +35,7 @@ class PCAEncoder(BaseNumericEncoder):
         from sklearn.decomposition import IncrementalPCA
         self.pca = IncrementalPCA(n_components=self.output_dim)
 
+
     @batching
     def train(self, vecs: np.ndarray, *args, **kwargs) -> None:
         num_samples, num_dim = vecs.shape
@@ -52,7 +53,7 @@ class PCAEncoder(BaseNumericEncoder):
         self.pca_components = np.transpose(self.pca.components_)
         self.mean = self.pca.mean_.astype('float32')
         self.explained_variance = self.pca.explained_variance_.astype('float32')
-        
+
 
     @train_required
     @batching
