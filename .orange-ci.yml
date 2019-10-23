@@ -6,7 +6,7 @@ gnes-commit-lint-pipe: &bp0
       script:
         - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli --registry=http://r.tnpm.oa.com
         - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
-        - echo $DRONE_COMMIT_MESSAGE | commitlint
+        - echo $ORANGE_LATEST_COMMIT_MESSAGE | commitlint
 
 install-deps: &install_deps
   - name: install dependencies
