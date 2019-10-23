@@ -1,4 +1,4 @@
-# basic stages
+# BASIC STAGES
 
 stage-install-dep: &stage_install_deps
   - name: setup ci environment
@@ -67,7 +67,7 @@ pipe-lint: &bp0
   wework:
     title: "🍊⌛🖊️ Check commit lint"
   stages:
-    - <<: *commit_lint
+    - <<: *stage_commit_lint
 
 pipe-unit-test: &bp1
   network: idc-ai-sse4
