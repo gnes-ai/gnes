@@ -8,8 +8,8 @@ The beginning is always the hardest. But fear not, even if you find a typo, a mi
 
 1. Create a new branch, say `fix-gnes-typo-1`
 2. Fix/improve the codebase
-3. Commit the changes. Note the **commit message must follow [the naming style]((#commit-message-naming))**, say `fix(readme): improve the readability and move sections`
-4. Make a pull request. Note the **commit message must follow [the naming style]((#commit-message-naming))**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
+3. Commit the changes. Note the **commit message must follow [the naming style](#commit-message-naming)**, say `fix(readme): improve the readability and move sections`
+4. Make a pull request. Note the **commit message must follow [the naming style](#commit-message-naming)**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
 5. Submit your pull request and wait for all checks passed (usually 10 minutes)
     - Coding style
     - Commit and PR styles check
