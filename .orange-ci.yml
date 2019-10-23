@@ -1,67 +1,75 @@
-gnes-commit-lint-pipe: &bp0
+# basic stages
+
+stage-install-dep: &stage_install_deps
+  - name: setup ci environment
+    script:
+      - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
+      - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
+      - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
+      - cat /proc/cpuinfo | grep flags
+      - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+      - nvcc --version
+  - name: install project deps
+    env:
+      INDEX_URL: http://mirrors.tencent.com/pypi/simple/
+      TRUST_DOM: mirrors.tencent.com
+    script:
+      - "pip install cffi==1.12.3 coverage codecov ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+      - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+      - pip uninstall -y torchvision
+      - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+      - "python -c 'import torchvision; print(torchvision.__version__)'"
+      - "python -c 'import torch; print(torch.__version__)'"
+
+stage-pylint: &stage_pylint
+  - name: check code style
+    script: pylint gnes/**/*.py --exit-zero
+
+stage-unit-test: &stage_unit_test
+  - name: run unit test
+    script: python -m unittest tests/*.py -v
+
+stage-notify-done: &stage_notify
+  - name: make comment
+    script: echo "🍊 looks good to me 👍" > comment.txt
+  - name: submit comment
+    type: git:comment
+    options:
+      fromFile: comment.txt
+  - name: make notification
+    script: echo "$SUCCESS_MSG" > notify.md
+  - name: message
+    type: wework:message
+    options:
+      robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+      fromFile: notify.md
+
+stage-commit-lint: &stage_commit_lint
+  - name: do commit lint
+    script:
+      - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli --registry=http://r.tnpm.oa.com
+      - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
+      - echo $ORANGE_LATEST_COMMIT_MESSAGE | commitlint
+
+stage-coverity: &stage_coverity
+  - name: do coverity
+    script:
+      - coverage run -m unittest discover -s tests/
+      - coverage report --skip-covered
+      - codecov --token $CODECOV_TOKEN
+
+# lint
+
+pipe-lint: &bp0
   docker:
     image: node:alpine
   network: idc-hk
   wework:
     title: "🍊⌛🖊️ Check commit lint"
   stages:
-    - name: do commit lint
-      script:
-        - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli --registry=http://r.tnpm.oa.com
-        - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
-        - echo $ORANGE_LATEST_COMMIT_MESSAGE | commitlint
+    - <<: *commit_lint
 
-install-deps: &install_deps
-  - name: install dependencies
-    jobs:
-      - name: setup ci environment
-        script:
-          - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
-          - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
-          - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
-          - cat /proc/cpuinfo | grep flags
-          - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
-          - nvcc --version
-      - name: install project deps
-        env:
-          INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
-          TRUST_DOM: mirrors.oa.com
-        script:
-          - "pip install cffi==1.12.3 ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-          - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-          - pip uninstall -y torchvision
-          - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-          - "python -c 'import torchvision; print(torchvision.__version__)'"
-          - "python -c 'import torch; print(torch.__version__)'"
-          - python -m unittest tests/*.py -v
-
-pylint: &pylint
-  - name: check code style
-    script: pylint gnes/**/*.py --exit-zero
-
-unit-test: &unit_test
-  - name: run unit test
-    script: python -m unittest tests/*.py
-
-notify-stage: &notify_stage
-  - name: git comment
-    jobs:
-      - name: make comment
-        script: echo "🍊 looks good to me 👍" > comment.txt
-      - name: submit comment
-        type: git:comment
-        options:
-          fromFile: comment.txt
-      - name: make notification
-        script: echo "$SUCCESS_MSG" > notify.md
-      - name: message
-        type: wework:message
-        options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
-          fromFile: notify.md
-
-
-gnes-unit-test-pipe: &bp1
+pipe-unit-test: &bp1
   network: idc-ai-sse4
   wework:
     title: "🍊⌛🏗 Install GNES and do unit test"
@@ -74,10 +82,27 @@ gnes-unit-test-pipe: &bp1
     SUCCESS_MSG: "# 🍊✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
   cacheFrom: .orange-ci.cache
   stages:
-    - <<: *install_deps
-    - <<: *pylint
+    - <<: *stage_install_deps
+    - <<: *stage_pylint
+    - <<: *stage_coverity
+    - <<: *stage_notify
+
+pipe-coverity: &cp1
+  network: idc-ai-sse4
+  wework:
+    title: "🍊⌛🏗 Do coverity check on the new master"
+  docker:
+    image: gnes/ci-base
+  env:
+    GNES_ENV_SET: orange-ci
+    PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
+    XDG_CACHE_HOME: ${pwd}/.cache/pip
+    SUCCESS_MSG: "# 🍊✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
+  cacheFrom: .orange-ci.cache
+  stages:
+    - <<: *stage_install_deps
     - <<: *unit_test
-    - <<: *notify_stage
+    - <<: *stage_notify
 
 notify-pipeline1: &np1
   network: devnet
