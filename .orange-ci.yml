@@ -1,36 +1,36 @@
-ok-stage: &ok_stage
-  - name: git comment
-    jobs:
-      - name: make comment
-        script: echo "looks good to me 👍" > comment.txt
-      - name: submit comment
-        type: git:comment
-        options:
-          fromFile: comment.txt
-      - name: make notification
-        script: echo "# ✅ 由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
-      - name: message
-        type: wework:message
-        options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
-          fromFile: notify.md
+gnes-commit-lint-pipe: &bp0
+  docker:
+    image: node:alpine
+  stages:
+    - name: do commit lint
+      script:
+        - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli --registry=http://r.tnpm.oa.com
+        - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
+        - echo $DRONE_COMMIT_MESSAGE | commitlint
 
 install-deps: &install_deps
   - name: install dependencies
     jobs:
-      - name: setup cache to local
-        script: mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
-      - name: show cache folders
-        script: printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
-      - name: show cpu flag
-        script: cat /proc/cpuinfo | grep flags
+      - name: setup ci environment
+        script:
+          - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
+          - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
+          - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
+          - cat /proc/cpuinfo | grep flags
+          - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+          - nvcc --version
       - name: install project deps
         env:
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
-        script: "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-      - name: check tensorflow works correctly
-        script: "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+        script:
+          - pip install cffi==1.12.3
+          - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+          - pip uninstall -y torchvision
+          - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+          - "python -c 'import torchvision; print(torchvision.__version__)'"
+          - "python -c 'import torch; print(torch.__version__)'"
+          - python -m unittest tests/*.py -v
 
 pylint: &pylint
   - name: check code style
@@ -40,20 +40,39 @@ unit-test: &unit_test
   - name: run unit test
     script: python -m unittest tests/*.py
 
-basic-pipeline: &bp1
+notify-stage: &notify_stage
+  - name: git comment
+    jobs:
+      - name: make comment
+        script: echo "🍊 looks good to me 👍" > comment.txt
+      - name: submit comment
+        type: git:comment
+        options:
+          fromFile: comment.txt
+      - name: make notification
+        script: echo "$SUCCESS_MSG" > notify.md
+      - name: message
+        type: wework:message
+        options:
+          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          fromFile: notify.md
+
+
+gnes-unit-test-pipe: &bp1
   network: idc-ai-sse4
   docker:
-    image: docker.oa.com:8080/public/ailab-faiss-bert-elmo-openai-w2v:latest
+    image: gnes/ci-base
   env:
     GNES_ENV_SET: orange-ci
-    PIP_DOWNLOAD_CACHE: ${pwd}.cache/pip_download_cache
-    XDG_CACHE_HOME: ${pwd}.cache/pip
+    PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
+    XDG_CACHE_HOME: ${pwd}/.cache/pip
+    SUCCESS_MSG: "# ✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
     - <<: *pylint
     - <<: *unit_test
-    - <<: *ok_stage
+    - <<: *notify_stage
 
 notify-pipeline1: &np1
   network: devnet
@@ -68,6 +87,9 @@ notify-pipeline1: &np1
           - hanhxiao
           - larryjfyan
           - madwang
+          - leonjiang
+          - raccoonliu
+          - kegokang
         type: markdown
         fromFile: notify.md
     - name: message
@@ -154,6 +176,7 @@ docker-pipeline2: &dp2
 
 master:
   merge_request:
+    - <<: *bp0
     - <<: *bp1
   push:
     - <<: *np1
