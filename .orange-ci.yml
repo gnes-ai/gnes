@@ -12,11 +12,11 @@ stage-install-dep: &stage_install_deps
         - nvcc --version
     - name: install project deps
       env:
-        INDEX_URL: http://mirrors.tencent.com/pypi/simple/
+        INDEX_URL: https://mirrors.tencent.com/pypi/simple/
         TRUST_DOM: mirrors.tencent.com
       script:
-        - "pip install cffi==1.12.3 coverage codecov ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-        - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        - "pip install cffi==1.12.3 coverage codecov ${INDEX_URL} -i ${INDEX_URL}"
+        - "pip install -e .[all] -i ${INDEX_URL}"
         - pip uninstall -y torchvision
         - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
         - "python -c 'import torchvision; print(torchvision.__version__)'"
