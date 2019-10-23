@@ -306,11 +306,11 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        with f.build(backend='thread') as flow:
-            flow.train(txt_file='aa.txt')
-            flow.train(image_zip_file='aa.zip', batch_size=64)
-            flow.train(video_zip_file='aa.zip')
-            ...
+            with f.build(backend='thread') as flow:
+                flow.train(txt_file='aa.txt')
+                flow.train(image_zip_file='aa.zip', batch_size=64)
+                flow.train(video_zip_file='aa.zip')
+                ...
 
 
         This will call the pre-built reader to read files into an iterator of bytes and feed to the flow.
@@ -322,12 +322,12 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        def my_reader():
-            for _ in range(10):
-                yield b'abcdfeg'   # each yield generates a document for training
+            def my_reader():
+                for _ in range(10):
+                    yield b'abcdfeg'   # each yield generates a document for training
 
-        with f.build(backend='thread') as flow:
-            flow.train(bytes_gen=my_reader())
+            with f.build(backend='thread') as flow:
+                flow.train(bytes_gen=my_reader())
 
         :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
         :param kwargs: accepts all keyword arguments of `gnes client` CLI
@@ -342,11 +342,11 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        with f.build(backend='thread') as flow:
-            flow.index(txt_file='aa.txt')
-            flow.index(image_zip_file='aa.zip', batch_size=64)
-            flow.index(video_zip_file='aa.zip')
-            ...
+            with f.build(backend='thread') as flow:
+                flow.index(txt_file='aa.txt')
+                flow.index(image_zip_file='aa.zip', batch_size=64)
+                flow.index(video_zip_file='aa.zip')
+                ...
 
 
         This will call the pre-built reader to read files into an iterator of bytes and feed to the flow.
@@ -358,12 +358,12 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        def my_reader():
-            for _ in range(10):
-                yield b'abcdfeg'  # each yield generates a document to index
+            def my_reader():
+                for _ in range(10):
+                    yield b'abcdfeg'  # each yield generates a document to index
 
-        with f.build(backend='thread') as flow:
-            flow.index(bytes_gen=my_reader())
+            with f.build(backend='thread') as flow:
+                flow.index(bytes_gen=my_reader())
 
         It will start a :py:class:`CLIClient` and call :py:func:`index`.
 
@@ -383,11 +383,11 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        with f.build(backend='thread') as flow:
-            flow.query(txt_file='aa.txt')
-            flow.query(image_zip_file='aa.zip', batch_size=64)
-            flow.query(video_zip_file='aa.zip')
-            ...
+            with f.build(backend='thread') as flow:
+                flow.query(txt_file='aa.txt')
+                flow.query(image_zip_file='aa.zip', batch_size=64)
+                flow.query(video_zip_file='aa.zip')
+                ...
 
 
         This will call the pre-built reader to read files into an iterator of bytes and feed to the flow.
@@ -399,12 +399,12 @@ class Flow(TrainableBase):
         .. highlight:: python
         .. code-block:: python
 
-        def my_reader():
-            for _ in range(10):
-                yield b'abcdfeg'   # each yield generates a query for searching
+            def my_reader():
+                for _ in range(10):
+                    yield b'abcdfeg'   # each yield generates a query for searching
 
-        with f.build(backend='thread') as flow:
-            flow.query(bytes_gen=my_reader())
+            with f.build(backend='thread') as flow:
+                flow.query(bytes_gen=my_reader())
 
         :param bytes_gen: An iterator of bytes. If not given, then you have to specify it in `kwargs`.
         :param kwargs: accepts all keyword arguments of `gnes client` CLI
