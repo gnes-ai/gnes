@@ -416,7 +416,7 @@ class Flow(TrainableBase):
         from ..cli.parser import set_client_cli_parser
         from ..client.cli import CLIClient
 
-        args, p_args, unk_args = self._get_parsed_args(self, set_client_cli_parser, kwargs)
+        _, p_args, _ = self._get_parsed_args(self, CLIClient.__name__, set_client_cli_parser, kwargs)
         p_args.grpc_port = self._service_nodes[self._frontend]['parsed_args'].grpc_port
         p_args.grpc_host = self._service_nodes[self._frontend]['parsed_args'].grpc_host
         c = CLIClient(p_args, start_at_init=False)
@@ -534,7 +534,7 @@ class Flow(TrainableBase):
             if not clear_old_attr:
                 node['kwargs'].update(kwargs)
                 kwargs = node['kwargs']
-            args, p_args, unk_args = op_flow._get_parsed_args(op_flow, service_map[service]['parser'], kwargs)
+            args, p_args, unk_args = op_flow._get_parsed_args(op_flow, name, service_map[service]['parser'], kwargs)
             node.update({
                 'args': args,
                 'parsed_args': p_args,
@@ -635,7 +635,7 @@ class Flow(TrainableBase):
         recv_from = op_flow._parse_service_endpoints(op_flow, name, recv_from, connect_to_last_service=True)
         send_to = op_flow._parse_service_endpoints(op_flow, name, send_to, connect_to_last_service=False)
 
-        args, p_args, unk_args = op_flow._get_parsed_args(op_flow, service_map[service]['parser'], kwargs)
+        args, p_args, unk_args = op_flow._get_parsed_args(op_flow, name, service_map[service]['parser'], kwargs)
 
         op_flow._service_nodes[name] = {
             'service': service,
@@ -686,7 +686,7 @@ class Flow(TrainableBase):
         return set(service_endpoint)
 
     @staticmethod
-    def _get_parsed_args(op_flow, service_arg_parser, kwargs):
+    def _get_parsed_args(op_flow, name, service_arg_parser, kwargs):
         kwargs.update(op_flow._common_kwargs)
         args = []
         for k, v in kwargs.items():
@@ -709,7 +709,7 @@ class Flow(TrainableBase):
                 op_flow.logger.warning('not sure what these arguments are: %s' % unknown_args)
         except SystemExit:
             raise ValueError('bad arguments for service "%s", '
-                             'you may want to double check your args "%s"' % (service_arg_parser, args))
+                             'you may want to double check your args "%s"' % (name, args))
         return args, p_args, unknown_args
 
     def _build_graph(self, copy_flow: bool) -> 'Flow':
