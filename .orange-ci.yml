@@ -83,8 +83,7 @@ pipe-unit-test: &bp1
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *stage_install_deps
-    - <<: *stage_pylint
-    - <<: *stage_coverity
+    - <<: *stage_unit_test
     - <<: *stage_notify
 
 pipe-coverity: &cp1
@@ -97,11 +96,12 @@ pipe-coverity: &cp1
     GNES_ENV_SET: orange-ci
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
     XDG_CACHE_HOME: ${pwd}/.cache/pip
-    SUCCESS_MSG: "# 🍊✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
+    SUCCESS_MSG: "# 🍊✅😃 Report is successfully updated!"
+  envFrom: https://git.code.oa.com/gnes/gnes-secret/blob/master/env
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *stage_install_deps
-    - <<: *stage_unit_test
+    - <<: *stage_coverity
     - <<: *stage_notify
 
 notify-pipeline1: &np1
