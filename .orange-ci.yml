@@ -62,7 +62,7 @@ notify-stage: &notify_stage
 
 
 gnes-unit-test-pipe: &bp1
-  network: idc-hk
+  network: idc-ai-sse4
   wework:
     title: "🍊⌛🏗 Install GNES and do unit test"
   docker:
