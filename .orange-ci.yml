@@ -1,25 +1,26 @@
 # BASIC STAGES
 
 stage-install-dep: &stage_install_deps
-  - name: setup ci environment
-    script:
-      - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
-      - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
-      - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
-      - cat /proc/cpuinfo | grep flags
-      - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
-      - nvcc --version
-  - name: install project deps
-    env:
-      INDEX_URL: http://mirrors.tencent.com/pypi/simple/
-      TRUST_DOM: mirrors.tencent.com
-    script:
-      - "pip install cffi==1.12.3 coverage codecov ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-      - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-      - pip uninstall -y torchvision
-      - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-      - "python -c 'import torchvision; print(torchvision.__version__)'"
-      - "python -c 'import torch; print(torch.__version__)'"
+  jobs:
+    - name: setup ci environment
+      script:
+        - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
+        - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
+        - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
+        - cat /proc/cpuinfo | grep flags
+        - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+        - nvcc --version
+    - name: install project deps
+      env:
+        INDEX_URL: http://mirrors.tencent.com/pypi/simple/
+        TRUST_DOM: mirrors.tencent.com
+      script:
+        - "pip install cffi==1.12.3 coverage codecov ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+        - pip uninstall -y torchvision
+        - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+        - "python -c 'import torchvision; print(torchvision.__version__)'"
+        - "python -c 'import torch; print(torch.__version__)'"
 
 stage-pylint: &stage_pylint
   - name: check code style
@@ -30,19 +31,22 @@ stage-unit-test: &stage_unit_test
     script: python -m unittest tests/*.py -v
 
 stage-notify-done: &stage_notify
-  - name: make comment
-    script: echo "🍊 looks good to me 👍" > comment.txt
-  - name: submit comment
-    type: git:comment
-    options:
-      fromFile: comment.txt
-  - name: make notification
-    script: echo "$SUCCESS_MSG" > notify.md
-  - name: message
-    type: wework:message
-    options:
-      robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
-      fromFile: notify.md
+  jobs:
+    job1:
+      - name: make comment
+        script: echo "🍊 looks good to me 👍" > comment.txt
+      - name: submit comment
+        type: git:comment
+        options:
+          fromFile: comment.txt
+    job2:
+      - name: make notification
+        script: echo "$SUCCESS_MSG" > notify.md
+      - name: message
+        type: wework:message
+        options:
+          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          fromFile: notify.md
 
 stage-commit-lint: &stage_commit_lint
   - name: do commit lint
