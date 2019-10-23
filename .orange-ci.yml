@@ -2,14 +2,15 @@ gnes-commit-lint-pipe: &bp0
   docker:
     image: node:alpine
   network: idc-hk
-    wework:
-      title: "🍊⌛🖊️ Check commit lint"
+  wework:
+    title: "🍊⌛🖊️ Check commit lint"
   stages:
     - name: do commit lint
       script:
         - npm install --global --save-dev @commitlint/config-conventional @commitlint/cli --registry=http://r.tnpm.oa.com
         - "echo \"module.exports = {extends: ['@commitlint/config-conventional']}\" > commitlint.config.js"
         - echo $ORANGE_LATEST_COMMIT_MESSAGE | commitlint
+    - <<: *notify_stage
 
 install-deps: &install_deps
   - name: install dependencies
