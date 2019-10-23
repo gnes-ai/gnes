@@ -101,7 +101,7 @@ pipe-coverity: &cp1
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *stage_install_deps
-    - <<: *unit_test
+    - <<: *stage_unit_test
     - <<: *stage_notify
 
 notify-pipeline1: &np1
