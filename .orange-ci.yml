@@ -1,6 +1,9 @@
 gnes-commit-lint-pipe: &bp0
   docker:
     image: node:alpine
+  network: idc-hk
+    wework:
+      title: "🍊⌛🖊️ Check commit lint"
   stages:
     - name: do commit lint
       script:
@@ -24,7 +27,7 @@ install-deps: &install_deps
           INDEX_URL: http://mirrors.oa.com/pypi/web/simple/
           TRUST_DOM: mirrors.oa.com
         script:
-          - pip install cffi==1.12.3
+          - "pip install cffi==1.12.3 ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
           - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
           - pip uninstall -y torchvision
           - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
@@ -59,14 +62,16 @@ notify-stage: &notify_stage
 
 
 gnes-unit-test-pipe: &bp1
-  network: idc-ai-sse4
+  network: idc-hk
+  wework:
+    title: "🍊⌛🏗 Install GNES and do unit test"
   docker:
     image: gnes/ci-base
   env:
     GNES_ENV_SET: orange-ci
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
     XDG_CACHE_HOME: ${pwd}/.cache/pip
-    SUCCESS_MSG: "# ✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
+    SUCCESS_MSG: "# 🍊✅😃 All tests passed, good job! \n由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH分支刚刚测试通过！\n[点击查看]($ORANGE_EVENT_URL)"
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *install_deps
