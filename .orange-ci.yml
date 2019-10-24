@@ -1,26 +1,27 @@
 # BASIC STAGES
 
 stage-install-dep: &stage_install_deps
-  jobs:
-    - name: setup ci environment
-      script:
-        - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
-        - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
-        - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
-        - cat /proc/cpuinfo | grep flags
-        - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
-        - nvcc --version
-    - name: install project deps
-      env:
-        INDEX_URL: https://mirrors.tencent.com/pypi/simple/
-        TRUST_DOM: mirrors.tencent.com
-      script:
-        - "pip install cffi==1.12.3 coverage codecov -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-        - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
-        - pip uninstall -y torchvision
-        - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
-        - "python -c 'import torchvision; print(torchvision.__version__)'"
-        - "python -c 'import torch; print(torch.__version__)'"
+  - name: install dependencies
+    jobs:
+      - name: setup ci environment
+        script:
+          - mkdir -p .cache && ln -snf $(pwd)/.cache $HOME/.cache
+          - export PIP_DOWNLOAD_CACHE=${pwd}/.cache/pip_download_cache && export XDG_CACHE_HOME=${pwd}/.cache/pip
+          - printf "XDG_CACHE_HOME=$XDG_CACHE_HOME\nPIP_DOWNLOAD_CACHE=$PIP_DOWNLOAD_CACHE\n"
+          - cat /proc/cpuinfo | grep flags
+          - "python -c 'import tensorflow as tf; print(tf.__version__); a=tf.constant(1, tf.int32); print(tf.Session().run(a))'"
+          - nvcc --version
+      - name: install project deps
+        env:
+          INDEX_URL: https://mirrors.tencent.com/pypi/simple/
+          TRUST_DOM: mirrors.tencent.com
+        script:
+          - "pip install cffi==1.12.3 coverage codecov -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+          - "pip install -e .[all] -i ${INDEX_URL} --extra-index-url ${INDEX_URL} --trusted-host ${TRUST_DOM}"
+          - pip uninstall -y torchvision
+          - pip install https://download.pytorch.org/whl/cu100/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+          - "python -c 'import torchvision; print(torchvision.__version__)'"
+          - "python -c 'import torch; print(torch.__version__)'"
 
 stage-pylint: &stage_pylint
   - name: check code style
@@ -31,21 +32,46 @@ stage-unit-test: &stage_unit_test
     script: python -m unittest tests/*.py -v
 
 stage-notify-done: &stage_notify
-  jobs:
-    job1:
-      - name: make comment
-        script: echo "🍊 looks good to me 👍" > comment.txt
-      - name: submit comment
-        type: git:comment
-        options:
-          fromFile: comment.txt
-    job2:
+  - name: notify the success
+    jobs:
+      job1:
+        - name: make comment
+          script: echo "🍊 looks good to me 👍" > comment.txt
+        - name: submit comment
+          type: git:comment
+          options:
+            fromFile: comment.txt
+      job2:
+        - name: make notification
+          script: echo "$SUCCESS_MSG" > notify.md
+        - name: message
+          type: wework:message
+          options:
+            robot: $BOT_ID
+            fromFile: notify.md
+
+stage-notify-all: &stage_notify_all
+  - name: notfiy the success to all
+    jobs:
       - name: make notification
-        script: echo "$SUCCESS_MSG" > notify.md
+        script: echo "# 🍊🚀 GNES的Master分支刚刚更新了！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看]($ORANGE_EVENT_URL)" > notify.md
+      - name: send mail
+        type: mail:send
+        options:
+          title: 🍊🚀 GNES的Master分支刚刚更新！
+          to:
+            - hanhxiao
+            - larryjfyan
+            - madwang
+            - leonjiang
+            - raccoonliu
+            - kegokang
+          type: markdown
+          fromFile: notify.md
       - name: message
         type: wework:message
         options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          robot: $BOT_ID
           fromFile: notify.md
 
 stage-commit-lint: &stage_commit_lint
@@ -64,7 +90,7 @@ stage-coverity: &stage_coverity
 
 # lint
 
-pipe-lint: &bp0
+pipe-lint: &pipe_lint
   docker:
     image: node:alpine
   network: idc-hk
@@ -73,7 +99,7 @@ pipe-lint: &bp0
   stages:
     - <<: *stage_commit_lint
 
-pipe-unit-test: &bp1
+pipe-unit-test: &pipe_unit_test
   network: idc-ai-sse4
   wework:
     title: "🍊⌛🏗 Install GNES and do unit test"
@@ -90,7 +116,7 @@ pipe-unit-test: &bp1
     - <<: *stage_unit_test
     - <<: *stage_notify
 
-pipe-coverity: &cp1
+pipe-coverity: &pipe_coverity
   network: idc-ai-sse4
   wework:
     title: "🍊⌛🏗 Do coverity check on the new master"
@@ -101,36 +127,14 @@ pipe-coverity: &cp1
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
     XDG_CACHE_HOME: ${pwd}/.cache/pip
     SUCCESS_MSG: "# 🍊✅😃 Report is successfully updated!"
-  envFrom: https://git.code.oa.com/gnes/gnes-secret/blob/master/env
+  envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
   cacheFrom: .orange-ci.cache
   stages:
     - <<: *stage_install_deps
     - <<: *stage_coverity
     - <<: *stage_notify
+    - <<: *stage_notify_all
 
-notify-pipeline1: &np1
-  network: devnet
-  stages:
-    - name: make notification
-      script: echo "# 🚀 NES的Master分支刚刚更新了！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看](https://git.code.oa.com/ai-innersource/nes/)" > notify.md
-    - name: send mail
-      type: mail:send
-      options:
-        title: 🚀 NES的Master分支刚刚更新！
-        to:
-          - hanhxiao
-          - larryjfyan
-          - madwang
-          - leonjiang
-          - raccoonliu
-          - kegokang
-        type: markdown
-        fromFile: notify.md
-    - name: message
-      type: wework:message
-      options:
-        robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
-        fromFile: notify.md
 
 docker-stage: &docker_stage
   - name: docker push
@@ -164,7 +168,7 @@ release-stage: &release_stage1
       - name: message
         type: wework:message
         options:
-          robot: f5ee526b-c6dc-4ef1-97c0-ac14594e57b0
+          robot: $BOT_ID
           fromFile: notify.md
 
 release-stage2: &release_stage2
@@ -181,14 +185,14 @@ release-stage2: &release_stage2
       - name: message
         type: wework:message
         options:
-          robot: 33f48450-4e17-4e99-b476-b1c97ea233c6
+          robot: $BOT_ID
           fromFile: notify.md
 
 docker-pipeline1: &dp1
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
   env:
     PROJ_NAME: aipd-gnes
     GIT_TAG: master
@@ -200,7 +204,7 @@ docker-pipeline2: &dp2
   network: devnet
   services:
     - docker
-  envFrom: https://git.code.oa.com/hanhxiao/nes-keys/blob/master/env
+  envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
   env:
     PROJ_NAME: aipd-gnes
     GIT_TAG: $ORANGE_BRANCH
@@ -210,11 +214,10 @@ docker-pipeline2: &dp2
 
 master:
   merge_request:
-    - <<: *bp0
-    - <<: *bp1
+    - <<: *pipe_lint
+    - <<: *pipe_unit_test
   push:
-    - <<: *np1
-    - <<: *dp1
+    - <<: *pipe_coverity
 
 "**":
   tag_push:
