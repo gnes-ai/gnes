@@ -78,7 +78,7 @@ pipe-unit-test: &bp1
   wework:
     title: "🍊⌛🏗 Install GNES and do unit test"
   docker:
-    image: gnes/ci-base
+    image: ccr.ccs.tencentyun.com/gnes/ci-base
   env:
     GNES_ENV_SET: orange-ci
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
@@ -95,7 +95,7 @@ pipe-coverity: &cp1
   wework:
     title: "🍊⌛🏗 Do coverity check on the new master"
   docker:
-    image: gnes/ci-base
+    image: ccr.ccs.tencentyun.com/gnes/ci-base
   env:
     GNES_ENV_SET: orange-ci
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
