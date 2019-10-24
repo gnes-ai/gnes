@@ -1,4 +1,5 @@
-# BASIC STAGES
+###################
+# STAGES
 
 stage-install-dep: &stage_install_deps
   - name: install dependencies
@@ -54,11 +55,11 @@ stage-notify-all: &stage_notify_all
   - name: notfiy the success to all
     jobs:
       - name: make notification
-        script: echo "# 🍊🚀 GNES的Master分支刚刚更新了！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看]($ORANGE_EVENT_URL)" > notify.md
+        script: echo "$SUCCESS_ALL_MSG" > notify.md
       - name: send mail
         type: mail:send
         options:
-          title: 🍊🚀 GNES的Master分支刚刚更新！
+          title: $SUCCESS_ALL_MSG
           to:
             - hanhxiao
             - larryjfyan
@@ -88,7 +89,14 @@ stage-coverity: &stage_coverity
       - coverage report --skip-covered
       - codecov --token $CODECOV_TOKEN
 
-# lint
+
+stage-docker: &stage_docker
+  - name: docker push
+    script:
+      - ./docker-build.sh
+
+###################
+# PIPELINES
 
 pipe-lint: &pipe_lint
   docker:
@@ -127,6 +135,7 @@ pipe-coverity: &pipe_coverity
     PIP_DOWNLOAD_CACHE: ${pwd}/.cache/pip_download_cache
     XDG_CACHE_HOME: ${pwd}/.cache/pip
     SUCCESS_MSG: "# 🍊✅😃 Report is successfully updated!"
+    SUCCESS_ALL_MSG: "# 🍊🚀 GNES的Master分支刚刚更新了！\n此次更新由$ORANGE_BUILD_USER提交的$ORANGE_MERGE_REQUEST_BRANCH合并后触发，[点击查看]($ORANGE_EVENT_URL)"
   envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
   cacheFrom: .orange-ci.cache
   stages:
@@ -135,82 +144,14 @@ pipe-coverity: &pipe_coverity
     - <<: *stage_notify
     - <<: *stage_notify_all
 
-
-docker-stage: &docker_stage
-  - name: docker push
-    jobs:
-      - name: docker login
-        script: docker login -u $DOCKER_USER -p $DOCKER_PWD docker.oa.com:8080
-      - name: push docker
-        script: export DOCKER_NAMESPACE="docker.oa.com:8080/public" && bash docker-push.sh $GIT_TAG
-      - name: make notification
-        script: export DOCKER_NAMESPACE="docker.oa.com:8080/public" && echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >>notify.md
-      - name: docker login
-        script: docker login -u $TCLOUD_USER -p $TCLOUD_PWD ccr.ccs.tencentyun.com
-      - name: push docker
-        script: export DOCKER_NAMESPACE="ccr.ccs.tencentyun.com/gnes" && bash docker-push.sh $GIT_TAG
-      - name: make notification
-        script: export DOCKER_NAMESPACE="ccr.ccs.tencentyun.com/gnes" && echo "# 🗳️ NES容器的$GIT_TAG版本刚刚更新至$DOCKER_NAMESPACE！\n运行此版本：\ndocker pull $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG && docker run -v /data1/cips/data:/ext_data -it $DOCKER_NAMESPACE/$PROJ_NAME:$GIT_TAG bash" >> notify.md
-
-release-stage: &release_stage1
-  - name: notify about release
-    jobs:
-      - name: send mail
-        type: mail:send
-        options:
-          title: 🗳️ NES容器的$GIT_TAG刚刚更新！
-          to:
-            - hanhxiao
-            - larryjfyan
-            - madwang
-          type: markdown
-          fromFile: notify.md
-      - name: message
-        type: wework:message
-        options:
-          robot: $BOT_ID
-          fromFile: notify.md
-
-release-stage2: &release_stage2
-  - name: notify about release
-    jobs:
-      - name: send mail
-        type: mail:send
-        options:
-          title: 🗳️ NES容器的$GIT_TAG刚刚更新！
-          to:
-            - g_AIPD_SC_RELEVANCE
-          type: markdown
-          fromFile: notify.md
-      - name: message
-        type: wework:message
-        options:
-          robot: $BOT_ID
-          fromFile: notify.md
-
-docker-pipeline1: &dp1
+pipe-docker: &pipe_docker
   network: devnet
   services:
     - docker
   envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
-  env:
-    PROJ_NAME: aipd-gnes
-    GIT_TAG: master
   stages:
-    - <<: *docker_stage
-    - <<: *release_stage1
-
-docker-pipeline2: &dp2
-  network: devnet
-  services:
-    - docker
-  envFrom: https://git.code.oa.com/gnes/secret-keys/blob/master/keys
-  env:
-    PROJ_NAME: aipd-gnes
-    GIT_TAG: $ORANGE_BRANCH
-  stages:
-    - <<: *docker_stage
-    - <<: *release_stage2
+    - <<: *stage_docker
+    - <<: *stage_notify_all
 
 master:
   merge_request:
@@ -218,7 +159,8 @@ master:
     - <<: *pipe_unit_test
   push:
     - <<: *pipe_coverity
+    - <<: *pipe_docker
 
 "**":
   tag_push:
-    - <<: *dp2
+    - <<: *pipe_docker
