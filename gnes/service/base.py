@@ -141,6 +141,7 @@ def build_socket(ctx: 'zmq.Context', host: str, port: int,
         SocketType.PAIR_BIND: lambda: ctx.socket(zmq.PAIR),
         SocketType.PAIR_CONNECT: lambda: ctx.socket(zmq.PAIR)
     }[socket_type]()
+    sock.setsockopt(zmq.LINGER, 0)
 
     if socket_type.is_bind:
         if use_ipc:
